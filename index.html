@@ -638,22 +638,6 @@
       color: #9ca3af;
     }
 
-      <!-- 해외 자료 자동 번역 섹션 -->
-      <section class="section">
-        <div class="section-header">
-          <div class="section-kicker">해외 자료 자동 번역(예시)</div>
-          <h2 class="section-title">중독 관련 해외 리포트·뉴스 번역 요약</h2>
-          <p class="section-desc">
-            아래 목록은 외부에서 수집한 중독·도박 관련 자료를 번역·요약하여
-            정리하기 위한 영역입니다. 지금은 예시 데이터만 사용하며,
-            나중에 자동 수집·번역 스크립트와 연동할 수 있습니다.
-          </p>
-        </div>
-        <div class="card" id="external-articles">
-          <p style="font-size:0.85rem;color:#9ca3af;">불러오는 중...</p>
-        </div>
-      </section>
-    
     /* 참여 섹션 */
     .contact-card {
       display: grid;
@@ -1040,6 +1024,22 @@
         </div>
       </section>
 
+      <!-- 해외 자료 자동 번역 섹션 -->
+      <section class="section">
+        <div class="section-header">
+          <div class="section-kicker">해외 자료 자동 번역(예시)</div>
+          <h2 class="section-title">중독 관련 해외 리포트·뉴스 번역 요약</h2>
+          <p class="section-desc">
+            아래 목록은 외부에서 수집한 중독·도박 관련 자료를 번역·요약하여
+            정리하기 위한 영역입니다. 지금은 예시 데이터만 사용하며,
+            나중에 자동 수집·번역 스크립트와 연동할 수 있습니다.
+          </p>
+        </div>
+        <div class="card" id="external-articles">
+          <p style="font-size:0.85rem;color:#9ca3af;">불러오는 중...</p>
+        </div>
+      </section>
+
       <!-- 비전 섹션 -->
       <section id="vision" class="section">
         <div class="section-header">
@@ -1167,7 +1167,6 @@
   </div>
 
   <script>
-  <script>
     // 현재 연도 표시
     document.getElementById("year").textContent = new Date().getFullYear();
 
@@ -1235,7 +1234,6 @@
       }
     }
 
-    // 페이지 로딩 후 기사 불러오기
     loadArticles();
   </script>
 </body>
