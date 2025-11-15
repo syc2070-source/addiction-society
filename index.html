@@ -638,6 +638,22 @@
       color: #9ca3af;
     }
 
+      <!-- 해외 자료 자동 번역 섹션 -->
+      <section class="section">
+        <div class="section-header">
+          <div class="section-kicker">해외 자료 자동 번역(예시)</div>
+          <h2 class="section-title">중독 관련 해외 리포트·뉴스 번역 요약</h2>
+          <p class="section-desc">
+            아래 목록은 외부에서 수집한 중독·도박 관련 자료를 번역·요약하여
+            정리하기 위한 영역입니다. 지금은 예시 데이터만 사용하며,
+            나중에 자동 수집·번역 스크립트와 연동할 수 있습니다.
+          </p>
+        </div>
+        <div class="card" id="external-articles">
+          <p style="font-size:0.85rem;color:#9ca3af;">불러오는 중...</p>
+        </div>
+      </section>
+    
     /* 참여 섹션 */
     .contact-card {
       display: grid;
@@ -1151,6 +1167,7 @@
   </div>
 
   <script>
+  <script>
     // 현재 연도 표시
     document.getElementById("year").textContent = new Date().getFullYear();
 
@@ -1175,6 +1192,51 @@
         "현재는 데모 버전입니다. 실제 서비스 오픈 시, 메일·데이터베이스와 연동할 수 있습니다."
       );
     }
+
+    // 해외 번역 자료 로딩
+    async function loadArticles() {
+      try {
+        const res = await fetch("data/articles.json");
+        if (!res.ok) {
+          console.warn("articles.json 이 아직 없거나 불러오지 못했습니다.");
+          return;
+        }
+
+        const articles = await res.json();
+        const container = document.getElementById("external-articles");
+        if (!container) return;
+
+        if (!articles.length) {
+          container.innerHTML =
+            '<p style="font-size:0.85rem;color:#9ca3af;">아직 등록된 자료가 없습니다.</p>';
+          return;
+        }
+
+        container.innerHTML = articles
+          .map(
+            (a) => `
+          <article style="margin-bottom:12px;">
+            <h4 style="font-size:0.95rem;margin-bottom:4px;">${a.title}</h4>
+            <p style="font-size:0.8rem;color:#9ca3af;margin-bottom:4px;">
+              출처: ${a.source} · ${a.date}
+            </p>
+            <p style="font-size:0.85rem;color:#e5e7eb;margin-bottom:4px;">
+              ${a.translated_summary}
+            </p>
+            <a href="${a.url}" target="_blank" style="font-size:0.8rem;color:#60a5fa;">
+              원문 보기 ↗
+            </a>
+          </article>
+        `
+          )
+          .join("");
+      } catch (e) {
+        console.error("기사 로딩 중 오류:", e);
+      }
+    }
+
+    // 페이지 로딩 후 기사 불러오기
+    loadArticles();
   </script>
 </body>
 </html>
