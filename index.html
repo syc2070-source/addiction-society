@@ -194,11 +194,13 @@
       letter-spacing: 0.12em;
     }
 
+    /* ✅ 메인 자구 크기 축소 + 덩어리감 줄이기 */
     .hero-title {
-      font-size: clamp(2.4rem, 3vw + 1rem, 3.1rem);
+      font-size: clamp(2.05rem, 2.4vw + 0.9rem, 2.65rem);
       font-weight: 700;
       letter-spacing: -0.03em;
       margin-bottom: 14px;
+      line-height: 1.18;
     }
 
     .hero-title span.highlight {
@@ -773,13 +775,89 @@
       }
 
       .hero-title {
-        font-size: 2.1rem;
+        font-size: 1.9rem;
       }
 
       .hero-card {
         margin-top: 4px;
       }
     }
+  
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:2px 8px;
+      border-radius:999px;
+      font-size:12px;
+      line-height:1.4;
+      border:1px solid rgba(148,163,184,0.25);
+      background: rgba(148,163,184,0.10);
+      color: var(--text-muted);
+      margin-left:8px;
+      vertical-align: middle;
+    }
+    .badge-example{
+      border-color: rgba(245,158,11,0.30);
+      background: rgba(245,158,11,0.10);
+      color: #fbbf24;
+    }
+
+    .articles-grid{
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap:16px;
+      margin-top:16px;
+    }
+    .article-card{
+      grid-column: span 6;
+      display:block;
+      padding:16px;
+      border-radius:16px;
+      border:1px solid rgba(148,163,184,0.18);
+      background: rgba(15,23,42,0.55);
+      transition: transform 160ms ease, border-color 160ms ease;
+      text-decoration:none;
+      color: inherit;
+    }
+    .article-card:hover{
+      transform: translateY(-2px);
+      border-color: rgba(59,130,246,0.35);
+    }
+    .article-meta{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap: wrap;
+      font-size:12px;
+      color: var(--text-muted);
+      margin-bottom:10px;
+    }
+    .article-title{
+      font-size:16px;
+      margin:0 0 10px 0;
+      line-height:1.35;
+      color: var(--text-main);
+      font-weight: 700;
+    }
+    .article-desc{
+      margin:0;
+      font-size:13px;
+      line-height:1.55;
+      color: var(--text-muted);
+    }
+    .article-empty{
+      margin-top:14px;
+      padding:14px;
+      border-radius:14px;
+      border:1px dashed rgba(148,163,184,0.25);
+      color: var(--text-muted);
+    }
+
+    @media (max-width: 860px){
+      .article-card{ grid-column: span 12; }
+    }
+
   </style>
 </head>
 <body>
@@ -795,7 +873,7 @@
         <div class="nav-links">
           <a href="#about">문제의식</a>
           <a href="#data">데이터 & 리포트</a>
-          <a href="#vision">치유 공동체</a>
+          <a href="#vision">치유 공동체 &amp; AI 플랫폼</a>
           <a href="#join">연구·협력 참여</a>
         </div>
         <a href="#join" class="btn-primary nav-cta">함께 참여하기</a>
@@ -817,7 +895,7 @@
           </h1>
           <p class="hero-subtitle">
             <strong>중독사회(Addiction Society)</strong>는 도박·게임·알코올·디지털 중독을
-            단순한 개인 문제로 보지 않습니다. 불평등, 금융·플랫폼 산업, 도시·노동 구조, AGI까지
+            단순한 개인 문제로 보지 않습니다. 불평등, 금융·플랫폼 산업, 도시·노동 구조, AI까지
             얽혀 있는 <strong>위험 시스템 전체를 데이터로 읽어내고, 치유 공동체의 새로운 표준</strong>을
             제안하는 연구·플랫폼 프로젝트입니다.
           </p>
@@ -827,7 +905,7 @@
               <span style="font-size:1.1rem;">↗</span>
             </a>
             <a href="#vision" class="btn-ghost">
-              치유 공동체 AI 플랫폼 비전
+              치유 공동체 &amp; AI 플랫폼 비전
             </a>
           </div>
           <div class="hero-meta">
@@ -842,7 +920,7 @@
               <div>
                 <div class="hero-card-title">Global Gambling Governance</div>
                 <div style="font-size:0.78rem;color:#9ca3af;">
-                  12개국 도박중독 정책 비교 · QAICLE 분석 엔진 연동
+                  12개국 도박중독 정책 비교 · 지표 프레임워크 파일럿
                 </div>
               </div>
               <div class="status-pill">
@@ -853,7 +931,7 @@
 
             <div class="hero-card-grid">
               <div class="metric-card">
-                <div class="metric-label">정책 강도 지수(0–100)</div>
+                <div class="metric-label">정책 강도 지수(0–100) <span class="badge badge-example">예시</span></div>
                 <div class="metric-value">73.4</div>
                 <div class="metric-sub">
                   광고 규제, 한도 정책, 자기배제 시스템, 치료 접근성 등을
@@ -886,7 +964,7 @@
               <span>
                 현재: <strong>한국·미국·영국·호주 등 12개국</strong> 정책·지표 데이터셋 정비 중
               </span>
-              <span class="hero-card-tag">QAICLE 통계·시각화 엔진 연동 예정</span>
+              <span class="hero-card-tag">향후 확장: 분석·시각화 엔진 연동</span>
             </div>
           </div>
         </aside>
@@ -960,9 +1038,8 @@
           <div class="section-kicker">데이터 &amp; 리포트</div>
           <h2 class="section-title">12개국 도박중독 거버넌스 데이터 허브(예시 구조)</h2>
           <p class="section-desc">
-            이 웹은 궁극적으로 QAICLE 통계 엔진과 연동하여,
-            <strong>국가별 도박 규제·중독 예방·치료 접근성</strong>을 비교 분석하는 데이터 허브가 됩니다.
-            아래는 실제 구현될 지표 구조의 예시입니다.
+            중독사회 웹은 <strong>국가별 도박 규제·중독 예방·치료 접근성</strong>을 비교 분석하는
+            데이터 허브가 됩니다. 아래는 실제 구현될 지표 구조의 예시입니다.
           </p>
         </div>
 
@@ -1017,26 +1094,22 @@
             </tbody>
           </table>
 
+          <div style="margin-top: 18px;">
+            <div class="section-kicker">자동 불러오기</div>
+            <h3 style="margin: 6px 0 8px; font-size: 18px;">최근 수집/정리 항목 (data/articles.json)</h3>
+            <p class="section-desc" style="margin-top: 0;">
+              GitHub 저장소의 <code>data/articles.json</code> 파일을 정적 페이지에서 <strong>fetch</strong>로 불러와 표시합니다.
+              (데이터 형식이 달라도 최대한 유연하게 처리하도록 설계했습니다.)
+            </p>
+            <div id="articlesGrid" class="articles-grid" aria-label="articles.json 목록"></div>
+            <div id="articlesStatus" class="article-empty" style="display:none;"></div>
+          </div>
+
+
           <p style="font-size:0.8rem;color:#9ca3af;margin-top:8px;">
             ※ 위 값은 예시이며, 실제 서비스에서는 연도별 추세, 군집 분석, 민감도 분석을 포함한
             <strong>대화형 대시보드</strong>로 제공될 예정입니다.
           </p>
-        </div>
-      </section>
-
-      <!-- 해외 자료 자동 번역 섹션 -->
-      <section class="section">
-        <div class="section-header">
-          <div class="section-kicker">해외 자료 자동 번역(예시)</div>
-          <h2 class="section-title">중독 관련 해외 리포트·뉴스 번역 요약</h2>
-          <p class="section-desc">
-            아래 목록은 외부에서 수집한 중독·도박 관련 자료를 번역·요약하여
-            정리하기 위한 영역입니다. 지금은 예시 데이터만 사용하며,
-            나중에 자동 수집·번역 스크립트와 연동할 수 있습니다.
-          </p>
-        </div>
-        <div class="card" id="external-articles">
-          <p style="font-size:0.85rem;color:#9ca3af;">불러오는 중...</p>
         </div>
       </section>
 
@@ -1060,7 +1133,7 @@
               <div class="timeline-title">데이터 · 리포트 · 정책 비교</div>
               <div class="timeline-desc">
                 국가별 도박·중독 정책, 치료 시스템, 재정 구조를 체계적으로 정리하고,
-                QAICLE 기반 통계·시각화를 제공합니다. 동료 연구자·실무자들이
+                비교 가능한 지표 체계를 구축합니다. 동료 연구자·실무자들이
                 <strong>같은 데이터와 지표</strong>를 보면서 논의할 수 있는 공통 언어를 만듭니다.
               </div>
             </div>
@@ -1103,7 +1176,7 @@
             <h3>가능한 협력 형태(예시)</h3>
             <p>
               아직은 출발 단계이지만, 다음과 같은 협력이 특히 필요합니다.
-              중독사회 웹과 QAICLE 엔진을 연결하면서, 데이터와 현장을 함께 엮어 보고자 합니다.
+              데이터와 현장을 함께 엮어, 중독의 구조적 위험을 정리하고 회복의 길을 설계하고자 합니다.
             </p>
             <div class="contact-tags">
               <span class="contact-tag">국가별 도박·중독 정책 데이터 공유</span>
@@ -1160,7 +1233,7 @@
           모든 권리는 각 저작권자에게 있습니다.
         </div>
         <div>
-          연구·플랫폼 엔진: <a href="#">QAICLE (통계·데이터 분석)</a>
+          연구·플랫폼: <a href="#">Addiction Society Lab (향후 확장)</a>
         </div>
       </div>
     </footer>
@@ -1191,50 +1264,95 @@
         "현재는 데모 버전입니다. 실제 서비스 오픈 시, 메일·데이터베이스와 연동할 수 있습니다."
       );
     }
+  
+    // articles.json 로드 (정적 GitHub Pages 환경에서 동작)
+    async function loadArticlesJson() {
+      const grid = document.getElementById('articlesGrid');
+      const status = document.getElementById('articlesStatus');
+      if (!grid || !status) return;
 
-    // 해외 번역 자료 로딩
-    async function loadArticles() {
+      const setStatus = (msg) => {
+        status.textContent = msg;
+        status.style.display = 'block';
+      };
+
       try {
-        const res = await fetch("data/articles.json");
-        if (!res.ok) {
-          console.warn("articles.json 이 아직 없거나 불러오지 못했습니다.");
+        // 캐시로 인해 업데이트가 늦게 보이는 것을 완화
+        const res = await fetch('./data/articles.json', { cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+
+        const json = await res.json();
+
+        // 다양한 형태 지원: Array / {articles: []} / {items: []}
+        const items =
+          Array.isArray(json) ? json :
+          (Array.isArray(json.articles) ? json.articles :
+          (Array.isArray(json.items) ? json.items : []));
+
+        if (!items.length) {
+          setStatus('articles.json에서 표시할 항목을 찾지 못했습니다. (배열 또는 {articles:[...]} 형태를 권장합니다.)');
           return;
         }
 
-        const articles = await res.json();
-        const container = document.getElementById("external-articles");
-        if (!container) return;
+        const safeText = (v) => (typeof v === 'string' ? v : (v == null ? '' : String(v)));
+        const pickUrl = (it) => safeText(it.url || it.link || it.source_url || it.sourceUrl || it.href || '');
+        const pickTitle = (it) => safeText(it.title || it.name || it.headline || '제목 없음');
+        const pickSource = (it) => safeText(it.source || it.publisher || it.site || it.media || '');
+        const pickDate = (it) => safeText(it.date || it.published_at || it.publishedAt || it.pubDate || it.datetime || '');
+        const pickSummary = (it) => safeText(it.summary || it.excerpt || it.description || it.abstract || '');
 
-        if (!articles.length) {
-          container.innerHTML =
-            '<p style="font-size:0.85rem;color:#9ca3af;">아직 등록된 자료가 없습니다.</p>';
-          return;
-        }
+        const render = items.slice(0, 12).map((it) => {
+          const url = pickUrl(it);
+          const title = pickTitle(it);
+          const source = pickSource(it);
+          const date = pickDate(it);
+          const summary = pickSummary(it);
 
-        container.innerHTML = articles
-          .map(
-            (a) => `
-          <article style="margin-bottom:12px;">
-            <h4 style="font-size:0.95rem;margin-bottom:4px;">${a.title}</h4>
-            <p style="font-size:0.8rem;color:#9ca3af;margin-bottom:4px;">
-              출처: ${a.source} · ${a.date}
-            </p>
-            <p style="font-size:0.85rem;color:#e5e7eb;margin-bottom:4px;">
-              ${a.translated_summary}
-            </p>
-            <a href="${a.url}" target="_blank" style="font-size:0.8rem;color:#60a5fa;">
-              원문 보기 ↗
-            </a>
-          </article>
-        `
-          )
-          .join("");
-      } catch (e) {
-        console.error("기사 로딩 중 오류:", e);
+          const metaParts = [];
+          if (source) metaParts.push(source);
+          if (date) metaParts.push(date);
+
+          const metaHtml = metaParts.length
+            ? `<div class="article-meta"><span>${metaParts.join(' · ')}</span></div>`
+            : `<div class="article-meta"><span>메타데이터 없음</span></div>`;
+
+          const desc = summary ? summary : '요약이 없으면 원문 링크를 통해 확인할 수 있습니다.';
+          const cardInner = `
+            ${metaHtml}
+            <h4 class="article-title">${escapeHtml(title)}</h4>
+            <p class="article-desc">${escapeHtml(desc)}</p>
+          `;
+
+          // url이 없으면 클릭 불가 카드로 렌더링
+          if (!url) {
+            return `<div class="article-card" role="article" aria-label="기사 카드">${cardInner}</div>`;
+          }
+          return `<a class="article-card" href="${escapeAttr(url)}" target="_blank" rel="noopener noreferrer" aria-label="기사 링크">${cardInner}</a>`;
+        }).join('');
+
+        grid.innerHTML = render;
+      } catch (err) {
+        setStatus('articles.json을 불러오지 못했습니다. 파일 경로(data/articles.json)와 JSON 형식을 확인해 주세요.');
+        console.error(err);
       }
     }
 
-    loadArticles();
+    // HTML 이스케이프 유틸
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+    function escapeAttr(str) {
+      return escapeHtml(str).replaceAll('`', '&#096;');
+    }
+
+    // 데이터 섹션 렌더링 실행
+    loadArticlesJson();
+
   </script>
 </body>
 </html>
