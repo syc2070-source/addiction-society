@@ -1239,7 +1239,7 @@
     </footer>
   </div>
 
-  <script>
+ <script>
     // 현재 연도 표시
     document.getElementById("year").textContent = new Date().getFullYear();
 
@@ -1265,94 +1265,385 @@
       );
     }
   
-    // articles.json 로드 (정적 GitHub Pages 환경에서 동작)
-    async function loadArticlesJson() {
+    
+    // ===== articles.json UI v5 (검색 + 최신순 + 더보기 + 필터: type/domain/country + 태그 다중선택 AND/OR) =====
+    (function () {
+      const dataSection = document.getElementById('data');
       const grid = document.getElementById('articlesGrid');
       const status = document.getElementById('articlesStatus');
-      if (!grid || !status) return;
+      if (!dataSection || !grid || !status) return;
 
-      const setStatus = (msg) => {
-        status.textContent = msg;
-        status.style.display = 'block';
-      };
+      // ----- UI controls (기존 디자인 톤에 맞춰 삽입) -----
+      const uiWrap = document.createElement('div');
+      uiWrap.style.margin = '12px 0 18px';
+      uiWrap.innerHTML = `
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+          <input id="articleSearch" type="search" placeholder="검색: 제목/요약/출처/태그"
+                 style="flex:1; min-width:240px; padding:10px 12px; border:1px solid rgba(255,255,255,.18);
+                        border-radius:10px; background:rgba(255,255,255,.06); color:#fff; outline:none;" />
 
-      try {
-        // 캐시로 인해 업데이트가 늦게 보이는 것을 완화
-        const res = await fetch('./data/articles.json', { cache: 'no-store' });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
+          <select id="typeFilter"
+                  style="padding:10px 12px; border:1px solid rgba(255,255,255,.18); border-radius:10px;
+                         background:rgba(255,255,255,.06); color:#fff; outline:none;">
+            <option value="">유형: 전체</option>
+            <option value="policy">정책</option>
+            <option value="research">연구</option>
+            <option value="news">뉴스</option>
+            <option value="other">기타</option>
+          </select>
 
-        const json = await res.json();
+          <select id="domainFilter"
+                  style="padding:10px 12px; border:1px solid rgba(255,255,255,.18); border-radius:10px;
+                         background:rgba(255,255,255,.06); color:#fff; outline:none;">
+            <option value="">도메인: 전체</option>
+            <option value="D0">D0 중독정책</option>
+            <option value="D1">D1 물질중독</option>
+            <option value="D2">D2 행동중독</option>
+            <option value="D3">D3 신유형/플랫폼</option>
+          </select>
 
-        // 다양한 형태 지원: Array / {articles: []} / {items: []}
-        const items =
-          Array.isArray(json) ? json :
-          (Array.isArray(json.articles) ? json.articles :
-          (Array.isArray(json.items) ? json.items : []));
+          <select id="countryFilter"
+                  style="padding:10px 12px; border:1px solid rgba(255,255,255,.18); border-radius:10px;
+                         background:rgba(255,255,255,.06); color:#fff; outline:none; min-width:140px;">
+            <option value="">국가: 전체</option>
+          </select>
 
-        if (!items.length) {
-          setStatus('articles.json에서 표시할 항목을 찾지 못했습니다. (배열 또는 {articles:[...]} 형태를 권장합니다.)');
-          return;
-        }
+          <select id="tagMode"
+                  style="padding:10px 12px; border:1px solid rgba(255,255,255,.18); border-radius:10px;
+                         background:rgba(255,255,255,.06); color:#fff; outline:none;">
+            <option value="OR">태그 OR</option>
+            <option value="AND">태그 AND</option>
+          </select>
 
-        const safeText = (v) => (typeof v === 'string' ? v : (v == null ? '' : String(v)));
-        const pickUrl = (it) => safeText(it.url || it.link || it.source_url || it.sourceUrl || it.href || '');
-        const pickTitle = (it) => safeText(it.title || it.name || it.headline || '제목 없음');
-        const pickSource = (it) => safeText(it.source || it.publisher || it.site || it.media || '');
-        const pickDate = (it) => safeText(it.date || it.published_at || it.publishedAt || it.pubDate || it.datetime || '');
-        const pickSummary = (it) => safeText(it.summary || it.excerpt || it.description || it.abstract || '');
+          <button id="tagPickerBtn"
+                  style="padding:10px 12px; border:1px solid rgba(255,255,255,.18); border-radius:10px;
+                         background:rgba(255,255,255,.06); color:#fff; cursor:pointer;">
+            태그 선택
+          </button>
 
-        const render = items.slice(0, 12).map((it) => {
-          const url = pickUrl(it);
-          const title = pickTitle(it);
-          const source = pickSource(it);
-          const date = pickDate(it);
-          const summary = pickSummary(it);
+          <span id="articleCount" style="font-size:13px; opacity:.85;"></span>
+        </div>
 
-          const metaParts = [];
-          if (source) metaParts.push(source);
-          if (date) metaParts.push(date);
+        <div id="tagPicker"
+             style="display:none; margin-top:10px; padding:12px; border:1px solid rgba(255,255,255,.14);
+                    border-radius:14px; background:rgba(255,255,255,.04);">
+          <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:10px;">
+            <span style="font-size:13px; opacity:.85;">태그(복수선택):</span>
+            <button id="tagClearBtn"
+                    style="padding:6px 10px; border:1px solid rgba(255,255,255,.18); border-radius:10px;
+                           background:rgba(255,255,255,.06); color:#fff; cursor:pointer;">
+              선택 해제
+            </button>
+            <span style="font-size:12px; opacity:.75;">(체크로 복수 선택)</span>
+          </div>
+          <div id="tagChips" style="display:flex; gap:8px; flex-wrap:wrap;"></div>
+        </div>
+      `;
 
-          const metaHtml = metaParts.length
-            ? `<div class="article-meta"><span>${metaParts.join(' · ')}</span></div>`
-            : `<div class="article-meta"><span>메타데이터 없음</span></div>`;
+      // 그리드 위에 삽입
+      grid.parentElement.insertBefore(uiWrap, grid);
 
-          const desc = summary ? summary : '요약이 없으면 원문 링크를 통해 확인할 수 있습니다.';
-          const cardInner = `
-            ${metaHtml}
-            <h4 class="article-title">${escapeHtml(title)}</h4>
-            <p class="article-desc">${escapeHtml(desc)}</p>
-          `;
+      // 더보기 버튼
+      const moreWrap = document.createElement('div');
+      moreWrap.style.display = 'flex';
+      moreWrap.style.justifyContent = 'center';
+      moreWrap.style.margin = '16px 0 0';
+      moreWrap.innerHTML = `
+        <button id="loadMoreBtn"
+          style="padding:10px 14px; border:1px solid rgba(255,255,255,.18); border-radius:12px;
+                 background:rgba(255,255,255,.08); color:#fff; cursor:pointer;">
+          더보기
+        </button>
+      `;
+      grid.parentElement.appendChild(moreWrap);
 
-          // url이 없으면 클릭 불가 카드로 렌더링
-          if (!url) {
-            return `<div class="article-card" role="article" aria-label="기사 카드">${cardInner}</div>`;
-          }
-          return `<a class="article-card" href="${escapeAttr(url)}" target="_blank" rel="noopener noreferrer" aria-label="기사 링크">${cardInner}</a>`;
-        }).join('');
+      const statusEl = status;
+      const countEl = uiWrap.querySelector('#articleCount');
+      const searchEl = uiWrap.querySelector('#articleSearch');
+      const typeEl = uiWrap.querySelector('#typeFilter');
+      const domainEl = uiWrap.querySelector('#domainFilter');
+      const countryEl = uiWrap.querySelector('#countryFilter');
+      const modeEl = uiWrap.querySelector('#tagMode');
+      const moreBtn = moreWrap.querySelector('#loadMoreBtn');
+      const tagPickerBtn = uiWrap.querySelector('#tagPickerBtn');
+      const tagPicker = uiWrap.querySelector('#tagPicker');
+      const tagChips = uiWrap.querySelector('#tagChips');
+      const tagClearBtn = uiWrap.querySelector('#tagClearBtn');
 
-        grid.innerHTML = render;
-      } catch (err) {
-        setStatus('articles.json을 불러오지 못했습니다. 파일 경로(data/articles.json)와 JSON 형식을 확인해 주세요.');
-        console.error(err);
-      }
-    }
+      const PAGE_SIZE = 6;
 
-    // HTML 이스케이프 유틸
-    function escapeHtml(str) {
-      return String(str)
+      // ----- helpers -----
+      const esc = (s) => String(s ?? '')
         .replaceAll('&', '&amp;')
         .replaceAll('<', '&lt;')
         .replaceAll('>', '&gt;')
         .replaceAll('"', '&quot;')
-        .replaceAll("'", '&#039;');
-    }
-    function escapeAttr(str) {
-      return escapeHtml(str).replaceAll('`', '&#096;');
-    }
+        .replaceAll("'", '&#39;');
 
-    // 데이터 섹션 렌더링 실행
-    loadArticlesJson();
+      const pick = (obj, keys) => {
+        for (const k of keys) {
+          if (obj && obj[k] !== undefined && obj[k] !== null && String(obj[k]).trim() !== '') return obj[k];
+        }
+        return null;
+      };
 
-  </script>
+      const normalizeItems = (raw) => {
+        if (Array.isArray(raw)) return raw;
+        if (raw && typeof raw === 'object') {
+          const arr = pick(raw, ['articles', 'items', 'data', 'results']);
+          if (Array.isArray(arr)) return arr;
+        }
+        return [];
+      };
+
+      const parseDateMs = (v) => {
+        if (!v) return 0;
+        const d = new Date(v);
+        return isNaN(d.getTime()) ? 0 : d.getTime();
+      };
+
+      const normalizeType = (it) => {
+        const t = String(pick(it, ['type', 'doc_type', 'kind']) || '').trim().toLowerCase();
+        if (!t) return '';
+        if (['policy','research','news','other'].includes(t)) return t;
+        if (t.includes('paper') || t.includes('academic')) return 'research';
+        if (t.includes('gov') || t.includes('law') || t.includes('policy')) return 'policy';
+        return 'other';
+      };
+
+      const normalizeDomain = (it) => {
+        const d = String(pick(it, ['domain', 'domain_code']) || '').trim().toUpperCase();
+        if (['D0','D1','D2','D3'].includes(d)) return d;
+        return '';
+      };
+
+      const normalizeCountry = (it) => {
+        const c = String(pick(it, ['country', 'country_code', 'nation']) || '').trim();
+        return c;
+      };
+
+      const normalizeTags = (it) => {
+        const raw = pick(it, ['tags','tag','topics','topic','category','categories']);
+        if (!raw) return [];
+        if (Array.isArray(raw)) return raw.map(x => String(x).trim()).filter(Boolean);
+        return String(raw).split(/[,\|]/).map(s => s.trim()).filter(Boolean);
+      };
+
+      const typeLabelMap = { policy: '정책', research: '연구', news: '뉴스', other: '기타' };
+      const domainLabelMap = { D0:'D0 중독정책', D1:'D1 물질', D2:'D2 행동', D3:'D3 신유형' };
+
+      function badge(txt) {
+        if (!txt) return '';
+        return `<span style="display:inline-block; font-size:12px; padding:3px 8px;
+                             border:1px solid rgba(255,255,255,.18); border-radius:999px;
+                             background:rgba(255,255,255,.06);">${esc(txt)}</span>`;
+      }
+
+      // ----- state -----
+      let allItems = [];
+      let filtered = [];
+      let visibleCount = PAGE_SIZE;
+      let selectedTags = new Set(); // multi-select
+
+      function toHaystack(it) {
+        const title = pick(it, ['title','headline','name']) ?? '';
+        const summary = pick(it, ['summary','description','abstract','translated_summary']) ?? '';
+        const source = pick(it, ['source','publisher','org']) ?? '';
+        const tags = (it.__tags || []).join(' ');
+        const country = (it.__country || '');
+        return `${title} ${summary} ${source} ${tags} ${country}`.toLowerCase();
+      }
+
+      function buildCountryOptions(items) {
+        const set = new Set();
+        items.forEach(it => { if (it.__country) set.add(it.__country); });
+        const countries = Array.from(set).sort((a,b)=>a.localeCompare(b));
+        // reset keep first
+        while (countryEl.options.length > 1) countryEl.remove(1);
+        countries.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c;
+          opt.textContent = `국가: ${c}`;
+          countryEl.appendChild(opt);
+        });
+      }
+
+      function buildTagChips(items) {
+        const set = new Set();
+        items.forEach(it => (it.__tags || []).forEach(t => set.add(t)));
+        const tags = Array.from(set).sort((a,b)=>a.localeCompare(b));
+
+        tagChips.innerHTML = tags.map(t => {
+          const checked = selectedTags.has(t) ? 'true' : 'false';
+          return `
+            <label style="display:inline-flex; gap:6px; align-items:center; padding:6px 10px;
+                          border:1px solid rgba(255,255,255,.16); border-radius:999px;
+                          background:rgba(255,255,255,.05); cursor:pointer;">
+              <input type="checkbox" data-tag="${esc(t)}" ${checked === 'true' ? 'checked' : ''}
+                     style="accent-color:#93c5fd;" />
+              <span style="font-size:13px; opacity:.9;">${esc(t)}</span>
+            </label>
+          `;
+        }).join('');
+
+        // attach events
+        tagChips.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+          cb.addEventListener('change', () => {
+            const t = cb.getAttribute('data-tag');
+            if (cb.checked) selectedTags.add(t);
+            else selectedTags.delete(t);
+            applyAllFilters();
+          });
+        });
+      }
+
+      function render() {
+        const slice = filtered.slice(0, visibleCount);
+
+        countEl.textContent = `표시 ${slice.length} / 전체 ${filtered.length}`;
+        statusEl.textContent = filtered.length ? '' : '표시할 데이터가 없습니다. (필터/검색 조건 또는 data/articles.json 확인)';
+        statusEl.style.display = filtered.length ? 'none' : 'block';
+
+        grid.innerHTML = slice.map(it => {
+          const title = esc(pick(it, ['title','headline','name']) || '제목 없음');
+          const url = String(pick(it, ['url','link','source_url','canonical_url']) || '').trim();
+          const source = esc(pick(it, ['source','publisher','org']) || '');
+          const dateStr = esc(pick(it, ['date','published_at','pubDate','year']) || '');
+          const summary = esc(pick(it, ['summary','description','abstract','translated_summary']) || '');
+          const typeLabel = typeLabelMap[it.__type] || '';
+          const domainLabel = domainLabelMap[it.__domain] || '';
+          const country = esc(it.__country || '');
+          const tagsPreview = (it.__tags || []).slice(0, 4);
+
+          return `
+            <article class="article-card">
+              <div class="article-meta">
+                ${typeLabel ? badge(typeLabel) : ''}
+                ${domainLabel ? badge(domainLabel) : ''}
+                ${country ? badge(country) : ''}
+                ${source ? badge(source) : ''}
+                ${dateStr ? `<span style="font-size:12px; opacity:.8;">${dateStr}</span>` : ''}
+              </div>
+              <h4 class="article-title">
+                ${url ? `<a href="${esc(url)}" target="_blank" rel="noopener">${title}</a>` : title}
+              </h4>
+              <p class="article-summary">${summary ? summary : '요약 정보 없음'}</p>
+              ${tagsPreview.length ? `<div class="article-tags">${tagsPreview.map(t => badge('#'+t)).join('')}</div>` : ''}
+            </article>
+          `;
+        }).join('');
+
+        moreBtn.style.display = (visibleCount >= filtered.length) ? 'none' : 'inline-block';
+      }
+
+      function applyAllFilters() {
+        const q = (searchEl.value || '').trim().toLowerCase();
+        const t = (typeEl.value || '').trim().toLowerCase();
+        const d = (domainEl.value || '').trim().toUpperCase();
+        const c = (countryEl.value || '').trim();
+        const mode = (modeEl.value || 'OR').trim().toUpperCase();
+        const selected = Array.from(selectedTags);
+
+        filtered = allItems.filter(it => {
+          if (t && it.__type !== t) return false;
+          if (d && it.__domain !== d) return false;
+          if (c && it.__country !== c) return false;
+
+          // Tag multi-select
+          if (selected.length) {
+            const tags = it.__tags || [];
+            if (mode === 'AND') {
+              // must contain all selected tags
+              for (const st of selected) if (!tags.includes(st)) return false;
+            } else {
+              // OR: must contain at least one
+              let ok = false;
+              for (const st of selected) { if (tags.includes(st)) { ok = true; break; } }
+              if (!ok) return false;
+            }
+          }
+
+          if (q) return toHaystack(it).includes(q);
+          return true;
+        });
+
+        visibleCount = Math.min(PAGE_SIZE, filtered.length);
+        render();
+      }
+
+      tagPickerBtn.addEventListener('click', () => {
+        tagPicker.style.display = (tagPicker.style.display === 'none' ? 'block' : 'none');
+      });
+
+      tagClearBtn.addEventListener('click', () => {
+        selectedTags = new Set();
+        // uncheck UI
+        tagChips.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+        applyAllFilters();
+      });
+
+      async function init() {
+        statusEl.textContent = '데이터를 불러오는 중...';
+        statusEl.style.display = 'block';
+
+        try {
+          const res = await fetch('./data/articles.json', { cache: 'no-store' });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const raw = await res.json();
+
+          let items = normalizeItems(raw).map(it => {
+            const dateMs = parseDateMs(pick(it, ['date','published_at','pubDate']));
+            const type = normalizeType(it);
+            const domain = normalizeDomain(it);
+            const country = normalizeCountry(it);
+            const tags = normalizeTags(it);
+            return { ...it, __dateMs: dateMs, __type: type, __domain: domain, __country: country, __tags: tags };
+          });
+
+          // 최신순
+          items.sort((a, b) => (b.__dateMs || 0) - (a.__dateMs || 0));
+
+          allItems = items;
+          filtered = items;
+          visibleCount = Math.min(PAGE_SIZE, filtered.length);
+
+          buildCountryOptions(items);
+          buildTagChips(items);
+
+          statusEl.textContent = '';
+          statusEl.style.display = 'none';
+          render();
+
+          // Events (debounce for search)
+          let timer = null;
+          const scheduleApply = () => {
+            clearTimeout(timer);
+            timer = setTimeout(applyAllFilters, 150);
+          };
+
+          searchEl.addEventListener('input', scheduleApply);
+          typeEl.addEventListener('change', applyAllFilters);
+          domainEl.addEventListener('change', applyAllFilters);
+          countryEl.addEventListener('change', applyAllFilters);
+          modeEl.addEventListener('change', applyAllFilters);
+
+          moreBtn.addEventListener('click', () => {
+            visibleCount = Math.min(visibleCount + PAGE_SIZE, filtered.length);
+            render();
+          });
+
+        } catch (e) {
+          console.error(e);
+          statusEl.textContent = '데이터 로드 실패: data/articles.json 경로/형식을 확인하세요.';
+          statusEl.style.display = 'block';
+          countEl.textContent = '';
+          moreBtn.style.display = 'none';
+        }
+      }
+
+      init();
+    })();
+</script>
 </body>
 </html>
+
