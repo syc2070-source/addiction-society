@@ -1,0 +1,27 @@
+# dependencies
+node_modules/
+**/node_modules/
+
+# build
+dist/
+**/dist/
+build/
+**/build/
+
+# env & secrets
+.env
+**/.env
+.env.*
+
+# uploads & dumps
+backend/uploads/
+*.dump
+
+# logs & OS
+*.log
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
