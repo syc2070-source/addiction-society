@@ -52,13 +52,14 @@ export class ResearchAutoService {
 
     for (const dto of candidates) {
       if (!dto?.title?.trim()) continue;
-      if (existing.has(dto.title)) {
+      const key = `${dto.title.trim().toLowerCase()}|${dto.year ?? ''}`;
+      if (existing.has(key)) {
         skipped++;
         continue;
       }
       try {
         await this.researchService.create(dto);
-        existing.add(dto.title);
+        existing.add(key);
         inserted++;
       } catch (e) {
         this.logger.warn(`연구 자동수집 스킵: ${dto.title} — ${e}`);
@@ -72,11 +73,118 @@ export class ResearchAutoService {
     const rows = await this.researchRepository
       .createQueryBuilder('r')
       .select('r.title', 'title')
+      .addSelect('r.year', 'year')
       .getRawMany();
-    return new Set(rows.map((x: { title: string }) => x.title));
+    return new Set(
+      rows.map((x: { title: string; year: number | null }) =>
+        `${x.title.trim().toLowerCase()}|${x.year ?? ''}`,
+      ),
+    );
+  }
+
+  private normalizeAuthors(authors: unknown): string[] | undefined {
+    if (authors == null) return undefined;
+    if (typeof authors === 'string') {
+      const s = authors.trim();
+      return s ? [s] : undefined;
+    }
+    if (!Array.isArray(authors)) return undefined;
+    const out: string[] = [];
+    for (const a of authors) {
+      if (typeof a === 'string') {
+        const s = a.trim();
+        if (s) out.push(s);
+      } else if (a && typeof a === 'object') {
+        const name = (a as { name?: unknown }).name;
+        if (typeof name === 'string' && name.trim()) {
+          out.push(name.trim());
+        } else {
+          out.push(String(a));
+        }
+      } else if (a != null) {
+        out.push(String(a));
+      }
+    }
+    return out.length > 0 ? out : undefined;
+  }
+
+  private mapDocumentItemToDto(
+    item: Record<string, unknown>,
+    query: string,
+  ): CreateResearchDto {
+    const title = typeof item.title === 'string' ? item.title : '';
+    const url = typeof item.url === 'string' ? item.url : undefined;
+    const doi = typeof item.doi === 'string' ? item.doi : undefined;
+    let sourceUrl = url;
+    if (!sourceUrl && doi) {
+      sourceUrl = doi.startsWith('http') ? doi : `https://doi.org/${doi}`;
+    }
+    const pubYear = item.pub_year;
+    const year =
+      typeof pubYear === 'number'
+        ? pubYear
+        : pubYear != null && !Number.isNaN(Number(pubYear))
+          ? Number(pubYear)
+          : undefined;
+
+    return {
+      title,
+      abstract:
+        typeof item.abstract_text === 'string' ? item.abstract_text : undefined,
+      year,
+      sourceUrl,
+      source:
+        typeof item.collect_method === 'string' ? item.collect_method : undefined,
+      authors: this.normalizeAuthors(item.authors),
+      keywords: query ? [query] : undefined,
+    };
   }
 
   private async loadCandidates(): Promise<CreateResearchDto[]> {
+    const statoryBase = this.config.get<string>('STATORY_API_URL')?.trim();
+    if (statoryBase) {
+      try {
+        const query =
+          this.config.get<string>('STATORY_ACADEMIC_QUERY')?.trim() ?? '';
+        const limitRaw = this.config.get<string>('STATORY_ACADEMIC_LIMIT');
+        const parsedLimit = limitRaw ? parseInt(limitRaw, 10) : 10;
+        const limit = Number.isFinite(parsedLimit) ? parsedLimit : 10;
+        const base = statoryBase.replace(/\/+$/, '');
+        const res = await fetch(`${base}/api/search/academic`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query, limit }),
+          signal: AbortSignal.timeout(20_000),
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = (await res.json()) as {
+          success?: boolean;
+          items?: unknown[];
+          error?: string;
+        };
+        if (json.success === false) {
+          this.logger.warn(
+            `Statory academic search 실패: ${json.error ?? 'unknown'}`,
+          );
+          return [];
+        }
+        const items = Array.isArray(json.items) ? json.items : [];
+        const mapped: CreateResearchDto[] = [];
+        for (const item of items) {
+          if (!item || typeof item !== 'object') continue;
+          const dto = this.mapDocumentItemToDto(
+            item as Record<string, unknown>,
+            query,
+          );
+          if (dto.title?.trim()) mapped.push(dto);
+        }
+        return mapped;
+      } catch (e) {
+        this.logger.warn(`STATORY_API_URL 로드 실패: ${e}`);
+        return [];
+      }
+    }
+
     const url = this.config.get<string>('AUTO_COLLECT_RESEARCH_URL')?.trim();
     if (url) {
       try {
