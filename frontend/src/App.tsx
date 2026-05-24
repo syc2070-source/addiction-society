@@ -8,6 +8,8 @@ import ResearchDetail from './pages/ResearchDetail';
 import PolicyList from './pages/PolicyList';
 import PolicyDetail from './pages/PolicyDetail';
 import RecoveryList from './pages/RecoveryList';
+import ReportList from './pages/ReportList';
+import ReportDetail from './pages/ReportDetail';
 import {
   AdminLogin,
   AdminDashboard,
@@ -68,6 +70,22 @@ function App() {
           element={
             <Layout>
               <RecoveryList />
+            </Layout>
+          }
+        />
+        <Route
+          path="/reports"
+          element={
+            <Layout>
+              <ReportList />
+            </Layout>
+          }
+        />
+        <Route
+          path="/reports/:id"
+          element={
+            <Layout>
+              <ReportDetail />
             </Layout>
           }
         />

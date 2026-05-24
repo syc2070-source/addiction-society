@@ -6,6 +6,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const currentYear = new Date().getFullYear();
 
   const isActive = (path: string) => location.pathname === path;
+  const isReportsActive = () => location.pathname.startsWith('/reports');
 
   // 로그인 상태 확인
   const isLoggedIn = !!localStorage.getItem('token');
@@ -34,6 +35,9 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             </Link>
             <Link to="/recovery" className={isActive('/recovery') ? 'active' : ''}>
               회복자원
+            </Link>
+            <Link to="/reports" className={isReportsActive() ? 'active' : ''}>
+              보고서
             </Link>
           </div>
 

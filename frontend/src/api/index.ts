@@ -76,4 +76,19 @@ export const authApi = {
   getMe: () => api.get('/auth/me'),
 };
 
+// Reports API (Statory proxy)
+export const reportsApi = {
+  getAll: (params: {
+    limit?: number;
+    offset?: number;
+    scope?: string;
+    domain?: string;
+    region?: string;
+  }) => api.get('/reports', { params }),
+  getOne: (id: string, includeSections = false) =>
+    api.get(`/reports/${id}`, {
+      params: { include_sections: includeSections },
+    }),
+};
+
 export default api;
