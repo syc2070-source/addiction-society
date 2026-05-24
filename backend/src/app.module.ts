@@ -9,6 +9,7 @@ import { TagsModule } from './tags/tags.module';
 import { AuthModule } from './auth/auth.module';
 import { UploadModule } from './upload/upload.module';
 import { SchedulerModule } from './scheduler/scheduler.module';
+import { ReportsModule } from './reports/reports.module';
 
 import { User } from './auth/entities/user.entity';
 import { Research } from './research/entities/research.entity';
@@ -54,6 +55,7 @@ import { Tag } from './tags/entities/tag.entity';
     AuthModule,
     UploadModule,
     SchedulerModule,
+    ReportsModule,
   ],
 })
 export class AppModule {}
