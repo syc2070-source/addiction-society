@@ -29,6 +29,53 @@ const Home: React.FC = () => {
     fetchStats();
   }, []);
 
+  // ── 중독 데이터 관측소 카드 데이터 (M0: 하드코딩. M2에서 GET /api/sources/summary 연동 예정) ──
+  // 최근 갱신: 실제 확인된 발표일 (임의 변경 금지)
+  const recentUpdates = [
+    { date: '2026-06-26', label: 'WHO SAFER 진행보고서' },
+    { date: '2026-06-26', label: 'UNODC 세계마약보고서 2026' },
+    { date: '2026-06-09', label: 'EUDA 유럽마약보고서 2026' },
+    { date: '2026-03-27', label: 'NIA 스마트폰 과의존 2025' },
+  ];
+  // 다음 발표 예정
+  const upcomingReleases = [
+    { date: '2026-07', label: 'SAMHSA NSDUH' },
+    { date: '2026-10', label: '국정감사 자료' },
+    { date: '2026-11', label: 'HRI 해악감소 보고서' },
+    { date: '미정', label: '정신건강실태조사 (5년 주기)' },
+  ];
+  // 부처 분산 지도 데이터 (M0: 하드코딩)
+  const ministryMap = [
+    { type: '알코올·마약(치료)', ministry: '보건복지부', agency: '중독관리통합지원센터 63개소' },
+    { type: '도박', ministry: '국무총리실', agency: '사감위 → 한국도박문제예방치유원' },
+    { type: '인터넷·스마트폰', ministry: '과학기술정보통신부', agency: '스마트쉼센터' },
+    { type: '게임', ministry: '문화체육관광부', agency: '게임과몰입힐링센터' },
+    { type: '마약(수사)', ministry: '대검·경찰·관세·해경', agency: '마약범죄 정부합동수사본부' },
+    { type: '마약(예방)', ministry: '식품의약품안전처', agency: '한국마약퇴치운동본부' },
+  ];
+
+  // 관측소 카드용 인라인 스타일 (App.css 미수정 방침에 따라 인라인 처리)
+  const obsBlock: React.CSSProperties = {
+    borderTop: '1px dashed rgba(75, 85, 99, 0.8)',
+    paddingTop: '12px',
+    marginTop: '12px',
+  };
+  const obsSubtitle: React.CSSProperties = {
+    fontSize: '0.72rem',
+    textTransform: 'uppercase',
+    letterSpacing: '0.12em',
+    color: '#93c5fd',
+    marginBottom: '8px',
+  };
+  const obsRow: React.CSSProperties = {
+    display: 'flex',
+    gap: '10px',
+    fontSize: '0.78rem',
+    marginBottom: '6px',
+  };
+  const obsDate: React.CSSProperties = { color: '#9ca3af', flexShrink: 0, minWidth: '82px' };
+  const obsLabel: React.CSSProperties = { color: '#e5e7eb' };
+
   return (
     <>
       {/* Hero 섹션 */}
@@ -65,59 +112,42 @@ const Home: React.FC = () => {
         </div>
 
         {/* Hero 카드 */}
+        {/* M0: 하드코딩. M2에서 GET /api/sources/summary 연동 예정 */}
         <aside className="hero-card">
           <div className="hero-card-inner">
             <div className="hero-card-header">
               <div>
-                <div className="hero-card-title">Global Gambling Governance</div>
+                <div className="hero-card-title">중독 데이터 관측소</div>
                 <div style={{ fontSize: '0.78rem', color: '#9ca3af' }}>
-                  12개국 도박중독 정책 비교 · 지표 프레임워크 파일럿
+                  23개 소스 · 6개 부처 · 4개 국제기구
                 </div>
               </div>
               <div className="status-pill">
                 <span className="status-dot"></span>
-                v1.0 데이터 파일럿
+                LIVE
               </div>
             </div>
 
-            <div className="hero-card-grid">
-              <div className="metric-card">
-                <div className="metric-label">
-                  정책 강도 지수(0–100) <span className="badge badge-example">예시</span>
+            {/* 최근 갱신 */}
+            <div style={obsBlock}>
+              <div style={obsSubtitle}>최근 갱신</div>
+              {recentUpdates.map((it) => (
+                <div key={it.date + it.label} style={obsRow}>
+                  <span style={obsDate}>{it.date}</span>
+                  <span style={obsLabel}>{it.label}</span>
                 </div>
-                <div className="metric-value">73.4</div>
-                <div className="metric-sub">
-                  광고 규제, 한도 정책, 자기배제 시스템, 치료 접근성 등을
-                  통합한 <strong>종합 지표</strong>의 예시 값입니다.
-                </div>
-                <div className="metric-pill-row">
-                  <span className="metric-pill">광고 규제 · 0.82</span>
-                  <span className="metric-pill">베팅한도 · 0.76</span>
-                  <span className="metric-pill">데이터 접근권 · 0.68</span>
-                </div>
-              </div>
-              <div className="mini-chart">
-                도박 관련 검색·매출·치료 수요의<br />장기 추세(예시)
-                <div className="mini-chart-bars">
-                  <div className="mini-bar"></div>
-                  <div className="mini-bar"></div>
-                  <div className="mini-bar"></div>
-                  <div className="mini-bar"></div>
-                </div>
-                <div className="mini-chart-labels">
-                  <span>2020</span>
-                  <span>2021</span>
-                  <span>2023</span>
-                  <span>2025</span>
-                </div>
-              </div>
+              ))}
             </div>
 
-            <div className="hero-card-footer">
-              <span>
-                현재: <strong>한국·미국·영국·호주 등 12개국</strong> 정책·지표 데이터셋 정비 중
-              </span>
-              <span className="hero-card-tag">향후 확장: 분석·시각화 엔진 연동</span>
+            {/* 다음 발표 예정 */}
+            <div style={obsBlock}>
+              <div style={obsSubtitle}>다음 발표 예정</div>
+              {upcomingReleases.map((it) => (
+                <div key={it.date + it.label} style={obsRow}>
+                  <span style={obsDate}>{it.date}</span>
+                  <span style={obsLabel}>{it.label}</span>
+                </div>
+              ))}
             </div>
           </div>
         </aside>
@@ -211,71 +241,58 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* 데이터 & 리포트 섹션 */}
+      {/* 데이터 & 리포트 섹션 → 부처 분산 지도 */}
       <section className="section">
         <div className="section-header">
           <div className="section-kicker">데이터 &amp; 리포트</div>
-          <h2 className="section-title">12개국 도박중독 거버넌스 데이터 허브(예시 구조)</h2>
+          <h2 className="section-title">한국의 중독 대응은 6개 부처로 흩어져 있습니다</h2>
           <p className="section-desc">
-            중독사회 웹은 <strong>국가별 도박 규제·중독 예방·치료 접근성</strong>을 비교 분석하는
-            데이터 허브가 됩니다. 아래는 실제 구현될 지표 구조의 예시입니다.
+            알코올·도박·인터넷·게임·마약 등 중독 유형마다 소관 부처와 집행 기관이 제각각입니다.
           </p>
         </div>
 
         <div className="card">
-          <div className="pill-row">
-            <span className="pill">광고 제한 수준</span>
-            <span className="pill">베팅·입장 한도</span>
-            <span className="pill">자기배제·모니터링 시스템</span>
-            <span className="pill">상담·치료 접근성</span>
-            <span className="pill">세수 활용·사회 환원</span>
-          </div>
-
-          <table className="table-preview">
+          <table className="table-preview" aria-label="중독 유형별 소관 부처 분산 현황">
             <thead>
               <tr>
-                <th>국가</th>
-                <th>광고 제한</th>
-                <th>한도 정책</th>
-                <th>치료 접근성</th>
-                <th>종합 점수</th>
+                <th>중독 유형</th>
+                <th>소관 부처</th>
+                <th>집행 기관</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>영국(UK)</td>
-                <td>높음</td>
-                <td>중간</td>
-                <td>높음</td>
-                <td>78</td>
-              </tr>
-              <tr>
-                <td>호주(AU)</td>
-                <td>중간</td>
-                <td>높음</td>
-                <td>중간</td>
-                <td>74</td>
-              </tr>
-              <tr>
-                <td>한국(KR)</td>
-                <td>중간</td>
-                <td>중간</td>
-                <td>중간</td>
-                <td>68</td>
-              </tr>
-              <tr>
-                <td>미국(US)</td>
-                <td>낮음</td>
-                <td>낮음</td>
-                <td>지역별 차이 큼</td>
-                <td>62</td>
-              </tr>
+              {ministryMap.map((row) => (
+                <tr key={row.type}>
+                  <td>{row.type}</td>
+                  <td>{row.ministry}</td>
+                  <td>{row.agency}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
 
-          <p style={{ fontSize: '0.8rem', color: '#9ca3af', marginTop: '8px' }}>
-            ※ 위 값은 예시이며, 실제 서비스에서는 연도별 추세, 군집 분석, 민감도 분석을 포함한
-            <strong> 대화형 대시보드</strong>로 제공될 예정입니다.
+          {/* 인용구 강조 박스 */}
+          <blockquote
+            style={{
+              margin: '16px 0 0',
+              padding: '12px 16px',
+              borderLeft: '3px solid #22c55e',
+              borderRadius: '8px',
+              background: 'rgba(34, 197, 94, 0.08)',
+              color: '#e5e7eb',
+              fontSize: '0.9rem',
+            }}
+          >
+            "부처별 소관 법률이 달라 협력 체계를 구축하기 어렵다"
+            <footer style={{ marginTop: '6px', fontSize: '0.78rem', color: '#9ca3af' }}>
+              — 보건복지부 관계자, 2025 국정감사
+            </footer>
+          </blockquote>
+
+          {/* 각주 */}
+          <p style={{ fontSize: '0.8rem', color: '#9ca3af', marginTop: '12px' }}>
+            법적 근거와 데이터 체계가 달라 정보 공유조차 불가능하며, 청소년 1명을 초기 상담부터
+            치료·사후관리까지 연속 지원할 통합 시스템은 부재.
           </p>
         </div>
       </section>
