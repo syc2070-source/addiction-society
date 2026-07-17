@@ -76,6 +76,13 @@ export const authApi = {
   getMe: () => api.get('/auth/me'),
 };
 
+// Sources API (데이터 관측소 레지스트리, 읽기 전용)
+export const sourcesApi = {
+  getAll: (params?: any) => api.get('/sources', { params }),
+  getCalendar: () => api.get('/sources/calendar'),
+  getOne: (id: string) => api.get(`/sources/${id}`),
+};
+
 // Reports API (Statory proxy)
 export const reportsApi = {
   getAll: (params: {

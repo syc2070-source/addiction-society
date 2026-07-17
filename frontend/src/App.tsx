@@ -8,6 +8,7 @@ import ResearchDetail from './pages/ResearchDetail';
 import PolicyList from './pages/PolicyList';
 import PolicyDetail from './pages/PolicyDetail';
 import RecoveryList from './pages/RecoveryList';
+import SourceList from './pages/SourceList';
 import ReportList from './pages/ReportList';
 import ReportDetail from './pages/ReportDetail';
 import {
@@ -70,6 +71,14 @@ function App() {
           element={
             <Layout>
               <RecoveryList />
+            </Layout>
+          }
+        />
+        <Route
+          path="/sources"
+          element={
+            <Layout>
+              <SourceList />
             </Layout>
           }
         />

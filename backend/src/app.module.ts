@@ -10,6 +10,7 @@ import { AuthModule } from './auth/auth.module';
 import { UploadModule } from './upload/upload.module';
 import { SchedulerModule } from './scheduler/scheduler.module';
 import { ReportsModule } from './reports/reports.module';
+import { SourcesModule } from './sources/sources.module';
 
 import { User } from './auth/entities/user.entity';
 import { Research } from './research/entities/research.entity';
@@ -17,6 +18,7 @@ import { Document } from './policy/entities/document.entity';
 import { AssessmentCell } from './policy/entities/assessment-cell.entity';
 import { RecoveryResource } from './recovery/entities/recovery-resource.entity';
 import { Tag } from './tags/entities/tag.entity';
+import { Source } from './sources/entities/source.entity';
 
 @Module({
   imports: [
@@ -41,6 +43,7 @@ import { Tag } from './tags/entities/tag.entity';
           AssessmentCell,
           RecoveryResource,
           Tag,
+          Source,
         ],
         synchronize: true,
         logging: true,
@@ -56,6 +59,7 @@ import { Tag } from './tags/entities/tag.entity';
     UploadModule,
     SchedulerModule,
     ReportsModule,
+    SourcesModule,
   ],
 })
 export class AppModule {}

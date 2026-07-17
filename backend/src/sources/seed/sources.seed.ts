@@ -1,0 +1,467 @@
+/**
+ * 소스 레지스트리 시드 스크립트 (멱등).
+ *
+ * 실행: npm run seed:sources
+ *
+ * 기존 database/schema.sql 관행(수동 실행 시드)을 따르되, jsonb/int[]/date를
+ * 다뤄야 하므로 raw SQL 대신 TypeORM DataSource + repository.upsert를 사용한다.
+ * 이 스크립트 전용 DataSource는 entities:[Source]만 알고 있으므로 synchronize:true
+ * 라도 sources 테이블만 생성/동기화하며 기존 테이블은 건드리지 않는다.
+ * upsert(conflict: id)이므로 재실행해도 중복이 생기지 않는다.
+ */
+import 'reflect-metadata';
+import { config } from 'dotenv';
+import { DataSource } from 'typeorm';
+import { Source } from '../entities/source.entity';
+
+config();
+
+const M_ALL = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; // 월간 소스용 1~12월
+
+type Row = Partial<Source> & { id: string };
+
+const SOURCES: Row[] = [
+  // ── 국제 12 ──
+  {
+    id: 'unodc_wdr',
+    org: 'UNODC',
+    orgKo: '유엔마약범죄사무소',
+    domain: 'drug',
+    scope: 'global',
+    kind: 'prevalence',
+    cadence: 'annual',
+    expectedMonth: [6],
+    accessMethod: 'csv',
+    reliability: 1,
+    url: 'https://www.unodc.org/unodc/en/data-and-analysis/world-drug-report-2026.html',
+    titleKo: '세계마약보고서',
+    titleEn: 'World Drug Report',
+  },
+  {
+    id: 'unodc_wdr_trends',
+    org: 'UNODC',
+    orgKo: '유엔마약범죄사무소',
+    domain: 'drug',
+    scope: 'global',
+    kind: 'market',
+    cadence: 'annual',
+    expectedMonth: [6],
+    accessMethod: 'csv',
+    reliability: 1,
+    url: 'https://data.unodc.org/wdr2026trends',
+    titleKo: '세계마약보고서 트렌드',
+    titleEn: 'WDR Trends',
+    accessDetail: { note: '인터랙티브 플랫폼, 엑셀 다운로드 제공' },
+  },
+  {
+    id: 'euda_statbulletin',
+    org: 'EUDA',
+    orgKo: '유럽연합마약청',
+    domain: 'drug',
+    scope: 'regional',
+    kind: 'prevalence',
+    cadence: 'annual',
+    expectedMonth: [6],
+    accessMethod: 'csv',
+    reliability: 1,
+    url: 'https://www.euda.europa.eu/publications/european-drug-report/2026_en',
+    titleKo: '유럽마약보고서 통계공보',
+    titleEn: 'EU Drug Report Statistical Bulletin',
+    accessDetail: {
+      format: 'CSV',
+      note: '오픈포맷, 방법론·정의·유의사항 동봉. 최우선 자동화 대상',
+    },
+  },
+  {
+    id: 'euda_edr',
+    org: 'EUDA',
+    orgKo: '유럽연합마약청',
+    domain: 'policy',
+    scope: 'regional',
+    kind: 'policy',
+    cadence: 'annual',
+    expectedMonth: [6],
+    accessMethod: 'pdf',
+    reliability: 1,
+    url: 'https://www.euda.europa.eu/publications/european-drug-report/2026_en',
+    titleKo: '유럽마약보고서',
+    titleEn: 'European Drug Report',
+  },
+  {
+    id: 'who_gho_alcohol',
+    org: 'WHO',
+    orgKo: '세계보건기구',
+    domain: 'alcohol',
+    scope: 'global',
+    kind: 'prevalence',
+    cadence: 'irregular',
+    expectedMonth: null,
+    accessMethod: 'api',
+    reliability: 1,
+    url: 'https://www.who.int/data/gho/data/themes/global-information-system-on-alcohol-and-health',
+    titleKo: '알코올·건강 국제정보시스템(GISAH)',
+    titleEn: 'GISAH',
+    accessDetail: { note: '150+ 지표, 225개국+' },
+    license: 'CC BY-NC-SA 3.0 IGO',
+  },
+  {
+    id: 'who_gho_substance',
+    org: 'WHO',
+    orgKo: '세계보건기구',
+    domain: 'policy',
+    scope: 'global',
+    kind: 'policy',
+    cadence: 'irregular',
+    expectedMonth: null,
+    accessMethod: 'api',
+    reliability: 1,
+    url: 'https://www.who.int/data/gho/data/indicators/indicators-index',
+    titleKo: 'WHO GHO 물질사용 지표',
+    titleEn: 'WHO GHO Substance Use Indicators',
+    license: 'CC BY-NC-SA 3.0 IGO',
+  },
+  {
+    id: 'who_atlas_su',
+    org: 'WHO',
+    orgKo: '세계보건기구',
+    domain: 'policy',
+    scope: 'global',
+    kind: 'treatment',
+    cadence: 'irregular',
+    expectedMonth: null,
+    accessMethod: 'api',
+    reliability: 1,
+    url: 'https://www.who.int/data/gho/data/themes/resources-for-substance-use-disorders',
+    titleKo: '물질사용장애 자원 ATLAS',
+    titleEn: 'ATLAS on Substance Use',
+    license: 'CC BY-NC-SA 3.0 IGO',
+    notes:
+      '최신 데이터 2014년 ATLAS-SU 조사. 정책 자원을 국가별 비교한 유일 전수 데이터',
+  },
+  {
+    id: 'who_safer',
+    org: 'WHO',
+    orgKo: '세계보건기구',
+    domain: 'alcohol',
+    scope: 'global',
+    kind: 'policy',
+    cadence: 'irregular',
+    expectedMonth: null,
+    accessMethod: 'pdf',
+    reliability: 1,
+    url: 'https://www.who.int/initiatives/SAFER',
+    titleKo: 'WHO SAFER 이니셔티브',
+    titleEn: 'WHO SAFER Initiative',
+    lastPublishedAt: '2026-06-26',
+    license: 'CC BY-NC-SA 3.0 IGO',
+    notes: '2026.6.26 신규 발간. 알코올만 SDG 목표 궤도에 오른 이유',
+  },
+  {
+    id: 'who_whs',
+    org: 'WHO',
+    orgKo: '세계보건기구',
+    domain: 'multi',
+    scope: 'global',
+    kind: 'prevalence',
+    cadence: 'annual',
+    expectedMonth: [5],
+    accessMethod: 'pdf',
+    reliability: 1,
+    url: 'https://www.who.int/data/gho/publications/world-health-statistics',
+    titleKo: '세계보건통계',
+    titleEn: 'World Health Statistics',
+    license: 'CC BY-NC-SA 3.0 IGO',
+  },
+  {
+    id: 'lancet_gambling',
+    org: 'Lancet',
+    orgKo: '랜싯공중보건위원회',
+    domain: 'gambling',
+    scope: 'global',
+    kind: 'prevalence',
+    cadence: 'irregular',
+    expectedMonth: null,
+    accessMethod: 'manual',
+    reliability: 1,
+    url: 'https://www.thelancet.com/commissions-do/gambling',
+    titleKo: '랜싯 공중보건 도박위원회',
+    titleEn: 'Lancet Public Health Commission on Gambling',
+    lastPublishedAt: '2024-10-24',
+  },
+  {
+    id: 'hri_gshr',
+    org: 'HRI',
+    orgKo: '국제해악감소협회',
+    domain: 'policy',
+    scope: 'global',
+    kind: 'policy',
+    cadence: 'biennial',
+    expectedMonth: [11],
+    accessMethod: 'pdf',
+    reliability: 2,
+    url: 'https://hri.global/flagship-research/the-global-state-of-harm-reduction/',
+    titleKo: '세계 해악감소 현황',
+    titleEn: 'Global State of Harm Reduction',
+    lastPublishedAt: '2025-12-03',
+    notes: '2년 주기(2024년 9판) + 중간연도 업데이트',
+  },
+  {
+    id: 'gdpi',
+    org: 'HRC',
+    orgKo: '해악감소컨소시엄',
+    domain: 'policy',
+    scope: 'global',
+    kind: 'policy',
+    cadence: 'irregular',
+    expectedMonth: null,
+    accessMethod: 'pdf',
+    reliability: 2,
+    url: 'https://globaldrugpolicyindex.net/',
+    titleKo: '세계마약정책지수',
+    titleEn: 'Global Drug Policy Index',
+    lastPublishedAt: '2021-11-08',
+    notes: '30개국, 한국 미포함. 75개 지표 5개 차원',
+  },
+
+  // ── 미국 2 ──
+  {
+    id: 'samhsa_nsduh',
+    org: 'SAMHSA',
+    orgKo: '미국약물남용정신건강청',
+    domain: 'multi',
+    scope: 'regional',
+    kind: 'prevalence',
+    cadence: 'annual',
+    expectedMonth: [7],
+    accessMethod: 'csv',
+    reliability: 1,
+    url: 'https://www.samhsa.gov/data/data-we-collect/nsduh-national-survey-drug-use-and-health',
+    titleKo: '전국 약물사용·건강 조사',
+    titleEn: 'NSDUH',
+    notes: '1971년부터. 미국 1차 통계 출처',
+  },
+  {
+    id: 'samhsa_nsumhss',
+    org: 'SAMHSA',
+    orgKo: '미국약물남용정신건강청',
+    domain: 'multi',
+    scope: 'regional',
+    kind: 'treatment',
+    cadence: 'annual',
+    expectedMonth: null,
+    accessMethod: 'csv',
+    reliability: 1,
+    url: 'https://www.samhsa.gov/data/all-reports',
+    titleKo: '전국 약물사용·정신건강 시설 조사',
+    titleEn: 'N-SUMHSS',
+    notes: '치료시설 전수조사. 한국에 없는 것',
+  },
+
+  // ── 한국 9 ──
+  {
+    id: 'spo_drug_monthly',
+    org: '대검찰청',
+    orgKo: '대검찰청',
+    domain: 'drug',
+    scope: 'korea',
+    kind: 'enforcement',
+    cadence: 'monthly',
+    expectedMonth: M_ALL,
+    accessMethod: 'pdf',
+    reliability: 1,
+    url: 'https://www.spo.go.kr/site/spo/ex/board/List.do?cbIdx=1201',
+    titleKo: '마약류 월간동향',
+    titleEn: 'Monthly Narcotics Trend Report',
+    accessDetail: {
+      doc: '마약류 월간동향',
+      parser: 'pdfplumber',
+      tables: [
+        '월간 단속현황',
+        '연간 누계',
+        '유형별',
+        '연령별',
+        '성별',
+        '직업별',
+        '지역별',
+        '외국인',
+        '압수현황',
+      ],
+    },
+    notes: '자동화 1순위. 월 단위 시계열 확보 가능',
+  },
+  {
+    id: 'drugfree_stats',
+    org: '마약퇴치운동본부',
+    orgKo: '한국마약퇴치운동본부',
+    domain: 'drug',
+    scope: 'korea',
+    kind: 'enforcement',
+    cadence: 'monthly',
+    expectedMonth: M_ALL,
+    accessMethod: 'html',
+    reliability: 2,
+    url: 'https://www.drugfree.or.kr/portal/kor/M467848284/board.do',
+    titleKo: '마약류 통계',
+    titleEn: 'Drug Statistics',
+    notes: '대검 통계 미러. HTML 테이블 → cheerio. spo_drug_monthly 백업',
+  },
+  {
+    id: 'ngcc_gambling',
+    org: '사감위',
+    orgKo: '사행산업통합감독위원회',
+    domain: 'gambling',
+    scope: 'korea',
+    kind: 'market',
+    cadence: 'annual',
+    expectedMonth: null,
+    accessMethod: 'pdf',
+    reliability: 1,
+    url: 'https://www.ngcc.go.kr/',
+    titleKo: '사행산업 관련 통계',
+    titleEn: 'Gambling Industry Statistics',
+    notes:
+      '합법 사행산업 25.3조(2024). 불법도박 102.7조(2022 제5차 실태조사)',
+  },
+  {
+    id: 'kcgp_youth',
+    org: '도박예방치유원',
+    orgKo: '한국도박문제예방치유원',
+    domain: 'gambling',
+    scope: 'korea',
+    kind: 'prevalence',
+    cadence: 'annual',
+    expectedMonth: [2],
+    accessMethod: 'csv',
+    reliability: 1,
+    url: 'https://www.data.go.kr/data/15142248/fileData.do',
+    titleKo: '청소년 도박문제 실태조사',
+    titleEn: 'Youth Gambling Survey',
+    accessDetail: { portal: '공공데이터포털', raw_data: true },
+    notes: 'Raw Data 공개. API 연동 가능',
+  },
+  {
+    id: 'kcgp_rehab',
+    org: '도박예방치유원',
+    orgKo: '한국도박문제예방치유원',
+    domain: 'gambling',
+    scope: 'korea',
+    kind: 'treatment',
+    cadence: 'annual',
+    expectedMonth: null,
+    accessMethod: 'csv',
+    reliability: 1,
+    url: 'https://www.data.go.kr/data/15012875/fileData.do',
+    titleKo: '도박문제 치유서비스 이용현황',
+    titleEn: 'Gambling Treatment Service Statistics',
+  },
+  {
+    id: 'ncmh_mhs',
+    org: '국립정신건강센터',
+    orgKo: '국립정신건강센터',
+    domain: 'alcohol',
+    scope: 'korea',
+    kind: 'prevalence',
+    cadence: 'quinquennial',
+    expectedMonth: null,
+    accessMethod: 'pdf',
+    reliability: 1,
+    url: 'https://mhs.ncmh.go.kr/',
+    titleKo: '정신건강실태조사',
+    titleEn: 'Korea National Mental Health Survey',
+    lastPublishedAt: '2021-12-27',
+    notes:
+      '2026년판 임박. 5년 주기(2001→2006→2011→2016→2021). 2025.10 연구성과 발표회 개최됨. 알코올사용장애 평생유병률 11.6%(정신질환 1위), 정신과 방문율 8.1%(기분장애 40.4% 대비 최저). 발표 시 즉시 기사화',
+  },
+  {
+    id: 'nia_smartphone',
+    org: 'NIA',
+    orgKo: '한국지능정보사회진흥원',
+    domain: 'digital',
+    scope: 'korea',
+    kind: 'prevalence',
+    cadence: 'annual',
+    expectedMonth: [3],
+    accessMethod: 'pdf',
+    reliability: 1,
+    url: 'https://www.nia.or.kr/site/nia_kor/ex/bbs/List.do?cbIdx=65914',
+    titleKo: '스마트폰 과의존 실태조사',
+    titleEn: 'Smartphone Overdependence Survey',
+    lastPublishedAt: '2026-03-27',
+    notes: '2025년판 발표됨. 전체 22.7%(5년 연속 하락), 청소년 43%(역행)',
+  },
+  {
+    id: 'kocca_game',
+    org: 'KOCCA',
+    orgKo: '한국콘텐츠진흥원',
+    domain: 'digital',
+    scope: 'korea',
+    kind: 'prevalence',
+    cadence: 'annual',
+    expectedMonth: [12],
+    accessMethod: 'pdf',
+    reliability: 2,
+    url: 'https://welcon.kocca.kr/',
+    titleKo: '게임이용자 실태조사',
+    titleEn: 'Game User Survey',
+    lastPublishedAt: '2025-12-18',
+    notes: '이용률 중심. 과몰입 지표 약함 — reliability 2',
+  },
+  {
+    id: 'mohw_addiction_center',
+    org: '보건복지부',
+    orgKo: '보건복지부',
+    domain: 'policy',
+    scope: 'korea',
+    kind: 'treatment',
+    cadence: 'annual',
+    expectedMonth: [10],
+    accessMethod: 'manual',
+    reliability: 1,
+    url: 'https://www.mohw.go.kr/menu.es?mid=a10706040400',
+    titleKo: '중독관리통합지원센터 운영현황',
+    titleEn: 'Addiction Management Center Statistics',
+    accessDetail: { source: '국정감사 요구자료', route: '국회 보건복지위' },
+    notes:
+      '센터 63개소, 예산 55.85억(+57.4%), 인력 258명, 청소년 등록자 4년 누적 89명. 국정감사가 금광',
+  },
+];
+
+async function run() {
+  const ds = new DataSource({
+    type: 'postgres',
+    host: process.env.DB_HOST || 'localhost',
+    port: Number(process.env.DB_PORT || 5432),
+    username: process.env.DB_USER || 'postgres',
+    password: process.env.DB_PASSWORD || '',
+    database: process.env.DB_NAME || 'addiction_society',
+    entities: [Source], // sources 테이블만 인지 → 기존 테이블 무손상
+    synchronize: true, // sources 테이블 없으면 생성
+    logging: false,
+  });
+
+  await ds.initialize();
+  const repo = ds.getRepository(Source);
+
+  // nextExpectedAt은 M1에서 전부 null (M2에서 계산)
+  for (const row of SOURCES) {
+    await repo.upsert({ ...row, nextExpectedAt: null }, ['id']);
+  }
+
+  const total = await repo.count();
+  const byScope = await repo
+    .createQueryBuilder('s')
+    .select('s.scope', 'scope')
+    .addSelect('COUNT(*)', 'count')
+    .groupBy('s.scope')
+    .getRawMany();
+
+  console.log(`[seed] 시드 대상 ${SOURCES.length}건, 테이블 총 ${total}건`);
+  console.log('[seed] scope별:', JSON.stringify(byScope));
+
+  await ds.destroy();
+}
+
+run().catch((e) => {
+  console.error('[seed] 실패:', e);
+  process.exit(1);
+});
