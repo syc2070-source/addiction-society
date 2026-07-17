@@ -80,6 +80,7 @@ export const authApi = {
 export const sourcesApi = {
   getAll: (params?: any) => api.get('/sources', { params }),
   getCalendar: () => api.get('/sources/calendar'),
+  getSummary: () => api.get('/sources/summary'),
   getOne: (id: string) => api.get(`/sources/${id}`),
 };
 

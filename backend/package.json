@@ -14,6 +14,8 @@
     "start:prod": "node dist/main",
     "seed:sources": "ts-node src/sources/seed/sources.seed.ts",
     "check:sources-urls": "ts-node src/sources/seed/check-urls.ts",
+    "backfill:next": "ts-node src/sources/seed/backfill-next.ts",
+    "monitor:once": "ts-node src/sources/seed/run-monitor.ts",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",

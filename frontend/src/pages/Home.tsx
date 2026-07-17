@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { researchApi, policyApi, recoveryApi } from '../api';
+import { researchApi, policyApi, recoveryApi, sourcesApi } from '../api';
 
 const Home: React.FC = () => {
   const [stats, setStats] = useState({
@@ -8,6 +8,14 @@ const Home: React.FC = () => {
     policy: 0,
     recovery: 0,
   });
+
+  // 데이터 관측소 요약 (GET /api/sources/summary). 실패해도 카드는 빈 상태로 유지.
+  const [summary, setSummary] = useState<{
+    total: number;
+    recent: { id: string; date: string; label: string; org: string }[];
+    upcoming: { id: string; date: string; label: string; org: string }[];
+  } | null>(null);
+  const [summaryLoading, setSummaryLoading] = useState(true);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -29,21 +37,21 @@ const Home: React.FC = () => {
     fetchStats();
   }, []);
 
-  // ── 중독 데이터 관측소 카드 데이터 (M0: 하드코딩. M2에서 GET /api/sources/summary 연동 예정) ──
-  // 최근 갱신: 실제 확인된 발표일 (임의 변경 금지)
-  const recentUpdates = [
-    { date: '2026-06-26', label: 'WHO SAFER 진행보고서' },
-    { date: '2026-06-26', label: 'UNODC 세계마약보고서 2026' },
-    { date: '2026-06-09', label: 'EUDA 유럽마약보고서 2026' },
-    { date: '2026-03-27', label: 'NIA 스마트폰 과의존 2025' },
-  ];
-  // 다음 발표 예정
-  const upcomingReleases = [
-    { date: '2026-07', label: 'SAMHSA NSDUH' },
-    { date: '2026-10', label: '국정감사 자료' },
-    { date: '2026-11', label: 'HRI 해악감소 보고서' },
-    { date: '미정', label: '정신건강실태조사 (5년 주기)' },
-  ];
+  useEffect(() => {
+    const fetchSummary = async () => {
+      try {
+        const res = await sourcesApi.getSummary();
+        setSummary(res.data);
+      } catch (error) {
+        console.error('관측소 요약 로딩 실패:', error);
+        setSummary(null); // 실패 시에도 카드는 유지(빈 상태)
+      } finally {
+        setSummaryLoading(false);
+      }
+    };
+    fetchSummary();
+  }, []);
+
   // 부처 분산 지도 데이터 (M0: 하드코딩)
   const ministryMap = [
     { type: '알코올·마약(치료)', ministry: '보건복지부', agency: '중독관리통합지원센터 63개소' },
@@ -75,6 +83,35 @@ const Home: React.FC = () => {
   };
   const obsDate: React.CSSProperties = { color: '#9ca3af', flexShrink: 0, minWidth: '82px' };
   const obsLabel: React.CSSProperties = { color: '#e5e7eb' };
+
+  // 관측소 카드 행 렌더: 로딩·빈 상태는 "수집 중"으로 (가짜 날짜 금지)
+  const renderObsRows = (
+    items: { id: string; date: string; label: string }[] | undefined,
+    mode: 'recent' | 'upcoming',
+  ) => {
+    if (summaryLoading) {
+      return (
+        <div style={obsRow}>
+          <span style={obsLabel}>수집 중…</span>
+        </div>
+      );
+    }
+    if (!items || items.length === 0) {
+      return (
+        <div style={obsRow}>
+          <span style={obsLabel}>수집 중</span>
+        </div>
+      );
+    }
+    return items.map((it) => (
+      <div key={it.id} style={obsRow}>
+        <span style={obsDate}>
+          {mode === 'upcoming' ? it.date.slice(0, 7) : it.date}
+        </span>
+        <span style={obsLabel}>{it.label}</span>
+      </div>
+    ));
+  };
 
   return (
     <>
@@ -111,15 +148,14 @@ const Home: React.FC = () => {
           </div>
         </div>
 
-        {/* Hero 카드 */}
-        {/* M0: 하드코딩. M2에서 GET /api/sources/summary 연동 예정 */}
+        {/* Hero 카드 — 데이터 관측소 요약(GET /api/sources/summary) 연동 */}
         <aside className="hero-card">
           <div className="hero-card-inner">
             <div className="hero-card-header">
               <div>
                 <div className="hero-card-title">중독 데이터 관측소</div>
                 <div style={{ fontSize: '0.78rem', color: '#9ca3af' }}>
-                  23개 소스 · 6개 부처 · 4개 국제기구
+                  {summary ? summary.total : 23}개 소스 · 6개 부처 · 4개 국제기구
                 </div>
               </div>
               <div className="status-pill">
@@ -128,26 +164,16 @@ const Home: React.FC = () => {
               </div>
             </div>
 
-            {/* 최근 갱신 */}
+            {/* 최근 갱신 (lastPublishedAt DESC) */}
             <div style={obsBlock}>
               <div style={obsSubtitle}>최근 갱신</div>
-              {recentUpdates.map((it) => (
-                <div key={it.date + it.label} style={obsRow}>
-                  <span style={obsDate}>{it.date}</span>
-                  <span style={obsLabel}>{it.label}</span>
-                </div>
-              ))}
+              {renderObsRows(summary?.recent, 'recent')}
             </div>
 
-            {/* 다음 발표 예정 */}
+            {/* 다음 발표 예정 (nextExpectedAt ASC) */}
             <div style={obsBlock}>
               <div style={obsSubtitle}>다음 발표 예정</div>
-              {upcomingReleases.map((it) => (
-                <div key={it.date + it.label} style={obsRow}>
-                  <span style={obsDate}>{it.date}</span>
-                  <span style={obsLabel}>{it.label}</span>
-                </div>
-              ))}
+              {renderObsRows(summary?.upcoming, 'upcoming')}
             </div>
           </div>
         </aside>

@@ -85,4 +85,62 @@ export class SourcesService {
     }
     return source;
   }
+
+  /**
+   * 히어로 카드용 요약.
+   * total, scope별 집계, 최근 발간 4건, 다음 예정 4건.
+   * recent/upcoming은 실제 값만 반환한다(없으면 있는 만큼만, 가짜 채움 금지).
+   */
+  async getSummary(): Promise<{
+    total: number;
+    byScope: Record<string, number>;
+    recent: { id: string; date: string; label: string; org: string }[];
+    upcoming: { id: string; date: string; label: string; org: string }[];
+  }> {
+    const total = await this.sourceRepository.count();
+
+    const scopeRaw = await this.sourceRepository
+      .createQueryBuilder('s')
+      .select('s.scope', 'scope')
+      .addSelect('COUNT(*)', 'count')
+      .groupBy('s.scope')
+      .getRawMany();
+    const byScope = scopeRaw.reduce(
+      (acc, r) => {
+        acc[r.scope] = parseInt(r.count, 10);
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
+
+    const recentRows = await this.sourceRepository
+      .createQueryBuilder('s')
+      .where('s.lastPublishedAt IS NOT NULL')
+      .orderBy('s.lastPublishedAt', 'DESC')
+      .limit(4)
+      .getMany();
+    const recent = recentRows.map((s) => ({
+      id: s.id,
+      date: s.lastPublishedAt as string,
+      label: s.titleKo,
+      org: s.orgKo,
+    }));
+
+    // upcoming은 비정례 발표 예정만. monthly는 매달 도래해 정보가치 없음
+    const upcomingRows = await this.sourceRepository
+      .createQueryBuilder('s')
+      .where('s.nextExpectedAt IS NOT NULL')
+      .andWhere("s.cadence <> 'monthly'")
+      .orderBy('s.nextExpectedAt', 'ASC')
+      .limit(4)
+      .getMany();
+    const upcoming = upcomingRows.map((s) => ({
+      id: s.id,
+      date: s.nextExpectedAt as string,
+      label: s.titleKo,
+      org: s.orgKo,
+    }));
+
+    return { total, byScope, recent, upcoming };
+  }
 }

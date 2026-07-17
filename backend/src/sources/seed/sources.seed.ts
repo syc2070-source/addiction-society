@@ -195,7 +195,7 @@ const SOURCES: Row[] = [
     domain: 'policy',
     scope: 'global',
     kind: 'policy',
-    cadence: 'biennial',
+    cadence: 'annual',
     expectedMonth: [11],
     accessMethod: 'pdf',
     reliability: 2,
@@ -203,7 +203,8 @@ const SOURCES: Row[] = [
     titleKo: '세계 해악감소 현황',
     titleEn: 'Global State of Harm Reduction',
     lastPublishedAt: '2025-12-03',
-    notes: '2년 주기(2024년 9판) + 중간연도 업데이트',
+    notes:
+      '2년 주기(2024년 9판) + 중간연도 업데이트. 본판 2년 주기이나 중간연도 업데이트 있어 annual로 감시',
   },
   {
     id: 'gdpi',

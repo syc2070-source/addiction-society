@@ -91,9 +91,17 @@ export class Source {
   @Column({ type: 'text', nullable: true })
   etag: string | null;
 
+  /** HTTP Last-Modified 헤더(변경 감지 2순위) */
+  @Column({ type: 'text', name: 'last_modified', nullable: true })
+  lastModified: string | null;
+
   /** 본문 해시(변경 감지용) */
   @Column({ type: 'text', name: 'content_hash', nullable: true })
   contentHash: string | null;
+
+  /** 연속 실패 횟수(3회 연속이면 stale). 성공 시 0으로 리셋 */
+  @Column({ type: 'int', name: 'fail_count', default: 0 })
+  failCount: number;
 
   /** 운영 메모 */
   @Column({ type: 'text', nullable: true })

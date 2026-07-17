@@ -16,10 +16,16 @@ export class SourcesController {
     return this.sourcesService.findAll(query);
   }
 
-  /** 발간 캘린더 (nextExpectedAt 임박순, M1에서는 빈 배열) */
+  /** 발간 캘린더 (nextExpectedAt 임박순) */
   @Get('calendar')
   findCalendar() {
     return this.sourcesService.findCalendar();
+  }
+
+  /** 히어로 카드 요약 (:id 보다 먼저 선언) */
+  @Get('summary')
+  getSummary() {
+    return this.sourcesService.getSummary();
   }
 
   /** 단건 상세 */

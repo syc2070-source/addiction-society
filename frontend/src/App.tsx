@@ -9,6 +9,7 @@ import PolicyList from './pages/PolicyList';
 import PolicyDetail from './pages/PolicyDetail';
 import RecoveryList from './pages/RecoveryList';
 import SourceList from './pages/SourceList';
+import SourceCalendar from './pages/SourceCalendar';
 import ReportList from './pages/ReportList';
 import ReportDetail from './pages/ReportDetail';
 import {
@@ -79,6 +80,14 @@ function App() {
           element={
             <Layout>
               <SourceList />
+            </Layout>
+          }
+        />
+        <Route
+          path="/calendar"
+          element={
+            <Layout>
+              <SourceCalendar />
             </Layout>
           }
         />
