@@ -87,7 +87,7 @@ const Home: React.FC = () => {
             <span style={{ fontSize: '0.75rem', opacity: 0.7 }}>데이터 기반 중독사회 연구</span>
           </div>
           <h1 className="hero-title">
-            중독은 개인의 <span className="highlight">도덕 실패</span>가 아니라,<br />
+            중독은 개인의 <span className="highlight">도덕 실패</span>가 아니라,<br className="hero-break" />
             사회 전체의 <span className="highlight">구조적 위험 시그널</span>입니다.
           </h1>
           <p className="hero-subtitle">
