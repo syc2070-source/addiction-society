@@ -1,0 +1,53 @@
+# Render Blueprint — 중독사회 백엔드 API
+# 배포 절차는 docs/DEPLOY-RUNBOOK.md 참고.
+# 값이 sync:false인 항목은 Render 대시보드에서 직접 입력한다(비밀값은 파일에 두지 않음).
+services:
+  - type: web
+    name: addiction-society-api
+    runtime: node
+    region: singapore
+    # ⚠️ Free는 15분 무요청 시 슬립 → 매일 09:00 크론이 실행되지 않는다.
+    #    발표 감시가 핵심이므로 Starter 이상 필수.
+    plan: starter
+    rootDir: backend
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start:prod
+    healthCheckPath: /api/sources/summary
+    envVars:
+      # 비밀 아님 — 값 직접 명시
+      - key: DB_SYNCHRONIZE
+        value: "false"
+      - key: DB_SSL
+        value: "true"
+      # 아래는 대시보드에서 입력 (Supabase 접속정보 / 기존 .env 값)
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRES_IN
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: AUTO_COLLECT_ENABLED
+        sync: false
+      - key: AUTO_COLLECT_CRON
+        sync: false
+      - key: AUTO_COLLECT_TZ
+        sync: false
+      - key: STATORY_API_URL
+        sync: false
+      - key: STATORY_ACADEMIC_QUERY
+        sync: false
+      - key: STATORY_ACADEMIC_LIMIT
+        sync: false
+      - key: DISCORD_WEBHOOK_OBSERVATORY
+        sync: false
+    # PORT는 Render가 자동 주입하며 main.ts가 process.env.PORT를 읽는다(별도 지정 불필요).

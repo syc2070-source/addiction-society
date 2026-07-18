@@ -36,6 +36,11 @@ import { Source } from './sources/entities/source.entity';
         username: configService.get('DB_USER', 'postgres'),
         password: configService.get('DB_PASSWORD', ''),
         database: configService.get('DB_NAME', 'addiction_society'),
+        // Supabase 등 원격 DB는 SSL 필요. 로컬은 DB_SSL 미설정(false)이라 영향 없음.
+        ssl:
+          configService.get('DB_SSL') === 'true'
+            ? { rejectUnauthorized: false }
+            : false,
         // 엔티티 추가 시 data-source.ts에도 등록할 것 (역방향 동일)
         entities: [
           User,

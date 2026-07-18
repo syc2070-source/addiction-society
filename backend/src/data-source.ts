@@ -27,6 +27,9 @@ export const AppDataSource = new DataSource({
   username: process.env.DB_USER || 'postgres',
   password: process.env.DB_PASSWORD || '',
   database: process.env.DB_NAME || 'addiction_society',
+  // Supabase 등 원격 DB는 SSL 필요. 로컬은 DB_SSL 미설정(false)이라 영향 없음.
+  ssl:
+    process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
   // app.module.ts의 entities 배열과 반드시 일치해야 한다(7개).
   entities: [
     User,
