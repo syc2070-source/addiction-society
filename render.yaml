@@ -11,6 +11,9 @@ services:
     plan: starter
     rootDir: backend
     buildCommand: npm ci && npm run build
+    # 빌드 후·기동 전에 매 배포 실행(멱등). 마이그레이션·시딩을 서버가 스스로 수행.
+    # Starter+ 에서 동작. 실패 시 배포가 중단되어 구버전이 유지된다.
+    preDeployCommand: bash scripts/deploy-init.sh
     startCommand: npm run start:prod
     healthCheckPath: /api/sources/summary
     envVars:
