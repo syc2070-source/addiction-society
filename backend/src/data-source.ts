@@ -44,5 +44,6 @@ export const AppDataSource = new DataSource({
   // (dist/*.js를 함께 넣으면 watch 컴파일 산출물과 중복 로드되어 오류)
   migrations: ['src/migrations/*.ts'],
   synchronize: false,
-  logging: false,
+  // CLI/시드 실행 시 쿼리 로그도 기본 off. DB_LOGGING='true'일 때만 켠다.
+  logging: process.env.DB_LOGGING === 'true',
 });

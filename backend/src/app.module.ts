@@ -56,7 +56,9 @@ import { Source } from './sources/entities/source.entity';
         synchronize: configService.get('DB_SYNCHRONIZE') === 'true',
         // 마이그레이션은 배포 스크립트에서 수동 실행(npm run migration:run)한다.
         migrationsRun: false,
-        logging: true,
+        // 쿼리 로깅은 기본 off. 헬스체크(/summary)마다 쿼리가 찍혀 운영 로그가 오염되므로
+        // DB_LOGGING='true'를 명시한 로컬 디버깅 때만 켠다.
+        logging: configService.get('DB_LOGGING') === 'true',
       }),
       inject: [ConfigService],
     }),
