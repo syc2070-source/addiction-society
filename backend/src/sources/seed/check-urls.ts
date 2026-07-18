@@ -10,28 +10,15 @@
  * 크론화(정기 실행)는 M2 범위.
  */
 import 'reflect-metadata';
-import { config } from 'dotenv';
-import { DataSource } from 'typeorm';
+import { AppDataSource } from '../../data-source';
 import { Source } from '../entities/source.entity';
-
-config();
 
 const UA = 'AddictionSociety-Observatory/1.0 (+https://addictionsociety.net)';
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 async function run() {
-  const ds = new DataSource({
-    type: 'postgres',
-    host: process.env.DB_HOST || 'localhost',
-    port: Number(process.env.DB_PORT || 5432),
-    username: process.env.DB_USER || 'postgres',
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'addiction_society',
-    entities: [Source],
-    synchronize: false, // 테이블은 시드에서 이미 생성됨
-    logging: false,
-  });
-
+  // 공용 AppDataSource 재사용(synchronize:false).
+  const ds = AppDataSource;
   await ds.initialize();
   const repo = ds.getRepository(Source);
   const sources = await repo.find();

@@ -10,11 +10,8 @@
  * upsert(conflict: id)이므로 재실행해도 중복이 생기지 않는다.
  */
 import 'reflect-metadata';
-import { config } from 'dotenv';
-import { DataSource } from 'typeorm';
+import { AppDataSource } from '../../data-source';
 import { Source } from '../entities/source.entity';
-
-config();
 
 const M_ALL = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; // 월간 소스용 1~12월
 
@@ -428,18 +425,8 @@ const SOURCES: Row[] = [
 ];
 
 async function run() {
-  const ds = new DataSource({
-    type: 'postgres',
-    host: process.env.DB_HOST || 'localhost',
-    port: Number(process.env.DB_PORT || 5432),
-    username: process.env.DB_USER || 'postgres',
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'addiction_society',
-    entities: [Source], // sources 테이블만 인지 → 기존 테이블 무손상
-    synchronize: true, // sources 테이블 없으면 생성
-    logging: false,
-  });
-
+  // 공용 AppDataSource 재사용(synchronize:false). 테이블 생성은 마이그레이션이 담당.
+  const ds = AppDataSource;
   await ds.initialize();
   const repo = ds.getRepository(Source);
 

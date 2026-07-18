@@ -36,6 +36,7 @@ import { Source } from './sources/entities/source.entity';
         username: configService.get('DB_USER', 'postgres'),
         password: configService.get('DB_PASSWORD', ''),
         database: configService.get('DB_NAME', 'addiction_society'),
+        // 엔티티 추가 시 data-source.ts에도 등록할 것 (역방향 동일)
         entities: [
           User,
           Research,
@@ -45,7 +46,11 @@ import { Source } from './sources/entities/source.entity';
           Tag,
           Source,
         ],
-        synchronize: true,
+        // 스키마 변경은 오직 마이그레이션으로만. DB_SYNCHRONIZE='true'를 명시한
+        // 경우에만 켜짐(기본 false). 운영에서는 절대 금지(테이블 파괴 위험).
+        synchronize: configService.get('DB_SYNCHRONIZE') === 'true',
+        // 마이그레이션은 배포 스크립트에서 수동 실행(npm run migration:run)한다.
+        migrationsRun: false,
         logging: true,
       }),
       inject: [ConfigService],
