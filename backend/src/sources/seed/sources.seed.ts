@@ -284,6 +284,14 @@ const SOURCES: Row[] = [
         '외국인',
         '압수현황',
       ],
+      // 게시판 최신글 감지(전체 페이지 해시는 조회수 때문에 매일 오탐).
+      // 셀렉터는 2026-07 실페이지 실측: .brdList > ul > li 반복,
+      // 제목 dl.title dd a, 작성일 dl.date dd ('2026.07.21.' 형식)
+      board: {
+        row: '.brdList ul li',
+        title: 'dl.title dd a',
+        date: 'dl.date dd',
+      },
     },
     notes: '자동화 1순위. 월 단위 시계열 확보 가능',
   },
@@ -301,6 +309,19 @@ const SOURCES: Row[] = [
     url: 'https://www.drugfree.or.kr/portal/kor/M467848284/board.do',
     titleKo: '마약류 통계',
     titleEn: 'Drug Statistics',
+    accessDetail: {
+      // 게시판 최신글 감지. 셀렉터는 2026-07 실페이지 실측:
+      // .board_list table tbody tr 반복, 제목 .subject .text,
+      // 등록일은 마지막 td ('2026-03-09' 형식)
+      board: {
+        row: '.board_list table tbody tr',
+        title: '.subject .text',
+        date: 'td:last-child',
+      },
+      // 서버가 TLS 중간 인증서를 안 보내 기본 fetch가 검증 실패(2026-07 실측).
+      // 공개 통계 미러(변경 감지 용도)라 이 소스만 검증 생략으로 접근한다.
+      tls: 'insecure',
+    },
     notes: '대검 통계 미러. HTML 테이블 → cheerio. spo_drug_monthly 백업',
   },
   {

@@ -103,6 +103,10 @@ export class Source {
   @Column({ type: 'int', name: 'fail_count', default: 0 })
   failCount: number;
 
+  /** 마지막 알림 전송 시각. 쿨다운 기준(change 7일 / manual 30일) */
+  @Column({ type: 'timestamptz', name: 'last_notified_at', nullable: true })
+  lastNotifiedAt: Date | null;
+
   /** 운영 메모 */
   @Column({ type: 'text', nullable: true })
   notes: string | null;

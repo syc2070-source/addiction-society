@@ -3,13 +3,65 @@ import { Cron } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { createHash } from 'crypto';
+import { load } from 'cheerio';
+import { Agent, fetch as undiciFetch } from 'undici';
 import { Source } from './entities/source.entity';
 import { SourcesNotifier } from './discord.notifier';
+import { computeNextExpected } from './next-expected.util';
 
 const UA = 'AddictionSociety-Observatory/1.0 (+https://addictionsociety.net)';
 const TIMEOUT_MS = 30_000;
 const GAP_MS = 2000; // 요청 간 최소 2초
 const MAX_FAIL = 3; // 최대값: 연속 실패 3회면 stale
+
+// 알림 쿨다운: 같은 소스가 이 기간 안에 또 트리거되면 알림 생략(로그만)
+const COOLDOWN_CHANGE_MS = 7 * 24 * 3600_000; // 갱신 감지 7일
+const COOLDOWN_MANUAL_MS = 30 * 24 * 3600_000; // 수동 확인 요망 30일
+
+// TLS 중간 인증서를 서버가 제공하지 않는 소스 전용(검증 생략).
+// accessDetail.tls === 'insecure'인 소스에만 사용한다.
+const insecureAgent = new Agent({ connect: { rejectUnauthorized: false } });
+
+/** 페이지 응답의 공통 최소 형태(global fetch / undici fetch 겸용) */
+interface PageResponse {
+  status: number;
+  ok: boolean;
+  headers: { get(name: string): string | null };
+  text(): Promise<string>;
+}
+
+/** 게시판 최신글 감지용 셀렉터 (accessDetail.board) */
+interface BoardSelectors {
+  row: string;
+  title: string;
+  date: string;
+}
+
+/**
+ * GET 본문 해시 전 정규화 — 동적 페이지 오탐 방지.
+ * 실측(spo.go.kr·drugfree.or.kr 2회 fetch diff, 2026-07) 기반:
+ *  - 연속 요청 간 차이는 없었고, csrf/세션 토큰도 발견되지 않았다.
+ *  - 일 단위 가변 요소는 게시물 조회수 등 본문 콘텐츠 자체(게시판형은
+ *    board-latest 감지로 해결). 여기서는 스크립트/스타일/주석/hidden input/
+ *    jsessionid류 URL 파라미터 등 콘텐츠가 아닌 가변 후보를 제거한다.
+ */
+export function normalizeForHash(body: string): string {
+  return body
+    .replace(/<script\b[\s\S]*?<\/script\s*>/gi, ' ')
+    .replace(/<style\b[\s\S]*?<\/style\s*>/gi, ' ')
+    .replace(/<!--[\s\S]*?-->/g, ' ')
+    .replace(/<input\b[^>]*type=["']?hidden["']?[^>]*>/gi, ' ')
+    .replace(/;?jsessionid=[^"'&\s>]+/gi, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/** 게시판 날짜 문자열('2026.07.21.' / '2026-03-09' 등) → 'YYYY-MM-DD' */
+export function parseBoardDate(raw: string): string | null {
+  const m = raw.match(/(\d{4})[.\-/]\s*(\d{1,2})[.\-/]\s*(\d{1,2})/);
+  if (!m) return null;
+  return `${m[1]}-${m[2].padStart(2, '0')}-${m[3].padStart(2, '0')}`;
+}
 
 /** 소스 1건 처리 결과 */
 export interface MonitorResult {
@@ -120,13 +172,28 @@ export class SourcesScheduler {
     return results;
   }
 
+  /** 마지막 알림 후 cooldownMs가 아직 지나지 않았으면 true */
+  private inCooldown(s: Source, cooldownMs: number, now: Date): boolean {
+    return (
+      s.lastNotifiedAt != null &&
+      now.getTime() - new Date(s.lastNotifiedAt).getTime() < cooldownMs
+    );
+  }
+
   /** 소스 1건 감시(변경 감지 + DB 갱신 + 알림) */
   private async checkOne(s: Source): Promise<MonitorResult> {
     const now = new Date();
 
-    // manual: HTTP 확인 건너뛰고 알림만
+    // manual: HTTP 확인 건너뛰고 알림만 (30일 쿨다운)
     if (s.accessMethod === 'manual') {
-      await this.repo.update(s.id, { lastCheckedAt: now });
+      if (this.inCooldown(s, COOLDOWN_MANUAL_MS, now)) {
+        await this.repo.update(s.id, { lastCheckedAt: now });
+        this.logger.log(
+          `[monitor] MANUAL  ${s.id} — 쿨다운 30일 내(마지막 알림 ${new Date(s.lastNotifiedAt!).toISOString()}), 알림 생략`,
+        );
+        return { id: s.id, status: 'manual', detail: 'cooldown' };
+      }
+      await this.repo.update(s.id, { lastCheckedAt: now, lastNotifiedAt: now });
       await this.notifier.notify(s, 'manual');
       this.logger.log(`[monitor] MANUAL  ${s.id} — HTTP 생략, 알림만`);
       return { id: s.id, status: 'manual' };
@@ -149,6 +216,19 @@ export class SourcesScheduler {
       });
 
       if (det.changed) {
+        // 갱신 감지 7일 쿨다운: 변경 기록(det.update)은 반영하되 알림만 생략
+        if (this.inCooldown(s, COOLDOWN_CHANGE_MS, now)) {
+          this.logger.log(
+            `[monitor] CHANGED ${s.id} (${det.method}) — 쿨다운 7일 내(마지막 알림 ${new Date(s.lastNotifiedAt!).toISOString()}), 알림 생략`,
+          );
+          return {
+            id: s.id,
+            status: 'changed',
+            method: det.method,
+            detail: 'cooldown',
+          };
+        }
+        await this.repo.update(s.id, { lastNotifiedAt: now });
         await this.notifier.notify(s, 'change');
         this.logger.log(`[monitor] CHANGED ${s.id} (${det.method})`);
         return { id: s.id, status: 'changed', method: det.method };
@@ -177,10 +257,79 @@ export class SourcesScheduler {
   }
 
   /**
-   * 변경 감지 3단 폴백.
+   * HTTP 요청 헬퍼. accessDetail.tls === 'insecure'인 소스(서버가 중간 인증서를
+   * 안 주는 drugfree.or.kr 등)만 검증 생략 Agent로 요청한다.
+   */
+  private fetchPage(s: Source, method: 'HEAD' | 'GET'): Promise<PageResponse> {
+    const init = {
+      method,
+      headers: { 'User-Agent': UA },
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+      redirect: 'follow' as const,
+    };
+    if (s.accessDetail?.tls === 'insecure') {
+      return undiciFetch(s.url, { ...init, dispatcher: insecureAgent });
+    }
+    return fetch(s.url, init);
+  }
+
+  /**
+   * 게시판형 소스: 전체 페이지 해시 대신 "목록 첫 행(제목+날짜)"으로 변경 감지.
+   * 조회수·새글 배지 등 목록 페이지의 일상적 가변 요소에 흔들리지 않는다.
+   * 새 게시물 감지 시 lastPublishedAt을 게시물 날짜로 갱신하고
+   * nextExpectedAt을 재계산한다(감지 → 기록 연결).
+   */
+  private async detectBoardLatest(
+    s: Source,
+    sel: BoardSelectors,
+  ): Promise<{
+    changed: boolean;
+    method: string;
+    update: Partial<Source>;
+    blocked?: boolean;
+  }> {
+    const get = await this.fetchPage(s, 'GET');
+    if (get.status === 403 || get.status === 405) {
+      return { changed: false, method: 'blocked', update: {}, blocked: true };
+    }
+    if (!get.ok) throw new Error(`GET HTTP ${get.status}`);
+
+    const $ = load(await get.text());
+    const row = $(sel.row).first();
+    const title = row.find(sel.title).first().text().replace(/\s+/g, ' ').trim();
+    const dateRaw = row.find(sel.date).first().text().trim();
+    if (!title) {
+      // 셀렉터가 빗나감(사이트 개편 등) → 실패로 취급해 failCount 경로로
+      throw new Error(`게시판 첫 행 파싱 실패 (row='${sel.row}')`);
+    }
+    const latestDate = parseBoardDate(dateRaw);
+    const hash = createHash('sha256')
+      .update(`${title}|${latestDate ?? dateRaw}`)
+      .digest('hex');
+    const changed = s.contentHash != null && s.contentHash !== hash;
+
+    const update: Partial<Source> = { contentHash: hash };
+    // 최초 기준값 저장 시에도 실측 날짜를 기록(정확한 발간 이력 확보)
+    if ((changed || s.contentHash == null) && latestDate) {
+      update.lastPublishedAt = latestDate;
+      update.nextExpectedAt = computeNextExpected({
+        cadence: s.cadence,
+        expectedMonth: s.expectedMonth,
+        lastPublishedAt: latestDate,
+      });
+    }
+    this.logger.log(
+      `[monitor] 게시판 최신글 ${s.id}: "${title}" (${latestDate ?? (dateRaw || '날짜 없음')})`,
+    );
+    return { changed, method: 'board-latest', update };
+  }
+
+  /**
+   * 변경 감지.
+   *  0) accessDetail.board 셀렉터가 있으면 → 게시판 최신글(제목+날짜) 감지
    *  1) HEAD → ETag 비교
    *  2) HEAD → Last-Modified 비교
-   *  3) GET → 본문 SHA-256 해시 비교
+   *  3) GET → 정규화(스크립트/주석/hidden input 제거 등) 본문 SHA-256 해시 비교
    * HEAD가 403/405면 곧바로 GET으로 폴백하고 stale로 판정하지 않는다.
    * 최초 확인(기존 값 null)은 기준값만 저장하고 '변경'으로 보지 않는다(초기 오탐 방지).
    */
@@ -192,14 +341,14 @@ export class SourcesScheduler {
     update: Partial<Source>;
     blocked?: boolean;
   }> {
-    let head: Response | null = null;
+    const board = s.accessDetail?.board as BoardSelectors | undefined;
+    if (board?.row && board?.title && board?.date) {
+      return this.detectBoardLatest(s, board);
+    }
+
+    let head: PageResponse | null = null;
     try {
-      head = await fetch(s.url, {
-        method: 'HEAD',
-        headers: { 'User-Agent': UA },
-        signal: AbortSignal.timeout(TIMEOUT_MS),
-        redirect: 'follow',
-      });
+      head = await this.fetchPage(s, 'HEAD');
     } catch {
       head = null; // HEAD 예외 → GET 폴백 시도
     }
@@ -228,19 +377,14 @@ export class SourcesScheduler {
       }
     }
 
-    // GET 본문 해시
-    const get = await fetch(s.url, {
-      method: 'GET',
-      headers: { 'User-Agent': UA },
-      signal: AbortSignal.timeout(TIMEOUT_MS),
-      redirect: 'follow',
-    });
+    // GET 본문 해시 (정규화 후)
+    const get = await this.fetchPage(s, 'GET');
     if (get.status === 403 || get.status === 405) {
       // GET도 차단 → 판정 불가, stale 아님
       return { changed: false, method: 'blocked', update: {}, blocked: true };
     }
     if (!get.ok) throw new Error(`GET HTTP ${get.status}`);
-    const body = await get.text();
+    const body = normalizeForHash(await get.text());
     const hash = createHash('sha256').update(body).digest('hex');
     const changed = s.contentHash != null && s.contentHash !== hash;
     return { changed, method: 'hash', update: { contentHash: hash } };
