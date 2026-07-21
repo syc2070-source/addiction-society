@@ -48,6 +48,10 @@ export class RecoveryResource {
   @Column('varchar', { array: true, nullable: true })
   domains: DomainCode[];
 
+  /** 출처 URL — 공공 목록 크롤링 자원의 원본 페이지 (AS-FILL-1) */
+  @Column({ name: 'source_url', type: 'varchar', length: 500, nullable: true })
+  sourceUrl: string | null;
+
   @Column({ name: 'is_verified', default: false })
   isVerified: boolean;
 
