@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- 중독사회 관측소 파비콘: 다크 네이비 + 그린 액센트 (관측 신호 모티프) -->
+  <rect width="64" height="64" rx="14" fill="#141e33"/>
+  <circle cx="32" cy="32" r="17" fill="none" stroke="#2b3a58" stroke-width="3"/>
+  <path d="M15 32 A17 17 0 0 1 32 15" fill="none" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="32" cy="32" r="6" fill="#22c55e"/>
+</svg>

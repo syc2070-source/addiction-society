@@ -12,7 +12,13 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
-/** locale별 SEO 메타데이터 (제목·설명은 messages/meta에서) */
+/**
+ * 사이트 기준 URL. Vercel 환경변수 NEXT_PUBLIC_SITE_URL로 지정
+ * (도메인 전환 전에는 프리뷰/프로덕션 vercel.app URL, 전환 후 addictionsociety.net).
+ */
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
+
+/** locale별 SEO 메타데이터 — OG + hreflang alternate 포함 */
 export async function generateMetadata({
   params,
 }: {
@@ -20,9 +26,27 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'meta' });
+  const path = locale === 'ko' ? '/' : `/${locale}`;
   return {
+    metadataBase: new URL(SITE_URL),
     title: t('title'),
     description: t('description'),
+    alternates: {
+      canonical: path,
+      languages: {
+        ko: '/',
+        en: '/en',
+        'x-default': '/',
+      },
+    },
+    openGraph: {
+      type: 'website',
+      siteName: 'Addiction Society',
+      title: t('title'),
+      description: t('description'),
+      url: path,
+      locale: locale === 'ko' ? 'ko_KR' : 'en_US',
+    },
   };
 }
 
