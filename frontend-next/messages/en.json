@@ -1,0 +1,34 @@
+{
+  "meta": {
+    "title": "Addiction Society — Addiction Data Observatory",
+    "description": "A data observatory that reads alcohol, drug, gambling and digital addiction as structural signals of society. Monitoring releases from 23 domestic and international sources, building indicators, policy and research archives."
+  },
+  "hero": {
+    "badgeLabel": "Project & Platform",
+    "badgeDesc": "Data-driven research on the addicted society",
+    "line1": "Addiction is not a personal <hl>moral failing</hl> —",
+    "line2": "it is a <hl>structural risk signal</hl> for society.",
+    "subtitle": "<b>Addiction Society</b> does not treat gambling, gaming, alcohol or digital addiction as merely personal problems. It is a research platform that <b>reads the entire risk system through data</b> — inequality, finance and platform industries, urban and labor structures, and AI — and <b>proposes a new standard for recovery communities</b>."
+  },
+  "obs": {
+    "title": "Addiction Data Observatory",
+    "subtitle": "{total} sources · 6 ministries · 4 international organizations",
+    "subtitleCollecting": "Collecting sources",
+    "live": "LIVE",
+    "recent": "Recently updated",
+    "upcoming": "Upcoming releases",
+    "collecting": "Collecting"
+  },
+  "ministry": {
+    "kicker": "Data & Reports",
+    "title": "Korea's addiction response is split across six ministries",
+    "desc": "Each type of addiction — alcohol, gambling, internet, gaming, drugs — falls under a different ministry and a different implementing agency.",
+    "tableLabel": "Ministry fragmentation by addiction type",
+    "colType": "Addiction type",
+    "colMinistry": "Ministry in charge",
+    "colAgency": "Implementing agency",
+    "quote": "\"Each ministry operates under different laws, which makes it hard to build a cooperative framework.\"",
+    "quoteBy": "— Ministry of Health and Welfare official, 2025 parliamentary audit",
+    "footnote": "With separate legal mandates and data systems, even information sharing is impossible — and no integrated system exists to support a single adolescent continuously from initial counseling through treatment and aftercare."
+  }
+}
