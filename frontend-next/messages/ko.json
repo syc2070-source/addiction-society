@@ -3,6 +3,90 @@
     "title": "중독사회 — 중독 데이터 관측소",
     "description": "알코올·마약·도박·디지털 중독을 사회 구조의 시그널로 읽는 데이터 관측소. 23개 국내외 소스의 발표를 감시하고 지표·정책·연구를 축적합니다."
   },
+  "nav": {
+    "groupData": "데이터",
+    "sources": "소스 지도",
+    "calendar": "발표 달력",
+    "groupArchive": "자료실",
+    "policy": "정책문서",
+    "research": "연구자료",
+    "recovery": "회복자원"
+  },
+  "footer": {
+    "tagline": "중독을 사회 구조의 시그널로 읽는 데이터 관측소"
+  },
+  "common": {
+    "collecting": "수집 중",
+    "empty": "조건에 맞는 결과가 없습니다.",
+    "searchButton": "검색",
+    "prev": "이전",
+    "next": "다음",
+    "viewOriginal": "원본 보기 ↗",
+    "unavailable": "데이터를 불러오지 못했습니다 — 수집 중"
+  },
+  "sources": {
+    "kicker": "Data Sources",
+    "title": "데이터 관측소 · 소스 레지스트리",
+    "desc": "국제·미국·한국 기관의 중독 관련 정기 발간물 {total}건을 추적합니다. 발간 임박순으로 정렬됩니다.",
+    "searchPlaceholder": "검색: 제목, 기관",
+    "domainAll": "도메인: 전체",
+    "scopeAll": "범위: 전체",
+    "cadenceAll": "주기: 전체",
+    "lastPublished": "최근 발표",
+    "nextExpected": "다음 예정",
+    "license": "라이선스",
+    "stale": "갱신 지연",
+    "reliability1": "1차 소스",
+    "reliability2": "기관 2차",
+    "reliability3": "언론",
+    "domain": {
+      "alcohol": "알코올",
+      "drug": "마약",
+      "gambling": "도박",
+      "digital": "디지털",
+      "tobacco": "담배",
+      "policy": "정책",
+      "multi": "종합"
+    },
+    "scope": { "global": "국제", "regional": "지역", "korea": "한국", "intl": "국제" },
+    "cadence": {
+      "monthly": "월간",
+      "quarterly": "분기",
+      "annual": "연간",
+      "biennial": "격년",
+      "quinquennial": "5년",
+      "irregular": "비정기"
+    }
+  },
+  "calendarPage": {
+    "kicker": "Publication Calendar",
+    "title": "발표 캘린더",
+    "desc": "다음 발표가 예정된 소스를 월별로 정리합니다. ★는 기사화 우선순위(한국·1차 소스)입니다.",
+    "month": "{year}년 {month}월",
+    "scheduledFor": "{ym} 예정",
+    "undatedGroup": "발표 예정 미정",
+    "undated": "발표 시점 미정",
+    "star": "★ 기사화 우선"
+  },
+  "policyPage": {
+    "kicker": "Policy Documents",
+    "title": "정책문서",
+    "desc": "국가별 중독 정책 문서를 수집·분류합니다.",
+    "searchPlaceholder": "검색: 제목, 국가, 내용"
+  },
+  "researchPage": {
+    "kicker": "Research",
+    "title": "연구자료",
+    "desc": "중독 관련 학술 연구를 메타데이터·요약과 함께 정리합니다.",
+    "searchPlaceholder": "검색: 제목, 저자, 키워드"
+  },
+  "recoveryPage": {
+    "kicker": "Recovery Resources",
+    "title": "회복자원",
+    "desc": "상담센터, 자조모임, 핫라인 등 회복을 위한 자원을 정리합니다.",
+    "searchPlaceholder": "검색: 이름, 주소, 설명",
+    "verified": "✓ 인증됨"
+  },
   "hero": {
     "badgeLabel": "Project & Platform",
     "badgeDesc": "데이터 기반 중독사회 연구",

@@ -3,6 +3,90 @@
     "title": "Addiction Society — Addiction Data Observatory",
     "description": "A data observatory that reads alcohol, drug, gambling and digital addiction as structural signals of society. Monitoring releases from 23 domestic and international sources, building indicators, policy and research archives."
   },
+  "nav": {
+    "groupData": "Data",
+    "sources": "Source Map",
+    "calendar": "Calendar",
+    "groupArchive": "Archive",
+    "policy": "Policy",
+    "research": "Research",
+    "recovery": "Recovery"
+  },
+  "footer": {
+    "tagline": "A data observatory reading addiction as a structural signal of society"
+  },
+  "common": {
+    "collecting": "Collecting",
+    "empty": "No results match the criteria.",
+    "searchButton": "Search",
+    "prev": "Prev",
+    "next": "Next",
+    "viewOriginal": "View original ↗",
+    "unavailable": "Failed to load data — collecting"
+  },
+  "sources": {
+    "kicker": "Data Sources",
+    "title": "Data Observatory · Source Registry",
+    "desc": "Tracking {total} periodic publications on addiction from international, US and Korean institutions, sorted by upcoming release.",
+    "searchPlaceholder": "Search: title, organization",
+    "domainAll": "Domain: all",
+    "scopeAll": "Scope: all",
+    "cadenceAll": "Cadence: all",
+    "lastPublished": "Last published",
+    "nextExpected": "Next expected",
+    "license": "License",
+    "stale": "Stale",
+    "reliability1": "Primary source",
+    "reliability2": "Institutional",
+    "reliability3": "Media",
+    "domain": {
+      "alcohol": "Alcohol",
+      "drug": "Drugs",
+      "gambling": "Gambling",
+      "digital": "Digital",
+      "tobacco": "Tobacco",
+      "policy": "Policy",
+      "multi": "Multi"
+    },
+    "scope": { "global": "Global", "regional": "Regional", "korea": "Korea", "intl": "International" },
+    "cadence": {
+      "monthly": "Monthly",
+      "quarterly": "Quarterly",
+      "annual": "Annual",
+      "biennial": "Biennial",
+      "quinquennial": "Every 5 years",
+      "irregular": "Irregular"
+    }
+  },
+  "calendarPage": {
+    "kicker": "Publication Calendar",
+    "title": "Publication Calendar",
+    "desc": "Sources with upcoming releases, grouped by month. ★ marks coverage priority (Korea · primary source).",
+    "month": "{month} {year}",
+    "scheduledFor": "Expected {ym}",
+    "undatedGroup": "Release date undetermined",
+    "undated": "Release date undetermined",
+    "star": "★ Coverage priority"
+  },
+  "policyPage": {
+    "kicker": "Policy Documents",
+    "title": "Policy Documents",
+    "desc": "Collecting and classifying addiction policy documents by country.",
+    "searchPlaceholder": "Search: title, country, content"
+  },
+  "researchPage": {
+    "kicker": "Research",
+    "title": "Research",
+    "desc": "Academic research on addiction, organized with metadata and summaries.",
+    "searchPlaceholder": "Search: title, authors, keywords"
+  },
+  "recoveryPage": {
+    "kicker": "Recovery Resources",
+    "title": "Recovery Resources",
+    "desc": "Counseling centers, self-help groups and hotlines for recovery.",
+    "searchPlaceholder": "Search: name, address, description",
+    "verified": "✓ Verified"
+  },
   "hero": {
     "badgeLabel": "Project & Platform",
     "badgeDesc": "Data-driven research on the addicted society",

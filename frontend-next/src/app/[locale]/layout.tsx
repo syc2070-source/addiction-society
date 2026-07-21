@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation';
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { routing } from '@/i18n/routing';
+import SiteHeader from '@/components/SiteHeader';
+import SiteFooter from '@/components/SiteFooter';
 import '../globals.css';
 
 /** ko/en 정적 생성 */
@@ -42,7 +44,11 @@ export default async function LocaleLayout({
   return (
     <html lang={locale}>
       <body>
-        <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        <NextIntlClientProvider>
+          <SiteHeader />
+          {children}
+          <SiteFooter />
+        </NextIntlClientProvider>
       </body>
     </html>
   );

@@ -1,7 +1,6 @@
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { hasLocale } from 'next-intl';
 import { routing, type AppLocale } from '@/i18n/routing';
-import { Link } from '@/i18n/navigation';
 import { fetchSourcesSummary, type SummaryItem } from '@/lib/api';
 import { MINISTRY_MAP } from '@/data/ministry-map';
 import styles from './page.module.css';
@@ -17,6 +16,8 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
 
   const t = await getTranslations();
   const summary = await fetchSourcesSummary();
+
+  const l = locale as AppLocale;
 
   const rich = {
     hl: (chunks: React.ReactNode) => (
@@ -41,34 +42,16 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
         <span className={styles.obsDate}>
           {mode === 'upcoming' ? it.date.slice(0, 7) : it.date}
         </span>
-        <span className={styles.obsLabel}>{it.label}</span>
+        <span className={styles.obsLabel}>
+          {/* /en은 labelEn 우선, 없으면 label (구버전 API 호환) */}
+          {l === 'en' ? it.labelEn || it.label : it.label}
+        </span>
       </div>
     ));
   };
 
-  const l = locale as AppLocale;
-
   return (
     <main className={styles.main}>
-      {/* 언어 전환 (ko ↔ en) */}
-      <nav className={styles.localeSwitch} aria-label="Language">
-        <Link
-          href="/"
-          locale="ko"
-          className={l === 'ko' ? styles.localeActive : undefined}
-        >
-          한국어
-        </Link>
-        <span aria-hidden>·</span>
-        <Link
-          href="/"
-          locale="en"
-          className={l === 'en' ? styles.localeActive : undefined}
-        >
-          English
-        </Link>
-      </nav>
-
       {/* 히어로 */}
       <section className={styles.hero}>
         <div>

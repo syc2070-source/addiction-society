@@ -94,8 +94,20 @@ export class SourcesService {
   async getSummary(): Promise<{
     total: number;
     byScope: Record<string, number>;
-    recent: { id: string; date: string; label: string; org: string }[];
-    upcoming: { id: string; date: string; label: string; org: string }[];
+    recent: {
+      id: string;
+      date: string;
+      label: string;
+      labelEn: string;
+      org: string;
+    }[];
+    upcoming: {
+      id: string;
+      date: string;
+      label: string;
+      labelEn: string;
+      org: string;
+    }[];
   }> {
     const total = await this.sourceRepository.count();
 
@@ -123,6 +135,7 @@ export class SourcesService {
       id: s.id,
       date: s.lastPublishedAt as string,
       label: s.titleKo,
+      labelEn: s.titleEn, // 영어판 표시용 (F-2)
       org: s.orgKo,
     }));
 
@@ -138,6 +151,7 @@ export class SourcesService {
       id: s.id,
       date: s.nextExpectedAt as string,
       label: s.titleKo,
+      labelEn: s.titleEn, // 영어판 표시용 (F-2)
       org: s.orgKo,
     }));
 
