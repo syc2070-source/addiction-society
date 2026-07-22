@@ -7,13 +7,26 @@
     "groupData": "데이터",
     "sources": "소스 지도",
     "calendar": "발표 달력",
+    "groupAnalysis": "분석",
+    "lab": "분석실",
     "groupArchive": "자료실",
     "policy": "정책문서",
     "research": "연구자료",
     "recovery": "회복자원"
   },
   "footer": {
-    "tagline": "중독을 사회 구조의 시그널로 읽는 데이터 관측소"
+    "tagline": "중독을 사회 구조의 시그널로 읽는 데이터 관측소",
+    "ecosystem": "함께 보기",
+    "addictionNews": "중독뉴스"
+  },
+  "labPage": {
+    "kicker": "Analysis Lab",
+    "title": "분석실",
+    "desc": "statory 엔진으로 분석한 중독 데이터 결과물의 전시장입니다.",
+    "sections": "섹션 {count}개",
+    "backToList": "← 분석실 목록",
+    "poweredBy": "Powered by",
+    "notFound": "리포트를 찾을 수 없습니다."
   },
   "common": {
     "collecting": "수집 중",

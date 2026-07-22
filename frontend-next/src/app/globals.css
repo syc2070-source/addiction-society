@@ -145,6 +145,52 @@ a {
   color: #aeb9cc;
 }
 
+.footer-ecosystem {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.footer-ecosystem-label {
+  color: #64748b;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+}
+
+/* 분석실 Powered by statory */
+.powered-by {
+  margin-top: 32px;
+  padding-top: 14px;
+  border-top: 1px dashed rgba(75, 85, 99, 0.6);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.powered-by a {
+  color: #60a5fa;
+  font-weight: 600;
+}
+
+/* 분석실 상세 섹션 */
+.report-section {
+  margin-top: 24px;
+}
+
+.report-section h2 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #93c5fd;
+  margin-bottom: 10px;
+}
+
+.report-section p {
+  font-size: 0.92rem;
+  color: var(--text-main);
+  line-height: 1.75;
+  white-space: pre-line;
+}
+
 /* ── 목록 페이지 공통 (구 App.css에서 이식) ── */
 
 .page-container {

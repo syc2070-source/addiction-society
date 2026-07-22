@@ -7,13 +7,26 @@
     "groupData": "Data",
     "sources": "Source Map",
     "calendar": "Calendar",
+    "groupAnalysis": "Analysis",
+    "lab": "Lab",
     "groupArchive": "Archive",
     "policy": "Policy",
     "research": "Research",
     "recovery": "Recovery"
   },
   "footer": {
-    "tagline": "A data observatory reading addiction as a structural signal of society"
+    "tagline": "A data observatory reading addiction as a structural signal of society",
+    "ecosystem": "Also see",
+    "addictionNews": "Addiction News"
+  },
+  "labPage": {
+    "kicker": "Analysis Lab",
+    "title": "Analysis Lab",
+    "desc": "A showcase of addiction data analyses produced with the statory engine.",
+    "sections": "{count} sections",
+    "backToList": "← Back to Lab",
+    "poweredBy": "Powered by",
+    "notFound": "Report not found."
   },
   "common": {
     "collecting": "Collecting",

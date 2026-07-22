@@ -152,3 +152,39 @@ export function fetchRecoveryResources(params: {
     `/api/recovery/resources?${pagedQuery(params, 24)}`,
   );
 }
+
+// ── 분석실 (statory 프록시 GET /api/reports) ──
+
+export interface ReportSection {
+  type: string;
+  title: string;
+  title_en?: string | null;
+  summary?: string | null;
+  content?: { text_ko?: string; text_en?: string } | null;
+}
+
+export interface Report {
+  id: string;
+  scenario_id: string;
+  scope: string | null;
+  title_ko: string;
+  title_en: string | null;
+  summary_ko: string | null;
+  conclusion_ko: string | null;
+  key_findings: string[];
+  domain: string | null;
+  region: string | null;
+  sections_count: number;
+  published_at: string | null;
+  sections_json: ReportSection[] | null;
+}
+
+export function fetchReports() {
+  return get<{ count: number; items: Report[] }>('/api/reports?limit=50');
+}
+
+export function fetchReport(id: string) {
+  return get<{ found: boolean; item: Report | null }>(
+    `/api/reports/${encodeURIComponent(id)}?include_sections=true`,
+  );
+}
