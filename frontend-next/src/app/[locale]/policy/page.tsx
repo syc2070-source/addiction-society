@@ -54,7 +54,9 @@ export default async function PolicyPage({
       {!result ? (
         <p className="status-note">{tc('unavailable')}</p>
       ) : result.data.length === 0 ? (
-        <p className="status-note">{tc('empty')}</p>
+        <p className="status-note">
+          {search ? tc('empty') : tc('collectingEmpty')}
+        </p>
       ) : (
         <>
           <div className="list-grid">

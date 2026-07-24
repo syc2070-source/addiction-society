@@ -32,12 +32,28 @@ export class ResearchService {
   async findAll(
     query: ResearchQueryDto,
   ): Promise<{ data: Research[]; total: number; page: number; limit: number }> {
-    const { page = 1, limit = 20, domain, region, year, search, tag } = query;
+    const {
+      page = 1,
+      limit = 20,
+      domain,
+      region,
+      year,
+      search,
+      tag,
+      status,
+    } = query;
 
     const qb = this.researchRepository
       .createQueryBuilder('research')
       .leftJoinAndSelect('research.tags', 'tags')
       .orderBy('research.createdAt', 'DESC');
+
+    // 공개 기본값: approved만 노출(원칙 8). status='all'이면 상태 필터 해제.
+    if (status !== 'all') {
+      qb.andWhere('research.status = :status', {
+        status: status || 'approved',
+      });
+    }
 
     if (domain) {
       qb.andWhere(':domain = ANY(research.domains)', { domain });
@@ -86,7 +102,7 @@ export class ResearchService {
 
   async findFeatured(): Promise<Research[]> {
     return this.researchRepository.find({
-      where: { isFeatured: true },
+      where: { isFeatured: true, status: 'approved' },
       relations: ['tags'],
       order: { createdAt: 'DESC' },
       take: 10,

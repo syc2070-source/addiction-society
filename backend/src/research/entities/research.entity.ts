@@ -45,6 +45,13 @@ export class Research {
   @Column({ length: 200, nullable: true })
   source: string;
 
+  /**
+   * 공개 검토 상태. 'approved'만 공개 페이지에 노출(원칙 8).
+   * collect:research 자동수집분은 'pending'으로 삽입되어 검토(SQL 승인) 전까지 비공개.
+   */
+  @Column({ type: 'varchar', length: 20, default: 'approved' })
+  status: string;
+
   @Column({ type: 'varchar', length: 10, default: RegionCode.KR })
   region: RegionCode;
 

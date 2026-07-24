@@ -30,6 +30,7 @@
   },
   "common": {
     "collecting": "Collecting",
+    "collectingEmpty": "Collecting…",
     "empty": "No results match the criteria.",
     "searchButton": "Search",
     "prev": "Prev",

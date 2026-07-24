@@ -160,4 +160,12 @@ export class ResearchQueryDto {
   @IsOptional()
   @IsString()
   tag?: string;
+
+  /**
+   * 검토 상태 필터. 미지정 시 공개 기본값 'approved'만 반환한다(원칙 8).
+   * 'all'을 명시하면 상태 무관 전체 반환(운영 점검용).
+   */
+  @IsOptional()
+  @IsString()
+  status?: string;
 }

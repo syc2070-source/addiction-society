@@ -41,6 +41,13 @@ export class Document {
   @Column({ length: 200, nullable: true })
   source: string;
 
+  /**
+   * sources 레지스트리 연계 키(nullable FK → sources.id). 수기 문서는 null.
+   * 소스 대표 산출물로 시드된 문서는 해당 소스 id를 가진다.
+   */
+  @Column({ name: 'source_id', type: 'text', nullable: true })
+  sourceId: string | null;
+
   @Column({ type: 'varchar', length: 10, default: RegionCode.KR })
   region: RegionCode;
 

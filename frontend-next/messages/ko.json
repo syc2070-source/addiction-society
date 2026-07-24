@@ -30,6 +30,7 @@
   },
   "common": {
     "collecting": "수집 중",
+    "collectingEmpty": "수집 중입니다.",
     "empty": "조건에 맞는 결과가 없습니다.",
     "searchButton": "검색",
     "prev": "이전",
