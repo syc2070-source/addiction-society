@@ -9,8 +9,15 @@
  * 따라서 이 배치 스크립트는 OpenAlex를 1차 소스로 쓴다. 실시간 피드는 기존 Statory 경로 유지.
  *
  * 절차: 도메인(D0~D3)별 질의어 2~3개로 인용수 상위 문헌을 수집 →
- *   DOI 있는 것만(없으면 제외) → research 테이블에 멱등 upsert(status='pending').
- *   공개 페이지는 approved만 노출하므로 수집분은 검토 전까지 비공개.
+ *   DOI 있는 것만(없으면 제외) → research 테이블에 멱등 upsert(status='approved').
+ *
+ * 게시 정책(원칙 8): 서지 메타데이터(제목·저자·연도·저널·DOI)는 기계 검증(DOI 존재 +
+ *   OpenAlex/Crossref 신뢰 소스 메타데이터)만으로 자동 게시(approved)한다.
+ *   반면 AI가 생성하는 요약/평가(M3~)는 pending으로 저장해 사용자 승인 후 게시한다.
+ *   → status 컬럼은 그대로 유지: M3 요약 파이프가 pending/approved 게이트로 재사용한다.
+ *
+ * DOI가 신뢰 근거인 이유: DOI는 Crossref/DataCite에 등록된 영구 식별자로, 해당 서지
+ *   메타데이터가 출판사·색인기관에 의해 검증되었음을 뜻한다. 사람이 임의 생성할 수 없다.
  *
  * 멱등성: sourceUrl(doi.org 링크) 기준 findOne. 있으면 갱신, 없으면 삽입.
  * 스키마 변경 없음(status 컬럼은 마이그레이션 선행). synchronize 사용 안 함.
@@ -141,7 +148,8 @@ async function fetchQuery(
         sourceUrl: doiUrl.slice(0, 500),
         source: (journal || 'OpenAlex').slice(0, 200),
         region: RegionCode.OTHER,
-        status: 'pending',
+        // 서지 메타데이터 = DOI 기계 검증 → 자동 게시(원칙 8). AI 요약만 pending 유지.
+        status: 'approved',
       },
     });
   }
@@ -185,7 +193,7 @@ async function run() {
   for (const c of collected) {
     const existing = await repo.findOne({ where: { sourceUrl: c.doiUrl } });
     if (existing) {
-      // 이미 승인된 항목의 상태를 pending으로 되돌리지 않는다(검토 결과 보존).
+      // 기존 항목의 status는 건드리지 않는다(사람이 내린 검수 결정 보존).
       const rest = { ...c.payload };
       delete rest.status;
       await repo.update(existing.id, rest);
@@ -201,10 +209,10 @@ async function run() {
     `\n[collect] 수집 ${collected.length}건(DOI 보유) · upsert 신규 ${inserted} / 갱신 ${updated}`,
   );
   console.log(
-    `[collect] research 총량 ${before} → ${after}건 (신규분 status=pending)`,
+    `[collect] research 총량 ${before} → ${after}건 (신규 서지분 status=approved · 자동 게시)`,
   );
   console.log(
-    "[collect] 승인 예시(운영 SQL): UPDATE research SET status='approved' WHERE status='pending';",
+    "[collect] 기존 pending(과거 수집분) 일괄 게시 SQL: UPDATE research SET status='approved' WHERE status='pending';",
   );
 
   await ds.destroy();

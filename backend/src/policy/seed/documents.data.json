@@ -1,5 +1,5 @@
 {
-  "note": "정책문서 시드 후보 — 법률(현행) 6종. seed:documents가 실행 시 URL을 실검증(HEAD→GET)하여 통과분만 upsert한다. 소스 대표 산출물은 sources 테이블에서 런타임 생성.",
+  "note": "정책문서 시드 후보 — 법률(현행) 6종. sourceUrl은 국가법령정보센터(law.go.kr) 현행법령 '본문' 상세 URL(lsId 기반, 개정에도 안정적으로 현행으로 해석). law.go.kr은 자동수집기(봇)를 403으로 차단하나 실브라우저에서는 정상 열람되는 공식 1차 출처이므로, seed:documents는 403/405(봇차단)일 때 humanVerified 항목을 '실브라우저 접근 가능·봇 차단' 주석과 함께 등록한다(추측 URL 아님 — 검색으로 확인한 실링크).",
   "laws": [
     {
       "title": "정신건강증진 및 정신질환자 복지서비스 지원에 관한 법률",
@@ -8,7 +8,9 @@
       "year": null,
       "domain": "D0/D1/D2 (중독 포함 정신건강 일반)",
       "description": "정신건강복지법. 중독관리통합지원센터·정신건강복지센터 설치 근거를 두고 알코올·약물 등 중독을 포함한 정신건강증진 및 정신질환자 복지서비스 지원을 규율하는 현행 법률. 소관 보건복지부.",
-      "sourceUrl": "https://www.law.go.kr/법령/정신건강증진및정신질환자복지서비스지원에관한법률"
+      "sourceUrl": "https://www.law.go.kr/LSW/lsInfoP.do?lsId=000222&ancYnChk=0",
+      "humanVerified": true,
+      "accessNote": "국가법령정보센터 현행법령 본문 · 실브라우저 접근 가능, 자동수집기(봇) 차단"
     },
     {
       "title": "사행산업통합감독위원회법",
@@ -17,7 +19,9 @@
       "year": null,
       "domain": "D1 (도박)",
       "description": "사행산업의 건전한 발전과 도박중독 예방·치유를 목적으로 사행산업통합감독위원회를 두고, 한국도박문제예방치유원의 설립·운영 근거를 담은 현행 법률. 별도의 '도박 치유법'은 없으며 도박문제 예방·치유 사업은 본법에 근거한다.",
-      "sourceUrl": "https://www.law.go.kr/법령/사행산업통합감독위원회법"
+      "sourceUrl": "https://www.law.go.kr/LSW/lsInfoP.do?lsId=010382&ancYnChk=0",
+      "humanVerified": true,
+      "accessNote": "국가법령정보센터 현행법령 본문 · 실브라우저 접근 가능, 자동수집기(봇) 차단"
     },
     {
       "title": "마약류 관리에 관한 법률",
@@ -26,7 +30,9 @@
       "year": null,
       "domain": "D0 (약물)",
       "description": "마약·향정신성의약품·대마 등 마약류의 취급·관리와 마약류 중독자의 치료보호를 규율하는 현행 법률. 소관 식품의약품안전처.",
-      "sourceUrl": "https://www.law.go.kr/법령/마약류관리에관한법률"
+      "sourceUrl": "https://www.law.go.kr/LSW/lsInfoP.do?lsId=002025&ancYnChk=0",
+      "humanVerified": true,
+      "accessNote": "국가법령정보센터 현행법령 본문 · 실브라우저 접근 가능, 자동수집기(봇) 차단"
     },
     {
       "title": "지능정보화 기본법",
@@ -35,7 +41,9 @@
       "year": null,
       "domain": "D2 (디지털)",
       "description": "지능정보사회 구현과 그 역기능 대응을 규정하며, 인터넷·스마트폰 과의존 예방 및 해소 시책의 법적 근거를 담은 현행 법률. 소관 과학기술정보통신부.",
-      "sourceUrl": "https://www.law.go.kr/법령/지능정보화기본법"
+      "sourceUrl": "https://www.law.go.kr/LSW/lsInfoP.do?lsId=000028&ancYnChk=0",
+      "humanVerified": true,
+      "accessNote": "국가법령정보센터 현행법령 본문 · 실브라우저 접근 가능, 자동수집기(봇) 차단"
     },
     {
       "title": "게임산업진흥에 관한 법률",
@@ -44,7 +52,9 @@
       "year": null,
       "domain": "D1/D2 (게임)",
       "description": "게임산업의 진흥과 함께 게임 과몰입·중독 예방 조치 및 게임물 등급분류 등을 규율하는 현행 법률. 소관 문화체육관광부.",
-      "sourceUrl": "https://www.law.go.kr/법령/게임산업진흥에관한법률"
+      "sourceUrl": "https://www.law.go.kr/LSW/lsInfoP.do?lsId=010196&ancYnChk=0",
+      "humanVerified": true,
+      "accessNote": "국가법령정보센터 현행법령 본문 · 실브라우저 접근 가능, 자동수집기(봇) 차단"
     },
     {
       "title": "청소년 보호법",
@@ -53,7 +63,9 @@
       "year": null,
       "domain": "D1/D2 (청소년 도박·게임·디지털)",
       "description": "청소년 유해매체물·유해환경으로부터의 보호를 규율하며 청소년 인터넷게임 및 사행·도박 노출 관련 보호 조치의 근거를 담은 현행 법률. 소관 여성가족부.",
-      "sourceUrl": "https://www.law.go.kr/법령/청소년보호법"
+      "sourceUrl": "https://www.law.go.kr/LSW/lsInfoP.do?lsId=000815&ancYnChk=0",
+      "humanVerified": true,
+      "accessNote": "국가법령정보센터 현행법령 본문 · 실브라우저 접근 가능, 자동수집기(봇) 차단"
     }
   ]
 }
