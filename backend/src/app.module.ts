@@ -19,6 +19,8 @@ import { AssessmentCell } from './policy/entities/assessment-cell.entity';
 import { RecoveryResource } from './recovery/entities/recovery-resource.entity';
 import { Tag } from './tags/entities/tag.entity';
 import { Source } from './sources/entities/source.entity';
+import { Indicator } from './indicators/entities/indicator.entity';
+import { Observation } from './indicators/entities/observation.entity';
 
 @Module({
   imports: [
@@ -50,6 +52,10 @@ import { Source } from './sources/entities/source.entity';
           RecoveryResource,
           Tag,
           Source,
+          // AS-M3-0(설계): 등록만. 테이블 생성은 M3-1 마이그레이션. synchronize=false라
+          // 등록만으로 스키마 변화 없음(부팅 시 테이블 조회도 하지 않음).
+          Indicator,
+          Observation,
         ],
         // 스키마 변경은 오직 마이그레이션으로만. DB_SYNCHRONIZE='true'를 명시한
         // 경우에만 켜짐(기본 false). 운영에서는 절대 금지(테이블 파괴 위험).

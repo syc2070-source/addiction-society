@@ -9,6 +9,8 @@ import { AssessmentCell } from './policy/entities/assessment-cell.entity';
 import { RecoveryResource } from './recovery/entities/recovery-resource.entity';
 import { Tag } from './tags/entities/tag.entity';
 import { Source } from './sources/entities/source.entity';
+import { Indicator } from './indicators/entities/indicator.entity';
+import { Observation } from './indicators/entities/observation.entity';
 
 // CLI는 Nest 컨텍스트 밖에서 돌아가므로 .env를 직접 로드한다(app.module과 동일한 env 키).
 config();
@@ -28,9 +30,8 @@ export const AppDataSource = new DataSource({
   password: process.env.DB_PASSWORD || '',
   database: process.env.DB_NAME || 'addiction_society',
   // Supabase 등 원격 DB는 SSL 필요. 로컬은 DB_SSL 미설정(false)이라 영향 없음.
-  ssl:
-    process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
-  // app.module.ts의 entities 배열과 반드시 일치해야 한다(7개).
+  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+  // app.module.ts의 entities 배열과 반드시 일치해야 한다(9개).
   entities: [
     User,
     Research,
@@ -39,9 +40,13 @@ export const AppDataSource = new DataSource({
     RecoveryResource,
     Tag,
     Source,
+    // AS-M3-0(설계): 등록만. 테이블 생성 마이그레이션은 M3-1에서 실행.
+    Indicator,
+    Observation,
   ],
   // CLI는 ts-node로 실행되므로 소스(.ts) 경로만 지정.
   // (dist/*.js를 함께 넣으면 watch 컴파일 산출물과 중복 로드되어 오류)
+  // ⚠️ 비재귀 glob — src/migrations/drafts/*.ts(초안)는 자동 실행 대상에서 제외된다.
   migrations: ['src/migrations/*.ts'],
   synchronize: false,
   // CLI/시드 실행 시 쿼리 로그도 기본 off. DB_LOGGING='true'일 때만 켠다.
