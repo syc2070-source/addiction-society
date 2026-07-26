@@ -12,7 +12,6 @@ import {
 } from '@nestjs/common';
 import { PolicyService } from './policy.service';
 import { GptAnalysisService } from './gpt-analysis.service';
-import { PolicyAutoService } from './policy-auto.service';
 import {
   CreateDocumentDto,
   UpdateDocumentDto,
@@ -28,7 +27,6 @@ export class PolicyController {
   constructor(
     private readonly policyService: PolicyService,
     private readonly gptService: GptAnalysisService,
-    private readonly policyAutoService: PolicyAutoService,
   ) {}
 
   @Get('documents')
@@ -39,12 +37,6 @@ export class PolicyController {
   @Get('documents/stats')
   getDocumentStats() {
     return this.policyService.getDocumentStats();
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Post('documents/auto-collect')
-  async autoCollectDocuments() {
-    return this.policyAutoService.runOnce();
   }
 
   // 구체적 경로를 documents/:id 보다 먼저 등록

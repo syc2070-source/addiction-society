@@ -1,0 +1,43 @@
+{
+  "note": "청소년 도박문제 지표 첫 수집분(AS-M3-1). 출처=한국도박문제예방치유원 청소년 도박(문제) 실태조사. 공공데이터포털 kcgp_youth(15142248)는 파일데이터(결과보고서·원자료)라 무키 JSON API가 없다 → 실태조사가 공표한 검증된 집계치를 정의와 함께 등록한다(정의 없는 지표 금지·원칙4). source_url은 원자료 딥링크(원칙3). 값 개정 시 collect:indicators가 revisions에 누적. 2024 세부 비율·오픈API(서비스키) 연동은 후속.",
+  "sourceId": "kcgp_youth",
+  "sourceUrl": "https://www.data.go.kr/data/15142248/fileData.do",
+  "indicators": [
+    {
+      "code": "kcgp_youth_gambling_problem_rate",
+      "domain": "D1",
+      "nameKo": "청소년 도박문제 수준(위험군+문제군) 비율",
+      "nameEn": "Youth gambling problem severity rate (at-risk + problem)",
+      "unit": "%",
+      "definitionKo": "재학 중 청소년(초4~고3)을 대상으로 도박문제 선별척도로 분류했을 때, 위험군(중위험)과 문제군(문제성)을 합한 비율(%). '도박문제 수준'으로 보고된다.",
+      "methodNote": "한국도박문제예방치유원 청소년 도박(문제) 실태조사. 학교방문 자기기입식 집단설문. 통계청 승인 제469001호. 정의·분류는 조사 조사개요(kcgp.or.kr menuNo=200238)와 결과보고서 방법론에 따른다.",
+      "observations": [
+        { "geo": "KR", "period": "2022", "value": "4.8", "qualifier": null }
+      ]
+    },
+    {
+      "code": "kcgp_youth_gambling_atrisk_rate",
+      "domain": "D1",
+      "nameKo": "청소년 도박문제 위험군(YELLOW) 비율",
+      "nameEn": "Youth gambling at-risk (yellow) rate",
+      "unit": "%",
+      "definitionKo": "재학 중 청소년(초4~고3) 중 도박문제 선별척도에서 위험군(중위험, YELLOW)으로 분류된 비율(%).",
+      "methodNote": "한국도박문제예방치유원 청소년 도박(문제) 실태조사. 통계청 승인 제469001호. 위험군 정의는 조사 도박문제 선별척도 분류 기준에 따른다.",
+      "observations": [
+        { "geo": "KR", "period": "2022", "value": "3.9", "qualifier": null }
+      ]
+    },
+    {
+      "code": "kcgp_youth_gambling_problem_group_rate",
+      "domain": "D1",
+      "nameKo": "청소년 도박문제 문제군(RED) 비율",
+      "nameEn": "Youth gambling problem group (red) rate",
+      "unit": "%",
+      "definitionKo": "재학 중 청소년(초4~고3) 중 도박문제 선별척도에서 문제군(문제성, RED)으로 분류된 비율(%).",
+      "methodNote": "한국도박문제예방치유원 청소년 도박(문제) 실태조사. 통계청 승인 제469001호. 문제군 정의는 조사 도박문제 선별척도 분류 기준에 따른다.",
+      "observations": [
+        { "geo": "KR", "period": "2022", "value": "0.9", "qualifier": null }
+      ]
+    }
+  ]
+}

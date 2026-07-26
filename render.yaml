@@ -37,19 +37,11 @@ services:
         sync: false
       - key: JWT_EXPIRES_IN
         sync: false
-      - key: OPENAI_API_KEY
+      # 정책 D×P 분석 LLM (DeepSeek, OpenAI 호환). AS-M3-1에서 OPENAI_API_KEY 대체.
+      - key: LLM_POLICY_API_KEY
         sync: false
-      - key: AUTO_COLLECT_ENABLED
-        sync: false
-      - key: AUTO_COLLECT_CRON
-        sync: false
-      - key: AUTO_COLLECT_TZ
-        sync: false
+      # Statory 보고서 프록시(분석실 /lab). 학술검색·자동수집 env는 AS-M3-1에서 폐기.
       - key: STATORY_API_URL
-        sync: false
-      - key: STATORY_ACADEMIC_QUERY
-        sync: false
-      - key: STATORY_ACADEMIC_LIMIT
         sync: false
       - key: DISCORD_WEBHOOK_OBSERVATORY
         sync: false

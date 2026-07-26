@@ -7,6 +7,7 @@
     "groupData": "데이터",
     "sources": "소스 지도",
     "calendar": "발표 달력",
+    "indicators": "지표",
     "groupAnalysis": "분석",
     "lab": "분석실",
     "groupArchive": "자료실",
@@ -18,6 +19,20 @@
     "tagline": "중독을 사회 구조의 시그널로 읽는 데이터 관측소",
     "ecosystem": "함께 보기",
     "addictionNews": "중독뉴스"
+  },
+  "indicatorsPage": {
+    "kicker": "Indicators",
+    "title": "지표",
+    "desc": "중독 관련 핵심 지표를 정의·출처와 함께 봅니다. 모든 수치에는 원본 딥링크가 붙습니다.",
+    "obsCount": "관측치 {count}건",
+    "backToList": "← 지표 목록",
+    "notFound": "지표를 찾을 수 없습니다.",
+    "definition": "정의",
+    "series": "관측치 시계열",
+    "colGeo": "지역",
+    "colPeriod": "기간",
+    "colValue": "값",
+    "colSource": "출처"
   },
   "labPage": {
     "kicker": "Analysis Lab",

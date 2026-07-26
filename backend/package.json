@@ -30,7 +30,8 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "seed:recovery": "ts-node src/recovery/seed/recovery.seed.ts",
     "seed:documents": "ts-node src/policy/seed/documents.seed.ts",
-    "collect:research": "ts-node src/research/seed/collect-research.ts"
+    "collect:research": "ts-node src/research/seed/collect-research.ts",
+    "collect:indicators": "ts-node src/indicators/seed/collect-indicators.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

@@ -16,9 +16,6 @@ import { Observation } from './observation.entity';
  * 블루프린트 불변 원칙:
  *  - 원칙4: 정의 없는 지표 금지 → definition_ko NOT NULL.
  *  - 원칙5: 1차 소스(reliability=1)만 지표로 → source_id는 sources 레지스트리 FK.
- *
- * ⚠️ AS-M3-0(설계) 단계: 이 엔티티는 등록만 하고 테이블 생성 마이그레이션은 M3-1에서 실행한다.
- *    synchronize=false이므로 등록만으로 스키마가 바뀌지 않는다(부팅 시 테이블 조회도 없음).
  */
 @Entity('indicators')
 export class Indicator {

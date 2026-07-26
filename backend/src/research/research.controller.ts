@@ -11,7 +11,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ResearchService } from './research.service';
-import { ResearchAutoService } from './research-auto.service';
 import {
   CreateResearchDto,
   UpdateResearchDto,
@@ -21,10 +20,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('api/research')
 export class ResearchController {
-  constructor(
-    private readonly researchService: ResearchService,
-    private readonly researchAutoService: ResearchAutoService,
-  ) {}
+  constructor(private readonly researchService: ResearchService) {}
 
   @Get()
   findAll(@Query() query: ResearchQueryDto) {
@@ -39,12 +35,6 @@ export class ResearchController {
   @Get('stats')
   getStats() {
     return this.researchService.getStats();
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Post('auto-collect')
-  async autoCollectResearch() {
-    return this.researchAutoService.runOnce();
   }
 
   @Get(':id')

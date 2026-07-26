@@ -328,6 +328,31 @@ a {
   color: var(--text-muted);
 }
 
+/* 지표 관측치 시계열 표 (/indicators/:code) */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.data-table th,
+.data-table td {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+  white-space: nowrap;
+}
+
+.data-table th {
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.data-table td {
+  color: var(--text-main);
+}
+
 .tag {
   display: inline-block;
   font-size: 12px;

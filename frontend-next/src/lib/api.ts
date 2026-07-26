@@ -153,6 +153,60 @@ export function fetchRecoveryResources(params: {
   );
 }
 
+// ── 지표 (indicators/observations) ──
+
+export interface Indicator {
+  id: number;
+  code: string;
+  domain: string;
+  nameKo: string;
+  nameEn: string | null;
+  unit: string | null;
+  definitionKo: string;
+  methodNote: string | null;
+  sourceId: string | null;
+  observationCount?: number;
+}
+
+export interface ObservationRevision {
+  value: string;
+  valueLow: string | null;
+  valueHigh: string | null;
+  qualifier: string | null;
+  sourceUrl: string;
+  fetchedAt: string;
+}
+
+export interface Observation {
+  id: number;
+  indicatorId: number;
+  sourceId: string | null;
+  geo: string;
+  period: string;
+  value: string;
+  valueLow: string | null;
+  valueHigh: string | null;
+  qualifier: string | null;
+  revisions: ObservationRevision[] | null;
+  fetchedAt: string;
+  sourceUrl: string;
+}
+
+export function fetchIndicators(params: { domain?: string } = {}) {
+  const qs = new URLSearchParams();
+  if (params.domain) qs.set('domain', params.domain);
+  const q = qs.toString();
+  return get<{ data: Indicator[]; total: number }>(
+    `/api/indicators${q ? `?${q}` : ''}`,
+  );
+}
+
+export function fetchIndicator(idOrCode: string) {
+  return get<{ indicator: Indicator; observations: Observation[] }>(
+    `/api/indicators/${encodeURIComponent(idOrCode)}`,
+  );
+}
+
 // ── 분석실 (statory 프록시 GET /api/reports) ──
 
 export interface ReportSection {

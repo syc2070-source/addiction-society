@@ -6,12 +6,11 @@ import { Tag } from '../tags/entities/tag.entity';
 import { PolicyService } from './policy.service';
 import { PolicyController } from './policy.controller';
 import { GptAnalysisService } from './gpt-analysis.service';
-import { PolicyAutoService } from './policy-auto.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Document, AssessmentCell, Tag])],
   controllers: [PolicyController],
-  providers: [PolicyService, GptAnalysisService, PolicyAutoService],
-  exports: [PolicyService, PolicyAutoService],
+  providers: [PolicyService, GptAnalysisService],
+  exports: [PolicyService],
 })
 export class PolicyModule {}

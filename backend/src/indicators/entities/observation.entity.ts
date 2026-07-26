@@ -8,29 +8,37 @@ import {
 } from 'typeorm';
 import { Indicator } from './indicator.entity';
 
+/** 관측치 개정 이력 1건(revisions jsonb 배열 원소). 값이 바뀔 때 이전 값을 보존한다. */
+export interface ObservationRevision {
+  value: string;
+  valueLow: string | null;
+  valueHigh: string | null;
+  qualifier: string | null;
+  sourceUrl: string;
+  fetchedAt: string; // ISO
+}
+
 /**
  * 관측치(observation) — 지표의 실제 값 하나. 시계열의 한 점.
  * "숫자는 얼마인가 + 어디서 왔나"에 답한다.
  *
- * ▸ append-only(덮어쓰기 금지) 설계.
- *   유니크 키에 fetched_at을 포함해, 같은 (지표·소스·지역·기간)이라도 수집 시점이 다르면
- *   새 행으로 보존한다. WHO/EUDA는 과거 연도 수치를 재추정(개정)하는데, 덮어쓰면
- *   "그 시점에 우리가 보여준 값"의 감사추적이 사라진다. 이는 원칙3(원본 딥링크)·정관 2조
- *   (검수 신뢰)와 충돌한다. 표시 시에는 (지표·지역·기간)별 최신 fetched_at 행을 고르고,
- *   개정 이력은 그대로 남긴다 — "값이 언제 바뀌었나"까지 보여주는 것이 관측소의 자산.
+ * ▸ 재수집 정책: **upsert + revisions 감사**(M3-1 확정).
+ *   유니크 키 = (indicator_id, source_id, geo, period) — fetched_at 제외.
+ *   같은 (지표·소스·지역·기간)을 재수집해도 새 행을 만들지 않고 **한 행을 갱신**(중복 방지).
+ *   값이 바뀌면 이전 값을 revisions(jsonb 배열)에 누적하고 현재 값·fetched_at을 갱신한다.
+ *   값이 같으면 fetched_at만 갱신(생존 확인).
+ *
+ *   근거(단순 upsert 대신 revisions 채택): WHO/EUDA/KCGP는 과거 연도 수치를 재추정(개정)한다.
+ *   덮어쓰기만 하면 "그 시점에 게시한 값"의 감사추적이 사라져 원칙3(원본 딥링크)·정관2조
+ *   (검수 신뢰)와 충돌한다. fetched_at을 키에서 빼 중복 행은 막되, revisions로 개정 이력을
+ *   한 행 안에 보존한다 — 시계열은 (지표·지역·기간)당 한 행, 감사추적은 revisions에.
  *
  * 블루프린트 원칙3: 모든 수치에 원본 딥링크 → source_url NOT NULL.
- *
- * ⚠️ AS-M3-0(설계) 단계: 등록만. 테이블 생성은 M3-1 마이그레이션에서.
  */
 @Entity('observations')
-@Index(
-  'IDX_obs_series_unique',
-  ['indicatorId', 'sourceId', 'geo', 'period', 'fetchedAt'],
-  {
-    unique: true,
-  },
-)
+@Index('IDX_obs_series_unique', ['indicatorId', 'sourceId', 'geo', 'period'], {
+  unique: true,
+})
 @Index('IDX_obs_indicator_geo_period', ['indicatorId', 'geo', 'period'])
 export class Observation {
   @PrimaryGeneratedColumn()
@@ -73,7 +81,11 @@ export class Observation {
   @Column({ length: 100, nullable: true })
   qualifier: string | null;
 
-  /** 수집 시각. append-only 시계열 보존 키의 일부. */
+  /** 개정 이력(감사추적). 값이 바뀔 때 이전 값을 push. 없으면 null. */
+  @Column({ type: 'jsonb', nullable: true })
+  revisions: ObservationRevision[] | null;
+
+  /** 마지막 수집 시각(값 확인/갱신 시각). */
   @Column({ name: 'fetched_at', type: 'timestamptz', default: () => 'now()' })
   fetchedAt: Date;
 

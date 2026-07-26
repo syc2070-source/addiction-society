@@ -11,6 +11,7 @@ import { UploadModule } from './upload/upload.module';
 import { SchedulerModule } from './scheduler/scheduler.module';
 import { ReportsModule } from './reports/reports.module';
 import { SourcesModule } from './sources/sources.module';
+import { IndicatorsModule } from './indicators/indicators.module';
 
 import { User } from './auth/entities/user.entity';
 import { Research } from './research/entities/research.entity';
@@ -78,6 +79,7 @@ import { Observation } from './indicators/entities/observation.entity';
     SchedulerModule,
     ReportsModule,
     SourcesModule,
+    IndicatorsModule,
   ],
 })
 export class AppModule {}

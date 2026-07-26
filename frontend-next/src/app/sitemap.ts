@@ -7,6 +7,7 @@ const PATHS = [
   '',
   '/sources',
   '/calendar',
+  '/indicators',
   '/lab',
   '/policy',
   '/research',

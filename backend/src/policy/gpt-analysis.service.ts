@@ -1,4 +1,8 @@
-import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import OpenAI from 'openai';
 import { DomainCode, PolicyAxis, AssessmentLabel } from '../common/enums';
 
@@ -14,22 +18,34 @@ interface AnalysisResult {
   summary: string;
 }
 
+/**
+ * 정책문서 D×P 매트릭스 AI 분석.
+ * LLM은 DeepSeek(블루프린트 제4장 LLM_POLICY 결정). DeepSeek는 OpenAI 호환 API라
+ * openai SDK에 baseURL만 바꿔 재사용한다(프롬프트·JSON 응답 로직 동일). OPENAI_API_KEY 의존 제거.
+ *   - LLM_POLICY_API_KEY  : DeepSeek API 키(필수)
+ *   - LLM_POLICY_BASE_URL : 기본 https://api.deepseek.com
+ *   - LLM_POLICY_MODEL    : 기본 deepseek-chat
+ */
 @Injectable()
 export class GptAnalysisService {
   private readonly logger = new Logger(GptAnalysisService.name);
-  private openai: OpenAI | null = null;
+  private client: OpenAI | null = null;
 
-  private getOpenAI(): OpenAI {
-    const key = process.env.OPENAI_API_KEY?.trim();
+  private getClient(): OpenAI {
+    const key = process.env.LLM_POLICY_API_KEY?.trim();
     if (!key) {
       throw new ServiceUnavailableException(
-        'OPENAI_API_KEY가 설정되지 않았습니다. backend/.env를 확인하세요.',
+        'LLM_POLICY_API_KEY(DeepSeek)가 설정되지 않았습니다. backend/.env를 확인하세요.',
       );
     }
-    if (!this.openai) {
-      this.openai = new OpenAI({ apiKey: key });
+    if (!this.client) {
+      this.client = new OpenAI({
+        apiKey: key,
+        baseURL:
+          process.env.LLM_POLICY_BASE_URL?.trim() || 'https://api.deepseek.com',
+      });
     }
-    return this.openai;
+    return this.client;
   }
 
   async analyzePolicy(document: {
@@ -42,8 +58,8 @@ export class GptAnalysisService {
     const prompt = this.buildPrompt(document);
 
     try {
-      const response = await this.getOpenAI().chat.completions.create({
-        model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+      const response = await this.getClient().chat.completions.create({
+        model: process.env.LLM_POLICY_MODEL || 'deepseek-chat',
         messages: [
           {
             role: 'system',

@@ -3,10 +3,9 @@
  *
  * 실행: npm run collect:research
  *
- * 설계 판단: Statory 프록시에 /api/search/academic 엔드포인트가 있으나(연구 자동수집
- * research-auto.service가 이미 이를 사용), 배치 대량 수집·인용순 정렬·DOI 필수 필터를
- * 안정적으로 보장하려면 OpenAlex(무료·키 불필요·CC0)를 직접 호출하는 편이 재현성이 높다.
- * 따라서 이 배치 스크립트는 OpenAlex를 1차 소스로 쓴다. 실시간 피드는 기존 Statory 경로 유지.
+ * 설계 판단: 배치 대량 수집·인용순 정렬·DOI 필수 필터를 안정적으로 보장하려면
+ * OpenAlex(무료·키 불필요·CC0)를 직접 호출하는 편이 재현성이 높다. 이 배치 스크립트는
+ * OpenAlex를 1차 소스로 쓴다. (구 AUTO_COLLECT 자동수집 경로는 AS-M3-1에서 폐기됨.)
  *
  * 절차: 도메인(D0~D3)별 질의어 2~3개로 인용수 상위 문헌을 수집 →
  *   DOI 있는 것만(없으면 제외) → research 테이블에 멱등 upsert(status='approved').

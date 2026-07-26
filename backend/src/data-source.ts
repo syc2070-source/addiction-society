@@ -46,7 +46,6 @@ export const AppDataSource = new DataSource({
   ],
   // CLI는 ts-node로 실행되므로 소스(.ts) 경로만 지정.
   // (dist/*.js를 함께 넣으면 watch 컴파일 산출물과 중복 로드되어 오류)
-  // ⚠️ 비재귀 glob — src/migrations/drafts/*.ts(초안)는 자동 실행 대상에서 제외된다.
   migrations: ['src/migrations/*.ts'],
   synchronize: false,
   // CLI/시드 실행 시 쿼리 로그도 기본 off. DB_LOGGING='true'일 때만 켠다.

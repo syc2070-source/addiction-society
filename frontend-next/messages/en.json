@@ -7,6 +7,7 @@
     "groupData": "Data",
     "sources": "Source Map",
     "calendar": "Calendar",
+    "indicators": "Indicators",
     "groupAnalysis": "Analysis",
     "lab": "Lab",
     "groupArchive": "Archive",
@@ -18,6 +19,20 @@
     "tagline": "A data observatory reading addiction as a structural signal of society",
     "ecosystem": "Also see",
     "addictionNews": "Addiction News"
+  },
+  "indicatorsPage": {
+    "kicker": "Indicators",
+    "title": "Indicators",
+    "desc": "Key addiction indicators with definitions and sources. Every figure carries a deep link to its origin.",
+    "obsCount": "{count} observations",
+    "backToList": "← Indicators",
+    "notFound": "Indicator not found.",
+    "definition": "Definition",
+    "series": "Time series",
+    "colGeo": "Region",
+    "colPeriod": "Period",
+    "colValue": "Value",
+    "colSource": "Source"
   },
   "labPage": {
     "kicker": "Analysis Lab",
