@@ -37,11 +37,13 @@ export class Indicator {
   @Column({ name: 'name_ko', length: 300 })
   nameKo: string;
 
-  @Column({ name: 'name_en', length: 300, nullable: true })
+  // type 명시: TS 유니언(string|null)은 design:type이 Object로 반사되어 명시 없으면
+  // postgres 매핑 실패. 아래 nullable varchar 컬럼은 모두 type을 명시한다.
+  @Column({ name: 'name_en', type: 'varchar', length: 300, nullable: true })
   nameEn: string | null;
 
   /** 측정 단위(예: '순알코올 리터', '%', '명', '건'). 무차원 비율은 null 가능. */
-  @Column({ length: 100, nullable: true })
+  @Column({ type: 'varchar', length: 100, nullable: true })
   unit: string | null;
 
   /** 정의(원칙4 — NOT NULL). 출처 방법론 문서에서 발췌·번역. */

@@ -77,8 +77,12 @@ export class Observation {
   @Column({ name: 'value_high', type: 'numeric', nullable: true })
   valueHigh: string | null;
 
-  /** 부가 한정어(예: 'sex=MLE', 'beverage=beer', 'provisional'). 차원/잠정 표시. */
-  @Column({ length: 100, nullable: true })
+  /**
+   * 부가 한정어(예: 'sex=MLE', 'beverage=beer', 'provisional'). 차원/잠정 표시.
+   * 짧은 표식이라 varchar. type 명시 필수 — TS 유니언(string|null)은 design:type이
+   * Object로 반사되어 명시 없으면 postgres 매핑 실패(DataTypeNotSupportedError).
+   */
+  @Column({ type: 'varchar', length: 100, nullable: true })
   qualifier: string | null;
 
   /** 개정 이력(감사추적). 값이 바뀔 때 이전 값을 push. 없으면 null. */
