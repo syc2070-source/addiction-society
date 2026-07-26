@@ -12,6 +12,7 @@ const PATHS = [
   '/policy',
   '/research',
   '/recovery',
+  '/about',
 ];
 
 /** sitemap.xml — ko(무접두사)·en 쌍 + hreflang alternate */

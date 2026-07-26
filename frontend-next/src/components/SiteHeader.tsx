@@ -35,6 +35,15 @@ export default async function SiteHeader() {
           <span className="nav-group">
             <Link href="/recovery">{t('recovery')}</Link>
           </span>
+          {/* 생태계 외부 링크 — 내부 nav와 시각 구분(↗ + 좌측 구분선) */}
+          <a
+            href="https://addictionnews.net"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="nav-external"
+          >
+            {t('addictionNews')}
+          </a>
         </nav>
 
         <LocaleSwitch />

@@ -13,12 +13,23 @@
     "groupArchive": "Archive",
     "policy": "Policy",
     "research": "Research",
-    "recovery": "Recovery"
+    "recovery": "Recovery",
+    "addictionNews": "Addiction News ↗"
   },
   "footer": {
     "tagline": "A data observatory reading addiction as a structural signal of society",
     "ecosystem": "Also see",
-    "addictionNews": "Addiction News"
+    "addictionNews": "Addiction News",
+    "publisher": "Rapha Addiction Research Institute · 충북 옥천군 안남면 지수2길 13-7",
+    "about": "About"
+  },
+  "aboutPage": {
+    "kicker": "About",
+    "title": "About",
+    "orgName": "Rapha Addiction Research Institute",
+    "addressLabel": "Address",
+    "address": "충북 옥천군 안남면 지수2길 13-7",
+    "placeholder": "Detailed introduction coming soon."
   },
   "indicatorsPage": {
     "kicker": "Indicators",

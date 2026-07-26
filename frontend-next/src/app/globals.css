@@ -104,6 +104,17 @@ a {
   align-items: center;
 }
 
+/* 외부(생태계) nav 링크 — 내부 항목과 시각 구분 */
+.nav-external {
+  padding-left: 14px;
+  border-left: 1px solid rgba(148, 163, 184, 0.25);
+  color: #93a4c4;
+}
+
+.nav-external:hover {
+  color: var(--text-main);
+}
+
 .nav-group-label {
   font-size: 0.68rem;
   text-transform: uppercase;

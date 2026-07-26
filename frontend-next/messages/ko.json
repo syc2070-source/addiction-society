@@ -13,12 +13,23 @@
     "groupArchive": "자료실",
     "policy": "정책문서",
     "research": "연구자료",
-    "recovery": "회복자원"
+    "recovery": "회복자원",
+    "addictionNews": "중독뉴스 ↗"
   },
   "footer": {
     "tagline": "중독을 사회 구조의 시그널로 읽는 데이터 관측소",
     "ecosystem": "함께 보기",
-    "addictionNews": "중독뉴스"
+    "addictionNews": "중독뉴스",
+    "publisher": "라파중독연구소 · 충북 옥천군 안남면 지수2길 13-7",
+    "about": "소개"
+  },
+  "aboutPage": {
+    "kicker": "About",
+    "title": "소개",
+    "orgName": "라파중독연구소",
+    "addressLabel": "주소",
+    "address": "충북 옥천군 안남면 지수2길 13-7",
+    "placeholder": "상세 소개 준비 중입니다."
   },
   "indicatorsPage": {
     "kicker": "Indicators",
