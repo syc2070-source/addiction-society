@@ -8,6 +8,7 @@
     "sources": "Source Map",
     "calendar": "Calendar",
     "indicators": "Indicators",
+    "timeline": "Timeline",
     "groupAnalysis": "Analysis",
     "lab": "Lab",
     "groupArchive": "Archive",
@@ -30,6 +31,21 @@
     "addressLabel": "Address",
     "address": "충북 옥천군 안남면 지수2길 13-7",
     "placeholder": "Detailed introduction coming soon."
+  },
+  "timelinePage": {
+    "kicker": "Activity Timeline",
+    "title": "Observatory Activity Timeline",
+    "desc": "A chronological record of when each institution published or updated — detected by our monitoring. The calendar shows what's expected; the timeline shows what actually happened.",
+    "publishedAt": "published {date}",
+    "event": {
+      "published": "Published",
+      "changed": "Changed",
+      "checked": "Checked",
+      "failed": "Failed",
+      "stale": "Stale",
+      "manual": "Manual check",
+      "blocked": "Blocked"
+    }
   },
   "indicatorsPage": {
     "kicker": "Indicators",

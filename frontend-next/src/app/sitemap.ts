@@ -8,6 +8,7 @@ const PATHS = [
   '/sources',
   '/calendar',
   '/indicators',
+  '/timeline',
   '/lab',
   '/policy',
   '/research',

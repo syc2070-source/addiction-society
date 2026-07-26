@@ -207,6 +207,34 @@ export function fetchIndicator(idOrCode: string) {
   );
 }
 
+// ── 관측소 활동 연대기 (source_events) ──
+
+export interface TimelineEvent {
+  id: number;
+  sourceId: string;
+  org: string | null;
+  orgKo: string | null;
+  titleKo: string | null;
+  titleEn: string | null;
+  url: string | null;
+  eventType: string;
+  detectedAt: string;
+  prevPublishedAt: string | null;
+  newPublishedAt: string | null;
+  notified: boolean;
+  detail: Record<string, unknown> | null;
+}
+
+export function fetchTimeline(params: { limit?: number; all?: boolean } = {}) {
+  const qs = new URLSearchParams();
+  if (params.limit) qs.set('limit', String(params.limit));
+  if (params.all) qs.set('all', 'true');
+  const q = qs.toString();
+  return get<{ data: TimelineEvent[]; total: number }>(
+    `/api/timeline${q ? `?${q}` : ''}`,
+  );
+}
+
 // ── 분석실 (statory 프록시 GET /api/reports) ──
 
 export interface ReportSection {

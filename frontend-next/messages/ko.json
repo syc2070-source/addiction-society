@@ -8,6 +8,7 @@
     "sources": "소스 지도",
     "calendar": "발표 달력",
     "indicators": "지표",
+    "timeline": "연대기",
     "groupAnalysis": "분석",
     "lab": "분석실",
     "groupArchive": "자료실",
@@ -30,6 +31,21 @@
     "addressLabel": "주소",
     "address": "충북 옥천군 안남면 지수2길 13-7",
     "placeholder": "상세 소개 준비 중입니다."
+  },
+  "timelinePage": {
+    "kicker": "Activity Timeline",
+    "title": "관측소 활동 연대기",
+    "desc": "언제 어느 기관이 무엇을 발표·갱신했는지 감지 이력을 시간순으로 봅니다. 발표 달력이 예정이라면, 연대기는 실제 일어난 기록입니다.",
+    "publishedAt": "발간 {date}",
+    "event": {
+      "published": "발간 감지",
+      "changed": "변경 감지",
+      "checked": "확인",
+      "failed": "실패",
+      "stale": "정지",
+      "manual": "수동 확인",
+      "blocked": "차단"
+    }
   },
   "indicatorsPage": {
     "kicker": "Indicators",

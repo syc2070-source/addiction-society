@@ -7,6 +7,7 @@ import { load } from 'cheerio';
 import { Agent, fetch as undiciFetch } from 'undici';
 import { Source } from './entities/source.entity';
 import { SourcesNotifier } from './discord.notifier';
+import { SourceEventsService } from './source-events.service';
 import { computeNextExpected } from './next-expected.util';
 
 const UA = 'AddictionSociety-Observatory/1.0 (+https://addictionsociety.net)';
@@ -89,10 +90,35 @@ export class SourcesScheduler {
     @InjectRepository(Source)
     private readonly repo: Repository<Source>,
     private readonly notifier: SourcesNotifier,
+    private readonly events: SourceEventsService,
   ) {}
 
   private sleep(ms: number) {
     return new Promise((r) => setTimeout(r, ms));
+  }
+
+  /** 변경 감지 방법에 맞는 (이전, 이후) 검증자 값을 뽑는다(이벤트 기록용). */
+  private hashPair(
+    s: Source,
+    det: { method: string; update: Partial<Source> },
+  ): { prevHash: string | null; newHash: string | null } {
+    const u = det.update;
+    if (u.contentHash !== undefined) {
+      return {
+        prevHash: s.contentHash ?? null,
+        newHash: u.contentHash ?? null,
+      };
+    }
+    if (u.etag !== undefined) {
+      return { prevHash: s.etag ?? null, newHash: u.etag ?? null };
+    }
+    if (u.lastModified !== undefined) {
+      return {
+        prevHash: s.lastModified ?? null,
+        newHash: u.lastModified ?? null,
+      };
+    }
+    return { prevHash: null, newHash: null };
   }
 
   private summarize(res: MonitorResult[]): string {
@@ -117,7 +143,9 @@ export class SourcesScheduler {
         .andWhere('s.nextExpectedAt IS NOT NULL')
         .andWhere('s.nextExpectedAt <= :hz', { hz })
         .getMany();
-      this.logger.log(`[cron:daily] 대상 ${due.length}건 (next_expected_at <= ${hz})`);
+      this.logger.log(
+        `[cron:daily] 대상 ${due.length}건 (next_expected_at <= ${hz})`,
+      );
       const res = await this.monitorSources(due);
       this.logger.log(`[cron:daily] 완료 ${this.summarize(res)}`);
     } catch (e: any) {
@@ -188,6 +216,12 @@ export class SourcesScheduler {
     if (s.accessMethod === 'manual') {
       if (this.inCooldown(s, COOLDOWN_MANUAL_MS, now)) {
         await this.repo.update(s.id, { lastCheckedAt: now });
+        await this.events.record({
+          sourceId: s.id,
+          eventType: 'manual',
+          detail: { cooldown: true },
+          notified: false,
+        });
         this.logger.log(
           `[monitor] MANUAL  ${s.id} — 쿨다운 30일 내(마지막 알림 ${new Date(s.lastNotifiedAt!).toISOString()}), 알림 생략`,
         );
@@ -195,6 +229,11 @@ export class SourcesScheduler {
       }
       await this.repo.update(s.id, { lastCheckedAt: now, lastNotifiedAt: now });
       await this.notifier.notify(s, 'manual');
+      await this.events.record({
+        sourceId: s.id,
+        eventType: 'manual',
+        notified: true,
+      });
       this.logger.log(`[monitor] MANUAL  ${s.id} — HTTP 생략, 알림만`);
       return { id: s.id, status: 'manual' };
     }
@@ -205,6 +244,12 @@ export class SourcesScheduler {
       // 403/405 차단은 stale 아님 — 확인만 갱신
       if (det.blocked) {
         await this.repo.update(s.id, { lastCheckedAt: now, failCount: 0 });
+        await this.events.record({
+          sourceId: s.id,
+          eventType: 'blocked',
+          detail: { method: det.method },
+          notified: false,
+        });
         this.logger.log(`[monitor] BLOCKED ${s.id} — 403/405, stale 판정 보류`);
         return { id: s.id, status: 'blocked', method: det.method };
       }
@@ -216,23 +261,45 @@ export class SourcesScheduler {
       });
 
       if (det.changed) {
+        const { prevHash, newHash } = this.hashPair(s, det);
+        const newPub = det.update.lastPublishedAt ?? null;
+        // 발간일이 새로 잡히면 '발간(published)', 아니면 '변경(changed)'
+        const eventType = newPub ? 'published' : 'changed';
+        const cooldown = this.inCooldown(s, COOLDOWN_CHANGE_MS, now);
         // 갱신 감지 7일 쿨다운: 변경 기록(det.update)은 반영하되 알림만 생략
-        if (this.inCooldown(s, COOLDOWN_CHANGE_MS, now)) {
-          this.logger.log(
-            `[monitor] CHANGED ${s.id} (${det.method}) — 쿨다운 7일 내(마지막 알림 ${new Date(s.lastNotifiedAt!).toISOString()}), 알림 생략`,
-          );
-          return {
-            id: s.id,
-            status: 'changed',
-            method: det.method,
-            detail: 'cooldown',
-          };
+        if (!cooldown) {
+          await this.repo.update(s.id, { lastNotifiedAt: now });
+          await this.notifier.notify(s, 'change');
         }
-        await this.repo.update(s.id, { lastNotifiedAt: now });
-        await this.notifier.notify(s, 'change');
-        this.logger.log(`[monitor] CHANGED ${s.id} (${det.method})`);
-        return { id: s.id, status: 'changed', method: det.method };
+        await this.events.record({
+          sourceId: s.id,
+          eventType,
+          prevHash,
+          newHash,
+          prevPublishedAt: s.lastPublishedAt ?? null,
+          newPublishedAt: newPub,
+          detail: {
+            method: det.method,
+            ...(cooldown ? { cooldown: true } : {}),
+          },
+          notified: !cooldown,
+        });
+        this.logger.log(
+          `[monitor] CHANGED ${s.id} (${det.method})${cooldown ? ' — 쿨다운 7일 내, 알림 생략' : ''}`,
+        );
+        return {
+          id: s.id,
+          status: 'changed',
+          method: det.method,
+          ...(cooldown ? { detail: 'cooldown' } : {}),
+        };
       }
+      await this.events.record({
+        sourceId: s.id,
+        eventType: 'checked',
+        detail: { method: det.method },
+        notified: false,
+      });
       this.logger.log(`[monitor] OK      ${s.id} (${det.method})`);
       return { id: s.id, status: 'unchanged', method: det.method };
     } catch (e: any) {
@@ -243,6 +310,12 @@ export class SourcesScheduler {
         lastCheckedAt: now,
         failCount,
         status: willStale ? 'stale' : s.status,
+      });
+      await this.events.record({
+        sourceId: s.id,
+        eventType: willStale ? 'stale' : 'failed',
+        detail: { message: String(e?.message || e), failCount },
+        notified: false,
       });
       this.logger.warn(
         `[monitor] FAIL    ${s.id} (${e?.message || e}) — 연속 ${failCount}회${willStale ? ' → stale' : ''}`,
@@ -296,7 +369,12 @@ export class SourcesScheduler {
 
     const $ = load(await get.text());
     const row = $(sel.row).first();
-    const title = row.find(sel.title).first().text().replace(/\s+/g, ' ').trim();
+    const title = row
+      .find(sel.title)
+      .first()
+      .text()
+      .replace(/\s+/g, ' ')
+      .trim();
     const dateRaw = row.find(sel.date).first().text().trim();
     if (!title) {
       // 셀렉터가 빗나감(사이트 개편 등) → 실패로 취급해 failCount 경로로
@@ -333,9 +411,7 @@ export class SourcesScheduler {
    * HEAD가 403/405면 곧바로 GET으로 폴백하고 stale로 판정하지 않는다.
    * 최초 확인(기존 값 null)은 기준값만 저장하고 '변경'으로 보지 않는다(초기 오탐 방지).
    */
-  private async detectChange(
-    s: Source,
-  ): Promise<{
+  private async detectChange(s: Source): Promise<{
     changed: boolean;
     method: string;
     update: Partial<Source>;

@@ -22,6 +22,7 @@ export default async function SiteHeader() {
             <Link href="/sources">{t('sources')}</Link>
             <Link href="/calendar">{t('calendar')}</Link>
             <Link href="/indicators">{t('indicators')}</Link>
+            <Link href="/timeline">{t('timeline')}</Link>
           </span>
           <span className="nav-group">
             <span className="nav-group-label">{t('groupAnalysis')}</span>

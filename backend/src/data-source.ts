@@ -9,6 +9,7 @@ import { AssessmentCell } from './policy/entities/assessment-cell.entity';
 import { RecoveryResource } from './recovery/entities/recovery-resource.entity';
 import { Tag } from './tags/entities/tag.entity';
 import { Source } from './sources/entities/source.entity';
+import { SourceEvent } from './sources/entities/source-event.entity';
 import { Indicator } from './indicators/entities/indicator.entity';
 import { Observation } from './indicators/entities/observation.entity';
 
@@ -31,7 +32,7 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_NAME || 'addiction_society',
   // Supabase 등 원격 DB는 SSL 필요. 로컬은 DB_SSL 미설정(false)이라 영향 없음.
   ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
-  // app.module.ts의 entities 배열과 반드시 일치해야 한다(9개).
+  // app.module.ts의 entities 배열과 반드시 일치해야 한다(10개).
   entities: [
     User,
     Research,
@@ -40,7 +41,7 @@ export const AppDataSource = new DataSource({
     RecoveryResource,
     Tag,
     Source,
-    // AS-M3-0(설계): 등록만. 테이블 생성 마이그레이션은 M3-1에서 실행.
+    SourceEvent,
     Indicator,
     Observation,
   ],

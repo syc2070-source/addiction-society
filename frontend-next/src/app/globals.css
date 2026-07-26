@@ -339,6 +339,77 @@ a {
   color: var(--text-muted);
 }
 
+/* 관측소 활동 연대기 (/timeline) */
+.timeline-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.timeline-item {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  padding: 10px 8px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+  flex-wrap: wrap;
+}
+
+.timeline-date {
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  font-size: 13px;
+  min-width: 84px;
+}
+
+.timeline-badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.badge-published,
+.badge-changed {
+  color: #7dd3fc;
+  border-color: rgba(56, 189, 248, 0.4);
+}
+
+.badge-stale,
+.badge-failed {
+  color: #fca5a5;
+  border-color: rgba(248, 113, 113, 0.4);
+}
+
+.timeline-body {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.timeline-org {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.timeline-source {
+  color: var(--text-main);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.timeline-pub {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
 /* 지표 관측치 시계열 표 (/indicators/:code) */
 .data-table {
   width: 100%;

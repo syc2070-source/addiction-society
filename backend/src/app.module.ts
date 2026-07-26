@@ -20,6 +20,7 @@ import { AssessmentCell } from './policy/entities/assessment-cell.entity';
 import { RecoveryResource } from './recovery/entities/recovery-resource.entity';
 import { Tag } from './tags/entities/tag.entity';
 import { Source } from './sources/entities/source.entity';
+import { SourceEvent } from './sources/entities/source-event.entity';
 import { Indicator } from './indicators/entities/indicator.entity';
 import { Observation } from './indicators/entities/observation.entity';
 
@@ -53,8 +54,7 @@ import { Observation } from './indicators/entities/observation.entity';
           RecoveryResource,
           Tag,
           Source,
-          // AS-M3-0(설계): 등록만. 테이블 생성은 M3-1 마이그레이션. synchronize=false라
-          // 등록만으로 스키마 변화 없음(부팅 시 테이블 조회도 하지 않음).
+          SourceEvent,
           Indicator,
           Observation,
         ],
