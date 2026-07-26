@@ -36,9 +36,11 @@ export interface ObservationRevision {
  * 블루프린트 원칙3: 모든 수치에 원본 딥링크 → source_url NOT NULL.
  */
 @Entity('observations')
-@Index('IDX_obs_series_unique', ['indicatorId', 'sourceId', 'geo', 'period'], {
-  unique: true,
-})
+@Index(
+  'IDX_obs_series_unique',
+  ['indicatorId', 'sourceId', 'geo', 'period', 'qualifier'],
+  { unique: true },
+)
 @Index('IDX_obs_indicator_geo_period', ['indicatorId', 'geo', 'period'])
 export class Observation {
   @PrimaryGeneratedColumn()
@@ -78,12 +80,12 @@ export class Observation {
   valueHigh: string | null;
 
   /**
-   * 부가 한정어(예: 'sex=MLE', 'beverage=beer', 'provisional'). 차원/잠정 표시.
-   * 짧은 표식이라 varchar. type 명시 필수 — TS 유니언(string|null)은 design:type이
-   * Object로 반사되어 명시 없으면 postgres 매핑 실패(DataTypeNotSupportedError).
+   * 분해 차원/한정어. 전체값은 sentinel 'total'(NULL 금지 — 유니크 키 포함이므로).
+   * 분해 예: 'group=남학생', 'group=중학교', 'online=true', 'provisional'.
+   * AS-M3-2: 유니크 키에 포함되어 같은 (지표·지역·기간)의 분해 행을 구별한다.
    */
-  @Column({ type: 'varchar', length: 100, nullable: true })
-  qualifier: string | null;
+  @Column({ type: 'varchar', length: 100, default: 'total' })
+  qualifier: string;
 
   /** 개정 이력(감사추적). 값이 바뀔 때 이전 값을 push. 없으면 null. */
   @Column({ type: 'jsonb', nullable: true })

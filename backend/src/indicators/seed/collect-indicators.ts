@@ -105,12 +105,15 @@ async function run() {
         );
         continue;
       }
+      // 전체값은 sentinel 'total'(NULL 금지 — 유니크 키 포함). 분해는 'group=…' 등.
+      const qualifier = o.qualifier ?? 'total';
       const existing = await obsRepo.findOne({
         where: {
           indicatorId: indicator.id,
           sourceId: sourceId ?? undefined,
           geo: o.geo,
           period: o.period,
+          qualifier,
         },
       });
 
@@ -124,7 +127,7 @@ async function run() {
             value: o.value,
             valueLow: o.valueLow ?? null,
             valueHigh: o.valueHigh ?? null,
-            qualifier: o.qualifier ?? null,
+            qualifier,
             revisions: null,
             fetchedAt: now,
             sourceUrl,
@@ -154,7 +157,7 @@ async function run() {
           value: o.value,
           valueLow: o.valueLow ?? null,
           valueHigh: o.valueHigh ?? null,
-          qualifier: o.qualifier ?? null,
+          qualifier,
           revisions,
           fetchedAt: now,
           sourceUrl,

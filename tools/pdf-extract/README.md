@@ -48,8 +48,8 @@ python run.py <실제_결과보고서.pdf> --source kcgp_youth --year 2024 --url
 > ⚠️ `fixtures/sample_extracted.json`의 성별 분해 수치는 **엔진 검증용 더미**다(실값 아님).
 > 전체(total) 값 4.8/3.9/0.9만 실제 2022 발표치와 일치. 실 분해값은 M3-2b에서 원본 PDF로.
 
-## 미해결(설계 발견) — observations 유니크 키
-분해(성별·학교급)를 `qualifier`에 담으면, M3-1 유니크 키
-`(indicator_id, source_id, geo, period)`가 qualifier를 포함하지 않아 **분해 행이 충돌**한다.
-→ M3-2b에서 **유니크 키에 qualifier 추가**(전체 행은 sentinel `qualifier='total'`) additive
-마이그레이션이 선행되어야 한다. 상세: `docs/AS-M3-2a-PDF-RECON.md`.
+## observations 유니크 키 — 해결됨(AS-M3-2)
+분해(성별·학교급)를 `qualifier`에 담을 수 있도록, 유니크 키에 qualifier를 포함했다
+(`(indicator_id, source_id, geo, period, qualifier)`, 전체 행은 sentinel `qualifier='total'`).
+마이그레이션 `1785300000000-ObservationQualifierKey`. 어댑터는 전체값에 `qualifier='total'`,
+분해값에 `group=…`을 emit하면 된다(이 kcgp 어댑터가 이미 그렇게 한다).

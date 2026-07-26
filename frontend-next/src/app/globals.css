@@ -410,7 +410,39 @@ a {
   font-size: 12px;
 }
 
-/* 지표 관측치 시계열 표 (/indicators/:code) */
+/* 지표 상세 — 읽는 법 + 추이 차트 */
+.read-guide-title {
+  font-size: 14px;
+  margin: 16px 0 6px;
+  color: var(--text-main);
+}
+
+.spark {
+  width: 100%;
+  max-width: 560px;
+  height: auto;
+}
+
+.spark-line {
+  stroke: #38bdf8;
+  stroke-width: 2;
+}
+
+.spark-dot {
+  fill: #38bdf8;
+}
+
+.spark-val {
+  fill: var(--text-main);
+  font-size: 11px;
+}
+
+.spark-x {
+  fill: var(--text-muted);
+  font-size: 11px;
+}
+
+/* 지표 관측치 표 (/indicators/:code) */
 .data-table {
   width: 100%;
   border-collapse: collapse;
