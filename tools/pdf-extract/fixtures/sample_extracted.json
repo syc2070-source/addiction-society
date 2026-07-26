@@ -1,0 +1,105 @@
+{
+  "sourceId": "kcgp_youth",
+  "sourceUrl": "https://www.data.go.kr/data/15142248/fileData.do",
+  "indicators": [
+    {
+      "code": "kcgp_youth_gambling_problem_rate",
+      "domain": "D1",
+      "nameKo": "청소년 도박문제 수준(위험군+문제군) 비율",
+      "nameEn": null,
+      "unit": "%",
+      "definitionKo": "재학 중 청소년(초4~고3)을 도박문제 선별척도로 분류했을 때 위험군과 문제군을 합한 비율(%).",
+      "methodNote": "한국도박문제예방치유원 청소년 도박 실태조사 2022 · '도박문제 수준' 표에서 추출.",
+      "sourceId": "kcgp_youth",
+      "observations": [
+        {
+          "geo": "KR",
+          "period": "2022",
+          "value": "4.8",
+          "qualifier": "total",
+          "sourceUrl": "https://www.data.go.kr/data/15142248/fileData.do"
+        },
+        {
+          "geo": "KR",
+          "period": "2022",
+          "value": "6.5",
+          "qualifier": "group=남학생",
+          "sourceUrl": "https://www.data.go.kr/data/15142248/fileData.do"
+        },
+        {
+          "geo": "KR",
+          "period": "2022",
+          "value": "3.0",
+          "qualifier": "group=여학생",
+          "sourceUrl": "https://www.data.go.kr/data/15142248/fileData.do"
+        }
+      ]
+    },
+    {
+      "code": "kcgp_youth_gambling_atrisk_rate",
+      "domain": "D1",
+      "nameKo": "청소년 도박문제 위험군(YELLOW) 비율",
+      "nameEn": null,
+      "unit": "%",
+      "definitionKo": "재학 중 청소년 중 도박문제 선별척도에서 위험군(중위험, YELLOW)으로 분류된 비율(%).",
+      "methodNote": "한국도박문제예방치유원 청소년 도박 실태조사 2022 · '도박문제 수준' 표에서 추출.",
+      "sourceId": "kcgp_youth",
+      "observations": [
+        {
+          "geo": "KR",
+          "period": "2022",
+          "value": "3.9",
+          "qualifier": "total",
+          "sourceUrl": "https://www.data.go.kr/data/15142248/fileData.do"
+        },
+        {
+          "geo": "KR",
+          "period": "2022",
+          "value": "5.1",
+          "qualifier": "group=남학생",
+          "sourceUrl": "https://www.data.go.kr/data/15142248/fileData.do"
+        },
+        {
+          "geo": "KR",
+          "period": "2022",
+          "value": "2.6",
+          "qualifier": "group=여학생",
+          "sourceUrl": "https://www.data.go.kr/data/15142248/fileData.do"
+        }
+      ]
+    },
+    {
+      "code": "kcgp_youth_gambling_problem_group_rate",
+      "domain": "D1",
+      "nameKo": "청소년 도박문제 문제군(RED) 비율",
+      "nameEn": null,
+      "unit": "%",
+      "definitionKo": "재학 중 청소년 중 도박문제 선별척도에서 문제군(문제성, RED)으로 분류된 비율(%).",
+      "methodNote": "한국도박문제예방치유원 청소년 도박 실태조사 2022 · '도박문제 수준' 표에서 추출.",
+      "sourceId": "kcgp_youth",
+      "observations": [
+        {
+          "geo": "KR",
+          "period": "2022",
+          "value": "0.9",
+          "qualifier": "total",
+          "sourceUrl": "https://www.data.go.kr/data/15142248/fileData.do"
+        },
+        {
+          "geo": "KR",
+          "period": "2022",
+          "value": "1.4",
+          "qualifier": "group=남학생",
+          "sourceUrl": "https://www.data.go.kr/data/15142248/fileData.do"
+        },
+        {
+          "geo": "KR",
+          "period": "2022",
+          "value": "0.4",
+          "qualifier": "group=여학생",
+          "sourceUrl": "https://www.data.go.kr/data/15142248/fileData.do"
+        }
+      ]
+    }
+  ]
+}

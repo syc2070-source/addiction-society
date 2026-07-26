@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+.venv/
+# 로컬에서 내려받은 실 PDF·산출물(엔진 fixtures 샘플만 커밋)
+*.pdf

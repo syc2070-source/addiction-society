@@ -1,0 +1,8 @@
+# PDF 추출 엔진 (오프라인 도구, AS-M3-2a). Render 런타임에 넣지 않는다.
+pdfplumber>=0.11        # 텍스트 + 표(행렬) 추출. pdfminer.six 기반.
+
+# 선택(필요 시에만) — 설치 부담이 커서 기본 비활성:
+# camelot-py[cv]>=0.11  # ruled table 보강. Ghostscript + OpenCV 시스템 의존.
+# pytesseract>=0.3      # 스캔 PDF OCR. tesseract-ocr 시스템 패키지 필요.
+
+reportlab>=4            # fixtures 합성 PDF 생성 전용(엔진 런타임 아님).
