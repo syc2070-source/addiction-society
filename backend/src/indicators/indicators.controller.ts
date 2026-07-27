@@ -37,6 +37,17 @@ export class IndicatorsController {
     return this.indicatorsService.findObservations(query);
   }
 
+  /**
+   * 환경 자가진단(AS-M3-2c) — Render 셸 실측을 대체한다.
+   * python·pdfplumber 존재 여부 + gov(kcgp/data.go.kr) fetch 가능 여부를 JSON으로.
+   * 구체적 경로라 indicators/:idOrCode 보다 먼저 등록해야 한다.
+   */
+  @UseGuards(JwtAuthGuard)
+  @Get('indicators/health')
+  health() {
+    return this.pdfService.health();
+  }
+
   @UseGuards(JwtAuthGuard)
   @Post('indicators/extract-kcgp')
   extractKcgp() {

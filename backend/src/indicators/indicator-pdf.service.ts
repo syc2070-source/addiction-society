@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { spawn } from 'child_process';
 import { writeFile, mkdtemp, rm } from 'fs/promises';
+import { existsSync } from 'fs';
 import { tmpdir } from 'os';
 import { join, resolve } from 'path';
 import { Indicator } from './entities/indicator.entity';
@@ -75,6 +76,21 @@ export class IndicatorPdfService {
       this.config.get<string>('PDF_EXTRACT_DIR')?.trim() ||
       resolve(process.cwd(), '..', 'tools', 'pdf-extract')
     );
+  }
+
+  /**
+   * 파서를 실행할 python 경로 결정 (AS-M3-2c).
+   * 우선순위: PYTHON_BIN(명시) → 빌드가 만든 venv(backend/pdf-venv) → 시스템 python3.
+   * venv를 쓰면 PEP 668·--user 경로 문제 없이 pdfplumber가 보장된다.
+   */
+  pythonBin(): string {
+    const explicit = this.config.get<string>('PYTHON_BIN')?.trim();
+    if (explicit) return explicit;
+    const venv =
+      this.config.get<string>('PDF_VENV_DIR')?.trim() ||
+      resolve(process.cwd(), 'pdf-venv');
+    const venvPython = join(venv, 'bin', 'python');
+    return existsSync(venvPython) ? venvPython : 'python3';
   }
 
   /** kcgp 최신 회차 1회 추출. 크론·수동 트리거 공용. 절대 throw 안 함. */
@@ -152,13 +168,116 @@ export class IndicatorPdfService {
     }
   }
 
+  /**
+   * 환경 자가진단 (AS-M3-2c) — 셸 실측을 대체한다.
+   * python 존재/버전, pdfplumber import 가능 여부, gov(kcgp) URL fetch 가능 여부를 반환.
+   */
+  async health(): Promise<{
+    ok: boolean;
+    python: { bin: string; ok: boolean; version?: string; error?: string };
+    pdfplumber: { ok: boolean; version?: string; error?: string };
+    parserDir: { path: string; exists: boolean };
+    cronEnabled: boolean;
+    pdfUrlConfigured: boolean;
+    govFetch: Array<{
+      url: string;
+      ok: boolean;
+      status: number;
+      error?: string;
+    }>;
+  }> {
+    const bin = this.pythonBin();
+    const parserDir = this.pdfExtractDir;
+
+    const pyVer = await this.probe(bin, ['--version']);
+    const plug = await this.probe(bin, [
+      '-c',
+      'import pdfplumber,sys; sys.stdout.write(pdfplumber.__version__)',
+    ]);
+
+    // gov egress 판정: 설정된 PDF URL + kcgp/data.go.kr 대표 URL
+    const targets = [
+      this.config.get<string>('KCGP_YOUTH_PDF_URL')?.trim(),
+      'https://www.kcgp.or.kr/portal/bbs/B0000063/list.do?menuNo=200240',
+      'https://www.data.go.kr/data/15142248/fileData.do',
+    ].filter((u): u is string => !!u);
+
+    const govFetch: Array<{
+      url: string;
+      ok: boolean;
+      status: number;
+      error?: string;
+    }> = [];
+    for (const url of targets) {
+      try {
+        const res = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'User-Agent':
+              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+          },
+          signal: AbortSignal.timeout(20_000),
+          redirect: 'follow',
+        });
+        govFetch.push({ url, ok: res.ok, status: res.status });
+      } catch (e: unknown) {
+        const msg = e instanceof Error ? e.message : String(e);
+        govFetch.push({ url, ok: false, status: 0, error: msg });
+      }
+    }
+
+    return {
+      ok: pyVer.ok && plug.ok,
+      python: {
+        bin,
+        ok: pyVer.ok,
+        version: pyVer.ok ? pyVer.out.trim() : undefined,
+        error: pyVer.ok ? undefined : pyVer.out.slice(0, 200),
+      },
+      pdfplumber: {
+        ok: plug.ok,
+        version: plug.ok ? plug.out.trim() : undefined,
+        error: plug.ok ? undefined : plug.out.slice(0, 200),
+      },
+      parserDir: { path: parserDir, exists: existsSync(parserDir) },
+      cronEnabled:
+        this.config.get<string>('INDICATOR_PDF_CRON_ENABLED') === 'true',
+      pdfUrlConfigured: !!this.config.get<string>('KCGP_YOUTH_PDF_URL')?.trim(),
+      govFetch,
+    };
+  }
+
+  /** 프로세스 1회 실행 후 (성공여부, 출력) 반환. 진단 전용 — throw 하지 않음. */
+  private probe(
+    bin: string,
+    args: string[],
+  ): Promise<{ ok: boolean; out: string }> {
+    return new Promise((resolvePromise) => {
+      let out = '';
+      try {
+        const child = spawn(bin, args, { cwd: this.pdfExtractDir });
+        child.stdout.on('data', (d: Buffer) => (out += d.toString()));
+        child.stderr.on('data', (d: Buffer) => (out += d.toString()));
+        child.on('error', (e) =>
+          resolvePromise({ ok: false, out: `${bin}: ${e.message}` }),
+        );
+        child.on('close', (code) => resolvePromise({ ok: code === 0, out }));
+      } catch (e: unknown) {
+        resolvePromise({
+          ok: false,
+          out: e instanceof Error ? e.message : String(e),
+        });
+      }
+    });
+  }
+
   /** Python 파서 실행 → 표준출력 JSON 파싱. */
   private runParser(
     pdfPath: string,
     year: string,
     sourceUrl: string,
   ): Promise<ExtractedPayload> {
-    const python = this.config.get<string>('PYTHON_BIN')?.trim() || 'python3';
+    const python = this.pythonBin();
     const args = [
       'run.py',
       pdfPath,

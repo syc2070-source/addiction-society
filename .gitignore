@@ -19,6 +19,10 @@ build/
 backend/uploads/
 *.dump
 
+# 빌드 시 생성되는 PDF 파서용 Python venv (배포 산출물, 커밋 금지)
+backend/pdf-venv/
+tools/pdf-extract/__pycache__/
+
 # logs & OS
 *.log
 .DS_Store
