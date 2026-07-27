@@ -120,7 +120,7 @@ export default async function IndicatorDetailPage({
           <p className="status-note">{t('notFound')}</p>
         ) : (
           <>
-            <div className="page-kicker" style={{ marginTop: 12 }}>
+            <div className="page-kicker" style={{ marginTop: 'var(--space-2)' }}>
               {indicator.domain}
               {indicator.unit ? ` · ${indicator.unit}` : ''}
             </div>

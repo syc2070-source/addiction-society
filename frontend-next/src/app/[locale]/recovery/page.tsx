@@ -64,13 +64,7 @@ export default async function RecoveryPage({
                   {r.city && <span className="tag tag-org">{r.city}</span>}
                   {r.type && <span className="tag">{r.type}</span>}
                   {r.isVerified && (
-                    <span
-                      className="tag"
-                      style={{
-                        color: "var(--accent-text)",
-                        borderColor: "var(--accent)",
-                      }}
-                    >
+                    <span className="tag tag-accent">
                       {t("verified")}
                     </span>
                   )}
@@ -81,16 +75,7 @@ export default async function RecoveryPage({
                     {r.description.slice(0, 120)}
                   </p>
                 )}
-                <div
-                  style={{
-                    fontSize: "0.8rem",
-                    color: "var(--text-muted)",
-                    marginTop: 8,
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 2,
-                  }}
-                >
+                <div className="meta-col">
                   {r.address && <span>{r.address}</span>}
                   {r.phone && <span>☎ {r.phone}</span>}
                 </div>

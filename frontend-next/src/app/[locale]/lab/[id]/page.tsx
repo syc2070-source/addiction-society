@@ -58,7 +58,7 @@ export default async function LabDetailPage({
           <p className="status-note">{t('notFound')}</p>
         ) : (
           <>
-            <div className="page-kicker" style={{ marginTop: 12 }}>
+            <div className="page-kicker" style={{ marginTop: 'var(--space-2)' }}>
               {t('kicker')}
             </div>
             <h1 className="page-title">

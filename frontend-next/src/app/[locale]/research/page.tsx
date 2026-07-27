@@ -75,7 +75,7 @@ export default async function ResearchPage({
                   </p>
                 )}
                 {r.keywords && r.keywords.length > 0 && (
-                  <div className="list-item-meta" style={{ marginTop: 8 }}>
+                  <div className="list-item-meta" style={{ marginTop: 'var(--space-1)' }}>
                     {r.keywords.slice(0, 5).map((k) => (
                       <span key={k} className="tag">
                         {k}

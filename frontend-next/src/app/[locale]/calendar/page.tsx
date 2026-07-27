@@ -85,7 +85,7 @@ export default async function CalendarPage({
       ) : (
         <>
           {monthKeys.map((mk) => (
-            <div key={mk} style={{ marginBottom: '24px' }}>
+            <div key={mk} style={{ marginBottom: 'var(--space-3)' }}>
               <h2 className="group-heading">{monthLabel(mk)}</h2>
               <div className="list-grid">
                 {groups[mk].map((s) => (
@@ -115,11 +115,11 @@ export default async function CalendarPage({
 
           {/* 미정 그룹 (next_expected_at null — irregular 및 발표시점 미상) */}
           {undated.length > 0 && (
-            <div style={{ marginTop: '12px' }}>
+            <div style={{ marginTop: 'var(--space-2)' }}>
               <h2 className="group-heading">{t('undatedGroup')}</h2>
               <div className="list-grid">
                 {undated.map((s) => (
-                  <div key={s.id} className="list-item" style={{ opacity: 0.75 }}>
+                  <div key={s.id} className="list-item">
                     <div className="list-item-meta">
                       <span className="tag tag-org">
                         {l === 'en' ? s.org : s.orgKo || s.org}

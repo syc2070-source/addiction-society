@@ -135,7 +135,6 @@ export default async function SourcesPage({
               <div
                 key={s.id}
                 className="list-item"
-                style={stale ? { opacity: 0.55 } : undefined}
               >
                 <div className="list-item-meta">
                   <span className="tag tag-org">
@@ -165,44 +164,29 @@ export default async function SourcesPage({
                 {subtitle(s) && (
                   <p
                     className="list-item-desc"
-                    style={{ marginTop: 0, opacity: 0.7 }}
+                    style={{ marginTop: 0 }}
                   >
                     {subtitle(s)}
                   </p>
                 )}
 
-                <div
-                  style={{
-                    display: "flex",
-                    gap: "16px",
-                    flexWrap: "wrap",
-                    fontSize: "0.82rem",
-                    color: "var(--text-muted)",
-                    margin: "8px 0",
-                  }}
-                >
+                <div className="meta-row">
                   <span>
                     {t("lastPublished")}:{" "}
-                    <strong style={{ color: "var(--text-main)" }}>
+                    <strong>
                       {s.lastPublishedAt || tc("collecting")}
                     </strong>
                   </span>
                   <span>
                     {t("nextExpected")}:{" "}
-                    <strong style={{ color: "var(--text-main)" }}>
+                    <strong>
                       {s.nextExpectedAt || "—"}
                     </strong>
                   </span>
                 </div>
 
                 {s.license && (
-                  <p
-                    style={{
-                      fontSize: "0.75rem",
-                      color: "var(--text-muted)",
-                      margin: "4px 0",
-                    }}
-                  >
+                  <p className="meta-note">
                     {t("license")}: {s.license}
                   </p>
                 )}

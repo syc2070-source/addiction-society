@@ -1,12 +1,13 @@
 /*
- * 전역 디자인 토큰 (AS-UI-1) — 밝은 아이보리 + 옅은 슬레이트 블루 + 앰버 액센트.
- * 페이지별 스타일은 CSS Module로, 여기는 토큰·리셋·공통 요소만.
+ * 전역 디자인 토큰 — 색(AS-UI-1) + 타이포·여백 규율(AS-UI-2).
  *
- * 변수명은 유지하고 값만 교체해 페이지 코드 변경을 최소화한다.
- * 다만 --bg/--card-bg는 '다크 면'을 뜻했던 게 아니라 '페이지/카드 표면'을 뜻하므로
- * 의미 충돌 없이 값만 반전된다. 어두운 면이 필요한 곳(관측소 카드)은 --obs-* 별칭으로 분리.
- *
- * 대비: 괄호 안은 해당 배경 위 측정값(WCAG). 본문 4.5:1 / 대형·UI 3:1 기준.
+ * AS-UI-2 원칙 = 절제. 덜어내는 작업이며 장식을 추가하지 않는다.
+ *  - 굵기 2단만: 본문 400 / 제목·라벨 500. (600·700·800 전면 폐지)
+ *  - 크기 스케일 6단 고정. 임의 크기 금지.
+ *  - letter-spacing 벌리기 전면 폐지(0 기본, 큰 제목만 -0.01em).
+ *    kicker류는 대문자 자간 대신 '작은 크기 + 색'으로만 구분한다.
+ *  - 수직 리듬은 8px 배수 토큰으로 통일. 임의 margin 금지.
+ *  - 그림자 폐지 → 0.5px 경계선으로만 면을 구분.
  */
 :root {
   /* ── 배경·표면 ── */
@@ -22,31 +23,57 @@
 
   /* ── 주색: 옅은 슬레이트 블루 ── */
   --primary: #3a5a78; /* (6.9:1) 버튼 배경·강조 */
-  --primary-dark: #2e4a63; /* 호버·강조 */
+  --primary-dark: #2e4a63; /* 호버 */
   --secondary: #6e93b0; /* 연블루 (3.1:1 — 선·도형 전용) */
-  --link: #3f6480; /* 밝은 배경 위 링크·강조 텍스트 (6.0:1) */
+  --link: #3f6480; /* 링크·강조 텍스트 (6.0:1) */
   --primary-soft: #eaf0f5; /* 옅은 블루 배경(태그·표 헤더) */
 
-  /* ── 액센트: 앰버(온기 담당) ── */
-  --accent: #c2703d; /* (3.5:1) 선·점·대형 텍스트용 */
-  --accent-text: #a85c30; /* 소형 텍스트용 AA 보정 — 흰/아이보리 위 (4.7~5.0:1) */
-  --accent-text-soft: #9e5426; /* accent-soft 배경 위 소형 텍스트 (4.8:1) */
-  --accent-soft: #f6ede4; /* 옅은 앰버 배경 */
+  /* ── 액센트: 앰버 ── */
+  --accent: #c2703d; /* (3.5:1) 선·점용 */
+  --accent-text: #a85c30; /* 소형 텍스트 AA (4.7:1) */
+  --accent-text-soft: #9e5426; /* accent-soft 배경 위 (4.8:1) */
+  --accent-soft: #f6ede4;
 
-  /* ── 관측소 카드: 밝은 페이지 위 유일한 어두운 면 ── */
+  /* ── 관측소 카드(유일한 어두운 면) ── */
   --obs-bg: #33506b;
   --obs-text: #f1eee6; /* (7.2:1) */
-  --obs-muted: #9baab8; /* (3.5:1) 선·비텍스트용 */
-  --obs-muted-text: #b3c1ce; /* 소형 텍스트용 AA 보정 (4.6:1) */
+  --obs-muted: #9baab8; /* 선·비텍스트용 */
+  --obs-muted-text: #b3c1ce; /* 소형 텍스트 AA (4.6:1) */
   --obs-border: #45617c;
-  --obs-label: #d19a6a; /* (3.4:1) 점·선용 */
-  --obs-label-text: #e8be97; /* 소형 라벨 텍스트용 AA 보정 (4.9:1) */
+  --obs-label: #d19a6a;
+  --obs-label-text: #e8be97; /* 소형 라벨 AA (4.9:1) */
   --obs-live-border: #5a7c99;
 
-  --radius-lg: 16px;
-  --radius-xl: 24px;
-  /* 배경이 밝아졌으므로 그림자는 옅고 낮게 */
-  --shadow-soft: 0 10px 30px rgba(40, 50, 58, 0.08);
+  /* ── 타이포 스케일 (6단 고정) ── */
+  --fs-h1: 2.125rem; /* 34 */
+  --fs-h2: 1.5rem; /* 24 */
+  --fs-h3: 1.125rem; /* 18 */
+  --fs-body: 1rem; /* 16 */
+  --fs-sm: 0.875rem; /* 14 */
+  --fs-caption: 0.8125rem; /* 13 */
+
+  /* ── 굵기 2단 ── */
+  --fw-normal: 400;
+  --fw-medium: 500;
+
+  /* ── 행간 ── */
+  --lh-body: 1.7;
+  --lh-heading: 1.35;
+
+  /* ── 수직 리듬 (8px 배수) ── */
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+  --space-5: 48px;
+  --space-6: 64px;
+
+  /* ── 형태 ── */
+  --content-max: 1120px;
+  --radius-lg: 10px; /* 카드 */
+  --radius-sm: 6px; /* 컨트롤 */
+  --radius-xl: 10px; /* 구 별칭 — 과한 둥글기 폐지, 카드와 동일 */
+  --shadow-soft: none; /* 그림자 폐지 (구 참조 호환용) */
 }
 
 * {
@@ -69,8 +96,17 @@ body {
     sans-serif;
   background: var(--bg);
   color: var(--text-main);
-  line-height: 1.6;
+  font-size: var(--fs-body);
+  font-weight: var(--fw-normal);
+  line-height: var(--lh-body);
   -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-heading);
 }
 
 a {
@@ -90,34 +126,33 @@ a {
 }
 
 .site-header-inner {
-  max-width: 1200px;
+  max-width: var(--content-max);
   margin: 0 auto;
-  padding: 12px 24px;
+  padding: var(--space-2) var(--space-3);
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: var(--space-3);
   flex-wrap: wrap;
 }
 
 .site-logo {
-  font-weight: 800;
-  font-size: 1.02rem;
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-body);
   letter-spacing: -0.01em;
 }
 
 .site-logo small {
   display: block;
-  font-size: 0.68rem;
-  font-weight: 500;
-  color: var(--text-muted);
-  letter-spacing: 0.06em;
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-normal);
+  color: var(--text-faint);
 }
 
 .site-nav {
   display: flex;
-  gap: 4px 14px;
+  gap: var(--space-1) var(--space-2);
   flex-wrap: wrap;
-  font-size: 0.85rem;
+  font-size: var(--fs-sm);
   color: var(--text-muted);
   margin-left: auto;
 }
@@ -129,13 +164,13 @@ a {
 
 .nav-group {
   display: flex;
-  gap: 8px;
-  align-items: center;
+  gap: var(--space-1);
+  align-items: baseline;
 }
 
-/* 외부(생태계) nav 링크 — 내부 항목과 시각 구분 */
+/* 외부(생태계) 링크 — 좌측 구분선으로만 구분 */
 .nav-external {
-  padding-left: 14px;
+  padding-left: var(--space-2);
   border-left: 1px solid var(--border);
   color: var(--link);
 }
@@ -144,40 +179,39 @@ a {
   color: var(--text-main);
 }
 
+/* kicker류: 대문자 자간 벌리기 대신 작은 크기 + 흐린 색 */
 .nav-group-label {
-  font-size: 0.68rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+  font-size: var(--fs-caption);
   color: var(--text-faint);
 }
 
 .locale-switch {
   display: flex;
-  gap: 8px;
-  font-size: 0.8rem;
+  gap: var(--space-1);
+  font-size: var(--fs-sm);
   color: var(--text-muted);
 }
 
 .locale-switch a.active {
   color: var(--text-main);
-  font-weight: 700;
+  font-weight: var(--fw-medium);
 }
 
 .site-footer {
   border-top: 1px solid var(--border);
   background: var(--bg-alt);
-  margin-top: 48px;
+  margin-top: var(--space-6);
 }
 
 .site-footer-inner {
-  max-width: 1200px;
+  max-width: var(--content-max);
   margin: 0 auto;
-  padding: 16px 24px 22px;
-  font-size: 0.78rem;
+  padding: var(--space-3);
+  font-size: var(--fs-caption);
   color: var(--text-muted);
   display: flex;
   justify-content: space-between;
-  gap: 10px;
+  gap: var(--space-2);
   flex-wrap: wrap;
 }
 
@@ -187,127 +221,124 @@ a {
 
 .footer-ecosystem {
   display: flex;
-  gap: 8px;
-  align-items: center;
+  gap: var(--space-1);
+  align-items: baseline;
 }
 
 .footer-ecosystem-label {
   color: var(--text-faint);
-  text-transform: uppercase;
-  font-size: 0.7rem;
-  letter-spacing: 0.1em;
+  font-size: var(--fs-caption);
 }
 
 /* 분석실 Powered by statory */
 .powered-by {
-  margin-top: 32px;
-  padding-top: 14px;
-  border-top: 1px dashed var(--border);
-  font-size: 0.8rem;
+  margin-top: var(--space-5);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--border);
+  font-size: var(--fs-caption);
   color: var(--text-muted);
 }
 
 .powered-by a {
   color: var(--link);
-  font-weight: 600;
 }
 
 /* 분석실 상세 섹션 */
 .report-section {
-  margin-top: 24px;
+  margin-top: var(--space-4);
 }
 
 .report-section h2 {
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: var(--primary);
-  margin-bottom: 10px;
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-medium);
+  color: var(--text-main);
+  margin-bottom: var(--space-2);
 }
 
 .report-section p {
-  font-size: 0.92rem;
+  font-size: var(--fs-body);
   color: var(--text-main);
-  line-height: 1.75;
+  line-height: var(--lh-body);
   white-space: pre-line;
 }
 
-/* ── 목록 페이지 공통 (구 App.css에서 이식) ── */
+/* ── 목록 페이지 공통 ── */
 
 .page-container {
-  max-width: 1200px;
+  max-width: var(--content-max);
   margin: 0 auto;
-  padding: 0 24px 64px;
+  padding: 0 var(--space-3) var(--space-6);
 }
 
 .page-header {
-  padding: 40px 0 20px;
+  padding: var(--space-5) 0 var(--space-3);
 }
 
+/* kicker: 자간 벌리기 폐지 — 작은 크기 + 색으로만 구분 */
 .page-kicker {
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
+  font-size: var(--fs-caption);
   color: var(--link);
-  margin-bottom: 6px;
+  margin-bottom: var(--space-1);
 }
 
 .page-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 6px;
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-heading);
+  margin-bottom: var(--space-1);
 }
 
 .page-desc {
-  font-size: 0.92rem;
+  font-size: var(--fs-sm);
   color: var(--text-muted);
-  max-width: 46em;
+  max-width: 42em;
 }
 
 .search-form {
   display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: var(--space-1);
+  margin-bottom: var(--space-3);
   flex-wrap: wrap;
 }
 
 .search-input {
   flex: 1;
   min-width: 240px;
-  padding: 10px 12px;
+  padding: var(--space-1) 12px;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   background: var(--card-bg);
   color: var(--text-main);
   outline: none;
-  font-size: 0.9rem;
+  font-size: var(--fs-sm);
 }
 
 .search-input:focus {
-  border-color: var(--primary);
+  border-color: var(--secondary);
 }
 
 .search-input::placeholder {
-  color: var(--text-muted);
+  color: var(--text-faint);
 }
 
 .filter-select {
-  padding: 10px 12px;
+  padding: var(--space-1) 12px;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   background: var(--card-bg);
   color: var(--text-main);
   outline: none;
   min-width: 140px;
-  font-size: 0.85rem;
+  font-size: var(--fs-sm);
 }
 
 .btn-submit {
-  padding: 10px 18px;
+  padding: var(--space-1) var(--space-2);
   border: none;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   background: var(--primary);
   color: #fff;
-  font-size: 0.85rem;
+  font-size: var(--fs-sm);
   cursor: pointer;
 }
 
@@ -318,7 +349,7 @@ a {
 .list-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+  gap: var(--space-2);
 }
 
 @media (max-width: 860px) {
@@ -329,75 +360,69 @@ a {
 
 .list-item {
   display: block;
-  padding: 16px;
-  border-radius: 16px;
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border);
   background: var(--card-bg);
-  transition:
-    transform 160ms ease,
-    border-color 160ms ease;
+  transition: border-color 160ms ease;
 }
 
 .list-item:hover {
-  transform: translateY(-2px);
   border-color: var(--secondary);
 }
 
 .list-item-meta {
   display: flex;
-  gap: 10px;
-  align-items: center;
+  gap: var(--space-1);
+  align-items: baseline;
   flex-wrap: wrap;
-  font-size: 12px;
+  font-size: var(--fs-caption);
   color: var(--text-muted);
-  margin-bottom: 10px;
+  margin-bottom: var(--space-1);
 }
 
 .list-item-title {
-  font-size: 16px;
-  margin: 0 0 10px 0;
-  line-height: 1.35;
+  font-size: var(--fs-h3);
+  margin: 0 0 var(--space-1);
+  line-height: var(--lh-heading);
   color: var(--text-main);
-  font-weight: 700;
+  font-weight: var(--fw-medium);
 }
 
 .list-item-desc {
   margin: 0;
-  font-size: 13px;
-  line-height: 1.55;
+  font-size: var(--fs-sm);
+  line-height: var(--lh-body);
   color: var(--text-muted);
 }
 
-/* 관측소 활동 연대기 (/timeline) */
+/* ── 관측소 활동 연대기 ── */
 .timeline-list {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
 }
 
 .timeline-item {
   display: flex;
-  gap: 12px;
+  gap: var(--space-2);
   align-items: baseline;
-  padding: 10px 8px;
+  padding: var(--space-2) 0;
   border-bottom: 1px solid var(--border);
   flex-wrap: wrap;
 }
 
 .timeline-date {
   font-variant-numeric: tabular-nums;
-  color: var(--text-muted);
-  font-size: 13px;
+  color: var(--text-faint);
+  font-size: var(--fs-caption);
   min-width: 84px;
 }
 
 .timeline-badge {
-  font-size: 11px;
-  padding: 2px 8px;
-  border-radius: 999px;
+  font-size: var(--fs-caption);
+  padding: 2px var(--space-1);
+  border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   color: var(--text-muted);
   white-space: nowrap;
@@ -419,7 +444,7 @@ a {
 
 .timeline-body {
   display: flex;
-  gap: 8px;
+  gap: var(--space-1);
   align-items: baseline;
   flex-wrap: wrap;
   flex: 1;
@@ -427,24 +452,24 @@ a {
 
 .timeline-org {
   color: var(--text-muted);
-  font-size: 12px;
+  font-size: var(--fs-caption);
 }
 
 .timeline-source {
   color: var(--text-main);
-  font-weight: 600;
-  font-size: 14px;
+  font-size: var(--fs-sm);
 }
 
 .timeline-pub {
-  color: var(--text-muted);
-  font-size: 12px;
+  color: var(--text-faint);
+  font-size: var(--fs-caption);
 }
 
-/* 지표 상세 — 읽는 법 + 추이 차트 */
+/* ── 지표 상세 ── */
 .read-guide-title {
-  font-size: 14px;
-  margin: 16px 0 6px;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  margin: var(--space-3) 0 var(--space-1);
   color: var(--text-main);
 }
 
@@ -456,7 +481,7 @@ a {
 
 .spark-line {
   stroke: var(--primary);
-  stroke-width: 2;
+  stroke-width: 1.5;
 }
 
 .spark-dot {
@@ -469,41 +494,42 @@ a {
 }
 
 .spark-x {
-  fill: var(--text-muted);
+  fill: var(--text-faint);
   font-size: 11px;
 }
 
-/* 지표 관측치 표 (/indicators/:code) */
+/* ── 표: 얇은 구분선 + 옅은 헤더 + 넉넉한 셀 패딩 ── */
 .data-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: var(--fs-sm);
 }
 
 .data-table th,
 .data-table td {
   text-align: left;
-  padding: 8px 12px;
+  padding: 12px var(--space-2);
   border-bottom: 1px solid var(--border);
   white-space: nowrap;
 }
 
 .data-table th {
-  color: var(--primary);
-  background: var(--primary-soft);
-  font-weight: 600;
-  font-size: 12px;
+  color: var(--text-muted);
+  background: var(--bg-alt);
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-caption);
 }
 
 .data-table td {
   color: var(--text-main);
 }
 
+/* ── 태그·배지: 자간 폐지, 라운딩 축소 ── */
 .tag {
   display: inline-block;
-  font-size: 12px;
-  padding: 3px 8px;
-  border-radius: 999px;
+  font-size: var(--fs-caption);
+  padding: 2px var(--space-1);
+  border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   background: var(--primary-soft);
   color: var(--text-muted);
@@ -522,33 +548,32 @@ a {
 }
 
 .group-heading {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--primary);
-  margin: 0 0 12px;
-  letter-spacing: 0.02em;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  color: var(--text-muted);
+  margin: 0 0 var(--space-2);
 }
 
 .status-note {
   color: var(--text-muted);
-  font-size: 0.9rem;
-  padding: 24px 0;
+  font-size: var(--fs-sm);
+  padding: var(--space-4) 0;
 }
 
 .pagination {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 16px;
-  margin-top: 30px;
-  font-size: 0.85rem;
+  gap: var(--space-2);
+  margin-top: var(--space-5);
+  font-size: var(--fs-sm);
   color: var(--text-muted);
 }
 
 .pagination a {
-  padding: 8px 16px;
+  padding: var(--space-1) var(--space-2);
   border: 1px solid var(--border);
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   background: var(--card-bg);
   color: var(--link);
 }
@@ -565,7 +590,45 @@ a {
 
 .ext-link {
   display: inline-block;
-  margin-top: 6px;
-  font-size: 0.85rem;
+  margin-top: var(--space-1);
+  font-size: var(--fs-sm);
   color: var(--link);
+}
+
+/* ── 메타 유틸: 인라인 임의 크기·색 대체 (AS-UI-2) ── */
+.meta-row {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  font-size: var(--fs-caption);
+  color: var(--text-muted);
+  margin: var(--space-1) 0;
+}
+
+/* 본문 속 강조는 색 없이 굵기만 (색은 링크·액센트 요소 전용) */
+.meta-row strong {
+  font-weight: var(--fw-medium);
+  color: inherit;
+}
+
+.meta-note {
+  font-size: var(--fs-caption);
+  color: var(--text-muted);
+  margin: var(--space-1) 0;
+}
+
+.meta-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: var(--fs-caption);
+  color: var(--text-muted);
+  margin-top: var(--space-1);
+}
+
+/* 액센트 태그(인증 등) — 색은 배지 같은 액센트 요소에만 허용 */
+.tag-accent {
+  color: var(--accent-text-soft);
+  background: var(--accent-soft);
+  border-color: #e0c3a8;
 }

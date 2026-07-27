@@ -1,9 +1,12 @@
-/* 홈 페이지 스타일 — 히어로 그리드는 1280px에서 헤드라인이 정확히 2줄이 되도록 설계 */
+/*
+ * 홈 페이지 (AS-UI-2 절제 적용).
+ * 자간 벌리기·이중 색강조·그림자·700 굵기 폐지. 여백은 전역 8px 배수 토큰만 사용.
+ */
 
 .main {
-  max-width: 1200px;
+  max-width: var(--content-max);
   margin: 0 auto;
-  padding: 48px 24px 80px;
+  padding: var(--space-5) var(--space-3) var(--space-6);
 }
 
 /* ── 히어로 ── */
@@ -11,101 +14,106 @@
 .hero {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 40px;
-  align-items: center;
-  padding: 32px 0 48px;
+  gap: var(--space-5);
+  /* 좌측 텍스트 열과 카드의 상단을 맞춘다(가운데 정렬 시 좌측이 비어 보임) */
+  align-items: start;
+  padding-bottom: var(--space-5);
 }
 
-/* 데스크탑: 텍스트 열을 넓게(1.4fr) 잡아 2줄 헤드라인 공간 확보 */
+/* 데스크탑: 텍스트 열이 지나치게 비지 않도록 카드 비중을 키움 */
 @media (min-width: 1024px) {
   .hero {
-    grid-template-columns: 1.4fr 1fr;
+    grid-template-columns: 1.15fr 1fr;
   }
 }
 
 .badge {
   display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 14px;
+  align-items: baseline;
+  gap: var(--space-1);
+  padding: 6px 12px;
   border: 1px solid var(--border);
-  border-radius: 999px;
-  margin-bottom: 20px;
-  background: var(--accent-soft);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-3);
+  background: var(--card-bg);
 }
 
 .badgeDot {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: var(--accent);
+  align-self: center;
 }
 
+/* kicker류: 자간 벌리기·대문자 변환 폐지 — 작은 크기 + 색으로만 구분 */
 .badgeLabel {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--accent-text);
-}
-
-.badgeDesc {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-}
-
-/*
- * 헤드라인: 명시적 <br> 2분절 + keep-all.
- * 1280px 기준: 텍스트 열 ≈ 640px, 최장 분절(ko 2행 ≈ 19.5em)이 한 줄에 들어가도록
- * 최대 폰트를 1.95rem(31.2px)로 캡 → 19.5em × 31.2px ≈ 608px < 640px.
- */
-.heroTitle {
-  font-size: clamp(1.45rem, 1rem + 1.55vw, 1.95rem);
-  line-height: 1.4;
-  letter-spacing: -0.01em;
-  font-weight: 700;
-  word-break: keep-all;
-}
-
-.highlight {
-  color: var(--accent);
-}
-
-.heroSubtitle {
-  margin-top: 18px;
-  font-size: 0.95rem;
-  color: var(--text-muted);
-  max-width: 40em;
-}
-
-.heroSubtitle b {
+  font-size: var(--fs-caption);
   color: var(--text-main);
 }
 
-/* ── 관측소 카드 ── */
+.badgeDesc {
+  font-size: var(--fs-caption);
+  color: var(--text-muted);
+}
+
+/* 헤드라인: 스케일 h1 상한(34px). keep-all로 어절 단위 줄바꿈 */
+.heroTitle {
+  font-size: clamp(1.5rem, 1.05rem + 1.6vw, var(--fs-h1));
+  line-height: var(--lh-heading);
+  letter-spacing: -0.01em;
+  font-weight: var(--fw-medium);
+  word-break: keep-all;
+  max-width: 20em;
+}
+
+/*
+ * 강조는 한 가지 방식만 — 색 없이 굵기만.
+ * 근거: 데이터 관측소는 신뢰가 제품이라 문장 안 색 강조는 '주장'처럼 읽힌다.
+ * 색은 링크·액센트 요소에만 남기고 본문 강조는 굵기로 통일한다.
+ */
+.highlight {
+  color: inherit;
+  font-weight: var(--fw-medium);
+}
+
+.heroSubtitle {
+  margin-top: var(--space-3);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-body);
+  color: var(--text-muted);
+  max-width: 38em;
+}
+
+.heroSubtitle b {
+  font-weight: var(--fw-medium);
+  color: inherit;
+}
+
+/* ── 관측소 카드 (유일한 어두운 면) ── */
 
 .obsCard {
   background: var(--obs-bg);
   color: var(--obs-text);
   border: 1px solid var(--obs-border);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-soft);
-  padding: 22px;
+  border-radius: var(--radius-lg);
+  padding: var(--space-3);
 }
 
 .obsHeader {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
+  align-items: baseline;
+  gap: var(--space-2);
 }
 
 .obsTitle {
-  font-weight: 700;
-  font-size: 1.02rem;
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-medium);
 }
 
 .obsSub {
-  font-size: 0.78rem;
+  font-size: var(--fs-caption);
   color: var(--obs-muted-text);
   margin-top: 2px;
 }
@@ -114,47 +122,47 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 10px;
-  border-radius: 999px;
+  padding: 2px var(--space-1);
+  border-radius: var(--radius-sm);
   border: 1px solid var(--obs-live-border);
   color: var(--obs-text);
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
+  font-size: var(--fs-caption);
   flex-shrink: 0;
 }
 
 .statusDot {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: var(--obs-label);
 }
 
 .obsBlock {
-  border-top: 1px dashed var(--obs-border);
-  padding-top: 12px;
-  margin-top: 12px;
+  border-top: 1px solid var(--obs-border);
+  padding-top: var(--space-2);
+  margin-top: var(--space-2);
 }
 
+/* 블록 라벨: 자간 벌리기 폐지 */
 .obsBlockTitle {
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
+  font-size: var(--fs-caption);
   color: var(--obs-label-text);
-  margin-bottom: 8px;
+  margin-bottom: var(--space-1);
 }
 
 .obsRow {
   display: flex;
-  gap: 10px;
-  font-size: 0.78rem;
+  gap: var(--space-1);
+  font-size: var(--fs-sm);
   margin-bottom: 6px;
 }
 
+/* 날짜는 작고 흐리게, 제목은 명확하게 — 카드 내부 위계 */
 .obsDate {
   color: var(--obs-muted-text);
+  font-size: var(--fs-caption);
   flex-shrink: 0;
-  min-width: 82px;
+  min-width: 78px;
 }
 
 .obsLabel {
@@ -164,83 +172,80 @@
 /* ── 부처 분산 지도 ── */
 
 .section {
-  padding: 40px 0 0;
+  padding-top: var(--space-5);
 }
 
 .kicker {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
+  font-size: var(--fs-caption);
   color: var(--link);
-  margin-bottom: 10px;
+  margin-bottom: var(--space-1);
 }
 
 .sectionTitle {
-  font-size: clamp(1.25rem, 1rem + 1vw, 1.6rem);
-  font-weight: 700;
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-heading);
   word-break: keep-all;
 }
 
 .sectionDesc {
-  margin-top: 10px;
+  margin-top: var(--space-1);
   color: var(--text-muted);
-  font-size: 0.92rem;
-  max-width: 46em;
+  font-size: var(--fs-sm);
+  max-width: 42em;
 }
 
 .card {
-  margin-top: 22px;
+  margin-top: var(--space-3);
   background: var(--card-bg);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 20px;
+  padding: var(--space-3);
   overflow-x: auto;
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.88rem;
+  font-size: var(--fs-sm);
   min-width: 560px;
 }
 
 .table th {
   text-align: left;
-  color: var(--primary);
-  background: var(--primary-soft);
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  padding: 8px 12px;
+  color: var(--text-muted);
+  background: var(--bg-alt);
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-medium);
+  padding: 12px var(--space-2);
   border-bottom: 1px solid var(--border);
 }
 
 .table td {
-  padding: 10px 12px;
+  padding: 12px var(--space-2);
   border-bottom: 1px solid var(--border);
   color: var(--text-main);
 }
 
 .quote {
-  margin: 16px 0 0;
-  padding: 12px 16px;
-  border-left: 3px solid var(--accent);
-  border-radius: 8px;
+  margin-top: var(--space-2);
+  padding: var(--space-2);
+  border-left: 2px solid var(--accent);
   background: var(--accent-soft);
   color: var(--text-main);
-  font-size: 0.9rem;
+  font-size: var(--fs-sm);
 }
 
 .quoteBy {
-  margin-top: 6px;
-  font-size: 0.78rem;
+  margin-top: var(--space-1);
+  font-size: var(--fs-caption);
   color: var(--text-muted);
 }
 
 .footnote {
-  font-size: 0.8rem;
+  font-size: var(--fs-caption);
   color: var(--text-muted);
-  margin-top: 12px;
+  margin-top: var(--space-2);
 }
 
 /* ── 언어 전환 ── */
@@ -248,12 +253,12 @@
 .localeSwitch {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-  font-size: 0.8rem;
+  gap: var(--space-1);
+  font-size: var(--fs-sm);
   color: var(--text-muted);
 }
 
 .localeActive {
   color: var(--text-main);
-  font-weight: 700;
+  font-weight: var(--fw-medium);
 }
