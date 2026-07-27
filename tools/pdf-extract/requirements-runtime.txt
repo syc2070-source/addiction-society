@@ -1,0 +1,3 @@
+# 운영(Render) 런타임 최소 의존 — 크론 PDF 추출에 pdfplumber만 필요.
+# (reportlab은 fixtures 생성 전용이라 런타임 불필요 → 제외)
+pdfplumber>=0.11

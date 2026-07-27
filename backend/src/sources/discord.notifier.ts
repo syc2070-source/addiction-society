@@ -42,14 +42,18 @@ export class SourcesNotifier {
 
   /** 알림 전송. 웹훅 미설정 시 로그만. 실패해도 throw 하지 않음. */
   async notify(source: Source, reason: NotifyReason): Promise<void> {
-    const content = this.buildMessage(source, reason);
+    await this.notifyText(this.buildMessage(source, reason), source.id);
+  }
+
+  /** 임의 텍스트 알림(지표 추출 등 소스 외 용도). 웹훅 없으면 로그만, 실패해도 throw 안 함. */
+  async notifyText(content: string, tag = 'observatory'): Promise<void> {
     const webhook = this.config
       .get<string>('DISCORD_WEBHOOK_OBSERVATORY')
       ?.trim();
 
     if (!webhook) {
       // 웹훅 없음 → 전송 생략, 내용만 로그(무엇을 보낼지 확인 가능)
-      this.logger.log(`[알림 생략: 웹훅 미설정]\n${content}`);
+      this.logger.log(`[알림 생략: 웹훅 미설정] (${tag})\n${content}`);
       return;
     }
 
@@ -61,14 +65,12 @@ export class SourcesNotifier {
         signal: AbortSignal.timeout(15_000),
       });
       if (!res.ok) {
-        this.logger.warn(`Discord 전송 실패 HTTP ${res.status} — ${source.id}`);
+        this.logger.warn(`Discord 전송 실패 HTTP ${res.status} — ${tag}`);
       } else {
-        this.logger.log(`Discord 전송 완료 — ${source.id}`);
+        this.logger.log(`Discord 전송 완료 — ${tag}`);
       }
     } catch (e: any) {
-      this.logger.warn(
-        `Discord 전송 예외 — ${source.id}: ${e?.message || e}`,
-      );
+      this.logger.warn(`Discord 전송 예외 — ${tag}: ${e?.message || e}`);
     }
   }
 }

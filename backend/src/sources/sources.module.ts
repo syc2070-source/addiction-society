@@ -19,6 +19,6 @@ import { SourceEventsService } from './source-events.service';
     SourcesNotifier,
     SourceEventsService,
   ],
-  exports: [SourcesService, SourceEventsService],
+  exports: [SourcesService, SourceEventsService, SourcesNotifier],
 })
 export class SourcesModule {}

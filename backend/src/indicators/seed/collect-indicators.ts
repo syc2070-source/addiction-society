@@ -131,6 +131,8 @@ async function run() {
             revisions: null,
             fetchedAt: now,
             sourceUrl,
+            // 큐레이션 시드는 사람이 검증한 값 → approved(원칙8). PDF 크론 추출분만 pending.
+            status: 'approved',
           }),
         );
         obsInserted++;
@@ -161,6 +163,7 @@ async function run() {
           revisions,
           fetchedAt: now,
           sourceUrl,
+          status: 'approved',
         });
         obsRevised++;
       } else {

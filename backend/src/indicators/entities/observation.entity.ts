@@ -91,6 +91,13 @@ export class Observation {
   @Column({ type: 'jsonb', nullable: true })
   revisions: ObservationRevision[] | null;
 
+  /**
+   * 검수 상태(AS-M3-2b). 'approved'만 공개 노출. PDF 크론 추출분은 'pending'.
+   * 큐레이션 시드(collect:indicators)는 'approved'. PDF 표는 기계 오독 위험 → 검수 필수.
+   */
+  @Column({ type: 'varchar', length: 20, default: 'approved' })
+  status: string;
+
   /** 마지막 수집 시각(값 확인/갱신 시각). */
   @Column({ name: 'fetched_at', type: 'timestamptz', default: () => 'now()' })
   fetchedAt: Date;

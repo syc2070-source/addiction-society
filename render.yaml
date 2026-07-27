@@ -10,7 +10,14 @@ services:
     #    발표 감시가 핵심이므로 Starter 이상 필수.
     plan: starter
     rootDir: backend
-    buildCommand: npm ci && npm run build
+    # 빌드 시 Node 의존 + (선택) PDF 크론용 Python 의존(pdfplumber)을 확보.
+    # pip 미존재/실패해도 배포는 계속된다(|| true) — PDF 크론은 기본 비활성이라 안전.
+    # 크론 활성화 전, Render 셸에서 `python3 -c "import pdfplumber"`로 실측 확인할 것.
+    buildCommand: >-
+      npm ci && npm run build &&
+      (pip3 install --user -r ../tools/pdf-extract/requirements-runtime.txt
+      || pip install --user -r ../tools/pdf-extract/requirements-runtime.txt
+      || echo '[build] pdfplumber 미설치 — PDF 크론 사용 시 런타임에 별도 확보 필요')
     # 빌드 후·기동 전에 매 배포 실행(멱등). 마이그레이션·시딩을 서버가 스스로 수행.
     # Starter+ 에서 동작. 실패 시 배포가 중단되어 구버전이 유지된다.
     preDeployCommand: bash scripts/deploy-init.sh
