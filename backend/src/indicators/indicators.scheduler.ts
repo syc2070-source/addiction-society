@@ -6,8 +6,9 @@ import { IndicatorPdfService } from './indicator-pdf.service';
 /**
  * 지표 PDF 자동추출 크론 (AS-M3-2b) — 셸 수동 실행 제거.
  *
- * 매월 1일 04:00 KST에 kcgp 최신 회차 PDF를 추출해 observations(pending)로 적재한다.
- * kcgp는 격년/연간 발간이라 월 1회면 새 회차를 한 달 내 포착하기 충분하고, URL이 그대로면
+ * 매월 1일 04:00 KST에 **sources.access_detail.pdf=true인 소스 전부**를 순회 추출해
+ * observations(pending)로 적재한다(AS-M3-2d: 대상은 env가 아니라 DB에서 온다).
+ * 발간 주기가 연/격년이라 월 1회면 새 회차를 한 달 내 포착하기 충분하고,
  * 멱등(이미 approved면 보호, pending이면 갱신)이라 재실행이 안전하다.
  *
  * 기본 비활성: INDICATOR_PDF_CRON_ENABLED='true'일 때만 동작한다. 운영에서 Render의
@@ -28,10 +29,10 @@ export class IndicatorsScheduler {
       return; // 기본 비활성
     }
     try {
-      const r = await this.pdf.extractKcgpYouth();
-      this.logger.log(`[cron:pdf] kcgp 추출 ${JSON.stringify(r)}`);
+      const r = await this.pdf.extractAll();
+      this.logger.log(`[cron:pdf] 추출 ${JSON.stringify(r)}`);
     } catch (e: unknown) {
-      // extractKcgpYouth는 throw 안 하지만 이중 격리.
+      // extractAll은 throw 안 하지만 이중 격리.
       const msg = e instanceof Error ? e.message : String(e);
       this.logger.error(`[cron:pdf] 최상위 예외(무시): ${msg}`);
     }

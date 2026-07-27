@@ -9,8 +9,35 @@ import { tmpdir } from 'os';
 import { join, resolve } from 'path';
 import { Indicator } from './entities/indicator.entity';
 import { Observation } from './entities/observation.entity';
+import { Source } from '../sources/entities/source.entity';
 import { SourceEventsService } from '../sources/source-events.service';
 import { SourcesNotifier } from '../sources/discord.notifier';
+
+const BROWSER_UA =
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36';
+
+/**
+ * PDF 추출 대상 소스의 힌트 (sources.access_detail에 저장, AS-M3-2d).
+ *
+ *   {
+ *     "pdf": true,                       // 추출 대상 표시(필수)
+ *     "parser_adapter": "kcgp_youth",    // tools/pdf-extract/adapters 의 어댑터 id
+ *     "pdf_url": "https://.../report.pdf",        // 직접 URL을 알면 최우선
+ *     "pdf_finder": { "type": "datagokr_filedata", // 없으면 탐색기로 도출
+ *                     "datasetUrl": "https://www.data.go.kr/data/15142248/fileData.do" },
+ *     "period": "2024"                   // 관측치 기간(연도). 없으면 올해로 추정하지 않고 skip
+ *   }
+ *
+ * env가 아니라 DB에 두는 이유: 소스·회차가 늘어도 env가 증식하지 않고, 새 소스 추가가
+ * `sources` 등록만으로 끝난다(자동화 원칙). 회차 갱신도 access_detail 한 줄 수정.
+ */
+export interface PdfSourceHint {
+  pdf?: boolean;
+  parser_adapter?: string;
+  pdf_url?: string | null;
+  pdf_finder?: { type: string; datasetUrl?: string } | null;
+  period?: string | number | null;
+}
 
 interface ExtractedObs {
   geo: string;
@@ -38,22 +65,35 @@ interface ExtractedPayload {
   indicators: ExtractedIndicator[];
 }
 
-export interface ExtractionResult {
+/** 소스 1건 추출 결과 */
+export interface SourceExtractionResult {
+  sourceId: string;
   ran: boolean;
   reason?: string;
+  pdfUrl?: string;
   indicators: number;
   pendingInserted: number;
   pendingUpdated: number;
   skippedApproved: number;
 }
 
+export interface FileProbe {
+  url: string;
+  status: number;
+  contentType: string | null;
+  bytes: number;
+  isPdf: boolean;
+  isZip: boolean;
+  fileName?: string | null;
+  error?: string;
+}
+
 /**
- * kcgp PDF 추출 → observations(status='pending') 적재 (AS-M3-2b).
+ * PDF 추출 → observations(status='pending') 적재 (AS-M3-2b/2d).
  *
- * 흐름: PDF URL fetch → 임시파일 → Python 파서(tools/pdf-extract/run.py) spawn →
- *   JSON 파싱 → 지표 메타 upsert(없으면 생성, 정의는 어댑터 큐레이션) +
- *   관측치 pending upsert(이미 approved면 보호·건너뜀) → Discord "검수 요망".
- * 실패는 source_events(kcgp_youth, failed)로 남기고 **절대 throw 하지 않는다**(크론 격리).
+ * 대상은 **sources 테이블**에서 온다(access_detail.pdf === true). env에 URL을 두지 않는다.
+ * 소스별 표 구조 차이는 Python 어댑터(tools/pdf-extract/adapters/<parser_adapter>.py)가 흡수.
+ * 실패는 소스별로 격리하고 source_events(failed)로 남긴다. **절대 throw 하지 않는다**(크론).
  *
  * PDF 표는 기계 오독 위험 → 값은 항상 pending(검수 필수). 정관2조·원칙8.
  */
@@ -67,6 +107,8 @@ export class IndicatorPdfService {
     private readonly indicatorRepo: Repository<Indicator>,
     @InjectRepository(Observation)
     private readonly observationRepo: Repository<Observation>,
+    @InjectRepository(Source)
+    private readonly sourceRepo: Repository<Source>,
     private readonly events: SourceEventsService,
     private readonly notifier: SourcesNotifier,
   ) {}
@@ -79,9 +121,8 @@ export class IndicatorPdfService {
   }
 
   /**
-   * 파서를 실행할 python 경로 결정 (AS-M3-2c).
-   * 우선순위: PYTHON_BIN(명시) → 빌드가 만든 venv(backend/pdf-venv) → 시스템 python3.
-   * venv를 쓰면 PEP 668·--user 경로 문제 없이 pdfplumber가 보장된다.
+   * 파서를 실행할 python 경로 (AS-M3-2c).
+   * PYTHON_BIN(명시) → 빌드가 만든 venv(backend/pdf-venv) → 시스템 python3.
    */
   pythonBin(): string {
     const explicit = this.config.get<string>('PYTHON_BIN')?.trim();
@@ -93,137 +134,256 @@ export class IndicatorPdfService {
     return existsSync(venvPython) ? venvPython : 'python3';
   }
 
-  /** kcgp 최신 회차 1회 추출. 크론·수동 트리거 공용. 절대 throw 안 함. */
-  async extractKcgpYouth(): Promise<ExtractionResult> {
-    const base: ExtractionResult = {
+  /** access_detail에서 PDF 힌트를 꺼낸다. */
+  private hintOf(s: Source): PdfSourceHint {
+    return (s.accessDetail ?? {}) as PdfSourceHint;
+  }
+
+  /** PDF 추출 대상 소스 목록(access_detail.pdf === true). */
+  async pdfSources(): Promise<Source[]> {
+    const all = await this.sourceRepo.find();
+    return all.filter((s) => this.hintOf(s).pdf === true);
+  }
+
+  /** 대상 소스 전부 순차 추출. 소스별 격리. 크론·수동 트리거 공용. */
+  async extractAll(): Promise<SourceExtractionResult[]> {
+    const targets = await this.pdfSources();
+    this.logger.log(
+      `[pdf] 대상 소스 ${targets.length}건 (access_detail.pdf=true)`,
+    );
+    const results: SourceExtractionResult[] = [];
+    for (const s of targets) {
+      results.push(await this.extractSource(s));
+    }
+    return results;
+  }
+
+  /** 소스 id로 1건 추출. */
+  async extractOne(sourceId: string): Promise<SourceExtractionResult> {
+    const s = await this.sourceRepo.findOne({ where: { id: sourceId } });
+    if (!s) {
+      return {
+        sourceId,
+        ran: false,
+        reason: 'sources에 없는 id',
+        indicators: 0,
+        pendingInserted: 0,
+        pendingUpdated: 0,
+        skippedApproved: 0,
+      };
+    }
+    return this.extractSource(s);
+  }
+
+  /** 소스 1건 추출 본체. 절대 throw 안 함. */
+  private async extractSource(s: Source): Promise<SourceExtractionResult> {
+    const base: SourceExtractionResult = {
+      sourceId: s.id,
       ran: false,
       indicators: 0,
       pendingInserted: 0,
       pendingUpdated: 0,
       skippedApproved: 0,
     };
-    const pdfUrl = this.config.get<string>('KCGP_YOUTH_PDF_URL')?.trim();
-    if (!pdfUrl) {
-      return { ...base, reason: 'KCGP_YOUTH_PDF_URL 미설정' };
-    }
-    const year =
-      this.config.get<string>('KCGP_YOUTH_PDF_YEAR')?.trim() || '2024';
-    const sourceUrl =
-      this.config.get<string>('KCGP_YOUTH_SOURCE_URL')?.trim() || pdfUrl;
+    const hint = this.hintOf(s);
+    const adapter = hint.parser_adapter?.trim();
+    if (!adapter) return { ...base, reason: 'parser_adapter 미지정' };
+    const period = hint.period != null ? String(hint.period).trim() : '';
+    if (!period) return { ...base, reason: 'period(회차 연도) 미지정' };
 
     let dir: string | null = null;
     try {
-      dir = await mkdtemp(join(tmpdir(), 'kcgp-pdf-'));
-      const pdfPath = join(dir, 'report.pdf');
+      // 1) PDF URL 확정: 직접 URL 우선, 없으면 탐색기(finder)로 도출
+      const resolved = await this.resolvePdfUrl(s);
+      if (!resolved.url) {
+        throw new Error(`PDF URL 확정 실패: ${resolved.reason ?? 'unknown'}`);
+      }
 
-      // 1) PDF 다운로드
-      const res = await fetch(pdfUrl, {
-        signal: AbortSignal.timeout(60_000),
+      // 2) 내려받아 PDF인지 확인(매직바이트) — HTML 오류페이지/ZIP 오적재 방지
+      const probe = await this.probeFile(resolved.url, s.url);
+      if (!probe.isPdf) {
+        throw new Error(
+          `PDF 아님 (status ${probe.status}, type ${probe.contentType ?? '?'}${probe.isZip ? ', ZIP' : ''})`,
+        );
+      }
+
+      dir = await mkdtemp(join(tmpdir(), `pdf-${s.id}-`));
+      const pdfPath = join(dir, 'report.pdf');
+      const res = await fetch(resolved.url, {
+        headers: { 'User-Agent': BROWSER_UA, Referer: s.url },
+        signal: AbortSignal.timeout(120_000),
         redirect: 'follow',
       });
       if (!res.ok) throw new Error(`PDF fetch HTTP ${res.status}`);
-      const buf = Buffer.from(await res.arrayBuffer());
-      await writeFile(pdfPath, buf);
+      await writeFile(pdfPath, Buffer.from(await res.arrayBuffer()));
 
-      // 2) Python 파서 spawn → JSON
-      const payload = await this.runParser(pdfPath, year, sourceUrl);
-      const upserted = await this.upsertPending(payload);
+      // 3) 어댑터로 파싱 → pending 적재. 원본 딥링크는 소스 url(사람이 여는 페이지).
+      const payload = await this.runParser(pdfPath, adapter, period, s.url);
+      const up = await this.upsertPending(payload, s.id);
 
-      // 3) 성공 알림
       await this.notifier.notifyText(
         [
-          '🧾 지표 자동추출 (kcgp 청소년 도박)',
-          `추출 지표 ${payload.indicators.length} · pending 신규 ${upserted.pendingInserted} / 갱신 ${upserted.pendingUpdated}`,
-          upserted.skippedApproved
-            ? `이미 승인된 값 ${upserted.skippedApproved}건은 보호(건너뜀)`
+          `🧾 지표 자동추출 (${s.orgKo} · ${s.titleKo})`,
+          `회차 ${period} · 지표 ${payload.indicators.length} · pending 신규 ${up.pendingInserted} / 갱신 ${up.pendingUpdated}`,
+          up.skippedApproved
+            ? `이미 승인된 값 ${up.skippedApproved}건 보호(건너뜀)`
             : '',
           '검수 요망 — 승인 전까지 공개 안 됨.',
         ]
           .filter(Boolean)
           .join('\n'),
-        'kcgp-pdf',
+        `pdf:${s.id}`,
       );
-
       this.logger.log(
-        `[pdf:kcgp] 추출 완료 — 지표 ${payload.indicators.length}, pending +${upserted.pendingInserted}/~${upserted.pendingUpdated}, approved보호 ${upserted.skippedApproved}`,
+        `[pdf] ${s.id} 완료 — 지표 ${payload.indicators.length}, pending +${up.pendingInserted}/~${up.pendingUpdated}`,
       );
-      return { ran: true, ...upserted, indicators: payload.indicators.length };
+      return {
+        ...base,
+        ran: true,
+        pdfUrl: resolved.url,
+        indicators: payload.indicators.length,
+        ...up,
+      };
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
-      // 실패 → LEDGER(source_events)에 남긴다.
       await this.events.record({
-        sourceId: 'kcgp_youth',
+        sourceId: s.id,
         eventType: 'failed',
         detail: { stage: 'pdf-extract', message: msg },
         notified: true,
       });
       await this.notifier.notifyText(
-        `⚠️ 지표 자동추출 실패 (kcgp 청소년 도박): ${msg}`,
-        'kcgp-pdf',
+        `⚠️ 지표 자동추출 실패 (${s.id}): ${msg}`,
+        `pdf:${s.id}`,
       );
-      this.logger.error(`[pdf:kcgp] 실패(격리됨): ${msg}`);
+      this.logger.error(`[pdf] ${s.id} 실패(격리됨): ${msg}`);
       return { ...base, reason: msg };
     } finally {
       if (dir) await rm(dir, { recursive: true, force: true }).catch(() => {});
     }
   }
 
-  /**
-   * 환경 자가진단 (AS-M3-2c) — 셸 실측을 대체한다.
-   * python 존재/버전, pdfplumber import 가능 여부, gov(kcgp) URL fetch 가능 여부를 반환.
-   */
-  async health(): Promise<{
-    ok: boolean;
-    python: { bin: string; ok: boolean; version?: string; error?: string };
-    pdfplumber: { ok: boolean; version?: string; error?: string };
-    parserDir: { path: string; exists: boolean };
-    cronEnabled: boolean;
-    pdfUrlConfigured: boolean;
-    govFetch: Array<{
-      url: string;
-      ok: boolean;
-      status: number;
-      error?: string;
-    }>;
-  }> {
-    const bin = this.pythonBin();
-    const parserDir = this.pdfExtractDir;
+  /** access_detail 기반으로 실제 PDF URL을 확정한다(직접 URL → finder). */
+  async resolvePdfUrl(
+    s: Source,
+  ): Promise<{ url?: string; reason?: string; candidates?: FileProbe[] }> {
+    const hint = this.hintOf(s);
+    if (hint.pdf_url?.trim()) return { url: hint.pdf_url.trim() };
 
+    const finder = hint.pdf_finder;
+    if (!finder?.type) return { reason: 'pdf_url·pdf_finder 둘 다 없음' };
+
+    if (finder.type === 'datagokr_filedata') {
+      const datasetUrl = finder.datasetUrl?.trim() || s.url;
+      return this.findDataGoKrFile(datasetUrl);
+    }
+    return { reason: `알 수 없는 pdf_finder.type: ${finder.type}` };
+  }
+
+  /**
+   * data.go.kr 파일데이터 페이지 → 첨부 다운로드 URL 도출 (AS-M3-2d).
+   * 다운로드 링크는 `/cmm/cmm/fileDownload.do?atchFileId=FILE_xxxxxxxxx&fileDetailSn=N`이며
+   * atchFileId는 데이터셋마다 다르고 페이지 HTML에만 있다 → 서버가 직접 긁어 확정한다
+   * (추측 URL 금지). 후보를 실제로 받아 PDF 매직바이트까지 확인한다.
+   */
+  async findDataGoKrFile(
+    datasetUrl: string,
+  ): Promise<{ url?: string; reason?: string; candidates?: FileProbe[] }> {
+    let html: string;
+    try {
+      const res = await fetch(datasetUrl, {
+        headers: { 'User-Agent': BROWSER_UA },
+        signal: AbortSignal.timeout(30_000),
+        redirect: 'follow',
+      });
+      if (!res.ok) return { reason: `데이터셋 페이지 HTTP ${res.status}` };
+      html = await res.text();
+    } catch (e: unknown) {
+      return { reason: e instanceof Error ? e.message : String(e) };
+    }
+
+    const ids = [...new Set(html.match(/FILE_\d{6,}/g) ?? [])].slice(0, 5);
+    if (ids.length === 0) {
+      return { reason: '페이지에서 atchFileId(FILE_...)를 찾지 못함' };
+    }
+
+    const candidates: FileProbe[] = [];
+    for (const id of ids) {
+      const url = `https://www.data.go.kr/cmm/cmm/fileDownload.do?atchFileId=${id}&fileDetailSn=1`;
+      candidates.push(await this.probeFile(url, datasetUrl));
+    }
+    const best = candidates.find((c) => c.isPdf);
+    return best
+      ? { url: best.url, candidates }
+      : {
+          reason: 'PDF 응답 후보 없음(ZIP이면 압축 해제 경로 필요)',
+          candidates,
+        };
+  }
+
+  /** URL을 실제로 받아 200 + PDF 여부(매직바이트)까지 판정. throw 안 함. */
+  async probeFile(url: string, referer?: string): Promise<FileProbe> {
+    try {
+      const res = await fetch(url, {
+        headers: {
+          'User-Agent': BROWSER_UA,
+          ...(referer ? { Referer: referer } : {}),
+        },
+        signal: AbortSignal.timeout(60_000),
+        redirect: 'follow',
+      });
+      const buf = Buffer.from(await res.arrayBuffer());
+      const head = buf.subarray(0, 4).toString('latin1');
+      const disp = res.headers.get('content-disposition');
+      const nameMatch = disp?.match(/filename\*?=(?:UTF-8'')?"?([^";]+)"?/i);
+      return {
+        url,
+        status: res.status,
+        contentType: res.headers.get('content-type'),
+        bytes: buf.length,
+        isPdf: head.startsWith('%PDF'),
+        isZip: head.startsWith('PK'),
+        fileName: nameMatch ? decodeURIComponent(nameMatch[1]) : null,
+      };
+    } catch (e: unknown) {
+      return {
+        url,
+        status: 0,
+        contentType: null,
+        bytes: 0,
+        isPdf: false,
+        isZip: false,
+        error: e instanceof Error ? e.message : String(e),
+      };
+    }
+  }
+
+  /**
+   * 환경 자가진단 (AS-M3-2c/2d) — 셸 실측 대체.
+   * python·pdfplumber 가용성 + PDF 대상 소스별 URL 확정 가능 여부(gov egress 포함).
+   */
+  async health(): Promise<Record<string, unknown>> {
+    const bin = this.pythonBin();
     const pyVer = await this.probe(bin, ['--version']);
     const plug = await this.probe(bin, [
       '-c',
       'import pdfplumber,sys; sys.stdout.write(pdfplumber.__version__)',
     ]);
 
-    // gov egress 판정: 설정된 PDF URL + kcgp/data.go.kr 대표 URL
-    const targets = [
-      this.config.get<string>('KCGP_YOUTH_PDF_URL')?.trim(),
-      'https://www.kcgp.or.kr/portal/bbs/B0000063/list.do?menuNo=200240',
-      'https://www.data.go.kr/data/15142248/fileData.do',
-    ].filter((u): u is string => !!u);
-
-    const govFetch: Array<{
-      url: string;
-      ok: boolean;
-      status: number;
-      error?: string;
-    }> = [];
-    for (const url of targets) {
-      try {
-        const res = await fetch(url, {
-          method: 'GET',
-          headers: {
-            'User-Agent':
-              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
-          },
-          signal: AbortSignal.timeout(20_000),
-          redirect: 'follow',
-        });
-        govFetch.push({ url, ok: res.ok, status: res.status });
-      } catch (e: unknown) {
-        const msg = e instanceof Error ? e.message : String(e);
-        govFetch.push({ url, ok: false, status: 0, error: msg });
-      }
+    const targets = await this.pdfSources();
+    const sources: Array<Record<string, unknown>> = [];
+    for (const s of targets) {
+      const hint = this.hintOf(s);
+      const resolved = await this.resolvePdfUrl(s);
+      sources.push({
+        id: s.id,
+        titleKo: s.titleKo,
+        adapter: hint.parser_adapter ?? null,
+        period: hint.period ?? null,
+        resolvedUrl: resolved.url ?? null,
+        reason: resolved.reason ?? null,
+        candidates: resolved.candidates ?? undefined,
+      });
     }
 
     return {
@@ -239,15 +399,18 @@ export class IndicatorPdfService {
         version: plug.ok ? plug.out.trim() : undefined,
         error: plug.ok ? undefined : plug.out.slice(0, 200),
       },
-      parserDir: { path: parserDir, exists: existsSync(parserDir) },
+      parserDir: {
+        path: this.pdfExtractDir,
+        exists: existsSync(this.pdfExtractDir),
+      },
       cronEnabled:
         this.config.get<string>('INDICATOR_PDF_CRON_ENABLED') === 'true',
-      pdfUrlConfigured: !!this.config.get<string>('KCGP_YOUTH_PDF_URL')?.trim(),
-      govFetch,
+      pdfSourceCount: targets.length,
+      sources,
     };
   }
 
-  /** 프로세스 1회 실행 후 (성공여부, 출력) 반환. 진단 전용 — throw 하지 않음. */
+  /** 프로세스 1회 실행 후 (성공여부, 출력). 진단 전용 — throw 하지 않음. */
   private probe(
     bin: string,
     args: string[],
@@ -271,10 +434,11 @@ export class IndicatorPdfService {
     });
   }
 
-  /** Python 파서 실행 → 표준출력 JSON 파싱. */
+  /** Python 파서 실행(어댑터 지정) → 표준출력 JSON 파싱. */
   private runParser(
     pdfPath: string,
-    year: string,
+    adapter: string,
+    period: string,
     sourceUrl: string,
   ): Promise<ExtractedPayload> {
     const python = this.pythonBin();
@@ -282,9 +446,9 @@ export class IndicatorPdfService {
       'run.py',
       pdfPath,
       '--source',
-      'kcgp_youth',
+      adapter,
       '--year',
-      year,
+      period,
       '--url',
       sourceUrl,
     ];
@@ -314,7 +478,10 @@ export class IndicatorPdfService {
   }
 
   /** 추출 JSON → 지표 메타 upsert + 관측치 pending upsert(approved 보호). */
-  private async upsertPending(payload: ExtractedPayload): Promise<{
+  private async upsertPending(
+    payload: ExtractedPayload,
+    sourceId: string,
+  ): Promise<{
     pendingInserted: number;
     pendingUpdated: number;
     skippedApproved: number;
@@ -331,7 +498,6 @@ export class IndicatorPdfService {
         where: { code: row.code },
       });
       if (!indicator) {
-        // 지표 메타(정의는 어댑터 큐레이션)는 생성. 값(관측치)만 pending.
         indicator = await this.indicatorRepo.save(
           this.indicatorRepo.create({
             code: row.code,
@@ -341,7 +507,7 @@ export class IndicatorPdfService {
             unit: row.unit ?? undefined,
             definitionKo: row.definitionKo,
             methodNote: row.methodNote ?? undefined,
-            sourceId: row.sourceId ?? payload.sourceId ?? null,
+            sourceId,
           }),
         );
       }
@@ -349,7 +515,6 @@ export class IndicatorPdfService {
       for (const o of row.observations) {
         const sourceUrl = o.sourceUrl ?? payload.sourceUrl;
         if (!sourceUrl) continue; // 원칙3
-        const sourceId = row.sourceId ?? payload.sourceId ?? null;
         const qualifier = o.qualifier ?? 'total';
         const period = String(o.period);
         const value = String(o.value);
@@ -357,7 +522,7 @@ export class IndicatorPdfService {
         const existing = await this.observationRepo.findOne({
           where: {
             indicatorId: indicator.id,
-            sourceId: sourceId ?? undefined,
+            sourceId,
             geo: o.geo,
             period,
             qualifier,
@@ -365,8 +530,7 @@ export class IndicatorPdfService {
         });
 
         if (existing && existing.status === 'approved') {
-          // 이미 사람이 승인한 값은 기계 추출로 덮지 않는다(보호).
-          skippedApproved++;
+          skippedApproved++; // 사람이 승인한 값은 기계 추출로 덮지 않는다
           continue;
         }
         if (existing) {

@@ -338,8 +338,7 @@ const SOURCES: Row[] = [
     url: 'https://www.ngcc.go.kr/',
     titleKo: '사행산업 관련 통계',
     titleEn: 'Gambling Industry Statistics',
-    notes:
-      '합법 사행산업 25.3조(2024). 불법도박 102.7조(2022 제5차 실태조사)',
+    notes: '합법 사행산업 25.3조(2024). 불법도박 102.7조(2022 제5차 실태조사)',
   },
   {
     id: 'kcgp_youth',
@@ -355,8 +354,22 @@ const SOURCES: Row[] = [
     url: 'https://www.data.go.kr/data/15142248/fileData.do',
     titleKo: '청소년 도박문제 실태조사',
     titleEn: 'Youth Gambling Survey',
-    accessDetail: { portal: '공공데이터포털', raw_data: true },
-    notes: 'Raw Data 공개. API 연동 가능',
+    // AS-M3-2d: PDF 추출 대상. 대상·힌트를 env가 아니라 여기(DB)에 둔다.
+    //  - pdf_finder: data.go.kr 데이터셋 페이지에서 첨부(atchFileId)를 서버가 직접 찾아
+    //    실제 다운로드 URL을 확정한다(추측 URL 금지). 새 회차가 올라와도 자동 추종.
+    //  - period: 관측치 기간(회차 연도). 새 회차 발간 시 이 값만 갱신하면 된다.
+    accessDetail: {
+      portal: '공공데이터포털',
+      raw_data: true,
+      pdf: true,
+      parser_adapter: 'kcgp_youth',
+      pdf_finder: {
+        type: 'datagokr_filedata',
+        datasetUrl: 'https://www.data.go.kr/data/15142248/fileData.do',
+      },
+      period: '2024',
+    },
+    notes: 'Raw Data 공개. API 연동 가능. PDF 자동추출 대상(AS-M3-2d)',
   },
   {
     id: 'kcgp_rehab',

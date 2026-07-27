@@ -31,6 +31,33 @@ tools/pdf-extract/
 - **논문 PDF**: 표가 아니라 본문 → 요약. 추출 계층(text)만 공유하고, 이후는
   DeepSeek 요약(P4) → **research 테이블**로 간다(observations 아님). 구현은 P4 범위.
 
+## 새 PDF 소스 추가 절차 (AS-M3-2d — env 아님, sources 등록)
+
+추출 대상·URL·회차는 **env가 아니라 `sources.access_detail`(DB)** 에 둔다.
+소스가 늘어도 env가 증식하지 않고, 새 회차는 `period` 한 줄만 고치면 된다.
+
+1. **어댑터 추가**: `adapters/<id>.py`에 `SourceAdapter` 구현(표 → 지표/관측치).
+   `run.py`의 `ADAPTERS`에 등록. (kcgp_youth가 예시)
+2. **sources에 힌트 등록** — `sources.seed.ts`의 해당 소스 `accessDetail`에:
+   ```jsonc
+   {
+     "pdf": true,                     // 추출 대상 표시
+     "parser_adapter": "kcgp_youth",  // 위 어댑터 id
+     "period": "2024",                // 회차(연도) — 새 회차 발간 시 여기만 갱신
+     // 아래 둘 중 하나:
+     "pdf_url": "https://.../report.pdf",              // 직접 URL을 알면 최우선
+     "pdf_finder": { "type": "datagokr_filedata",      // 모르면 서버가 찾는다
+                     "datasetUrl": "https://www.data.go.kr/data/15142248/fileData.do" }
+   }
+   ```
+   `npm run seed:sources`로 반영(멱등). 운영 DB에서 SQL로 직접 고쳐도 된다.
+3. 끝. 크론(월 1회)이 `pdf:true`인 소스를 순회하며 추출 → **pending** 적재 → Discord 검수 요청.
+   즉시 실행은 `POST /api/indicators/extract-pdf {"source":"<id>"}`.
+
+`pdf_finder: datagokr_filedata`는 data.go.kr 데이터셋 페이지 HTML에서 `atchFileId(FILE_…)`를
+찾아 `cmm/cmm/fileDownload.do` URL을 만들고, **실제로 받아 PDF 매직바이트까지 확인**한다
+(추측 URL 금지). 새 회차로 첨부가 교체돼도 자동 추종.
+
 ## 사용
 ```
 pip install -r requirements.txt

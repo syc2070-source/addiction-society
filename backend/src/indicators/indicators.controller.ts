@@ -17,7 +17,8 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
  *  GET  /api/indicators            목록(domain 필터)
  *  GET  /api/observations          관측치 목록(indicator·geo 필터)
  *  GET  /api/indicators/:idOrCode  상세 + 관측치 시계열
- *  POST /api/indicators/extract-kcgp        [auth] kcgp PDF 추출 수동 트리거(→pending)
+ *  GET  /api/indicators/health              [auth] 환경 자가진단(python·pdfplumber·소스 URL)
+ *  POST /api/indicators/extract-pdf         [auth] PDF 추출 트리거({source?}) → pending
  *  POST /api/indicators/observations/approve [auth] pending → approved(검수 승인)
  */
 @Controller('api')
@@ -48,10 +49,15 @@ export class IndicatorsController {
     return this.pdfService.health();
   }
 
+  /**
+   * PDF 추출 수동 트리거. 대상은 sources.access_detail.pdf=true (AS-M3-2d).
+   * body.source 지정 시 그 소스만, 없으면 전부.
+   */
   @UseGuards(JwtAuthGuard)
-  @Post('indicators/extract-kcgp')
-  extractKcgp() {
-    return this.pdfService.extractKcgpYouth();
+  @Post('indicators/extract-pdf')
+  extractPdf(@Body() body: { source?: string }) {
+    const id = body?.source?.trim();
+    return id ? this.pdfService.extractOne(id) : this.pdfService.extractAll();
   }
 
   @UseGuards(JwtAuthGuard)
