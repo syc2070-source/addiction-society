@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import LocaleSwitch from './LocaleSwitch';
@@ -11,9 +12,15 @@ export default async function SiteHeader() {
   return (
     <header className="site-header">
       <div className="site-header-inner">
+        {/* 로고에 국·영문이 모두 포함되어 있으므로 영문 병기 텍스트는 두지 않는다. ko/en 동일. */}
         <Link href="/" className="site-logo">
-          중독사회
-          <small>Addiction Society</small>
+          <Image
+            src="/logo-dark-ink.png"
+            alt="중독사회 addiction society"
+            width={97}
+            height={40}
+            priority
+          />
         </Link>
 
         <nav className="site-nav" aria-label="Main">

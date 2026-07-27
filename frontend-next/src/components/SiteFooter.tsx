@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 
@@ -8,10 +9,19 @@ export default async function SiteFooter() {
   return (
     <footer className="site-footer">
       <div className="site-footer-inner">
-        <span>
-          © {new Date().getFullYear()} {t('publisher')}
-          {' · '}
-          <Link href="/about">{t('about')}</Link>
+        {/* 푸터는 밝은 면(--bg-alt)이므로 dark-ink 사용. 높이 28px(588:242 → 68×28) */}
+        <span className="footer-brand">
+          <Image
+            src="/logo-dark-ink.png"
+            alt="중독사회 addiction society"
+            width={68}
+            height={28}
+          />
+          <span>
+            © {new Date().getFullYear()} {t('publisher')}
+            {' · '}
+            <Link href="/about">{t('about')}</Link>
+          </span>
         </span>
         <span className="footer-ecosystem">
           <span className="footer-ecosystem-label">{t('ecosystem')}</span>

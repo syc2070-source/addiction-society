@@ -135,17 +135,16 @@ a {
   flex-wrap: wrap;
 }
 
+/* 로고 이미지(국·영문 포함) — 텍스트 병기 없음 */
 .site-logo {
-  font-weight: var(--fw-medium);
-  font-size: var(--fs-body);
-  letter-spacing: -0.01em;
+  display: inline-flex;
+  align-items: center;
 }
 
-.site-logo small {
+.site-logo img {
   display: block;
-  font-size: var(--fs-caption);
-  font-weight: var(--fw-normal);
-  color: var(--text-faint);
+  height: 40px;
+  width: auto;
 }
 
 .site-nav {
@@ -217,6 +216,19 @@ a {
 
 .site-footer-inner a {
   color: var(--link);
+}
+
+.footer-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+}
+
+.footer-brand img {
+  display: block;
+  height: 28px;
+  width: auto;
 }
 
 .footer-ecosystem {
