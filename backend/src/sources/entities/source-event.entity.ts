@@ -27,7 +27,8 @@ export class SourceEvent {
   /**
    * 이벤트 종류:
    *  published(새 발간 감지) | changed(내용 변경 감지) | checked(확인, 변화 없음) |
-   *  failed(요청 실패) | stale(연속 실패로 정지) | manual(수동 확인 요망) | blocked(봇 차단)
+   *  failed(요청 실패) | stale(연속 실패로 정지) | manual(수동 확인 요망) |
+   *  blocked(봇 차단) | rescheduled(예정 월 경과 → 다음 주기로 이월, 발간 미확인)
    */
   @Column({ name: 'event_type', type: 'varchar', length: 20 })
   eventType: string;

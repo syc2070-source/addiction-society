@@ -8,7 +8,7 @@ import { Agent, fetch as undiciFetch } from 'undici';
 import { Source } from './entities/source.entity';
 import { SourcesNotifier } from './discord.notifier';
 import { SourceEventsService } from './source-events.service';
-import { computeNextExpected } from './next-expected.util';
+import { computeNextExpected, monthStartOf } from './next-expected.util';
 
 const UA = 'AddictionSociety-Observatory/1.0 (+https://addictionsociety.net)';
 const TIMEOUT_MS = 30_000;
@@ -71,6 +71,13 @@ export interface MonitorResult {
   method?: string;
   detail?: string;
   failCount?: number;
+}
+
+/** 예정일 이월 1건 결과 */
+export interface ReconcileResult {
+  id: string;
+  from: string | null;
+  to: string | null;
 }
 
 /**
@@ -148,6 +155,12 @@ export class SourcesScheduler {
       );
       const res = await this.monitorSources(due);
       this.logger.log(`[cron:daily] 완료 ${this.summarize(res)}`);
+
+      // 감시 후에 이월한다. 순서가 중요: 예정일이 지난 소스야말로 지금 확인해야 할
+      // 대상이므로 먼저 감시하고(발간을 잡으면 그 자리에서 재계산됨),
+      // 그래도 발간을 못 잡은 것만 다음 주기로 넘긴다.
+      const rolled = await this.reconcileExpected();
+      this.logger.log(`[cron:daily] 예정일 이월 ${rolled.length}건`);
     } catch (e: any) {
       // 최상위 격리: 절대 throw 하지 않음
       this.logger.error(`[cron:daily] 최상위 예외(무시): ${e?.message || e}`);
@@ -198,6 +211,64 @@ export class SourcesScheduler {
       if (i < sources.length - 1) await this.sleep(GAP_MS);
     }
     return results;
+  }
+
+  /**
+   * 지난 예정일 이월 (AS-M3-FIX-DATE).
+   *
+   * next_expected_at은 시딩 직후 1회 백필될 뿐 스스로 늙지 않았다. 예정 월이
+   * 지나도 그 값이 남아 홈 카드의 "다음 발표 예정"에 과거 날짜가 노출됐다.
+   * 여기서 매일 재계산해 다음 주기로 넘긴다.
+   *
+   * 대상은 status를 가리지 않는다. stale/paused 소스도 목록·달력에 나오므로
+   * 화면에 과거가 남지 않으려면 데이터 자체가 최신이어야 한다.
+   *
+   * 이월은 "예정 월이 지났는데 발간을 잡지 못했다"는 감시 정보이므로
+   * source_events에 rescheduled로 남긴다(원칙 11 — 예정일이 언제 어떻게
+   * 바뀌었는지도 이력이다).
+   */
+  async reconcileExpected(
+    today: Date = new Date(),
+  ): Promise<ReconcileResult[]> {
+    const cutoff = monthStartOf(today);
+    const overdue = await this.repo
+      .createQueryBuilder('s')
+      .where('s.nextExpectedAt IS NOT NULL')
+      .andWhere('s.nextExpectedAt < :cutoff', { cutoff })
+      .getMany();
+
+    const rolled: ReconcileResult[] = [];
+    for (const s of overdue) {
+      try {
+        const from = s.nextExpectedAt ?? null;
+        const to = computeNextExpected(s, today);
+        // 재계산해도 그대로면(이론상 없음) 이벤트 소음을 만들지 않는다.
+        if (to === from) continue;
+        await this.repo.update(s.id, { nextExpectedAt: to });
+        await this.events.record({
+          sourceId: s.id,
+          eventType: 'rescheduled',
+          detail: {
+            from,
+            to,
+            reason: 'overdue',
+            // 예정 월이 지나도록 발간을 확인하지 못했다는 사실을 남긴다.
+            publicationConfirmed: false,
+          },
+          notified: false,
+        });
+        this.logger.log(
+          `[reconcile] ${s.id} 예정일 이월 ${from} → ${to ?? '미정'} (발간 미확인)`,
+        );
+        rolled.push({ id: s.id, from, to });
+      } catch (e: any) {
+        // 소스별 격리 — 한 건이 죽어도 나머지는 계속
+        this.logger.error(
+          `[reconcile] ${s.id} 실패(격리됨): ${e?.message || e}`,
+        );
+      }
+    }
+    return rolled;
   }
 
   /** 마지막 알림 후 cooldownMs가 아직 지나지 않았으면 true */
@@ -254,15 +325,30 @@ export class SourcesScheduler {
         return { id: s.id, status: 'blocked', method: det.method };
       }
 
+      // 발간을 새로 잡았으면 그 자리에서 예정일을 재계산한다.
+      // 감지 방식(게시판·해시·ETag)과 무관하게 한 곳에서 처리해,
+      // 새 감지기를 추가해도 예정일이 늙지 않게 한다.
+      const update: Partial<Source> = { ...det.update };
+      if (update.lastPublishedAt) {
+        update.nextExpectedAt = computeNextExpected(
+          {
+            cadence: s.cadence,
+            expectedMonth: s.expectedMonth,
+            lastPublishedAt: update.lastPublishedAt,
+          },
+          now,
+        );
+      }
+
       await this.repo.update(s.id, {
         lastCheckedAt: now,
         failCount: 0, // 성공 시 카운터 리셋
-        ...det.update,
+        ...update,
       });
 
       if (det.changed) {
         const { prevHash, newHash } = this.hashPair(s, det);
-        const newPub = det.update.lastPublishedAt ?? null;
+        const newPub = update.lastPublishedAt ?? null;
         // 발간일이 새로 잡히면 '발간(published)', 아니면 '변경(changed)'
         const eventType = newPub ? 'published' : 'changed';
         const cooldown = this.inCooldown(s, COOLDOWN_CHANGE_MS, now);
@@ -280,6 +366,13 @@ export class SourcesScheduler {
           newPublishedAt: newPub,
           detail: {
             method: det.method,
+            // 발간 감지로 예정일이 바뀌었으면 그 변화도 이력에 남긴다(원칙 11)
+            ...(newPub
+              ? {
+                  prevExpectedAt: s.nextExpectedAt ?? null,
+                  newExpectedAt: update.nextExpectedAt ?? null,
+                }
+              : {}),
             ...(cooldown ? { cooldown: true } : {}),
           },
           notified: !cooldown,
@@ -349,8 +442,7 @@ export class SourcesScheduler {
   /**
    * 게시판형 소스: 전체 페이지 해시 대신 "목록 첫 행(제목+날짜)"으로 변경 감지.
    * 조회수·새글 배지 등 목록 페이지의 일상적 가변 요소에 흔들리지 않는다.
-   * 새 게시물 감지 시 lastPublishedAt을 게시물 날짜로 갱신하고
-   * nextExpectedAt을 재계산한다(감지 → 기록 연결).
+   * 새 게시물 감지 시 lastPublishedAt을 게시물 날짜로 갱신한다(감지 → 기록 연결).
    */
   private async detectBoardLatest(
     s: Source,
@@ -387,14 +479,10 @@ export class SourcesScheduler {
     const changed = s.contentHash != null && s.contentHash !== hash;
 
     const update: Partial<Source> = { contentHash: hash };
-    // 최초 기준값 저장 시에도 실측 날짜를 기록(정확한 발간 이력 확보)
+    // 최초 기준값 저장 시에도 실측 날짜를 기록(정확한 발간 이력 확보).
+    // nextExpectedAt 재계산은 checkOne이 일괄 처리한다(감지 방식과 무관하게).
     if ((changed || s.contentHash == null) && latestDate) {
       update.lastPublishedAt = latestDate;
-      update.nextExpectedAt = computeNextExpected({
-        cadence: s.cadence,
-        expectedMonth: s.expectedMonth,
-        lastPublishedAt: latestDate,
-      });
     }
     this.logger.log(
       `[monitor] 게시판 최신글 ${s.id}: "${title}" (${latestDate ?? (dateRaw || '날짜 없음')})`,

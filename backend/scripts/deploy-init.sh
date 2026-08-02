@@ -6,7 +6,9 @@
 #  - migration:run  : 이미 적용됐으면 "No migrations pending"으로 통과
 #  - seed:tags      : name unique + orIgnore → 재실행 안전
 #  - seed:sources   : id 기준 upsert → 재실행 안전
-#  - backfill:next  : next_expected_at 재계산(멱등)
+#  - backfill:next  : next_expected_at 재계산(멱등). 지난 예정일은 다음 주기로 이월하고
+#                     source_events에 rescheduled로 남긴다. 배포 즉시 교정되고,
+#                     배포가 없어도 매일 09시 크론(reconcileExpected)이 같은 일을 한다.
 # 한 단계라도 실패하면 명확한 로그를 남기고 배포를 중단(비정상 스키마로 기동 방지).
 
 set -uo pipefail

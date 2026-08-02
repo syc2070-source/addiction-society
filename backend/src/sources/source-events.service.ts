@@ -33,7 +33,16 @@ export interface TimelineRow {
 }
 
 // 타임라인 기본 노출(의미 있는 사건). 'checked'(변화 없음 확인)는 all=true일 때만.
-const SIGNIFICANT = ['published', 'changed', 'stale', 'failed', 'manual'];
+// rescheduled: 예정 월이 지나도록 발간을 잡지 못해 다음 주기로 이월한 사건.
+// 발간을 놓쳤다는 뜻이라 그 자체가 감시 정보이므로 기본 노출에 포함한다.
+const SIGNIFICANT = [
+  'published',
+  'changed',
+  'stale',
+  'failed',
+  'manual',
+  'rescheduled',
+];
 
 @Injectable()
 export class SourceEventsService {

@@ -44,7 +44,8 @@
       "failed": "Failed",
       "stale": "Stale",
       "manual": "Manual check",
-      "blocked": "Blocked"
+      "blocked": "Blocked",
+      "rescheduled": "Rescheduled"
     }
   },
   "indicatorsPage": {

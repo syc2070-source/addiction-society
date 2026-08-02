@@ -44,7 +44,8 @@
       "failed": "실패",
       "stale": "정지",
       "manual": "수동 확인",
-      "blocked": "차단"
+      "blocked": "차단",
+      "rescheduled": "예정일 이월"
     }
   },
   "indicatorsPage": {

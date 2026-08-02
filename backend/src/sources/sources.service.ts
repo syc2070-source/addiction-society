@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Source } from './entities/source.entity';
 import { SourceQueryDto } from './dto/source.dto';
+import { monthStartOf } from './next-expected.util';
 
 /**
  * 소스 레지스트리 서비스 (읽기 전용).
@@ -67,12 +68,19 @@ export class SourcesService {
 
   /**
    * 발간 캘린더: 다음 예상일이 있는 소스만 임박순으로.
-   * M1에서는 nextExpectedAt이 전부 null이라 빈 배열이 정상이다.
+   *
+   * 지난 예정일은 크론이 매일 이월하지만(sources.scheduler.reconcileExpected),
+   * 데이터가 어떤 이유로든 낡아 있어도 화면에 "예정"으로 뜨지 않게 여기서
+   * 한 번 더 막는다(이중 방어). 기준은 이번 달 1일 — 달력이 YYYY-MM 단위로
+   * 묶어 보여주므로 이번 달 예정은 남기고 지난 달까지만 제외한다.
    */
-  async findCalendar(): Promise<Source[]> {
+  async findCalendar(today: Date = new Date()): Promise<Source[]> {
     return this.sourceRepository
       .createQueryBuilder('source')
       .where('source.nextExpectedAt IS NOT NULL')
+      .andWhere('source.nextExpectedAt >= :floor', {
+        floor: monthStartOf(today),
+      })
       .orderBy('source.nextExpectedAt', 'ASC')
       .getMany();
   }
@@ -91,7 +99,7 @@ export class SourcesService {
    * total, scope별 집계, 최근 발간 4건, 다음 예정 4건.
    * recent/upcoming은 실제 값만 반환한다(없으면 있는 만큼만, 가짜 채움 금지).
    */
-  async getSummary(): Promise<{
+  async getSummary(today: Date = new Date()): Promise<{
     total: number;
     byScope: Record<string, number>;
     recent: {
@@ -139,11 +147,14 @@ export class SourcesService {
       org: s.orgKo,
     }));
 
-    // upcoming은 비정례 발표 예정만. monthly는 매달 도래해 정보가치 없음
+    // upcoming은 비정례 발표 예정만. monthly는 매달 도래해 정보가치 없음.
+    // 지난 예정일은 노출하지 않는다 — 과거를 "다음 예정"으로 보여주면
+    // 관측소 신뢰가 깨진다. 크론 이월과 별개의 표시 계층 방어(AS-M3-FIX-DATE).
     const upcomingRows = await this.sourceRepository
       .createQueryBuilder('s')
       .where('s.nextExpectedAt IS NOT NULL')
       .andWhere("s.cadence <> 'monthly'")
+      .andWhere('s.nextExpectedAt >= :floor', { floor: monthStartOf(today) })
       .orderBy('s.nextExpectedAt', 'ASC')
       .limit(4)
       .getMany();

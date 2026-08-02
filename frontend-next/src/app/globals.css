@@ -486,6 +486,13 @@ a {
   background: #faeceb;
 }
 
+/* 예정일 이월 — 실패는 아니지만 "발간을 못 잡았다"는 주의 신호(앰버, 4.8:1) */
+.badge-rescheduled {
+  color: var(--accent-text-soft);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
 .timeline-body {
   display: flex;
   gap: var(--space-1);
