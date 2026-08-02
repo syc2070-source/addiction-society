@@ -248,6 +248,180 @@
   margin-top: var(--space-2);
 }
 
+/* ── 블록 공통 (AS-UI-4) ── */
+
+/* "수집 중" 안내 — 가짜 숫자 대신 상태를 그대로 쓴다 */
+.blockPending {
+  margin-top: var(--space-2);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.blockMore {
+  margin-top: var(--space-2);
+  font-size: var(--fs-sm);
+}
+
+.blockLink {
+  color: var(--link);
+}
+
+/* ── 블록 1: 핵심 숫자 한 줄 ── */
+
+.statsRow {
+  margin-top: var(--space-3);
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+@media (min-width: 720px) {
+  .statsRow {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* 칸 구분은 경계선 하나로만 — 카드 4개를 띄우지 않는다(절제) */
+.statCell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border-top: 1px solid var(--border);
+  border-left: 1px solid var(--border);
+}
+
+.statCell:nth-child(-n + 2) {
+  border-top: none;
+}
+
+.statCell:nth-child(odd) {
+  border-left: none;
+}
+
+@media (min-width: 720px) {
+  .statCell {
+    border-top: none;
+  }
+
+  .statCell:nth-child(odd) {
+    border-left: 1px solid var(--border);
+  }
+
+  .statCell:first-child {
+    border-left: none;
+  }
+}
+
+.statCell:hover .statLabel {
+  color: var(--text-main);
+}
+
+.statLabel {
+  font-size: var(--fs-caption);
+  color: var(--text-muted);
+}
+
+.statValue {
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-heading);
+}
+
+/* 수집 전에는 숫자 자리에 상태 문구가 들어가므로 크기를 본문으로 낮춘다 */
+.statPending {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-normal);
+  color: var(--text-muted);
+}
+
+/* ── 블록 2: 주목 지표 2개 ── */
+
+.featuredRow {
+  margin-top: var(--space-3);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-2);
+}
+
+@media (min-width: 720px) {
+  .featuredRow {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.featuredCard {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3);
+}
+
+.featuredName {
+  display: block;
+  font-size: var(--fs-sm);
+  color: var(--link);
+}
+
+.featuredValue {
+  margin-top: var(--space-1);
+  font-size: var(--fs-h1);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-heading);
+}
+
+.featuredUnit {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-normal);
+  color: var(--text-muted);
+  margin-left: 6px;
+}
+
+.featuredMeta {
+  margin-top: var(--space-1);
+  display: flex;
+  gap: var(--space-2);
+  align-items: baseline;
+  flex-wrap: wrap;
+  font-size: var(--fs-caption);
+  color: var(--text-muted);
+}
+
+/* ── 블록 3: 최근 관측 활동 ── */
+
+.activityList {
+  margin-top: var(--space-3);
+  list-style: none;
+  border-top: 1px solid var(--border);
+}
+
+.activityItem {
+  display: flex;
+  gap: var(--space-2);
+  align-items: baseline;
+  flex-wrap: wrap;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: var(--fs-sm);
+}
+
+.activityDate {
+  color: var(--text-muted);
+  font-size: var(--fs-caption);
+  min-width: 84px;
+}
+
+.activityOrg {
+  color: var(--text-main);
+}
+
+.activityEvent {
+  color: var(--text-muted);
+  font-size: var(--fs-caption);
+  margin-left: auto;
+}
+
 /* ── 언어 전환 ── */
 
 .localeSwitch {

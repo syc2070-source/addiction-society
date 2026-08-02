@@ -114,6 +114,37 @@ a {
   text-decoration: none;
 }
 
+/* ── 콘텐츠 면(plate) — 배경과 내용의 분리 (AS-UI-4) ──
+ *
+ * 아이보리(--bg)가 화면 전체를 균일하게 덮으면 평면적으로 읽힌다.
+ * 바깥은 아이보리로 두고 본문 폭(--content-max)만 화이트 면으로 띄워
+ * 좌우에 아이보리가 남게 한다. 헤더·푸터는 아이보리를 유지해 면과 구분된다.
+ *
+ * 판은 '페이지당 하나의 연속면'으로 통일한다(섹션별 분할 아님).
+ * 근거: UI-2의 절제 원칙상 경계선은 적을수록 좋고, 판 안의 카드는 이미
+ * 자체 경계선으로 구분된다. 섹션마다 판을 쪼개면 경계선이 2중으로 겹쳐
+ * 목록·상세 페이지에서 규칙이 페이지마다 달라진다.
+ *
+ * 경계선은 0.5px 기조. 다만 1dppx 화면에서 0.5px 테두리는 렌더러에 따라
+ * 사라질 수 있으므로 기본 1px, 고해상도에서 0.5px로 낮춘다.
+ * 그림자는 사용하지 않는다(UI-2).
+ */
+.content-plate {
+  max-width: var(--content-max);
+  /* 좁은 화면에서도 좌우 아이보리가 보이도록 폭을 줄여 둔다 */
+  width: calc(100% - var(--space-4));
+  margin: var(--space-4) auto;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+@media (min-resolution: 2dppx) {
+  .content-plate {
+    border-width: 0.5px;
+  }
+}
+
 /* ── 공용 레이아웃 (헤더·푸터) ── */
 
 .site-header {
@@ -199,7 +230,8 @@ a {
 .site-footer {
   border-top: 1px solid var(--border);
   background: var(--bg-alt);
-  margin-top: var(--space-6);
+  /* 하단 여백은 .content-plate의 margin이 담당한다 (AS-UI-4) */
+  margin-top: 0;
 }
 
 .site-footer-inner {

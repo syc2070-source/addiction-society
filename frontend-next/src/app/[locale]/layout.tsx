@@ -70,7 +70,8 @@ export default async function LocaleLayout({
       <body>
         <NextIntlClientProvider>
           <SiteHeader />
-          {children}
+          {/* 콘텐츠는 페이지당 하나의 화이트 면 위에 올린다 (AS-UI-4, .content-plate) */}
+          <div className="content-plate">{children}</div>
           <SiteFooter />
         </NextIntlClientProvider>
       </body>

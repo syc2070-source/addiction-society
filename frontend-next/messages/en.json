@@ -176,5 +176,17 @@
     "quote": "\"Each ministry operates under different laws, which makes it hard to build a cooperative framework.\"",
     "quoteBy": "— Ministry of Health and Welfare official, 2025 parliamentary audit",
     "footnote": "With separate legal mandates and data systems, even information sharing is impossible — and no integrated system exists to support a single adolescent continuously from initial counseling through treatment and aftercare."
+  },
+  "home": {
+    "statsTitle": "What we have collected so far",
+    "statCount": "{count}",
+    "statSources": "Sources monitored",
+    "statIndicators": "Indicators",
+    "statPolicy": "Policy documents",
+    "statRecovery": "Recovery resources",
+    "featuredTitle": "Featured indicators",
+    "featuredMore": "See all indicators →",
+    "activityTitle": "Recent observatory activity",
+    "activityMore": "See full timeline →"
   }
 }

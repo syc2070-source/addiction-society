@@ -176,5 +176,17 @@
     "quote": "\"부처별 소관 법률이 달라 협력 체계를 구축하기 어렵다\"",
     "quoteBy": "— 보건복지부 관계자, 2025 국정감사",
     "footnote": "법적 근거와 데이터 체계가 달라 정보 공유조차 불가능하며, 청소년 1명을 초기 상담부터 치료·사후관리까지 연속 지원할 통합 시스템은 부재."
+  },
+  "home": {
+    "statsTitle": "지금까지 모은 것",
+    "statCount": "{count}건",
+    "statSources": "감시 중인 소스",
+    "statIndicators": "지표",
+    "statPolicy": "정책문서",
+    "statRecovery": "회복자원",
+    "featuredTitle": "주목 지표",
+    "featuredMore": "지표 전체 보기 →",
+    "activityTitle": "최근 관측 활동",
+    "activityMore": "연대기 전체 보기 →"
   }
 }
