@@ -225,14 +225,26 @@ export interface TimelineEvent {
   detail: Record<string, unknown> | null;
 }
 
+/** 활동 요약 — 사건이 없어도 "돌고 있다"를 말하기 위한 값 (AS-FIX-1) */
+export interface ActivitySummary {
+  periodDays: number;
+  total: number;
+  byType: Record<string, number>;
+  sourcesChecked: number;
+  lastEventAt: string | null;
+}
+
 export function fetchTimeline(params: { limit?: number; all?: boolean } = {}) {
   const qs = new URLSearchParams();
   if (params.limit) qs.set('limit', String(params.limit));
   if (params.all) qs.set('all', 'true');
   const q = qs.toString();
-  return get<{ data: TimelineEvent[]; total: number }>(
-    `/api/timeline${q ? `?${q}` : ''}`,
-  );
+  return get<{
+    data: TimelineEvent[];
+    total: number;
+    /** 구버전 API 호환을 위해 optional */
+    summary?: ActivitySummary;
+  }>(`/api/timeline${q ? `?${q}` : ''}`);
 }
 
 // ── 분석실 (statory 프록시 GET /api/reports) ──

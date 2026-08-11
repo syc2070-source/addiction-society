@@ -167,7 +167,19 @@ export class SourcesScheduler {
     }
   }
 
-  /** 매주 월요일 09:00 KST — next_expected_at이 null인 irregular 소스 감시 */
+  /**
+   * 매주 월요일 09:00 KST — 발표 예정일을 모르는 소스 감시.
+   *
+   * AS-FIX-1(감사 문제 #3): 이전 조건은 `cadence='irregular'`뿐이었다.
+   * 그런데 expected_month가 없어 next_expected_at이 null인데 cadence는
+   * irregular이 아닌 소스가 4건 있었다(kcgp_rehab·ncmh_mhs·ngcc_gambling·
+   * samhsa_nsumhss). 이들은 일일 크론의 `nextExpectedAt IS NOT NULL` 조건에서도
+   * 탈락해 **어떤 크론에도 잡히지 않았다** — 레지스트리의 17%가 감시 사각지대.
+   *
+   * 조건을 "예정일을 모르는 소스 전부"로 넓혀 사각지대를 없앤다.
+   * 발표 월을 임의로 지어내 채우는 방식은 쓰지 않는다(추측 데이터 금지) —
+   * 모른다는 사실을 그대로 두고 감시 규칙으로 흡수하는 편이 정직하다.
+   */
   @Cron('0 9 * * 1', {
     name: 'sourcesWeeklyIrregular',
     timeZone: 'Asia/Seoul',
@@ -177,9 +189,9 @@ export class SourcesScheduler {
       const irr = await this.repo
         .createQueryBuilder('s')
         .where("s.status = 'active'")
-        .andWhere("s.cadence = 'irregular'")
+        .andWhere("(s.cadence = 'irregular' OR s.nextExpectedAt IS NULL)")
         .getMany();
-      this.logger.log(`[cron:weekly] irregular 대상 ${irr.length}건`);
+      this.logger.log(`[cron:weekly] 예정일 미상 대상 ${irr.length}건`);
       const res = await this.monitorSources(irr);
       this.logger.log(`[cron:weekly] 완료 ${this.summarize(res)}`);
     } catch (e: any) {

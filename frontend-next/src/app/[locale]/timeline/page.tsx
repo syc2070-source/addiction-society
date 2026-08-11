@@ -39,10 +39,32 @@ export default async function TimelinePage({
         <p className="page-desc">{t('desc')}</p>
       </div>
 
+      {/*
+        활동 요약 (AS-FIX-1, 감사 문제 #8).
+        의미 있는 사건이 없는 달에도 "확인은 돌고 있다"가 화면에 드러나야
+        크론이 도는 중인지 죽었는지 구분된다. 값이 없으면 아무것도 그리지 않는다.
+      */}
+      {result?.summary && result.summary.total > 0 && (
+        <p className="status-note">
+          {t('activity', {
+            days: result.summary.periodDays,
+            checks: result.summary.total,
+            sources: result.summary.sourcesChecked,
+          })}
+          {result.summary.lastEventAt
+            ? ` · ${t('lastCheck', { date: fmt(result.summary.lastEventAt) })}`
+            : ''}
+        </p>
+      )}
+
       {!result ? (
         <p className="status-note">{tc('unavailable')}</p>
       ) : result.data.length === 0 ? (
-        <p className="status-note">{tc('collectingEmpty')}</p>
+        <p className="status-note">
+          {result.summary && result.summary.total > 0
+            ? t('quiet')
+            : tc('collectingEmpty')}
+        </p>
       ) : (
         <ul className="timeline-list">
           {result.data.map((e) => (

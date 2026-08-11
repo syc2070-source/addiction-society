@@ -35,6 +35,9 @@ export interface TimelineRow {
 // 타임라인 기본 노출(의미 있는 사건). 'checked'(변화 없음 확인)는 all=true일 때만.
 // rescheduled: 예정 월이 지나도록 발간을 잡지 못해 다음 주기로 이월한 사건.
 // 발간을 놓쳤다는 뜻이라 그 자체가 감시 정보이므로 기본 노출에 포함한다.
+// blocked: AS-FIX-1(감사 문제 #8)에서 추가. 정부 사이트 다수가 봇을 403으로
+//   막는데 그 사실이 화면에서 가려져 있었다. "확인을 시도했으나 막혔다"는
+//   관측소 운영 실태의 핵심 정보다.
 const SIGNIFICANT = [
   'published',
   'changed',
@@ -42,6 +45,7 @@ const SIGNIFICANT = [
   'failed',
   'manual',
   'rescheduled',
+  'blocked',
 ];
 
 @Injectable()
@@ -74,6 +78,53 @@ export class SourceEventsService {
       const msg = e instanceof Error ? e.message : String(e);
       this.logger.warn(`[event] 기록 실패(무시) ${input.sourceId}: ${msg}`);
     }
+  }
+
+  /**
+   * 활동 요약 (AS-FIX-1, 감사 문제 #8).
+   *
+   * 연대기는 "의미 있는 사건"만 보여주므로 조용한 달에는 화면이 통째로 빈다.
+   * 그런데 조용하다는 것과 크론이 죽었다는 것은 전혀 다른 상태인데 화면에서
+   * 구분되지 않았다. 최근 N일의 확인 횟수·소스 수·마지막 확인 시각을 함께
+   * 내려 "돌고 있으나 변화가 없었다"를 말할 수 있게 한다.
+   */
+  async activitySummary(days = 30): Promise<{
+    periodDays: number;
+    total: number;
+    byType: Record<string, number>;
+    sourcesChecked: number;
+    lastEventAt: string | null;
+  }> {
+    const rows = await this.repo
+      .createQueryBuilder('e')
+      .select('e.event_type', 'type')
+      .addSelect('COUNT(*)', 'count')
+      .where(`e.detected_at > now() - (:days || ' days')::interval`, { days })
+      .groupBy('e.event_type')
+      .getRawMany<{ type: string; count: string }>();
+
+    const byType: Record<string, number> = {};
+    let total = 0;
+    for (const r of rows) {
+      const n = parseInt(r.count, 10);
+      byType[r.type] = n;
+      total += n;
+    }
+
+    const agg = await this.repo
+      .createQueryBuilder('e')
+      .select('COUNT(DISTINCT e.source_id)', 'sources')
+      .addSelect('MAX(e.detected_at)', 'last')
+      .where(`e.detected_at > now() - (:days || ' days')::interval`, { days })
+      .getRawOne<{ sources: string; last: Date | null }>();
+
+    return {
+      periodDays: days,
+      total,
+      byType,
+      sourcesChecked: parseInt(agg?.sources ?? '0', 10),
+      lastEventAt: agg?.last ? new Date(agg.last).toISOString() : null,
+    };
   }
 
   /**

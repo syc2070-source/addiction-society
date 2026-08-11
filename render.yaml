@@ -37,7 +37,11 @@ services:
         sync: false
       - key: DB_NAME
         sync: false
+      # ⚠️ 미설정 시 기동 실패(AS-FIX-1) — 기본 비밀키 폴백을 제거했다.
       - key: JWT_SECRET
+        sync: false
+      # 회원가입 초대코드(AS-FIX-1, 감사 #1). 비워두면 가입이 완전히 차단된다.
+      - key: ADMIN_INVITE_CODE
         sync: false
       - key: JWT_EXPIRES_IN
         sync: false
@@ -48,5 +52,13 @@ services:
       - key: STATORY_API_URL
         sync: false
       - key: DISCORD_WEBHOOK_OBSERVATORY
+        sync: false
+      # PDF 지표 자동추출 크론 스위치. 'true'일 때만 동작(기본 비활성).
+      # 감사에서 "코드는 읽는데 render.yaml에 선언이 없어 켜는 방법이 안 보인다"로 지적됨.
+      - key: INDICATOR_PDF_CRON_ENABLED
+        value: "false"
+      # CORS 허용 출처(쉼표 구분). 미설정 시 코드 기본값
+      # (addictionsociety.net·www·localhost:3000 + *.vercel.app 프리뷰) 사용.
+      - key: CORS_ORIGINS
         sync: false
     # PORT는 Render가 자동 주입하며 main.ts가 process.env.PORT를 읽는다(별도 지정 불필요).

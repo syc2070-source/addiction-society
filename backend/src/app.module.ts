@@ -7,7 +7,6 @@ import { PolicyModule } from './policy/policy.module';
 import { RecoveryModule } from './recovery/recovery.module';
 import { TagsModule } from './tags/tags.module';
 import { AuthModule } from './auth/auth.module';
-import { UploadModule } from './upload/upload.module';
 import { SchedulerModule } from './scheduler/scheduler.module';
 import { ReportsModule } from './reports/reports.module';
 import { SourcesModule } from './sources/sources.module';
@@ -75,7 +74,7 @@ import { Observation } from './indicators/entities/observation.entity';
     RecoveryModule,
     TagsModule,
     AuthModule,
-    UploadModule,
+    // AS-FIX-1: UploadModule 폐기 — 호출자 0 + 휘발성 디스크 + 저장형 XSS 벡터
     SchedulerModule,
     ReportsModule,
     SourcesModule,

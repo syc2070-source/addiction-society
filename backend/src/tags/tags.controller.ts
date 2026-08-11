@@ -12,6 +12,8 @@ import {
 import { TagsService } from './tags.service';
 import { TagType } from '../common/enums';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles, ROLE_ADMIN } from '../auth/roles.decorator';
 
 @Controller('api/tags')
 export class TagsController {
@@ -37,13 +39,15 @@ export class TagsController {
     return this.tagsService.findOne(id);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ROLE_ADMIN)
   @Post()
   create(@Body() data: { name: string; type: TagType; description?: string }) {
     return this.tagsService.create(data);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ROLE_ADMIN)
   @Put(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -52,7 +56,8 @@ export class TagsController {
     return this.tagsService.update(id, data);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ROLE_ADMIN)
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.tagsService.remove(id);

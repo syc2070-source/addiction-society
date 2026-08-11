@@ -30,23 +30,24 @@
 2. 레포 **`syc2070-source/addiction-society`** 선택 → Render가 루트 `render.yaml`을 읽음
 3. 서비스 `addiction-society-api` 확인 후 **환경변수 값 입력**:
 
-| 키 | 어디서 가져오나 |
-|---|---|
-| `DB_HOST` | Supabase Connect의 Host |
-| `DB_PORT` | `5432` |
-| `DB_USER` | `postgres.<프로젝트ID>` (점 뒤까지) |
-| `DB_PASSWORD` | Supabase DB 비밀번호 |
-| `DB_NAME` | `postgres` |
-| `JWT_SECRET` | 기존 `backend/.env` 값 그대로 |
-| `JWT_EXPIRES_IN` | 기존 `.env` 값 (예: `7d`) |
-| `OPENAI_API_KEY` | 기존 `.env` 값 |
-| `AUTO_COLLECT_ENABLED` | 기존 `.env` 값 (예: `true`) |
-| `AUTO_COLLECT_CRON` | 기존 `.env` 값 (예: `0 3 * * *`) |
-| `AUTO_COLLECT_TZ` | 기존 `.env` 값 (`Asia/Seoul`) |
-| `STATORY_API_URL` | 기존 `.env` 값 (없으면 비움) |
-| `STATORY_ACADEMIC_QUERY` | 기존 `.env` 값 (없으면 비움) |
-| `STATORY_ACADEMIC_LIMIT` | 기존 `.env` 값 (없으면 비움) |
-| `DISCORD_WEBHOOK_OBSERVATORY` | 기존 `.env` 값 (비우면 알림은 로그만) |
+| 키 | 어디서 가져오나 | 필수 |
+|---|---|---|
+| `DB_HOST` | Supabase Connect의 Host | ✅ |
+| `DB_PORT` | `5432` | ✅ |
+| `DB_USER` | `postgres.<프로젝트ID>` (점 뒤까지) | ✅ |
+| `DB_PASSWORD` | Supabase DB 비밀번호 | ✅ |
+| `DB_NAME` | `postgres` | ✅ |
+| `JWT_SECRET` | 임의의 긴 무작위 문자열 | ✅ **미설정 시 서버 기동 실패**(AS-FIX-1) |
+| `JWT_EXPIRES_IN` | 예: `7d` | 선택(기본 24h) |
+| `ADMIN_INVITE_CODE` | 임의의 긴 무작위 문자열 | 첫 관리자 생성 때만. **비우면 회원가입 완전 차단**(권장 상태) |
+| `CORS_ORIGINS` | 쉼표 구분 출처 목록 | 선택. 비우면 addictionsociety.net·www·localhost:3000 + `*.vercel.app` |
+| `LLM_POLICY_API_KEY` | DeepSeek API 키 (정책 D×P 분석) | 선택 |
+| `STATORY_API_URL` | Statory API 주소 (분석실 /lab) | 선택. **없으면 /lab이 영구 빈 목록** |
+| `DISCORD_WEBHOOK_OBSERVATORY` | Discord 웹훅 URL | 선택. 비우면 알림은 로그만 |
+| `INDICATOR_PDF_CRON_ENABLED` | `true`로 바꾸면 PDF 추출 크론 가동 | 기본 `false` |
+
+> ⚠️ `OPENAI_API_KEY`·`AUTO_COLLECT_*`·`STATORY_ACADEMIC_*`는 **AS-M3-1에서 폐기**되었습니다.
+> 남아 있다면 지워도 됩니다(코드가 읽지 않습니다).
 
 > `DB_SSL=true`, `DB_SYNCHRONIZE=false`는 `render.yaml`에 이미 박혀 있어 입력 불필요.
 > `PORT`도 Render가 자동 주입합니다.
@@ -55,18 +56,77 @@
 
 ---
 
-## 3) 첫 배포 로그에서 숫자 4개 확인 — 약 2분
+## 3) 첫 배포 로그 확인 — 약 2분
 
-Render 서비스 → **Logs** 탭(또는 Deploy 로그)에서 `[deploy-init]` 줄을 찾으세요.
-아래가 보이면 성공입니다:
+Render 서비스 → **Logs** 탭에서 `[deploy-init]` 줄을 찾으세요.
 
-- `1/4 migration:run` → `Migration Baseline1784357488932 has been executed successfully.` (재배포 시엔 "No migrations pending")
+**필수 단계 (하나라도 실패하면 배포가 중단되고 구버전이 유지됨)**
+
+- `1/4 migration:run` → `... has been executed successfully.` (재배포 시엔 "No migrations pending")
 - `2/4 seed:tags` → `테이블 총 17건`
 - `3/4 seed:sources` → `테이블 총 23건` (scope: global 10 / regional 4 / korea 9)
 - `4/4 backfill:next` → `채움 13 / null 10`
-- 마지막에 `[deploy-init] 완료` → 이어서 서버 기동
 
-> 이 초기화는 멱등이라 **재배포마다 안전하게 다시 실행**됩니다(중복·손상 없음).
+**선택 단계 (AS-FIX-1 — 실패해도 배포는 계속. ⚠️ 로그만 남음)**
+
+- `5/8 seed:recovery` → `73건`
+- `6/8 collect:indicators` → 지표 3 / 관측치 3
+- `7/8 seed:documents` → 후보 29건 URL 실검증 (봇 차단분은 `REG*`로 구제 등록)
+- `8/8 collect:research` → OpenAlex 수집 건수
+
+마지막 줄이 `[deploy-init] 완료 — 스키마·시드 전 단계 적용됨`이면 전부 성공,
+`(선택 단계 N건 건너뜀 ⚠️)`이면 그 N건은 **다음 배포에서 자동 재시도**됩니다
+(전부 멱등). 외부 사이트가 잠깐 죽었다고 배포를 막지 않기 위한 설계입니다.
+
+> 선택 단계는 단계당 `DEPLOY_SOFT_TIMEOUT`(기본 420초) 상한이 걸려 있어
+> preDeploy가 무한정 붙들리지 않습니다.
+
+---
+
+## 3-1) ★ DB를 처음부터 세우는 명령 순서 (AS-FIX-1)
+
+**보통은 이 절을 볼 일이 없습니다** — 위 `deploy-init`이 매 배포마다 아래를 그대로 수행합니다.
+DB를 새로 만들었거나, 백업에서 복구했거나, 로컬에 운영과 같은 상태를 만들고 싶을 때만
+`backend/` 디렉터리에서 순서대로 실행하세요. **전부 멱등이라 몇 번을 돌려도 안전합니다.**
+
+```bash
+# 0) 접속 env 준비 (.env 또는 export)
+#    DB_HOST DB_PORT DB_USER DB_PASSWORD DB_NAME  (원격이면 DB_SSL=true)
+#    JWT_SECRET  ← 없으면 서버가 기동하지 않습니다
+
+# ── 필수: 스키마 + 소스 레지스트리 ──
+npm run migration:run       # 스키마 (마이그레이션 10종)
+npm run seed:tags           # 태그 17건
+npm run seed:sources        # 소스 레지스트리 23건
+npm run backfill:next       # next_expected_at 계산·지난 예정일 이월
+
+# ── 자료 적재 (네트워크 필요한 것은 실패해도 무방, 나중에 재실행) ──
+npm run seed:recovery       # 회복자원 73건   (로컬 JSON, 네트워크 불요)
+npm run collect:indicators  # 지표 3 / 관측치 3 (로컬 JSON, 네트워크 불요)
+npm run seed:documents      # 정책문서 ~29건  (URL 실검증 — 네트워크 필요)
+npm run collect:research    # 연구자료        (OpenAlex — 네트워크 필요)
+
+# ── 첫 관리자 만들기 (AS-FIX-1) ──
+# 1. Render env에 ADMIN_INVITE_CODE=<임의 문자열> 설정 후 재배포
+# 2. 가입 (role은 viewer로 생성됨)
+curl -X POST https://addiction-society-api.onrender.com/api/auth/register \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"<이메일>","password":"<비밀번호>","name":"<이름>","inviteCode":"<위 값>"}'
+# 3. DB에서 승격 (쓰기 권한은 admin만)
+#    UPDATE users SET role='admin' WHERE email='<이메일>';
+# 4. ADMIN_INVITE_CODE를 다시 비우고 재배포 → 가입 완전 차단
+```
+
+기대 결과:
+
+| 테이블 | 건수 |
+|---|---|
+| `sources` | 23 |
+| `tags` | 17 |
+| `recovery_resources` | 73 |
+| `indicators` / `observations` | 3 / 3 |
+| `documents` | 최대 29 (법률 6 + 소스 산출물 23. URL 검증 실패분은 보류) |
+| `research` | OpenAlex 수집량에 따라 가변 |
 
 ---
 
@@ -88,6 +148,15 @@ Render 서비스 → **Logs** 탭(또는 Deploy 로그)에서 `[deploy-init]` �
 2. **목록**: `.../api/sources` → 23건, `.../api/sources/calendar` → 13건
 3. **알림 테스트**(웹훅 입력한 경우): Render 서비스 → **Shell** → `npm run monitor:once`
    → 로그 성공 + Discord 채널에 알림 도착 확인
+4. **보안 확인**(AS-FIX-1 — 반드시): 아래가 `403`이어야 정상입니다.
+   ```bash
+   curl -s -o /dev/null -w '%{http_code}\n' -X POST \
+     https://addiction-society-api.onrender.com/api/auth/register \
+     -H 'Content-Type: application/json' \
+     -d '{"email":"probe@example.com","password":"probe1234","name":"probe","inviteCode":"guess"}'
+   ```
+   `200`이 나오면 `ADMIN_INVITE_CODE`가 노출된 것이니 즉시 교체하세요.
+5. **미검수 자료 비노출 확인**: `.../api/research?status=all` 이 approved만 반환해야 합니다.
 
 ---
 
@@ -105,4 +174,6 @@ Render 서비스 → **Logs** 탭(또는 Deploy 로그)에서 `[deploy-init]` �
 - 스키마 변경 규칙·신규 DB 절차: `docs/DB-MIGRATION.md`
 - 자동 초기화 스크립트: `backend/scripts/deploy-init.sh`
 - 런북의 npm 스크립트는 전부 `backend/package.json`에 실존:
-  `migration:run`, `seed:tags`, `seed:sources`, `backfill:next`, `monitor:once`, `start:prod`, `build`.
+  `migration:run`, `seed:tags`, `seed:sources`, `backfill:next`, `seed:recovery`,
+  `seed:documents`, `collect:research`, `collect:indicators`, `monitor:once`, `start:prod`, `build`.
+- 감사 보고서(문제 목록·확인용 SQL): `docs/AUDIT-2026-08.md`

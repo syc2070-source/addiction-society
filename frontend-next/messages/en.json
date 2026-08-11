@@ -37,6 +37,9 @@
     "title": "Observatory Activity Timeline",
     "desc": "A chronological record of when each institution published or updated — detected by our monitoring. The calendar shows what's expected; the timeline shows what actually happened.",
     "publishedAt": "published {date}",
+    "activity": "Checked {sources} sources {checks} times in the last {days} days",
+    "lastCheck": "last check {date}",
+    "quiet": "No publications or changes were recorded in this period. Monitoring continues.",
     "event": {
       "published": "Published",
       "changed": "Changed",
