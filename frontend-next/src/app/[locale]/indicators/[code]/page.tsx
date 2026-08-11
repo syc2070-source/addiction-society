@@ -106,6 +106,11 @@ export default async function IndicatorDetailPage({
   }
 
   const hasTrend = totalSeries.length >= 2;
+  // 회차마다 조사대상(note)이 다르면 추이 비교에 주의가 필요하다(AS-PDF-RUN).
+  const seriesNotes = new Set(
+    totalSeries.map((o) => o.note ?? '').filter(Boolean),
+  );
+  const seriesBreak = hasTrend && seriesNotes.size > 1;
 
   return (
     <main className="page-container">
@@ -147,7 +152,28 @@ export default async function IndicatorDetailPage({
             {hasTrend && (
               <section className="report-section">
                 <h2>{t('trend')}</h2>
+                {/*
+                  회차 간 조사대상이 다르면 추이선을 그대로 읽으면 안 된다
+                  (AS-PDF-RUN). 예: kcgp 청소년 도박 실태조사는 고3·초등 포함
+                  여부가 회차마다 달라 급감·급증처럼 보이는 구간이 생긴다.
+                  선을 감추는 대신 경고를 붙인다 — 숨기면 정보가 사라지고,
+                  경고 없이 그리면 오독을 부른다.
+                */}
+                {seriesBreak && (
+                  <p className="status-note">{t('comparabilityWarning')}</p>
+                )}
                 <Sparkline series={totalSeries} />
+                {seriesBreak && (
+                  <ul className="series-notes">
+                    {totalSeries
+                      .filter((o) => o.note)
+                      .map((o) => (
+                        <li key={o.id}>
+                          <b>{o.period}</b> {o.note}
+                        </li>
+                      ))}
+                  </ul>
+                )}
               </section>
             )}
 
@@ -197,6 +223,7 @@ export default async function IndicatorDetailPage({
                         <th>{t('colPeriod')}</th>
                         <th>{t('colGroup')}</th>
                         <th>{t('colValue')}</th>
+                        <th>{t('colNote')}</th>
                         <th>{t('colSource')}</th>
                       </tr>
                     </thead>
@@ -213,6 +240,7 @@ export default async function IndicatorDetailPage({
                               ? ` (${o.valueLow}–${o.valueHigh})`
                               : ''}
                           </td>
+                          <td className="cell-note">{o.note ?? ''}</td>
                           <td>
                             <a
                               href={o.sourceUrl}

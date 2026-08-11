@@ -44,7 +44,9 @@
 | `LLM_POLICY_API_KEY` | DeepSeek API 키 (정책 D×P 분석) | 선택 |
 | `STATORY_API_URL` | Statory API 주소 (분석실 /lab) | 선택. **없으면 /lab이 영구 빈 목록** |
 | `DISCORD_WEBHOOK_OBSERVATORY` | Discord 웹훅 URL | 선택. 비우면 알림은 로그만 |
-| `INDICATOR_PDF_CRON_ENABLED` | `true`로 바꾸면 PDF 추출 크론 가동 | 기본 `false` |
+| `INDICATOR_PDF_CRON_ENABLED` | `true`로 바꾸면 PDF 추출 크론 가동 | 기본 `false` — 아래 3-2 참조 |
+| `API_PUBLIC_URL` | Discord 검수 링크가 가리킬 API 주소 | 기본 `https://addiction-society-api.onrender.com` |
+| `REVIEW_TOKEN_SECRET` | 검수 토큰 서명키 | 선택. 비우면 `JWT_SECRET`에서 파생 |
 
 > ⚠️ `OPENAI_API_KEY`·`AUTO_COLLECT_*`·`STATORY_ACADEMIC_*`는 **AS-M3-1에서 폐기**되었습니다.
 > 남아 있다면 지워도 됩니다(코드가 읽지 않습니다).
@@ -130,6 +132,72 @@ curl -X POST https://addiction-society-api.onrender.com/api/auth/register \
 
 ---
 
+## 3-2) ★ PDF 지표 추출 — 첫 실행과 크론 켜기 (AS-PDF-RUN)
+
+PDF 표에서 뽑은 값은 기계 오독 위험이 있어 **항상 `pending`으로 들어가고 사람이
+승인해야 공개**된다(원칙 8). 승인은 **Discord 알림의 링크 클릭**으로 끝난다 —
+관리자 로그인이 필요 없다.
+
+### ① 즉시 1회 실행 (크론을 기다리지 않고)
+
+Render 서비스 → **Shell**:
+
+```bash
+npm run extract:pdf                    # 대상 소스·회차 전부
+npm run extract:pdf -- kcgp_youth      # 그 소스의 모든 회차
+npm run extract:pdf -- kcgp_youth 2024 # 특정 회차만
+```
+
+스크립트가 먼저 환경(python·pdfplumber·회차별 PDF URL 확정)을 점검해 출력한다.
+`"ok": false`면 추출을 하지 않고 중단하므로, 빌드 로그의 `install-pdf-deps.sh`
+결과를 먼저 확인하면 된다.
+
+> Shell을 쓰는 것은 **첫 완주·재시도 부트스트랩**에 한정된다. 상시 운용은 크론이 한다.
+
+### ② Discord 알림에서 검수
+
+추출로 `pending`이 생기면 관측소 채널에 이런 알림이 온다:
+
+```
+🧾 지표 자동추출 — 검수 요망 (한국도박문제예방치유원 · 청소년 도박문제 실태조사)
+회차 2022 · pending 신규 9 / 갱신 0
+추출값 (지표 | 기간 | 분류 | 값):
+· 청소년 도박문제 위험군(YELLOW) 비율 | 2022 | 전체 | 3.9%
+· 청소년 도박문제 위험군(YELLOW) 비율 | 2022 | 남학생 | 5.1%
+  … (최대 25줄, 초과분은 링크에서)
+원본: https://www.data.go.kr/data/15142248/fileData.do
+검수(승인/폐기): https://…/api/indicators/review/<서명토큰>
+※ 승인 전까지 공개되지 않습니다. 링크는 14일 후 만료됩니다.
+```
+
+**값이 본문에 그대로 들어 있으므로 알림만 보고 원본과 대조**할 수 있다.
+링크를 열면 값 표와 [승인하고 공개] / [폐기(비공개 유지)] 버튼이 나온다.
+링크를 여는 것만으로는 아무것도 바뀌지 않는다(처리는 버튼 = POST).
+
+- **승인** → 즉시 공개. Discord에 `✅ 지표 검수 승인 — N건 공개` 회신.
+- **폐기** → 비공개 유지(삭제 아님 — 파서 수정의 근거로 남는다). `🗑️` 회신.
+- 이미 처리한 링크를 다시 눌러도 0건(1회성).
+
+### ③ 크론 켜기 — ①②가 실제로 동작한 뒤에
+
+`INDICATOR_PDF_CRON_ENABLED=true`로 바꾸고 재배포한다. 켜기 전에 확인할 것:
+
+| 확인 | 방법 |
+|---|---|
+| python·pdfplumber 준비됨 | `npm run extract:pdf`의 환경 점검 `"ok": true` |
+| 회차별 PDF URL 확정됨 | 같은 출력의 `rounds[].resolvedUrl`이 null이 아님 |
+| Discord 알림 도착 | ①을 돌렸을 때 채널에 검수 알림이 왔는지 |
+| 검수 링크 동작 | 실제로 승인/폐기를 한 번 눌러 봤는지 |
+| `API_PUBLIC_URL` 정확 | 알림 속 링크가 실제 서비스 주소인지 |
+
+- **첫 크론 실행**: 켠 다음 달 **1일 04:00 (KST)**. 매월 1일 04시 고정.
+- **예상 알림**: 대상 소스·회차마다 위 형태의 검수 알림 1건. 값이 그대로면
+  `pending 신규 0 / 갱신 N`이 되고, 아무 변화가 없으면 알림을 보내지 않는다.
+- **실패 시**: `⚠️ 지표 자동추출 실패 (소스 회차): 사유` 알림 + `/timeline`에 기록.
+  회차 하나가 실패해도 나머지 회차는 계속 진행된다.
+
+---
+
 ## 4) ★ 플랜 경고 (반드시 읽기)
 
 > **Render Free 플랜은 15분간 요청이 없으면 서버가 슬립합니다.**
@@ -175,5 +243,6 @@ curl -X POST https://addiction-society-api.onrender.com/api/auth/register \
 - 자동 초기화 스크립트: `backend/scripts/deploy-init.sh`
 - 런북의 npm 스크립트는 전부 `backend/package.json`에 실존:
   `migration:run`, `seed:tags`, `seed:sources`, `backfill:next`, `seed:recovery`,
-  `seed:documents`, `collect:research`, `collect:indicators`, `monitor:once`, `start:prod`, `build`.
+  `seed:documents`, `collect:research`, `collect:indicators`, `extract:pdf`,
+  `monitor:once`, `start:prod`, `build`.
 - 감사 보고서(문제 목록·확인용 SQL): `docs/AUDIT-2026-08.md`

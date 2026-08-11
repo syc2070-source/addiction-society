@@ -355,21 +355,58 @@ const SOURCES: Row[] = [
     titleKo: '청소년 도박문제 실태조사',
     titleEn: 'Youth Gambling Survey',
     // AS-M3-2d: PDF 추출 대상. 대상·힌트를 env가 아니라 여기(DB)에 둔다.
-    //  - pdf_finder: data.go.kr 데이터셋 페이지에서 첨부(atchFileId)를 서버가 직접 찾아
-    //    실제 다운로드 URL을 확정한다(추측 URL 금지). 새 회차가 올라와도 자동 추종.
-    //  - period: 관측치 기간(회차 연도). 새 회차 발간 시 이 값만 갱신하면 된다.
+    // AS-PDF-RUN: 단일 period → pdf_rounds(회차 배열)로 확장. 시계열 확보용.
+    //
+    //  - 2024 회차는 공공데이터포털에 파일데이터로 올라와 있다(datagokr_filedata가
+    //    페이지에서 atchFileId를 직접 찾아 확정 — 추측 URL 금지).
+    //  - 과거 회차는 포털에 없고 kcgp 자료실 게시판에만 있다 → kcgp_board 탐색기가
+    //    목록에서 연도 게시글을 찾아 첨부 PDF를 확정한다.
+    //  - population: 회차별 조사대상. observations.note로 내려가 화면이 "회차 간
+    //    직접 비교 주의"를 표시한다. 이 조사는 모집단이 회차마다 바뀌었기 때문에
+    //    (2015·2018 고3 제외 → 2020 고3 포함 → 2022 초등 포함 → 2024 국가승인통계)
+    //    단서 없이 한 줄로 이으면 없는 급감·급증이 그려진다.
+    //
+    // ⚠️ kcgp_board의 listUrl은 운영에서 GET 200과 게시글 매칭을 실측해야 한다.
+    //    실패하면 해당 회차만 '보류'로 남고 나머지 회차는 정상 진행된다(회차별 격리).
     accessDetail: {
       portal: '공공데이터포털',
       raw_data: true,
       pdf: true,
       parser_adapter: 'kcgp_youth',
-      pdf_finder: {
-        type: 'datagokr_filedata',
-        datasetUrl: 'https://www.data.go.kr/data/15142248/fileData.do',
-      },
-      period: '2024',
+      pdf_rounds: [
+        {
+          period: '2024',
+          pdf_finder: {
+            type: 'datagokr_filedata',
+            datasetUrl: 'https://www.data.go.kr/data/15142248/fileData.do',
+          },
+          population:
+            '조사대상: 초4~고3 재학생 — 국가승인통계(제469001호) 최초 회차',
+        },
+        {
+          period: '2022',
+          pdf_finder: {
+            type: 'kcgp_board',
+            listUrl:
+              'https://www.kcgp.or.kr/portal/bbs/B0000063/list.do?menuNo=200240',
+            titleContains: '2022',
+          },
+          population: '조사대상: 초4~고3 재학생 — 4차 시범조사',
+        },
+        {
+          period: '2020',
+          pdf_finder: {
+            type: 'kcgp_board',
+            listUrl:
+              'https://www.kcgp.or.kr/portal/bbs/B0000063/list.do?menuNo=200240',
+            titleContains: '2020',
+          },
+          population: '조사대상: 중·고 재학생 (고3 포함) — 3차 시범조사',
+        },
+      ],
     },
-    notes: 'Raw Data 공개. API 연동 가능. PDF 자동추출 대상(AS-M3-2d)',
+    notes:
+      'Raw Data 공개. API 연동 가능. PDF 자동추출 대상(AS-M3-2d) · 회차 3종(AS-PDF-RUN)',
   },
   {
     id: 'kcgp_rehab',

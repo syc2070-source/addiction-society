@@ -190,6 +190,8 @@ export interface Observation {
   revisions: ObservationRevision[] | null;
   fetchedAt: string;
   sourceUrl: string;
+  /** 관측치별 단서 — 주로 조사대상(모집단). 회차 간 비교 주의 표시에 쓴다(AS-PDF-RUN). */
+  note?: string | null;
 }
 
 export function fetchIndicators(params: { domain?: string } = {}) {

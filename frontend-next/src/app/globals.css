@@ -274,6 +274,24 @@ a {
   font-size: var(--fs-caption);
 }
 
+/* 회차별 조사대상 단서 (AS-PDF-RUN) — 추이 차트 아래 각주 */
+.series-notes {
+  list-style: none;
+  margin-top: var(--space-1);
+  font-size: var(--fs-caption);
+  color: var(--text-muted);
+}
+
+.series-notes li {
+  padding: 2px 0;
+}
+
+.cell-note {
+  font-size: var(--fs-caption);
+  color: var(--text-muted);
+  max-width: 22em;
+}
+
 /* 분석실 Powered by statory */
 .powered-by {
   margin-top: var(--space-5);

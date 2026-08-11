@@ -98,6 +98,25 @@ export class Observation {
   @Column({ type: 'varchar', length: 20, default: 'approved' })
   status: string;
 
+  /**
+   * PDF 추출 1회분 묶음 (AS-PDF-RUN). Discord 검수 링크가 이 배치 단위로
+   * 승인/폐기한다. 수동 시드분은 null.
+   */
+  @Column({ name: 'review_batch', type: 'varchar', length: 80, nullable: true })
+  reviewBatch: string | null;
+
+  /**
+   * 관측치별 단서 — 주로 **조사대상(모집단)**을 적는다 (AS-PDF-RUN).
+   *
+   * kcgp 청소년 도박 실태조사는 회차마다 모집단이 바뀌었다(2015·2018 고3 제외 →
+   * 2020 고3 포함 → 2022 초등 포함 → 2024 국가승인통계로 개편). 이 단서가 없으면
+   * 회차를 이은 추이선이 실제로는 존재하지 않는 급감·급증을 보여준다.
+   * 값을 못 붙이면 "수집 중"이라 쓰듯, 값을 붙일 때는 그 값이 무엇을 센 것인지
+   * 함께 실어야 한다(원칙1의 연장).
+   */
+  @Column({ type: 'varchar', length: 300, nullable: true })
+  note: string | null;
+
   /** 마지막 수집 시각(값 확인/갱신 시각). */
   @Column({ name: 'fetched_at', type: 'timestamptz', default: () => 'now()' })
   fetchedAt: Date;

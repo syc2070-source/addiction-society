@@ -114,4 +114,69 @@ export class IndicatorsService {
     const res = await qb.execute();
     return { approved: res.affected ?? 0 };
   }
+
+  /**
+   * 배치의 pending 관측치 목록 (AS-PDF-RUN) — Discord 검수 화면·알림 본문용.
+   * 지표명을 함께 붙여 사람이 원본과 대조할 수 있게 한다.
+   */
+  async pendingByBatch(batch: string): Promise<
+    Array<{
+      id: number;
+      code: string;
+      nameKo: string;
+      unit: string | null;
+      geo: string;
+      period: string;
+      qualifier: string;
+      value: string;
+      note: string | null;
+      sourceUrl: string;
+      status: string;
+    }>
+  > {
+    return this.observationRepo
+      .createQueryBuilder('o')
+      .innerJoin('indicators', 'i', 'i.id = o.indicator_id')
+      .select([
+        'o.id AS id',
+        'i.code AS code',
+        'i.name_ko AS "nameKo"',
+        'i.unit AS unit',
+        'o.geo AS geo',
+        'o.period AS period',
+        'o.qualifier AS qualifier',
+        'o.value AS value',
+        'o.note AS note',
+        'o.source_url AS "sourceUrl"',
+        'o.status AS status',
+      ])
+      .where('o.review_batch = :batch', { batch })
+      .orderBy('i.code', 'ASC')
+      .addOrderBy('o.period', 'ASC')
+      .addOrderBy('o.qualifier', 'ASC')
+      .getRawMany();
+  }
+
+  /**
+   * 배치 단위 검수 처리 (AS-PDF-RUN).
+   *  approve → status='approved' (공개)
+   *  reject  → status='rejected' (비공개 유지. 삭제하지 않는 이유: 무엇을 왜
+   *            버렸는지가 파서 수정의 근거다. 다음 추출이 같은 행을 다시
+   *            pending으로 덮어써 재검수된다.)
+   *
+   * pending인 행만 건드린다 → 이미 처리된 배치의 링크를 다시 눌러도 0건(멱등·1회성).
+   */
+  async reviewBatch(
+    batch: string,
+    action: 'approve' | 'reject',
+  ): Promise<{ affected: number }> {
+    const res = await this.observationRepo
+      .createQueryBuilder()
+      .update(Observation)
+      .set({ status: action === 'approve' ? 'approved' : 'rejected' })
+      .where('review_batch = :batch', { batch })
+      .andWhere('status = :pending', { pending: 'pending' })
+      .execute();
+    return { affected: res.affected ?? 0 };
+  }
 }

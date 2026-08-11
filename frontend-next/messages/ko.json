@@ -69,7 +69,9 @@
     "colPeriod": "기간",
     "colGroup": "분류",
     "colValue": "값",
-    "colSource": "출처"
+    "colSource": "출처",
+    "colNote": "단서",
+    "comparabilityWarning": "⚠️ 회차마다 조사대상이 달라 연도 간 직접 비교에는 주의가 필요합니다. 선의 오르내림이 실제 변화가 아닐 수 있습니다."
   },
   "labPage": {
     "kicker": "Analysis Lab",

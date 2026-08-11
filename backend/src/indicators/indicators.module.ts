@@ -7,6 +7,7 @@ import { IndicatorsService } from './indicators.service';
 import { IndicatorsController } from './indicators.controller';
 import { IndicatorPdfService } from './indicator-pdf.service';
 import { IndicatorsScheduler } from './indicators.scheduler';
+import { IndicatorReviewController } from './review.controller';
 import { SourcesModule } from '../sources/sources.module';
 
 @Module({
@@ -16,7 +17,8 @@ import { SourcesModule } from '../sources/sources.module';
     // SourceEventsService(LEDGER) + SourcesNotifier(Discord) 재사용
     SourcesModule,
   ],
-  controllers: [IndicatorsController],
+  // IndicatorReviewController: Discord 검수 링크(서명 토큰, 로그인 불요 — AS-PDF-RUN)
+  controllers: [IndicatorsController, IndicatorReviewController],
   providers: [IndicatorsService, IndicatorPdfService, IndicatorsScheduler],
   exports: [IndicatorsService],
 })

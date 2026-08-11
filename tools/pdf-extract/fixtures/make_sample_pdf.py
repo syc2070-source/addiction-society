@@ -31,7 +31,7 @@ for name, path, idx in _CANDIDATES:
             continue
 
 
-def build(path: str) -> None:
+def build(path: str, year: str = "2022", vals=("4.8", "3.9", "0.9")) -> None:
     doc = SimpleDocTemplate(path, pagesize=A4)
     styles = getSampleStyleSheet()
     title = styles["Title"]
@@ -40,7 +40,7 @@ def build(path: str) -> None:
     body.fontName = FONT
 
     story = [
-        Paragraph("청소년 도박 실태조사 (합성 fixture)", title),
+        Paragraph(f"{year} 청소년 도박 실태조사 (합성 fixture)", title),
         Paragraph(
             "본 표는 도박문제 선별척도에 따른 도박문제 수준 분류 결과이다. "
             "위험군은 중위험, 문제군은 문제성 수준을 뜻한다. (fixture · 더미값)",
@@ -49,11 +49,16 @@ def build(path: str) -> None:
         Spacer(1, 12),
     ]
 
+    total, atrisk, problem = vals
+
+    def _scaled(v: str, factor: float) -> str:
+        return f"{float(v) * factor:.1f}%"
+
     data = [
         ["구분", "전체", "남학생", "여학생"],
-        ["도박문제 수준", "4.8%", "6.5%", "3.0%"],
-        ["위험군", "3.9%", "5.1%", "2.6%"],
-        ["문제군", "0.9%", "1.4%", "0.4%"],
+        ["도박문제 수준", f"{total}%", _scaled(total, 1.35), _scaled(total, 0.63)],
+        ["위험군", f"{atrisk}%", _scaled(atrisk, 1.31), _scaled(atrisk, 0.67)],
+        ["문제군", f"{problem}%", _scaled(problem, 1.55), _scaled(problem, 0.44)],
     ]
     t = Table(data, hAlign="LEFT")
     t.setStyle(
@@ -71,8 +76,16 @@ def build(path: str) -> None:
 
 
 if __name__ == "__main__":
-    import sys
+    import argparse
 
-    out = sys.argv[1] if len(sys.argv) > 1 else "sample_kcgp.pdf"
-    build(out)
-    print(f"wrote {out}")
+    ap = argparse.ArgumentParser(description="합성 fixture PDF 생성(엔진 검증 전용)")
+    ap.add_argument("out", nargs="?", default="sample_kcgp.pdf")
+    ap.add_argument("--year", default="2022")
+    # 회차별 시계열 검증을 위해 값도 바꿀 수 있게 한다(전부 더미).
+    ap.add_argument("--total", default="4.8")
+    ap.add_argument("--atrisk", default="3.9")
+    ap.add_argument("--problem", default="0.9")
+    a = ap.parse_args()
+
+    build(a.out, a.year, (a.total, a.atrisk, a.problem))
+    print(f"wrote {a.out} (year={a.year})")

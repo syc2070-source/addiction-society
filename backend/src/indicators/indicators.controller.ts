@@ -59,9 +59,12 @@ export class IndicatorsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(ROLE_ADMIN)
   @Post('indicators/extract-pdf')
-  extractPdf(@Body() body: { source?: string }) {
+  extractPdf(@Body() body: { source?: string; period?: string }) {
     const id = body?.source?.trim();
-    return id ? this.pdfService.extractOne(id) : this.pdfService.extractAll();
+    const period = body?.period?.trim() || undefined;
+    return id
+      ? this.pdfService.extractOne(id, period)
+      : this.pdfService.extractAll();
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

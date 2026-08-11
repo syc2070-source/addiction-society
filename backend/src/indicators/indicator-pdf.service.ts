@@ -12,6 +12,12 @@ import { Observation } from './entities/observation.entity';
 import { Source } from '../sources/entities/source.entity';
 import { SourceEventsService } from '../sources/source-events.service';
 import { SourcesNotifier } from '../sources/discord.notifier';
+import { IndicatorsService } from './indicators.service';
+import { issueReviewToken, newBatchId } from './review-token.util';
+import { reviewSecret } from './review-secret.util';
+
+/** Discord 본문에 그대로 싣는 값 줄 수 상한(메시지 2000자 제한 대비) */
+const MAX_NOTIFY_ROWS = 25;
 
 const BROWSER_UA =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36';
@@ -31,12 +37,34 @@ const BROWSER_UA =
  * env가 아니라 DB에 두는 이유: 소스·회차가 늘어도 env가 증식하지 않고, 새 소스 추가가
  * `sources` 등록만으로 끝난다(자동화 원칙). 회차 갱신도 access_detail 한 줄 수정.
  */
+export interface PdfFinder {
+  type: string;
+  /** datagokr_filedata: 파일데이터 상세 페이지 */
+  datasetUrl?: string;
+  /** kcgp_board: 게시판 목록 URL */
+  listUrl?: string;
+  /** kcgp_board: 제목에서 회차를 고르는 힌트(보통 연도 4자리) */
+  titleContains?: string;
+}
+
+/** 회차 1건 (AS-PDF-RUN). period + 그 회차의 PDF 위치. */
+export interface PdfRound {
+  period: string | number;
+  pdf_url?: string | null;
+  pdf_finder?: PdfFinder | null;
+  /** 이 회차의 조사대상(모집단). observations.note로 내려가 추이 오독을 막는다. */
+  population?: string | null;
+}
+
 export interface PdfSourceHint {
   pdf?: boolean;
   parser_adapter?: string;
   pdf_url?: string | null;
-  pdf_finder?: { type: string; datasetUrl?: string } | null;
+  pdf_finder?: PdfFinder | null;
   period?: string | number | null;
+  population?: string | null;
+  /** 회차 목록. 있으면 이쪽이 우선(AS-PDF-RUN). 없으면 단일 회차로 동작(하위호환). */
+  pdf_rounds?: PdfRound[] | null;
 }
 
 interface ExtractedObs {
@@ -47,6 +75,8 @@ interface ExtractedObs {
   valueLow?: string | null;
   valueHigh?: string | null;
   sourceUrl?: string;
+  /** 어댑터가 판단한 단서(조사대상 등). 회차 설정의 population이 있으면 그쪽 우선. */
+  note?: string | null;
 }
 interface ExtractedIndicator {
   code: string;
@@ -68,6 +98,8 @@ interface ExtractedPayload {
 /** 소스 1건 추출 결과 */
 export interface SourceExtractionResult {
   sourceId: string;
+  /** 회차(연도). AS-PDF-RUN: 소스당 여러 회차를 각각 결과로 낸다. */
+  period?: string;
   ran: boolean;
   reason?: string;
   pdfUrl?: string;
@@ -75,6 +107,8 @@ export interface SourceExtractionResult {
   pendingInserted: number;
   pendingUpdated: number;
   skippedApproved: number;
+  /** 검수 배치 id (pending이 생겼을 때만) */
+  batch?: string;
 }
 
 export interface FileProbe {
@@ -111,6 +145,8 @@ export class IndicatorPdfService {
     private readonly sourceRepo: Repository<Source>,
     private readonly events: SourceEventsService,
     private readonly notifier: SourcesNotifier,
+    // 검수 알림 본문에 실을 값 목록을 뽑기 위해 사용(읽기 전용)
+    private readonly indicators: IndicatorsService,
   ) {}
 
   private get pdfExtractDir(): string {
@@ -145,7 +181,25 @@ export class IndicatorPdfService {
     return all.filter((s) => this.hintOf(s).pdf === true);
   }
 
-  /** 대상 소스 전부 순차 추출. 소스별 격리. 크론·수동 트리거 공용. */
+  /**
+   * 소스의 회차 목록을 확정한다 (AS-PDF-RUN).
+   * pdf_rounds가 있으면 그대로, 없으면 기존 단일 period 설정을 1회차로 감싼다(하위호환).
+   */
+  roundsOf(s: Source): PdfRound[] {
+    const hint = this.hintOf(s);
+    if (hint.pdf_rounds?.length) return hint.pdf_rounds;
+    if (hint.period == null) return [];
+    return [
+      {
+        period: hint.period,
+        pdf_url: hint.pdf_url ?? null,
+        pdf_finder: hint.pdf_finder ?? null,
+        population: hint.population ?? null,
+      },
+    ];
+  }
+
+  /** 대상 소스 전부 순차 추출(소스×회차). 회차별 격리. 크론·수동 트리거 공용. */
   async extractAll(): Promise<SourceExtractionResult[]> {
     const targets = await this.pdfSources();
     this.logger.log(
@@ -153,48 +207,100 @@ export class IndicatorPdfService {
     );
     const results: SourceExtractionResult[] = [];
     for (const s of targets) {
-      results.push(await this.extractSource(s));
+      results.push(...(await this.extractSource(s)));
     }
     return results;
   }
 
-  /** 소스 id로 1건 추출. */
-  async extractOne(sourceId: string): Promise<SourceExtractionResult> {
+  /** 소스 id로 1건 추출(그 소스의 모든 회차). period 지정 시 그 회차만. */
+  async extractOne(
+    sourceId: string,
+    period?: string,
+  ): Promise<SourceExtractionResult[]> {
     const s = await this.sourceRepo.findOne({ where: { id: sourceId } });
     if (!s) {
-      return {
-        sourceId,
-        ran: false,
-        reason: 'sources에 없는 id',
-        indicators: 0,
-        pendingInserted: 0,
-        pendingUpdated: 0,
-        skippedApproved: 0,
-      };
+      return [
+        {
+          sourceId,
+          ran: false,
+          reason: 'sources에 없는 id',
+          indicators: 0,
+          pendingInserted: 0,
+          pendingUpdated: 0,
+          skippedApproved: 0,
+        },
+      ];
     }
-    return this.extractSource(s);
+    return this.extractSource(s, period);
   }
 
-  /** 소스 1건 추출 본체. 절대 throw 안 함. */
-  private async extractSource(s: Source): Promise<SourceExtractionResult> {
-    const base: SourceExtractionResult = {
-      sourceId: s.id,
+  /**
+   * 소스 1건의 회차들을 순차 추출. 절대 throw 안 함.
+   * 회차 하나가 실패해도 나머지 회차는 계속 간다(과거 회차는 링크가 잘 깨진다).
+   */
+  private async extractSource(
+    s: Source,
+    onlyPeriod?: string,
+  ): Promise<SourceExtractionResult[]> {
+    const hint = this.hintOf(s);
+    const adapter = hint.parser_adapter?.trim();
+    const rounds = this.roundsOf(s).filter(
+      (r) => !onlyPeriod || String(r.period) === onlyPeriod,
+    );
+
+    if (!adapter) {
+      return [this.emptyResult(s.id, undefined, 'parser_adapter 미지정')];
+    }
+    if (rounds.length === 0) {
+      return [
+        this.emptyResult(
+          s.id,
+          onlyPeriod,
+          onlyPeriod
+            ? `회차 ${onlyPeriod} 설정 없음`
+            : 'pdf_rounds·period 미지정(회차 없음)',
+        ),
+      ];
+    }
+
+    const out: SourceExtractionResult[] = [];
+    for (const round of rounds) {
+      out.push(await this.extractRound(s, adapter, round));
+    }
+    return out;
+  }
+
+  private emptyResult(
+    sourceId: string,
+    period?: string,
+    reason?: string,
+  ): SourceExtractionResult {
+    return {
+      sourceId,
+      period,
       ran: false,
+      reason,
       indicators: 0,
       pendingInserted: 0,
       pendingUpdated: 0,
       skippedApproved: 0,
     };
-    const hint = this.hintOf(s);
-    const adapter = hint.parser_adapter?.trim();
-    if (!adapter) return { ...base, reason: 'parser_adapter 미지정' };
-    const period = hint.period != null ? String(hint.period).trim() : '';
-    if (!period) return { ...base, reason: 'period(회차 연도) 미지정' };
+  }
+
+  /** 회차 1건 추출 본체. 절대 throw 안 함. */
+  private async extractRound(
+    s: Source,
+    adapter: string,
+    round: PdfRound,
+  ): Promise<SourceExtractionResult> {
+    const period = String(round.period ?? '').trim();
+    if (!period) return this.emptyResult(s.id, undefined, 'period 없음');
+    const base = this.emptyResult(s.id, period);
 
     let dir: string | null = null;
     try {
       // 1) PDF URL 확정: 직접 URL 우선, 없으면 탐색기(finder)로 도출
-      const resolved = await this.resolvePdfUrl(s);
+      const resolved = await this.resolveRoundUrl(s, round);
       if (!resolved.url) {
         throw new Error(`PDF URL 확정 실패: ${resolved.reason ?? 'unknown'}`);
       }
@@ -207,7 +313,7 @@ export class IndicatorPdfService {
         );
       }
 
-      dir = await mkdtemp(join(tmpdir(), `pdf-${s.id}-`));
+      dir = await mkdtemp(join(tmpdir(), `pdf-${s.id}-${period}-`));
       const pdfPath = join(dir, 'report.pdf');
       const res = await fetch(resolved.url, {
         headers: { 'User-Agent': BROWSER_UA, Referer: s.url },
@@ -219,29 +325,43 @@ export class IndicatorPdfService {
 
       // 3) 어댑터로 파싱 → pending 적재. 원본 딥링크는 소스 url(사람이 여는 페이지).
       const payload = await this.runParser(pdfPath, adapter, period, s.url);
-      const up = await this.upsertPending(payload, s.id);
-
-      await this.notifier.notifyText(
-        [
-          `🧾 지표 자동추출 (${s.orgKo} · ${s.titleKo})`,
-          `회차 ${period} · 지표 ${payload.indicators.length} · pending 신규 ${up.pendingInserted} / 갱신 ${up.pendingUpdated}`,
-          up.skippedApproved
-            ? `이미 승인된 값 ${up.skippedApproved}건 보호(건너뜀)`
-            : '',
-          '검수 요망 — 승인 전까지 공개 안 됨.',
-        ]
-          .filter(Boolean)
-          .join('\n'),
-        `pdf:${s.id}`,
+      const batch = newBatchId(s.id, period);
+      const up = await this.upsertPending(
+        payload,
+        s.id,
+        batch,
+        round.population ?? null,
       );
+
+      const touched = up.pendingInserted + up.pendingUpdated;
+      if (touched > 0) {
+        await this.notifyReview(s, period, batch, up);
+      } else {
+        this.logger.log(`[pdf] ${s.id}/${period} — 새 pending 없음(알림 생략)`);
+      }
+
+      await this.events.record({
+        sourceId: s.id,
+        eventType: 'extracted',
+        detail: {
+          period,
+          batch,
+          pdfUrl: resolved.url,
+          indicators: payload.indicators.length,
+          ...up,
+        },
+        notified: touched > 0,
+      });
+
       this.logger.log(
-        `[pdf] ${s.id} 완료 — 지표 ${payload.indicators.length}, pending +${up.pendingInserted}/~${up.pendingUpdated}`,
+        `[pdf] ${s.id}/${period} 완료 — 지표 ${payload.indicators.length}, pending +${up.pendingInserted}/~${up.pendingUpdated}`,
       );
       return {
         ...base,
         ran: true,
         pdfUrl: resolved.url,
         indicators: payload.indicators.length,
+        batch: touched > 0 ? batch : undefined,
         ...up,
       };
     } catch (e: unknown) {
@@ -249,35 +369,199 @@ export class IndicatorPdfService {
       await this.events.record({
         sourceId: s.id,
         eventType: 'failed',
-        detail: { stage: 'pdf-extract', message: msg },
+        detail: { stage: 'pdf-extract', period, message: msg },
         notified: true,
       });
       await this.notifier.notifyText(
-        `⚠️ 지표 자동추출 실패 (${s.id}): ${msg}`,
+        `⚠️ 지표 자동추출 실패 (${s.id} ${period}회차): ${msg}`,
         `pdf:${s.id}`,
       );
-      this.logger.error(`[pdf] ${s.id} 실패(격리됨): ${msg}`);
+      this.logger.error(`[pdf] ${s.id}/${period} 실패(격리됨): ${msg}`);
       return { ...base, reason: msg };
     } finally {
       if (dir) await rm(dir, { recursive: true, force: true }).catch(() => {});
     }
   }
 
+  /**
+   * 검수 요청 알림 (AS-PDF-RUN).
+   * **추출된 값을 본문에 그대로 싣는다** — 사용자가 알림만 보고 원본과 대조할 수
+   * 있어야 한다. 그리고 서명된 검수 링크를 붙여 클릭 한 번으로 끝나게 한다.
+   */
+  private async notifyReview(
+    s: Source,
+    period: string,
+    batch: string,
+    up: {
+      pendingInserted: number;
+      pendingUpdated: number;
+      skippedApproved: number;
+    },
+  ): Promise<void> {
+    const rows = await this.indicators.pendingByBatch(batch);
+    const lines = rows
+      .slice(0, MAX_NOTIFY_ROWS)
+      .map((r) => {
+        const group =
+          r.qualifier === 'total' ? '전체' : r.qualifier.replace(/^group=/, '');
+        return `· ${r.nameKo} | ${r.period} | ${group} | ${r.value}${r.unit ?? ''}`;
+      })
+      .join('\n');
+    const more =
+      rows.length > MAX_NOTIFY_ROWS
+        ? `\n… 외 ${rows.length - MAX_NOTIFY_ROWS}건 (링크에서 전체 확인)`
+        : '';
+
+    const token = issueReviewToken(batch, reviewSecret(this.config));
+    const link = `${this.apiBaseUrl()}/api/indicators/review/${token}`;
+
+    await this.notifier.notifyText(
+      [
+        `🧾 지표 자동추출 — 검수 요망 (${s.orgKo} · ${s.titleKo})`,
+        `회차 ${period} · pending 신규 ${up.pendingInserted} / 갱신 ${up.pendingUpdated}`,
+        up.skippedApproved
+          ? `이미 승인된 값 ${up.skippedApproved}건은 보호(건너뜀)`
+          : '',
+        '',
+        '추출값 (지표 | 기간 | 분류 | 값):',
+        lines + more,
+        '',
+        `원본: ${s.url}`,
+        `검수(승인/폐기): ${link}`,
+        '※ 승인 전까지 공개되지 않습니다. 링크는 14일 후 만료됩니다.',
+      ]
+        .filter((l) => l !== '')
+        .join('\n'),
+      `pdf:${s.id}`,
+    );
+  }
+
+  /** 검수 링크에 쓸 API 기준 URL. */
+  private apiBaseUrl(): string {
+    return (
+      this.config.get<string>('API_PUBLIC_URL')?.trim().replace(/\/+$/, '') ||
+      'https://addiction-society-api.onrender.com'
+    );
+  }
+
+  /** 회차의 PDF URL 확정(회차 설정 → 소스 기본값 순). */
+  async resolveRoundUrl(
+    s: Source,
+    round: PdfRound,
+  ): Promise<{ url?: string; reason?: string; candidates?: FileProbe[] }> {
+    if (round.pdf_url?.trim()) return { url: round.pdf_url.trim() };
+    const finder = round.pdf_finder ?? this.hintOf(s).pdf_finder;
+    if (!finder?.type) return { reason: 'pdf_url·pdf_finder 둘 다 없음' };
+    return this.runFinder(finder, s);
+  }
+
   /** access_detail 기반으로 실제 PDF URL을 확정한다(직접 URL → finder). */
+  /** 소스 기본 설정 기준 URL 확정 — health() 진단용(하위호환). */
   async resolvePdfUrl(
     s: Source,
   ): Promise<{ url?: string; reason?: string; candidates?: FileProbe[] }> {
-    const hint = this.hintOf(s);
-    if (hint.pdf_url?.trim()) return { url: hint.pdf_url.trim() };
+    const rounds = this.roundsOf(s);
+    if (rounds.length === 0) return { reason: '회차 설정 없음' };
+    return this.resolveRoundUrl(s, rounds[0]);
+  }
 
-    const finder = hint.pdf_finder;
-    if (!finder?.type) return { reason: 'pdf_url·pdf_finder 둘 다 없음' };
-
+  /** finder 종류별 분기. 새 소스가 늘면 여기에 한 줄 추가한다. */
+  private async runFinder(
+    finder: PdfFinder,
+    s: Source,
+  ): Promise<{ url?: string; reason?: string; candidates?: FileProbe[] }> {
     if (finder.type === 'datagokr_filedata') {
-      const datasetUrl = finder.datasetUrl?.trim() || s.url;
-      return this.findDataGoKrFile(datasetUrl);
+      return this.findDataGoKrFile(finder.datasetUrl?.trim() || s.url);
+    }
+    if (finder.type === 'kcgp_board') {
+      return this.findKcgpBoardFile(finder);
     }
     return { reason: `알 수 없는 pdf_finder.type: ${finder.type}` };
+  }
+
+  /**
+   * kcgp 자료실 게시판 → 회차 게시글 → 첨부 PDF 도출 (AS-PDF-RUN).
+   *
+   * data.go.kr 파일데이터에는 최신 회차만 올라온다. 과거 회차(2022·2020·…)는
+   * kcgp.or.kr 자료실에만 있으므로 별도 탐색기가 필요하다.
+   *
+   * 절차: 목록 HTML에서 titleContains(보통 연도)를 포함한 게시글 링크를 찾고 →
+   * 그 상세 페이지의 첨부 다운로드 링크를 후보로 모아 → 실제로 받아 PDF
+   * 매직바이트를 확인한다. **URL을 추측해서 만들지 않는다** — 페이지에 실제로
+   * 있는 링크만 따라간다.
+   */
+  async findKcgpBoardFile(
+    finder: PdfFinder,
+  ): Promise<{ url?: string; reason?: string; candidates?: FileProbe[] }> {
+    const listUrl = finder.listUrl?.trim();
+    if (!listUrl) return { reason: 'kcgp_board: listUrl 없음' };
+    const needle = finder.titleContains?.trim();
+    if (!needle) return { reason: 'kcgp_board: titleContains 없음' };
+
+    const origin = new URL(listUrl).origin;
+    const listHtml = await this.getText(listUrl);
+    if (!listHtml.ok) return { reason: `목록 ${listHtml.reason}` };
+
+    // <a ...href="...">…2022…</a> 중 needle을 포함한 첫 항목
+    const anchors = [
+      ...listHtml.text.matchAll(
+        /<a\b[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi,
+      ),
+    ];
+    const hit = anchors.find(([, , label]) =>
+      label.replace(/<[^>]*>/g, ' ').includes(needle),
+    );
+    if (!hit) {
+      return { reason: `목록에서 '${needle}' 회차 게시글을 찾지 못함` };
+    }
+    const viewUrl = new URL(hit[1].replace(/&amp;/g, '&'), listUrl).toString();
+
+    const viewHtml = await this.getText(viewUrl);
+    if (!viewHtml.ok) return { reason: `상세 ${viewHtml.reason}` };
+
+    // 첨부 다운로드 링크 후보(경로에 download/file이 들어가는 링크)
+    const hrefs = [
+      ...new Set(
+        [
+          ...viewHtml.text.matchAll(
+            /href="([^"]*(?:[Dd]ownload|fileDown)[^"]*)"/g,
+          ),
+        ].map((m) => new URL(m[1].replace(/&amp;/g, '&'), viewUrl).toString()),
+      ),
+    ]
+      .filter((u) => u.startsWith(origin))
+      .slice(0, 6);
+
+    if (hrefs.length === 0) {
+      return { reason: `상세 페이지에서 첨부 링크를 찾지 못함 (${viewUrl})` };
+    }
+
+    const candidates: FileProbe[] = [];
+    for (const u of hrefs) candidates.push(await this.probeFile(u, viewUrl));
+    const best = candidates.find((c) => c.isPdf);
+    return best
+      ? { url: best.url, candidates }
+      : { reason: 'PDF 응답 후보 없음', candidates };
+  }
+
+  /** HTML 텍스트 GET 헬퍼. throw 안 함. */
+  private async getText(
+    url: string,
+  ): Promise<{ ok: true; text: string } | { ok: false; reason: string }> {
+    try {
+      const res = await fetch(url, {
+        headers: { 'User-Agent': BROWSER_UA },
+        signal: AbortSignal.timeout(30_000),
+        redirect: 'follow',
+      });
+      if (!res.ok) return { ok: false, reason: `HTTP ${res.status} (${url})` };
+      return { ok: true, text: await res.text() };
+    } catch (e: unknown) {
+      return {
+        ok: false,
+        reason: `${e instanceof Error ? e.message : String(e)} (${url})`,
+      };
+    }
   }
 
   /**
@@ -374,15 +658,24 @@ export class IndicatorPdfService {
     const sources: Array<Record<string, unknown>> = [];
     for (const s of targets) {
       const hint = this.hintOf(s);
-      const resolved = await this.resolvePdfUrl(s);
+      // AS-PDF-RUN: 회차별로 URL 확정 가능 여부를 따로 보고한다.
+      const rounds: Array<Record<string, unknown>> = [];
+      for (const r of this.roundsOf(s)) {
+        const resolved = await this.resolveRoundUrl(s, r);
+        rounds.push({
+          period: String(r.period),
+          population: r.population ?? null,
+          resolvedUrl: resolved.url ?? null,
+          reason: resolved.reason ?? null,
+          candidates: resolved.candidates ?? undefined,
+        });
+      }
       sources.push({
         id: s.id,
         titleKo: s.titleKo,
         adapter: hint.parser_adapter ?? null,
-        period: hint.period ?? null,
-        resolvedUrl: resolved.url ?? null,
-        reason: resolved.reason ?? null,
-        candidates: resolved.candidates ?? undefined,
+        roundCount: rounds.length,
+        rounds,
       });
     }
 
@@ -481,6 +774,8 @@ export class IndicatorPdfService {
   private async upsertPending(
     payload: ExtractedPayload,
     sourceId: string,
+    batch: string,
+    population: string | null,
   ): Promise<{
     pendingInserted: number;
     pendingUpdated: number;
@@ -533,6 +828,9 @@ export class IndicatorPdfService {
           skippedApproved++; // 사람이 승인한 값은 기계 추출로 덮지 않는다
           continue;
         }
+        // 조사대상(모집단)은 회차 설정이 우선, 없으면 어댑터가 준 값
+        const note = population ?? o.note ?? null;
+
         if (existing) {
           await this.observationRepo.update(existing.id, {
             value,
@@ -541,6 +839,8 @@ export class IndicatorPdfService {
             fetchedAt: now,
             sourceUrl,
             status: 'pending',
+            reviewBatch: batch,
+            note,
           });
           pendingUpdated++;
         } else {
@@ -558,6 +858,8 @@ export class IndicatorPdfService {
               fetchedAt: now,
               sourceUrl,
               status: 'pending',
+              reviewBatch: batch,
+              note,
             }),
           );
           pendingInserted++;

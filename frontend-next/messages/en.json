@@ -69,7 +69,9 @@
     "colPeriod": "Period",
     "colGroup": "Group",
     "colValue": "Value",
-    "colSource": "Source"
+    "colSource": "Source",
+    "colNote": "Note",
+    "comparabilityWarning": "⚠️ The survey population changed between rounds, so year-to-year comparison requires caution. Movement in the line may not reflect real change."
   },
   "labPage": {
     "kicker": "Analysis Lab",
