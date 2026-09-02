@@ -10,8 +10,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { TagsService } from './tags.service';
-import { TagType } from '../common/enums';
+import { TagType, UserRole } from '../common/enums';
+import { Roles } from '../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
 
 @Controller('api/tags')
 export class TagsController {
@@ -37,13 +39,15 @@ export class TagsController {
     return this.tagsService.findOne(id);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Post()
   create(@Body() data: { name: string; type: TagType; description?: string }) {
     return this.tagsService.create(data);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Put(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -52,7 +56,8 @@ export class TagsController {
     return this.tagsService.update(id, data);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.tagsService.remove(id);

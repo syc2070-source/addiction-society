@@ -10,7 +10,10 @@ import {
 import { IndicatorsService } from './indicators.service';
 import { IndicatorPdfService } from './indicator-pdf.service';
 import { IndicatorQueryDto, ObservationQueryDto } from './dto/indicator.dto';
+import { Roles } from '../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { UserRole } from '../common/enums';
 
 /**
  * 지표 API. 읽기는 공개(approved만), 쓰기(추출 트리거·승인)는 인증 필요.
@@ -43,7 +46,8 @@ export class IndicatorsController {
    * python·pdfplumber 존재 여부 + gov(kcgp/data.go.kr) fetch 가능 여부를 JSON으로.
    * 구체적 경로라 indicators/:idOrCode 보다 먼저 등록해야 한다.
    */
-  @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Get('indicators/health')
   health() {
     return this.pdfService.health();
@@ -53,14 +57,16 @@ export class IndicatorsController {
    * PDF 추출 수동 트리거. 대상은 sources.access_detail.pdf=true (AS-M3-2d).
    * body.source 지정 시 그 소스만, 없으면 전부.
    */
-  @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Post('indicators/extract-pdf')
   extractPdf(@Body() body: { source?: string }) {
     const id = body?.source?.trim();
     return id ? this.pdfService.extractOne(id) : this.pdfService.extractAll();
   }
 
-  @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Post('indicators/observations/approve')
   approve(@Body() body: { code?: string }) {
     return this.indicatorsService.approvePending(body?.code);

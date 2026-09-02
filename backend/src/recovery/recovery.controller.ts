@@ -16,7 +16,10 @@ import {
   UpdateRecoveryResourceDto,
   RecoveryResourceQueryDto,
 } from './dto/recovery.dto';
+import { Roles } from '../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { UserRole } from '../common/enums';
 
 @Controller('api/recovery')
 export class RecoveryController {
@@ -47,13 +50,15 @@ export class RecoveryController {
     return this.recoveryService.findOne(id);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Post('resources')
   create(@Body() createDto: CreateRecoveryResourceDto) {
     return this.recoveryService.create(createDto);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Put('resources/:id')
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -62,7 +67,8 @@ export class RecoveryController {
     return this.recoveryService.update(id, updateDto);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Delete('resources/:id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.recoveryService.remove(id);

@@ -16,7 +16,10 @@ import {
   UpdateResearchDto,
   ResearchQueryDto,
 } from './dto/research.dto';
+import { Roles } from '../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { UserRole } from '../common/enums';
 
 @Controller('api/research')
 export class ResearchController {
@@ -42,13 +45,15 @@ export class ResearchController {
     return this.researchService.findOne(id);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Post()
   create(@Body() createDto: CreateResearchDto) {
     return this.researchService.create(createDto);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Put(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -57,7 +62,8 @@ export class ResearchController {
     return this.researchService.update(id, updateDto);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.researchService.remove(id);

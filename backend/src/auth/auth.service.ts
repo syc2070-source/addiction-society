@@ -1,14 +1,14 @@
 import {
   Injectable,
   UnauthorizedException,
-  ConflictException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { User } from './entities/user.entity';
-import { RegisterDto, LoginDto, AuthResponseDto } from './dto/auth.dto';
+import { LoginDto, AuthResponseDto } from './dto/auth.dto';
 
 @Injectable()
 export class AuthService {
@@ -18,42 +18,8 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
-    const { email, password, name } = registerDto;
-
-    // 이메일 중복 확인
-    const existingUser = await this.userRepository.findOne({
-      where: { email },
-    });
-
-    if (existingUser) {
-      throw new ConflictException('이미 등록된 이메일입니다.');
-    }
-
-    // 비밀번호 해시
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // 사용자 생성
-    const user = this.userRepository.create({
-      email,
-      password: hashedPassword,
-      name,
-    });
-
-    await this.userRepository.save(user);
-
-    // 토큰 생성
-    const token = this.generateToken(user);
-
-    return {
-      accessToken: token,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-      },
-    };
+  register(): never {
+    throw new ForbiddenException('공개 회원가입은 허용되지 않습니다.');
   }
 
   async login(loginDto: LoginDto): Promise<AuthResponseDto> {
