@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { UserRole } from '../../common/enums';
 
 @Entity('users')
 export class User {
@@ -21,14 +22,11 @@ export class User {
   name: string;
 
   /**
-   * 권한. 'admin'만 쓰기가 가능하다(RolesGuard).
-   *
-   * AS-FIX-1: 기본값을 'admin'에서 'viewer'로 낮췄다(감사 문제 #1).
-   * 이전에는 신규 가입자가 곧바로 관리자가 됐다. 승격은 DB에서 손으로 한다:
-   *   UPDATE users SET role='admin' WHERE email='...';
+   * 신규 사용자는 비관리자 USER로 시작한다. VIEWER는 기존 main에서 생성된
+   * 행과의 호환을 위해 유지하며, 관리자 쓰기는 ADMIN만 허용한다.
    */
-  @Column({ type: 'varchar', default: 'viewer' })
-  role: string;
+  @Column({ type: 'varchar', default: UserRole.USER })
+  role: UserRole;
 
   @Column({ name: 'is_active', default: true })
   isActive: boolean;

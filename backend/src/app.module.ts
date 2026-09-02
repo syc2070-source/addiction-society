@@ -22,12 +22,14 @@ import { Source } from './sources/entities/source.entity';
 import { SourceEvent } from './sources/entities/source-event.entity';
 import { Indicator } from './indicators/entities/indicator.entity';
 import { Observation } from './indicators/entities/observation.entity';
+import { validateJwtEnvironment } from './auth/jwt.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
+      validate: validateJwtEnvironment,
     }),
 
     TypeOrmModule.forRootAsync({

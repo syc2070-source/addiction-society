@@ -17,10 +17,11 @@ import {
   UpdateResearchDto,
   ResearchQueryDto,
 } from './dto/research.dto';
+import { Roles } from '../auth/roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles, ROLE_ADMIN } from '../auth/roles.decorator';
+import { UserRole } from '../common/enums';
 
 @Controller('api/research')
 export class ResearchController {
@@ -38,9 +39,9 @@ export class ResearchController {
   @Get()
   findAll(
     @Query() query: ResearchQueryDto,
-    @Request() req: { user?: { role?: string } },
+    @Request() req: { user?: { role?: UserRole } },
   ) {
-    const isAdmin = req.user?.role === ROLE_ADMIN;
+    const isAdmin = req.user?.role === UserRole.ADMIN;
     return this.researchService.findAll(
       isAdmin ? query : { ...query, status: 'approved' },
     );
@@ -61,15 +62,15 @@ export class ResearchController {
     return this.researchService.findOne(id);
   }
 
+  @Roles(UserRole.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(ROLE_ADMIN)
   @Post()
   create(@Body() createDto: CreateResearchDto) {
     return this.researchService.create(createDto);
   }
 
+  @Roles(UserRole.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(ROLE_ADMIN)
   @Put(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -78,8 +79,8 @@ export class ResearchController {
     return this.researchService.update(id, updateDto);
   }
 
+  @Roles(UserRole.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(ROLE_ADMIN)
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.researchService.remove(id);

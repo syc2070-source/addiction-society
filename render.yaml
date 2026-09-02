@@ -40,9 +40,6 @@ services:
       # ⚠️ 미설정 시 기동 실패(AS-FIX-1) — 기본 비밀키 폴백을 제거했다.
       - key: JWT_SECRET
         sync: false
-      # 회원가입 초대코드(AS-FIX-1, 감사 #1). 비워두면 가입이 완전히 차단된다.
-      - key: ADMIN_INVITE_CODE
-        sync: false
       - key: JWT_EXPIRES_IN
         sync: false
       # 정책 D×P 분석 LLM (DeepSeek, OpenAI 호환). AS-M3-1에서 OPENAI_API_KEY 대체.

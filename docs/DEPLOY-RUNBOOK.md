@@ -39,7 +39,6 @@
 | `DB_NAME` | `postgres` | ✅ |
 | `JWT_SECRET` | 임의의 긴 무작위 문자열 | ✅ **미설정 시 서버 기동 실패**(AS-FIX-1) |
 | `JWT_EXPIRES_IN` | 예: `7d` | 선택(기본 24h) |
-| `ADMIN_INVITE_CODE` | 임의의 긴 무작위 문자열 | 첫 관리자 생성 때만. **비우면 회원가입 완전 차단**(권장 상태) |
 | `CORS_ORIGINS` | 쉼표 구분 출처 목록 | 선택. 비우면 addictionsociety.net·www·localhost:3000 + `*.vercel.app` |
 | `LLM_POLICY_API_KEY` | DeepSeek API 키 (정책 D×P 분석) | 선택 |
 | `STATORY_API_URL` | Statory API 주소 (분석실 /lab) | 선택. **없으면 /lab이 영구 빈 목록** |
@@ -108,15 +107,9 @@ npm run collect:indicators  # 지표 3 / 관측치 3 (로컬 JSON, 네트워크 
 npm run seed:documents      # 정책문서 ~29건  (URL 실검증 — 네트워크 필요)
 npm run collect:research    # 연구자료        (OpenAlex — 네트워크 필요)
 
-# ── 첫 관리자 만들기 (AS-FIX-1) ──
-# 1. Render env에 ADMIN_INVITE_CODE=<임의 문자열> 설정 후 재배포
-# 2. 가입 (role은 viewer로 생성됨)
-curl -X POST https://addiction-society-api.onrender.com/api/auth/register \
-  -H 'Content-Type: application/json' \
-  -d '{"email":"<이메일>","password":"<비밀번호>","name":"<이름>","inviteCode":"<위 값>"}'
-# 3. DB에서 승격 (쓰기 권한은 admin만)
-#    UPDATE users SET role='admin' WHERE email='<이메일>';
-# 4. ADMIN_INVITE_CODE를 다시 비우고 재배포 → 가입 완전 차단
+# ── 관리자 계정 ──
+# POST /api/auth/register는 항상 403이며 이 런북에서는 계정을 만들거나
+# role을 변경하지 않는다. 기존에 승인된 관리자 계정과 별도 운영 절차를 사용한다.
 ```
 
 기대 결과:
@@ -219,11 +212,9 @@ npm run extract:pdf -- kcgp_youth 2024 # 특정 회차만
 4. **보안 확인**(AS-FIX-1 — 반드시): 아래가 `403`이어야 정상입니다.
    ```bash
    curl -s -o /dev/null -w '%{http_code}\n' -X POST \
-     https://addiction-society-api.onrender.com/api/auth/register \
-     -H 'Content-Type: application/json' \
-     -d '{"email":"probe@example.com","password":"probe1234","name":"probe","inviteCode":"guess"}'
+      https://addiction-society-api.onrender.com/api/auth/register
    ```
-   `200`이 나오면 `ADMIN_INVITE_CODE`가 노출된 것이니 즉시 교체하세요.
+   `200`이 나오면 공개 가입 차단이 깨진 것이므로 배포를 중단하세요.
 5. **미검수 자료 비노출 확인**: `.../api/research?status=all` 이 approved만 반환해야 합니다.
 
 ---

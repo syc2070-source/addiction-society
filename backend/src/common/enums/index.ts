@@ -1,3 +1,10 @@
+// 사용자 권한. 신규 계정의 기본값은 반드시 비관리자여야 한다.
+export enum UserRole {
+  USER = 'user',
+  VIEWER = 'viewer',
+  ADMIN = 'admin',
+}
+
 // 도메인 코드 (D0~D3)
 export enum DomainCode {
   D0 = 'D0', // 물질중독 (알코올, 약물)

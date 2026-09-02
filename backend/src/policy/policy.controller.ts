@@ -20,9 +20,10 @@ import {
   UpdateAssessmentCellDto,
   BulkAssessmentCellDto,
 } from './dto/policy.dto';
+import { Roles } from '../auth/roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles, ROLE_ADMIN } from '../auth/roles.decorator';
+import { UserRole } from '../common/enums';
 
 @Controller('api/policy')
 export class PolicyController {
@@ -42,8 +43,8 @@ export class PolicyController {
   }
 
   // 구체적 경로를 documents/:id 보다 먼저 등록
+  @Roles(UserRole.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(ROLE_ADMIN)
   @Post('documents/:id/analyze')
   async analyzeDocument(@Param('id', ParseIntPipe) id: number) {
     const document = await this.policyService.findOneDocumentWithoutView(id);
@@ -75,15 +76,15 @@ export class PolicyController {
     return this.policyService.findOneDocument(id);
   }
 
+  @Roles(UserRole.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(ROLE_ADMIN)
   @Post('documents')
   createDocument(@Body() createDto: CreateDocumentDto) {
     return this.policyService.createDocument(createDto);
   }
 
+  @Roles(UserRole.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(ROLE_ADMIN)
   @Put('documents/:id')
   updateDocument(
     @Param('id', ParseIntPipe) id: number,
@@ -92,8 +93,8 @@ export class PolicyController {
     return this.policyService.updateDocument(id, updateDto);
   }
 
+  @Roles(UserRole.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(ROLE_ADMIN)
   @Delete('documents/:id')
   removeDocument(@Param('id', ParseIntPipe) id: number) {
     return this.policyService.removeDocument(id);
@@ -104,15 +105,15 @@ export class PolicyController {
     return this.policyService.getMatrix(documentId);
   }
 
+  @Roles(UserRole.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(ROLE_ADMIN)
   @Post('matrix/cells')
   createCell(@Body() createDto: CreateAssessmentCellDto) {
     return this.policyService.createCell(createDto);
   }
 
+  @Roles(UserRole.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(ROLE_ADMIN)
   @Put('matrix/cells/:id')
   updateCell(
     @Param('id', ParseIntPipe) id: number,
@@ -121,15 +122,15 @@ export class PolicyController {
     return this.policyService.updateCell(id, updateDto);
   }
 
+  @Roles(UserRole.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(ROLE_ADMIN)
   @Post('matrix/bulk')
   bulkUpdateCells(@Body() bulkDto: BulkAssessmentCellDto) {
     return this.policyService.bulkUpdateCells(bulkDto);
   }
 
+  @Roles(UserRole.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(ROLE_ADMIN)
   @Delete('matrix/cells/:id')
   deleteCell(@Param('id', ParseIntPipe) id: number) {
     return this.policyService.deleteCell(id);
