@@ -65,14 +65,14 @@ Render 서비스 → **Logs** 탭에서 `[deploy-init]` 줄을 찾으세요.
 
 - `1/4 migration:run` → `... has been executed successfully.` (재배포 시엔 "No migrations pending")
 - `2/4 seed:tags` → `테이블 총 17건`
-- `3/4 seed:sources` → `테이블 총 23건` (scope: global 10 / regional 4 / korea 9)
-- `4/4 backfill:next` → `채움 13 / null 10`
+- `3/4 seed:sources` → `테이블 총 24건` (scope: global 10 / regional 4 / korea 10)
+- `4/4 backfill:next` → `채움 15 / null 9`
 
 **선택 단계 (AS-FIX-1 — 실패해도 배포는 계속. ⚠️ 로그만 남음)**
 
 - `5/8 seed:recovery` → `73건`
-- `6/8 collect:indicators` → 지표 7 / 관측치 20
-- `7/8 seed:documents` → 후보 29건 URL 실검증 (봇 차단분은 `REG*`로 구제 등록)
+- `6/8 collect:indicators` → 지표 18 / 관측치 137
+- `7/8 seed:documents` → 후보 30건 URL 실검증 (봇 차단분은 `REG*`로 구제 등록)
 - `8/8 collect:research` → OpenAlex 수집 건수
 
 마지막 줄이 `[deploy-init] 완료 — 스키마·시드 전 단계 적용됨`이면 전부 성공,
@@ -98,13 +98,13 @@ DB를 새로 만들었거나, 백업에서 복구했거나, 로컬에 운영과 
 # ── 필수: 스키마 + 소스 레지스트리 ──
 npm run migration:run       # 스키마 (마이그레이션 10종)
 npm run seed:tags           # 태그 17건
-npm run seed:sources        # 소스 레지스트리 23건
+npm run seed:sources        # 소스 레지스트리 24건
 npm run backfill:next       # next_expected_at 계산·지난 예정일 이월
 
 # ── 자료 적재 (네트워크 필요한 것은 실패해도 무방, 나중에 재실행) ──
 npm run seed:recovery       # 회복자원 73건   (로컬 JSON, 네트워크 불요)
-npm run collect:indicators  # 지표 7 / 관측치 20 (로컬 JSON, 네트워크 불요)
-npm run seed:documents      # 정책문서 ~29건  (URL 실검증 — 네트워크 필요)
+npm run collect:indicators  # 지표 18 / 관측치 137 (로컬 JSON, 네트워크 불요)
+npm run seed:documents      # 정책문서 ~30건  (URL 실검증 — 네트워크 필요)
 npm run collect:research    # 연구자료        (OpenAlex — 네트워크 필요)
 
 # ── 관리자 계정 ──
@@ -116,11 +116,11 @@ npm run collect:research    # 연구자료        (OpenAlex — 네트워크 필
 
 | 테이블                        | 건수                                                      |
 | ----------------------------- | --------------------------------------------------------- |
-| `sources`                     | 23                                                        |
+| `sources`                     | 24                                                        |
 | `tags`                        | 17                                                        |
 | `recovery_resources`          | 73                                                        |
-| `indicators` / `observations` | 7 / 20                                                    |
-| `documents`                   | 최대 29 (법률 6 + 소스 산출물 23. URL 검증 실패분은 보류) |
+| `indicators` / `observations` | 18 / 137                                                  |
+| `documents`                   | 최대 30 (법률 6 + 소스 산출물 24. URL 검증 실패분은 보류) |
 | `research`                    | OpenAlex 수집량에 따라 가변                               |
 
 ---
@@ -128,12 +128,17 @@ npm run collect:research    # 연구자료        (OpenAlex — 네트워크 필
 ## 3-2) ★ PDF 지표 추출 — 현재 비활성
 
 현재 `sources`에는 `access_detail.pdf=true`인 검증 완료 대상이 없다.
-특히 한국도박문제예방치유원 청소년 조사 PDF는 다음 이유로 자동추출하지 않는다.
+KCGP·NGCC·NIA 보고서와 KDCA/KOSIS 공표표는 다음 이유로 자동추출하지 않는다.
 
 - 2015·2018·2020·2022 CAGI 시범조사와 2024년 이후 국가승인통계의 문항·기준이 다르다.
-- 공식 PDF 일부는 한글 텍스트 레이어가 깨져 표 라벨을 안정적으로 판독하지 못한다.
-- 따라서 검증한 7개 지표·20개 관측치는 `kcgp-youth.data.json`에서 공식 원문
-  딥링크와 회차별 모집단 단서를 함께 관리한다.
+- 공식 PDF는 한글 텍스트 레이어와 복합 표 구조가 서로 달라 범용 파서로 라벨을 안정적으로
+  판독하지 못한다.
+- 따라서 검증한 18개 지표·137개 관측치는 `kcgp-youth.data.json`,
+  `ngcc-adult-gambling.data.json`, `nia-smartphone.data.json`,
+  `kdca-knhanes.data.json`에서 공식 원문 딥링크와 회차별 모집단·척도 단서를 함께
+  관리한다. KDCA 계열은 KOSIS 확정값과 최신 잠정 발표를 관측치별 출처로 구분한다.
+- NGCC 일반인 CPGI와 사행산업 이용객 조사, NIA 과의존 선별값과 임상 진단은 서로
+  다른 개념이므로 별도 지표로 유지한다.
 
 운영에서는 `INDICATOR_PDF_CRON_ENABLED=false`를 유지하고, `npm run extract:pdf`나
 `npm run extract:pdf -- kcgp_youth`를 배포 절차로 실행하지 않는다. 이 명령들은
@@ -165,8 +170,8 @@ npm run collect:research    # 연구자료        (OpenAlex — 네트워크 필
 
 서비스 URL(`https://addiction-society-api.onrender.com` 형태)에서:
 
-1. **헬스체크**: `.../api/sources/summary` → `total: 23` JSON
-2. **목록**: `.../api/sources` → 23건, `.../api/sources/calendar` → 13건
+1. **헬스체크**: `.../api/sources/summary` → `total: 24` JSON
+2. **목록**: `.../api/sources` → 24건, `.../api/sources/calendar` → 15건
 3. **알림 테스트**(웹훅 입력한 경우): Render 서비스 → **Shell** → `npm run monitor:once`
    → 로그 성공 + Discord 채널에 알림 도착 확인
 4. **보안 확인**(AS-FIX-1 — 반드시): 아래가 `403`이어야 정상입니다.

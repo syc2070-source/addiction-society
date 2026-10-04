@@ -28,8 +28,8 @@
 
 | 페이지 | 답하는 질문 | 상태 |
 |---|---|---|
-| **소스 지도** /sources | 중독 데이터는 **어디서** 나오나 | ✅ 완성 (23개 소스) |
-| **발표 달력** /calendar | **언제** 나오나 | ✅ 완성 (13건 예정 + 미정) |
+| **소스 지도** /sources | 중독 데이터는 **어디서** 나오나 | ✅ 완성 (24개 소스) |
+| **발표 달력** /calendar | **언제** 나오나 | ✅ 완성 (15건 예정 + 미정) |
 | **지표** /indicators | 숫자는 **무엇**인가 | M3 — indicators/observations 테이블, 지표당 1페이지(SEO 단위), 모든 수치에 원본 딥링크 |
 
 ## 그룹 2. 분석 (생산)
@@ -213,10 +213,10 @@ Claude(챗·Code 모두)는 자율 결정 후 보고에 결정 사항과 근거�
 
 ---
 
-# 부록 A. 현재 완성 자산 (2026-07-17 기준)
+# 부록 A. 현재 완성 자산 (2026-10-04 기준)
 
 - 커밋: M0(예시 제거+관측소 카드), abb3f5d(헤드라인), a88bad1(M1), b96e83e(M2) — origin/main
-- sources 23건 (global 10 / regional 4 / korea 9), next_expected_at 13건 계산
+- sources 24건 (global 10 / regional 4 / korea 10), next_expected_at 15건 계산
 - 크론 2종 가동 (일일 + 주간 irregular), 변경 감지 3단 폴백, 소스별 격리
 - Discord `#중독사회-관측소` 알림 실수신 확인 (2026-07-17)
 - /sources·/calendar 페이지, summary API + 홈 카드 DB 연동

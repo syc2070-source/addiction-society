@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { sourcesApi } from '../api';
 
 // PolicyList.tsx를 클론해 소스 레지스트리용으로 적응한 페이지.
-// 레지스트리(23건 소규모)라 서버 페이지네이션 없이 전량 표시한다.
+// 레지스트리(24건 소규모)라 서버 페이지네이션 없이 전량 표시한다.
 
 const DOMAIN_LABEL: Record<string, string> = {
   alcohol: '알코올',

@@ -28,7 +28,7 @@
 
 배포 완료 화면의 URL(`https://<프로젝트명>.vercel.app`)에서:
 
-- `/` → 한국어 홈, 관측소 카드에 "23개 소스" (운영 API 연동 확인)
+- `/` → 한국어 홈, 관측소 카드에 "24개 소스" (운영 API 연동 확인)
 - `/en` → 영어 홈
 - `/sources` `/calendar` `/policy` `/research` `/recovery` 각각 렌더
 - `/robots.txt`, `/sitemap.xml` 응답 확인

@@ -1,0 +1,574 @@
+{
+  "note": "과학기술정보통신부·한국지능정보사회진흥원 국가승인통계 제120019호의 2025년 보고서 표 3-1-1·3-1-2와 KOSIS 공표표로 교차검증한 2016~2025 스마트폰 과의존 시계열. 2016년 조사단위가 개인에서 가구로 바뀌고 대상별 4종 척도가 개편된 이후 구간만 등록한다.",
+  "sourceId": "nia_smartphone",
+  "sourceUrl": "https://kosis.kr/statHtml/statHtml.do?orgId=127&tblId=DT_120019N_2016_001",
+  "indicators": [
+    {
+      "code": "nia_smartphone_overdependence_risk_rate",
+      "domain": "D2",
+      "nameKo": "스마트폰 과의존위험군 비율",
+      "nameEn": "Smartphone overdependence risk group rate",
+      "unit": "%",
+      "definitionKo": "만 3~69세 인구 중 최근 1개월 이내 스마트폰을 통해 인터넷을 1회 이상 이용한 사람 가운데 NIA 스마트폰 과의존 척도에서 고위험군 또는 잠재적위험군으로 분류된 비율(%).",
+      "methodNote": "국가승인통계 제120019호. 현저성 증가, 조절실패, 문제적 결과를 측정하는 선별 척도이며 임상 진단률이 아니다. 조사단위가 개인에서 가구로 바뀌고 대상별 4종 척도가 개편된 2016년 이후만 같은 계열로 제공한다.",
+      "observations": [
+        {
+          "geo": "KR",
+          "period": "2016",
+          "value": "17.8",
+          "qualifier": "total",
+          "note": "만 3~69세 스마트폰 이용자; 고위험군+잠재적위험군; 2025 보고서 표 3-1-1."
+        },
+        {
+          "geo": "KR",
+          "period": "2017",
+          "value": "18.6",
+          "qualifier": "total",
+          "note": "만 3~69세 스마트폰 이용자; 고위험군+잠재적위험군; 2025 보고서 표 3-1-1."
+        },
+        {
+          "geo": "KR",
+          "period": "2018",
+          "value": "19.1",
+          "qualifier": "total",
+          "note": "만 3~69세 스마트폰 이용자; 고위험군+잠재적위험군; 2025 보고서 표 3-1-1."
+        },
+        {
+          "geo": "KR",
+          "period": "2019",
+          "value": "20.0",
+          "qualifier": "total",
+          "note": "만 3~69세 스마트폰 이용자; 고위험군+잠재적위험군; 2025 보고서 표 3-1-1."
+        },
+        {
+          "geo": "KR",
+          "period": "2020",
+          "value": "23.3",
+          "qualifier": "total",
+          "note": "만 3~69세 스마트폰 이용자; 고위험군+잠재적위험군; 2025 보고서 표 3-1-1."
+        },
+        {
+          "geo": "KR",
+          "period": "2021",
+          "value": "24.2",
+          "qualifier": "total",
+          "note": "만 3~69세 스마트폰 이용자; 고위험군+잠재적위험군; 2025 보고서 표 3-1-1."
+        },
+        {
+          "geo": "KR",
+          "period": "2022",
+          "value": "23.6",
+          "qualifier": "total",
+          "note": "만 3~69세 스마트폰 이용자; 고위험군+잠재적위험군; 2025 보고서 표 3-1-1."
+        },
+        {
+          "geo": "KR",
+          "period": "2023",
+          "value": "23.1",
+          "qualifier": "total",
+          "note": "만 3~69세 스마트폰 이용자; 고위험군+잠재적위험군; 2025 보고서 표 3-1-1."
+        },
+        {
+          "geo": "KR",
+          "period": "2024",
+          "value": "22.9",
+          "qualifier": "total",
+          "note": "만 3~69세 스마트폰 이용자; 고위험군+잠재적위험군; 2025 보고서 표 3-1-1."
+        },
+        {
+          "geo": "KR",
+          "period": "2025",
+          "value": "22.7",
+          "qualifier": "total",
+          "note": "만 3~69세 스마트폰 이용자; 추정 인구 약 10,032천명; 2025 보고서 표 3-1-1."
+        }
+      ]
+    },
+    {
+      "code": "nia_smartphone_high_risk_rate",
+      "domain": "D2",
+      "nameKo": "스마트폰 과의존 고위험군 비율",
+      "nameEn": "Smartphone overdependence high-risk rate",
+      "unit": "%",
+      "definitionKo": "만 3~69세 인구 중 최근 1개월 이내 스마트폰을 통해 인터넷을 1회 이상 이용한 사람 가운데 NIA 스마트폰 과의존 척도에서 고위험군으로 분류된 비율(%).",
+      "methodNote": "과의존위험군 중 더 높은 수준의 조절실패·현저성·문제적 결과를 보인 선별 집단이다. 잠재적위험군과 합산하면 전체 과의존위험군이 되며 임상 진단과 동일하지 않다.",
+      "observations": [
+        {
+          "geo": "KR",
+          "period": "2016",
+          "value": "2.5",
+          "qualifier": "total",
+          "note": "만 3~69세 스마트폰 이용자; 고위험군; 2025 보고서 표 3-1-1."
+        },
+        {
+          "geo": "KR",
+          "period": "2017",
+          "value": "2.7",
+          "qualifier": "total",
+          "note": "만 3~69세 스마트폰 이용자; 고위험군; 2025 보고서 표 3-1-1."
+        },
+        {
+          "geo": "KR",
+          "period": "2018",
+          "value": "2.7",
+          "qualifier": "total",
+          "note": "만 3~69세 스마트폰 이용자; 고위험군; 2025 보고서 표 3-1-1."
+        },
+        {
+          "geo": "KR",
+          "period": "2019",
+          "value": "2.9",
+          "qualifier": "total",
+          "note": "만 3~69세 스마트폰 이용자; 고위험군; 2025 보고서 표 3-1-1."
+        },
+        {
+          "geo": "KR",
+          "period": "2020",
+          "value": "4.0",
+          "qualifier": "total",
+          "note": "만 3~69세 스마트폰 이용자; 고위험군; 2025 보고서 표 3-1-1."
+        },
+        {
+          "geo": "KR",
+          "period": "2021",
+          "value": "4.5",
+          "qualifier": "total",
+          "note": "만 3~69세 스마트폰 이용자; 고위험군; 2025 보고서 표 3-1-1."
+        },
+        {
+          "geo": "KR",
+          "period": "2022",
+          "value": "4.2",
+          "qualifier": "total",
+          "note": "만 3~69세 스마트폰 이용자; 고위험군; 2025 보고서 표 3-1-1."
+        },
+        {
+          "geo": "KR",
+          "period": "2023",
+          "value": "4.2",
+          "qualifier": "total",
+          "note": "만 3~69세 스마트폰 이용자; 고위험군; 2025 보고서 표 3-1-1."
+        },
+        {
+          "geo": "KR",
+          "period": "2024",
+          "value": "4.2",
+          "qualifier": "total",
+          "note": "만 3~69세 스마트폰 이용자; 고위험군; 2025 보고서 표 3-1-1."
+        },
+        {
+          "geo": "KR",
+          "period": "2025",
+          "value": "4.1",
+          "qualifier": "total",
+          "note": "만 3~69세 스마트폰 이용자; 추정 인구 약 1,830천명; 2025 보고서 표 3-1-1."
+        }
+      ]
+    },
+    {
+      "code": "nia_smartphone_potential_risk_rate",
+      "domain": "D2",
+      "nameKo": "스마트폰 과의존 잠재적위험군 비율",
+      "nameEn": "Smartphone overdependence potential-risk rate",
+      "unit": "%",
+      "definitionKo": "만 3~69세 인구 중 최근 1개월 이내 스마트폰을 통해 인터넷을 1회 이상 이용한 사람 가운데 NIA 스마트폰 과의존 척도에서 잠재적위험군으로 분류된 비율(%).",
+      "methodNote": "과의존 위험이 잠재된 선별 집단이다. 고위험군과 합산하면 전체 과의존위험군이 되며 임상 진단과 동일하지 않다. 2016년 이후 동일 연령범위의 시계열만 제공한다.",
+      "observations": [
+        {
+          "geo": "KR",
+          "period": "2016",
+          "value": "15.3",
+          "qualifier": "total",
+          "note": "만 3~69세 스마트폰 이용자; 잠재적위험군; 2025 보고서 표 3-1-1."
+        },
+        {
+          "geo": "KR",
+          "period": "2017",
+          "value": "15.9",
+          "qualifier": "total",
+          "note": "만 3~69세 스마트폰 이용자; 잠재적위험군; 2025 보고서 표 3-1-1."
+        },
+        {
+          "geo": "KR",
+          "period": "2018",
+          "value": "16.4",
+          "qualifier": "total",
+          "note": "만 3~69세 스마트폰 이용자; 잠재적위험군; 2025 보고서 표 3-1-1."
+        },
+        {
+          "geo": "KR",
+          "period": "2019",
+          "value": "17.1",
+          "qualifier": "total",
+          "note": "만 3~69세 스마트폰 이용자; 잠재적위험군; 2025 보고서 표 3-1-1."
+        },
+        {
+          "geo": "KR",
+          "period": "2020",
+          "value": "19.3",
+          "qualifier": "total",
+          "note": "만 3~69세 스마트폰 이용자; 잠재적위험군; 2025 보고서 표 3-1-1."
+        },
+        {
+          "geo": "KR",
+          "period": "2021",
+          "value": "19.7",
+          "qualifier": "total",
+          "note": "만 3~69세 스마트폰 이용자; 잠재적위험군; 2025 보고서 표 3-1-1."
+        },
+        {
+          "geo": "KR",
+          "period": "2022",
+          "value": "19.4",
+          "qualifier": "total",
+          "note": "만 3~69세 스마트폰 이용자; 잠재적위험군; 2025 보고서 표 3-1-1."
+        },
+        {
+          "geo": "KR",
+          "period": "2023",
+          "value": "18.9",
+          "qualifier": "total",
+          "note": "만 3~69세 스마트폰 이용자; 잠재적위험군; 2025 보고서 표 3-1-1."
+        },
+        {
+          "geo": "KR",
+          "period": "2024",
+          "value": "18.7",
+          "qualifier": "total",
+          "note": "만 3~69세 스마트폰 이용자; 잠재적위험군; 2025 보고서 표 3-1-1."
+        },
+        {
+          "geo": "KR",
+          "period": "2025",
+          "value": "18.6",
+          "qualifier": "total",
+          "note": "만 3~69세 스마트폰 이용자; 추정 인구 약 8,202천명; 2025 보고서 표 3-1-1."
+        }
+      ]
+    },
+    {
+      "code": "nia_smartphone_child_overdependence_risk_rate",
+      "domain": "D2",
+      "nameKo": "유아동 스마트폰 과의존위험군 비율",
+      "nameEn": "Child smartphone overdependence risk group rate",
+      "unit": "%",
+      "definitionKo": "만 3~9세 인구 중 최근 1개월 이내 스마트폰을 통해 인터넷을 1회 이상 이용한 사람 가운데 유아동용 과의존 척도에서 고위험군 또는 잠재적위험군으로 분류된 비율(%).",
+      "methodNote": "유아동은 보호자 관찰을 반영한 전용 척도를 사용한다. 다른 연령 집단과 값의 높고 낮음을 단순 비교하지 않으며 2016년 이후 같은 연령구간의 추이를 제공한다.",
+      "observations": [
+        {
+          "geo": "KR",
+          "period": "2016",
+          "value": "17.9",
+          "qualifier": "total",
+          "note": "만 3~9세 스마트폰 이용자; 유아동 전용 척도; 2025 보고서 표 3-1-2."
+        },
+        {
+          "geo": "KR",
+          "period": "2017",
+          "value": "19.1",
+          "qualifier": "total",
+          "note": "만 3~9세 스마트폰 이용자; 유아동 전용 척도; 2025 보고서 표 3-1-2."
+        },
+        {
+          "geo": "KR",
+          "period": "2018",
+          "value": "20.7",
+          "qualifier": "total",
+          "note": "만 3~9세 스마트폰 이용자; 유아동 전용 척도; 2025 보고서 표 3-1-2."
+        },
+        {
+          "geo": "KR",
+          "period": "2019",
+          "value": "22.9",
+          "qualifier": "total",
+          "note": "만 3~9세 스마트폰 이용자; 유아동 전용 척도; 2025 보고서 표 3-1-2."
+        },
+        {
+          "geo": "KR",
+          "period": "2020",
+          "value": "27.3",
+          "qualifier": "total",
+          "note": "만 3~9세 스마트폰 이용자; 유아동 전용 척도; 2025 보고서 표 3-1-2."
+        },
+        {
+          "geo": "KR",
+          "period": "2021",
+          "value": "28.4",
+          "qualifier": "total",
+          "note": "만 3~9세 스마트폰 이용자; 유아동 전용 척도; 2025 보고서 표 3-1-2."
+        },
+        {
+          "geo": "KR",
+          "period": "2022",
+          "value": "26.7",
+          "qualifier": "total",
+          "note": "만 3~9세 스마트폰 이용자; 유아동 전용 척도; 2025 보고서 표 3-1-2."
+        },
+        {
+          "geo": "KR",
+          "period": "2023",
+          "value": "25.0",
+          "qualifier": "total",
+          "note": "만 3~9세 스마트폰 이용자; 유아동 전용 척도; 2025 보고서 표 3-1-2."
+        },
+        {
+          "geo": "KR",
+          "period": "2024",
+          "value": "25.9",
+          "qualifier": "total",
+          "note": "만 3~9세 스마트폰 이용자; 유아동 전용 척도; 2025 보고서 표 3-1-2."
+        },
+        {
+          "geo": "KR",
+          "period": "2025",
+          "value": "26.0",
+          "qualifier": "total",
+          "note": "만 3~9세 스마트폰 이용자; 유아동 전용 척도; 2025 보고서 표 3-1-2."
+        }
+      ]
+    },
+    {
+      "code": "nia_smartphone_youth_overdependence_risk_rate",
+      "domain": "D2",
+      "nameKo": "청소년 스마트폰 과의존위험군 비율",
+      "nameEn": "Youth smartphone overdependence risk group rate",
+      "unit": "%",
+      "definitionKo": "만 10~19세 인구 중 최근 1개월 이내 스마트폰을 통해 인터넷을 1회 이상 이용한 사람 가운데 청소년용 과의존 척도에서 고위험군 또는 잠재적위험군으로 분류된 비율(%).",
+      "methodNote": "국가승인통계의 만 10~19세 청소년 집단 시계열이다. 임상 진단률이 아니며 2016년 척도 개편 이후 같은 연령구간 결과만 제공한다.",
+      "observations": [
+        {
+          "geo": "KR",
+          "period": "2016",
+          "value": "30.6",
+          "qualifier": "total",
+          "note": "만 10~19세 스마트폰 이용자; 고위험군+잠재적위험군; 2025 보고서 표 3-1-2."
+        },
+        {
+          "geo": "KR",
+          "period": "2017",
+          "value": "30.3",
+          "qualifier": "total",
+          "note": "만 10~19세 스마트폰 이용자; 고위험군+잠재적위험군; 2025 보고서 표 3-1-2."
+        },
+        {
+          "geo": "KR",
+          "period": "2018",
+          "value": "29.3",
+          "qualifier": "total",
+          "note": "만 10~19세 스마트폰 이용자; 고위험군+잠재적위험군; 2025 보고서 표 3-1-2."
+        },
+        {
+          "geo": "KR",
+          "period": "2019",
+          "value": "30.2",
+          "qualifier": "total",
+          "note": "만 10~19세 스마트폰 이용자; 고위험군+잠재적위험군; 2025 보고서 표 3-1-2."
+        },
+        {
+          "geo": "KR",
+          "period": "2020",
+          "value": "35.8",
+          "qualifier": "total",
+          "note": "만 10~19세 스마트폰 이용자; 고위험군+잠재적위험군; 2025 보고서 표 3-1-2."
+        },
+        {
+          "geo": "KR",
+          "period": "2021",
+          "value": "37.0",
+          "qualifier": "total",
+          "note": "만 10~19세 스마트폰 이용자; 고위험군+잠재적위험군; 2025 보고서 표 3-1-2."
+        },
+        {
+          "geo": "KR",
+          "period": "2022",
+          "value": "40.1",
+          "qualifier": "total",
+          "note": "만 10~19세 스마트폰 이용자; 고위험군+잠재적위험군; 2025 보고서 표 3-1-2."
+        },
+        {
+          "geo": "KR",
+          "period": "2023",
+          "value": "40.1",
+          "qualifier": "total",
+          "note": "만 10~19세 스마트폰 이용자; 고위험군+잠재적위험군; 2025 보고서 표 3-1-2."
+        },
+        {
+          "geo": "KR",
+          "period": "2024",
+          "value": "42.6",
+          "qualifier": "total",
+          "note": "만 10~19세 스마트폰 이용자; 고위험군+잠재적위험군; 2025 보고서 표 3-1-2."
+        },
+        {
+          "geo": "KR",
+          "period": "2025",
+          "value": "43.0",
+          "qualifier": "total",
+          "note": "만 10~19세 스마트폰 이용자; 고위험군 5.4%+잠재적위험군 37.6%; 표 3-1-2."
+        }
+      ]
+    },
+    {
+      "code": "nia_smartphone_adult_overdependence_risk_rate",
+      "domain": "D2",
+      "nameKo": "성인 스마트폰 과의존위험군 비율",
+      "nameEn": "Adult smartphone overdependence risk group rate",
+      "unit": "%",
+      "definitionKo": "만 20~59세 인구 중 최근 1개월 이내 스마트폰을 통해 인터넷을 1회 이상 이용한 사람 가운데 성인용 과의존 척도에서 고위험군 또는 잠재적위험군으로 분류된 비율(%).",
+      "methodNote": "국가승인통계의 만 20~59세 전체 성인 집단 시계열이다. 보고서의 별도 연령 세분값과 섞지 않고 매년 동일한 전체 성인 범위만 제공한다.",
+      "observations": [
+        {
+          "geo": "KR",
+          "period": "2016",
+          "value": "16.1",
+          "qualifier": "total",
+          "note": "만 20~59세 스마트폰 이용자; 고위험군+잠재적위험군; 2025 보고서 표 3-1-2."
+        },
+        {
+          "geo": "KR",
+          "period": "2017",
+          "value": "17.4",
+          "qualifier": "total",
+          "note": "만 20~59세 스마트폰 이용자; 고위험군+잠재적위험군; 2025 보고서 표 3-1-2."
+        },
+        {
+          "geo": "KR",
+          "period": "2018",
+          "value": "18.1",
+          "qualifier": "total",
+          "note": "만 20~59세 스마트폰 이용자; 고위험군+잠재적위험군; 2025 보고서 표 3-1-2."
+        },
+        {
+          "geo": "KR",
+          "period": "2019",
+          "value": "18.8",
+          "qualifier": "total",
+          "note": "만 20~59세 스마트폰 이용자; 고위험군+잠재적위험군; 2025 보고서 표 3-1-2."
+        },
+        {
+          "geo": "KR",
+          "period": "2020",
+          "value": "22.2",
+          "qualifier": "total",
+          "note": "만 20~59세 스마트폰 이용자; 고위험군+잠재적위험군; 2025 보고서 표 3-1-2."
+        },
+        {
+          "geo": "KR",
+          "period": "2021",
+          "value": "23.3",
+          "qualifier": "total",
+          "note": "만 20~59세 스마트폰 이용자; 고위험군+잠재적위험군; 2025 보고서 표 3-1-2."
+        },
+        {
+          "geo": "KR",
+          "period": "2022",
+          "value": "22.8",
+          "qualifier": "total",
+          "note": "만 20~59세 스마트폰 이용자; 고위험군+잠재적위험군; 2025 보고서 표 3-1-2."
+        },
+        {
+          "geo": "KR",
+          "period": "2023",
+          "value": "22.7",
+          "qualifier": "total",
+          "note": "만 20~59세 스마트폰 이용자; 고위험군+잠재적위험군; 2025 보고서 표 3-1-2."
+        },
+        {
+          "geo": "KR",
+          "period": "2024",
+          "value": "22.4",
+          "qualifier": "total",
+          "note": "만 20~59세 스마트폰 이용자; 고위험군+잠재적위험군; 2025 보고서 표 3-1-2."
+        },
+        {
+          "geo": "KR",
+          "period": "2025",
+          "value": "22.3",
+          "qualifier": "total",
+          "note": "만 20~59세 스마트폰 이용자; 고위험군 4.2%+잠재적위험군 18.1%; 표 3-1-2."
+        }
+      ]
+    },
+    {
+      "code": "nia_smartphone_sixties_overdependence_risk_rate",
+      "domain": "D2",
+      "nameKo": "60대 스마트폰 과의존위험군 비율",
+      "nameEn": "Smartphone overdependence risk group rate among people in their sixties",
+      "unit": "%",
+      "definitionKo": "만 60~69세 인구 중 최근 1개월 이내 스마트폰을 통해 인터넷을 1회 이상 이용한 사람 가운데 고령층용 과의존 척도에서 고위험군 또는 잠재적위험군으로 분류된 비율(%).",
+      "methodNote": "국가승인통계의 만 60~69세 집단 시계열이다. 70세 이상은 조사대상에 포함되지 않으며, 임상 진단률이 아니라 과의존 척도 선별 결과다.",
+      "observations": [
+        {
+          "geo": "KR",
+          "period": "2016",
+          "value": "11.7",
+          "qualifier": "total",
+          "note": "만 60~69세 스마트폰 이용자; 고위험군+잠재적위험군; 2025 보고서 표 3-1-2."
+        },
+        {
+          "geo": "KR",
+          "period": "2017",
+          "value": "12.9",
+          "qualifier": "total",
+          "note": "만 60~69세 스마트폰 이용자; 고위험군+잠재적위험군; 2025 보고서 표 3-1-2."
+        },
+        {
+          "geo": "KR",
+          "period": "2018",
+          "value": "14.2",
+          "qualifier": "total",
+          "note": "만 60~69세 스마트폰 이용자; 고위험군+잠재적위험군; 2025 보고서 표 3-1-2."
+        },
+        {
+          "geo": "KR",
+          "period": "2019",
+          "value": "14.9",
+          "qualifier": "total",
+          "note": "만 60~69세 스마트폰 이용자; 고위험군+잠재적위험군; 2025 보고서 표 3-1-2."
+        },
+        {
+          "geo": "KR",
+          "period": "2020",
+          "value": "16.8",
+          "qualifier": "total",
+          "note": "만 60~69세 스마트폰 이용자; 고위험군+잠재적위험군; 2025 보고서 표 3-1-2."
+        },
+        {
+          "geo": "KR",
+          "period": "2021",
+          "value": "17.5",
+          "qualifier": "total",
+          "note": "만 60~69세 스마트폰 이용자; 고위험군+잠재적위험군; 2025 보고서 표 3-1-2."
+        },
+        {
+          "geo": "KR",
+          "period": "2022",
+          "value": "15.3",
+          "qualifier": "total",
+          "note": "만 60~69세 스마트폰 이용자; 고위험군+잠재적위험군; 2025 보고서 표 3-1-2."
+        },
+        {
+          "geo": "KR",
+          "period": "2023",
+          "value": "13.5",
+          "qualifier": "total",
+          "note": "만 60~69세 스마트폰 이용자; 고위험군+잠재적위험군; 2025 보고서 표 3-1-2."
+        },
+        {
+          "geo": "KR",
+          "period": "2024",
+          "value": "11.9",
+          "qualifier": "total",
+          "note": "만 60~69세 스마트폰 이용자; 고위험군+잠재적위험군; 2025 보고서 표 3-1-2."
+        },
+        {
+          "geo": "KR",
+          "period": "2025",
+          "value": "11.5",
+          "qualifier": "total",
+          "note": "만 60~69세 스마트폰 이용자; 고위험군 3.5%+잠재적위험군 8.1%; 표 3-1-2."
+        }
+      ]
+    }
+  ]
+}

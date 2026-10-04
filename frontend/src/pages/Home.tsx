@@ -155,7 +155,7 @@ const Home: React.FC = () => {
               <div>
                 <div className="hero-card-title">중독 데이터 관측소</div>
                 <div style={{ fontSize: '0.78rem', color: '#9ca3af' }}>
-                  {summary ? summary.total : 23}개 소스 · 6개 부처 · 4개 국제기구
+                  {summary ? summary.total : 24}개 소스 · 6개 부처 · 4개 국제기구
                 </div>
               </div>
               <div className="status-pill">

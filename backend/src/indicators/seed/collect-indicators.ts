@@ -1,12 +1,12 @@
 /**
- * 지표 수집 — 청소년 도박문제(kcgp_youth) 첫 수집 (AS-M3-1, 멱등 upsert + revisions).
+ * 지표 수집 — 검증된 공식 중독통계 큐레이션 (AS-M3-1, 멱등 upsert + revisions).
  *
  * 실행: npm run collect:indicators
  *
- * 소스 선택 근거: 공공데이터포털 kcgp_youth(15142248)는 '파일데이터'(결과보고서·원자료)라
- *  **무키 JSON API가 없다**(오픈API는 서비스키 필요). M3-0 실사로 확인. 따라서 실태조사가
- *  공표한 검증된 집계치를 정의(definition_ko)와 함께 등록한다(정의 없는 지표 금지·원칙4).
- *  값의 근거는 원자료 딥링크(source_url·원칙3). 서비스키 기반 오픈API 자동갱신은 후속(§보고).
+ * 소스 선택 근거: KCGP·NGCC·NIA 공식 보고서와 KDCA/KOSIS 공표표의 검증된
+ * 집계치를 정의(definition_ko)와 함께 등록한다(정의 없는 지표 금지·원칙4).
+ * 값의 근거는 회차별 공식 원문 딥링크(source_url·원칙3)이며 서로 다른 척도·
+ * 모집단은 별도 지표로 보존한다.
  *
  * 멱등성:
  *  - indicators: code 기준 upsert(있으면 메타 갱신, 없으면 삽입). definition_ko 없으면 skip.
@@ -23,6 +23,9 @@ import {
   ObservationRevision,
 } from '../entities/observation.entity';
 import kcgp from './kcgp-youth.data.json';
+import kdca from './kdca-knhanes.data.json';
+import ngcc from './ngcc-adult-gambling.data.json';
+import nia from './nia-smartphone.data.json';
 
 interface ObsRow {
   geo: string;
@@ -51,13 +54,14 @@ interface DataFile {
   indicators: IndicatorRow[];
 }
 
+const DATA_FILES = [kcgp, ngcc, nia, kdca] as unknown as DataFile[];
+
 async function run() {
   const ds = AppDataSource;
   await ds.initialize();
   const indRepo = ds.getRepository(Indicator);
   const obsRepo = ds.getRepository(Observation);
 
-  const data = kcgp as unknown as DataFile;
   const now = new Date();
 
   let indInserted = 0;
@@ -67,123 +71,125 @@ async function run() {
   let obsUpdated = 0;
   let obsRevised = 0;
 
-  for (const row of data.indicators) {
-    // 원칙4: 정의 없는 지표 금지.
-    if (!row.definitionKo?.trim()) {
-      console.warn(`[collect:indicators] 정의 없음 → skip: ${row.code}`);
-      indSkipped++;
-      continue;
-    }
-
-    const meta = {
-      code: row.code,
-      domain: row.domain,
-      nameKo: row.nameKo,
-      nameEn: row.nameEn ?? undefined,
-      unit: row.unit ?? undefined,
-      definitionKo: row.definitionKo,
-      methodNote: row.methodNote ?? undefined,
-      sourceId: row.sourceId ?? data.sourceId ?? null,
-    };
-
-    let indicator = await indRepo.findOne({ where: { code: row.code } });
-    if (indicator) {
-      await indRepo.update(indicator.id, meta);
-      indicator = await indRepo.findOne({ where: { code: row.code } });
-      indUpdated++;
-    } else {
-      indicator = await indRepo.save(indRepo.create(meta));
-      indInserted++;
-    }
-    if (!indicator) continue;
-
-    for (const o of row.observations) {
-      const sourceId = row.sourceId ?? data.sourceId ?? null;
-      const sourceUrl = o.sourceUrl ?? data.sourceUrl;
-      if (!sourceUrl) {
-        // 원칙3: 원본 딥링크 없는 값은 등록하지 않는다.
-        console.warn(
-          `[collect:indicators] source_url 없음 → skip 관측치: ${row.code} ${o.geo} ${o.period}`,
-        );
+  for (const data of DATA_FILES) {
+    for (const row of data.indicators) {
+      // 원칙4: 정의 없는 지표 금지.
+      if (!row.definitionKo?.trim()) {
+        console.warn(`[collect:indicators] 정의 없음 → skip: ${row.code}`);
+        indSkipped++;
         continue;
       }
-      // 전체값은 sentinel 'total'(NULL 금지 — 유니크 키 포함). 분해는 'group=…' 등.
-      const qualifier = o.qualifier ?? 'total';
-      const existing = await obsRepo.findOne({
-        where: {
-          indicatorId: indicator.id,
-          sourceId: sourceId ?? undefined,
-          geo: o.geo,
-          period: o.period,
-          qualifier,
-        },
-      });
 
-      if (!existing) {
-        await obsRepo.save(
-          obsRepo.create({
+      const meta = {
+        code: row.code,
+        domain: row.domain,
+        nameKo: row.nameKo,
+        nameEn: row.nameEn ?? undefined,
+        unit: row.unit ?? undefined,
+        definitionKo: row.definitionKo,
+        methodNote: row.methodNote ?? undefined,
+        sourceId: row.sourceId ?? data.sourceId ?? null,
+      };
+
+      let indicator = await indRepo.findOne({ where: { code: row.code } });
+      if (indicator) {
+        await indRepo.update(indicator.id, meta);
+        indicator = await indRepo.findOne({ where: { code: row.code } });
+        indUpdated++;
+      } else {
+        indicator = await indRepo.save(indRepo.create(meta));
+        indInserted++;
+      }
+      if (!indicator) continue;
+
+      for (const o of row.observations) {
+        const sourceId = row.sourceId ?? data.sourceId ?? null;
+        const sourceUrl = o.sourceUrl ?? data.sourceUrl;
+        if (!sourceUrl) {
+          // 원칙3: 원본 딥링크 없는 값은 등록하지 않는다.
+          console.warn(
+            `[collect:indicators] source_url 없음 → skip 관측치: ${row.code} ${o.geo} ${o.period}`,
+          );
+          continue;
+        }
+        // 전체값은 sentinel 'total'(NULL 금지 — 유니크 키 포함). 분해는 'group=…' 등.
+        const qualifier = o.qualifier ?? 'total';
+        const existing = await obsRepo.findOne({
+          where: {
             indicatorId: indicator.id,
-            sourceId,
+            sourceId: sourceId ?? undefined,
             geo: o.geo,
             period: o.period,
+            qualifier,
+          },
+        });
+
+        if (!existing) {
+          await obsRepo.save(
+            obsRepo.create({
+              indicatorId: indicator.id,
+              sourceId,
+              geo: o.geo,
+              period: o.period,
+              value: o.value,
+              valueLow: o.valueLow ?? null,
+              valueHigh: o.valueHigh ?? null,
+              qualifier,
+              revisions: null,
+              fetchedAt: now,
+              sourceUrl,
+              note: o.note ?? null,
+              // 큐레이션 시드는 사람이 검증한 값 → approved(원칙8). PDF 크론 추출분만 pending.
+              status: 'approved',
+              reviewBatch: null,
+            }),
+          );
+          obsInserted++;
+          continue;
+        }
+
+        // 값·출처·해석 단서 변경 여부 판정(문자열 numeric 비교는 수치로).
+        const changed =
+          Number(existing.value) !== Number(o.value) ||
+          (existing.valueLow ?? null) !== (o.valueLow ?? null) ||
+          (existing.valueHigh ?? null) !== (o.valueHigh ?? null) ||
+          existing.sourceUrl !== sourceUrl ||
+          (existing.note ?? null) !== (o.note ?? null);
+
+        if (changed) {
+          const prior: ObservationRevision = {
+            value: existing.value,
+            valueLow: existing.valueLow,
+            valueHigh: existing.valueHigh,
+            qualifier: existing.qualifier,
+            sourceUrl: existing.sourceUrl,
+            note: existing.note,
+            fetchedAt: existing.fetchedAt.toISOString(),
+          };
+          const revisions = [...(existing.revisions ?? []), prior];
+          await obsRepo.update(existing.id, {
             value: o.value,
             valueLow: o.valueLow ?? null,
             valueHigh: o.valueHigh ?? null,
             qualifier,
-            revisions: null,
+            revisions,
             fetchedAt: now,
             sourceUrl,
             note: o.note ?? null,
-            // 큐레이션 시드는 사람이 검증한 값 → approved(원칙8). PDF 크론 추출분만 pending.
+            status: 'approved',
+            // 큐레이션 검증이 PDF pending을 대체하면 과거 검수 배치와의 연결을 끊는다.
+            reviewBatch: null,
+          });
+          obsRevised++;
+        } else {
+          // 값·출처·단서 동일 → 생존 확인. 큐레이션 시드는 검수 완료 상태를 보장한다.
+          await obsRepo.update(existing.id, {
+            fetchedAt: now,
             status: 'approved',
             reviewBatch: null,
-          }),
-        );
-        obsInserted++;
-        continue;
-      }
-
-      // 값·출처·해석 단서 변경 여부 판정(문자열 numeric 비교는 수치로).
-      const changed =
-        Number(existing.value) !== Number(o.value) ||
-        (existing.valueLow ?? null) !== (o.valueLow ?? null) ||
-        (existing.valueHigh ?? null) !== (o.valueHigh ?? null) ||
-        existing.sourceUrl !== sourceUrl ||
-        (existing.note ?? null) !== (o.note ?? null);
-
-      if (changed) {
-        const prior: ObservationRevision = {
-          value: existing.value,
-          valueLow: existing.valueLow,
-          valueHigh: existing.valueHigh,
-          qualifier: existing.qualifier,
-          sourceUrl: existing.sourceUrl,
-          note: existing.note,
-          fetchedAt: existing.fetchedAt.toISOString(),
-        };
-        const revisions = [...(existing.revisions ?? []), prior];
-        await obsRepo.update(existing.id, {
-          value: o.value,
-          valueLow: o.valueLow ?? null,
-          valueHigh: o.valueHigh ?? null,
-          qualifier,
-          revisions,
-          fetchedAt: now,
-          sourceUrl,
-          note: o.note ?? null,
-          status: 'approved',
-          // 큐레이션 검증이 PDF pending을 대체하면 과거 검수 배치와의 연결을 끊는다.
-          reviewBatch: null,
-        });
-        obsRevised++;
-      } else {
-        // 값·출처·단서 동일 → 생존 확인. 큐레이션 시드는 검수 완료 상태를 보장한다.
-        await obsRepo.update(existing.id, {
-          fetchedAt: now,
-          status: 'approved',
-          reviewBatch: null,
-        });
-        obsUpdated++;
+          });
+          obsUpdated++;
+        }
       }
     }
   }

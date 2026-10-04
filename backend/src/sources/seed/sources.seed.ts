@@ -255,7 +255,7 @@ const SOURCES: Row[] = [
     notes: '치료시설 전수조사. 한국에 없는 것',
   },
 
-  // ── 한국 9 ──
+  // ── 한국 10 ──
   {
     id: 'spo_drug_monthly',
     org: '대검찰청',
@@ -330,15 +330,27 @@ const SOURCES: Row[] = [
     orgKo: '사행산업통합감독위원회',
     domain: 'gambling',
     scope: 'korea',
-    kind: 'market',
-    cadence: 'annual',
-    expectedMonth: null,
+    kind: 'prevalence',
+    cadence: 'biennial',
+    expectedMonth: [2],
     accessMethod: 'pdf',
     reliability: 1,
-    url: 'https://www.ngcc.go.kr/',
-    titleKo: '사행산업 관련 통계',
-    titleEn: 'Gambling Industry Statistics',
-    notes: '합법 사행산업 25.3조(2024). 불법도박 102.7조(2022 제5차 실태조사)',
+    url: 'https://www.ngcc.go.kr/data/pdsView.do?selectedNo=10332',
+    titleKo: '사행산업 이용실태조사',
+    titleEn: 'Gambling Participation Survey',
+    lastPublishedAt: '2025-02-07',
+    license: '공공누리 제4유형',
+    accessDetail: {
+      table: '일반인 전체 도박중독 유병률(표 3-2)',
+      population: '전국 만 20세 이상 일반인',
+      attribution_required: true,
+      commercial_use: false,
+      derivatives: false,
+      pdf: false,
+      manual_curation: true,
+    },
+    notes:
+      '2년 주기 일반인·사행산업 이용객 조사. 지표는 이용객이 아닌 일반인 CPGI 표만 사용하며 보고서 재배포 없이 공표 수치와 원문 링크를 큐레이션한다.',
   },
   {
     id: 'kcgp_youth',
@@ -386,6 +398,41 @@ const SOURCES: Row[] = [
     titleEn: 'Gambling Treatment Service Statistics',
   },
   {
+    id: 'kdca_knhanes',
+    org: 'KDCA',
+    orgKo: '질병관리청',
+    domain: 'alcohol',
+    scope: 'korea',
+    kind: 'prevalence',
+    cadence: 'annual',
+    expectedMonth: [9, 12],
+    accessMethod: 'manual',
+    reliability: 1,
+    url: 'https://kosis.kr/statHtml/statHtml.do?orgId=177&tblId=DT_11702_N018&conn_path=I2',
+    titleKo: '국민건강영양조사 고위험음주율',
+    titleEn: 'KNHANES High-risk Drinking Rate',
+    lastPublishedAt: '2026-09-30',
+    license:
+      'KOSIS 통계정보 이용지침(출처표시, 영리 목적 포함 자유 이용); 최신 KDCA 보도자료 공공누리 제1유형',
+    accessDetail: {
+      statistics_url:
+        'https://kosis.kr/statHtml/statHtml.do?orgId=177&tblId=DT_11702_N018&conn_path=I2',
+      latest_release_url:
+        'https://www.kdca.go.kr/bbs/kdca/42/312791/artclView.do',
+      use_policy_url: 'https://kosis.kr/nsistN/kosisUseGuide.do',
+      statistics_number: '117002',
+      table_id: 'DT_11702_N018',
+      table: '고위험음주율 추이',
+      accessed_at: '2026-10-04',
+      population: '만 19세 이상',
+      age_standardization: '2005년 추계인구',
+      pdf: false,
+      manual_curation: true,
+    },
+    notes:
+      'KOSIS 확정 공표표의 2005~2024년 값과 2026-09-30 질병관리청 주요 결과 발표의 2025년 잠정치를 구분해 큐레이션한다. 2006년은 미조사이며, 2007년 연중조사 전환과 2023년 온라인 자기기입 추가를 장기 추세 해석에 반영한다. 2025년 상세 통계보고서는 2026년 12월 발간 뒤 재검증한다.',
+  },
+  {
     id: 'ncmh_mhs',
     org: '국립정신건강센터',
     orgKo: '국립정신건강센터',
@@ -418,7 +465,19 @@ const SOURCES: Row[] = [
     titleKo: '스마트폰 과의존 실태조사',
     titleEn: 'Smartphone Overdependence Survey',
     lastPublishedAt: '2026-03-27',
-    notes: '2025년판 발표됨. 전체 22.7%(5년 연속 하락), 청소년 43%(역행)',
+    license: 'KOSIS 통계정보 이용지침(출처표시, 영리 목적 포함 자유 이용)',
+    accessDetail: {
+      report_url:
+        'https://www.nia.or.kr/site/nia_kor/ex/bbs/View.do?bcIdx=29171&cbIdx=65914&parentSeq=29171',
+      statistics_url:
+        'https://kosis.kr/statHtml/statHtml.do?orgId=127&tblId=DT_120019N_2016_001',
+      use_policy_url: 'https://kosis.kr/nsistN/kosisUseGuide.do',
+      statistics_number: '120019',
+      pdf: false,
+      manual_curation: true,
+    },
+    notes:
+      '2025년판 표 3-1-1·3-1-2의 2016년 조사단위·대상별 척도 개편 이후 시계열을 큐레이션한다. 임상 진단률이 아니라 현저성·조절실패·문제적 결과 기반 과의존 위험 선별값이다.',
   },
   {
     id: 'kocca_game',

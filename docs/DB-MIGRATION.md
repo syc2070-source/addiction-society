@@ -33,7 +33,7 @@
 ```
 npm run migration:run    # 전체 스키마 생성 (Baseline + 이후 전부)
 npm run seed:tags        # 기본 태그 17건
-npm run seed:sources     # 데이터 관측소 소스 23건
+npm run seed:sources     # 데이터 관측소 소스 24건
 npm run backfill:next    # next_expected_at 계산
 ```
 > 리서치/정책/회복자원 등 운영 데이터는 관리자 화면 또는 자동수집으로 채웁니다.

@@ -3,7 +3,7 @@
  *
  * 실행: npm run check:sources-urls
  *
- * 23개 URL에 HEAD 요청 1회.
+ * 24개 URL에 HEAD 요청 1회.
  *  - 성공(res.ok) → status 유지, lastCheckedAt 갱신
  *  - 실패(비200/네트워크/타임아웃) → status='stale', lastCheckedAt 갱신
  *  - 요청 간 2초 간격, 타임아웃 30초, 실패해도 throw 하지 않음

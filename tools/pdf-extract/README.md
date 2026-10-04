@@ -13,7 +13,10 @@
   Python+네이티브 의존(cffi/Pillow, camelot의 GS/OpenCV)을 섞으면 빌드가 취약해진다.
 - **권고**: pdfplumber를 **오프라인 단계**(로컬/CI)로 돌려 검수된 JSON을 산출하고,
   기존 `npm run collect:indicators`가 그 JSON을 upsert한다. 이는 이미 쓰는
-  "검증 data.json → 시드" 패턴(kcgp-youth.data.json)과 일치하고, 원칙8(검수 후 게시)과도 맞다.
+  "검증 data.json → 시드" 패턴(`kcgp-youth.data.json`,
+  `ngcc-adult-gambling.data.json`, `nia-smartphone.data.json`,
+  `kdca-knhanes.data.json`)과 일치하고,
+  원칙8(검수 후 게시)과도 맞다.
   Render Node 서비스는 건드리지 않는다. camelot/OCR은 pdfplumber 실패 표·스캔본에만.
 
 ## 구조
@@ -27,7 +30,9 @@ tools/pdf-extract/
   fixtures/             # 합성 PDF 생성 + 추출 샘플(엔진 실현성 증명)
 ```
 
-새 소스(대검 월간동향·NIA 스마트폰)는 **어댑터 파일만 추가**하면 된다(추출 계층 재사용).
+새 소스는 표 구조와 텍스트 레이어를 실제 보고서 fixture로 검증한 뒤 **어댑터 파일만
+추가**하면 된다(추출 계층 재사용). NGCC·NIA는 현재 원문 표를 사람이 대조한 큐레이션
+JSON만 사용하며 검증된 자동 어댑터가 없으므로 `pdf:false`를 유지한다.
 
 ## 통계 vs 논문 분기
 
@@ -88,6 +93,12 @@ python run.py <실제_결과보고서.pdf> --source kcgp_youth --year 2022 --url
 이어 붙이지 않고, 별도 지표로 검증·등록한다. 현재 공식 PDF 일부는 한글 텍스트
 레이어가 안정적으로 추출되지 않으므로 운영 자동추출 대상에서는 제외하고,
 원문과 수치를 사람이 대조한 큐레이션 JSON을 사용한다.
+NGCC 일반인 CPGI와 NIA 스마트폰 과의존 통계도 동일하게 공식 보고서 표를 시각 검수한
+큐레이션 JSON을 사용하며, 실제 PDF fixture·라벨·합계 회귀검증을 갖춘 어댑터가 생기기
+전에는 자동추출 대상으로 전환하지 않는다.
+KDCA 국민건강영양조사 고위험음주율은 KOSIS 확정 공표표를 기본으로 사용하고, 최신
+잠정치는 질병관리청 발표 원문을 관측치에 직접 연결한다. 상세 통계보고서가 발간되면
+잠정치를 다시 대조하며, KOSIS HTML을 PDF 파서 입력으로 취급하지 않는다.
 파서가 지표 또는 관측치를 하나도 찾지 못하면 `run.py`는 빈 JSON을 쓰지 않고
 오류 코드로 종료한다.
 

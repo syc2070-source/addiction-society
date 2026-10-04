@@ -19,7 +19,7 @@ export class SourcesService {
   /**
    * 목록 조회.
    * 정렬: nextExpectedAt ASC(NULLS LAST) → lastPublishedAt DESC(NULLS LAST)
-   * 소규모 레지스트리(23건)이므로 서버 페이지네이션은 두지 않고 전량 반환한다.
+   * 소규모 레지스트리(24건)이므로 서버 페이지네이션은 두지 않고 전량 반환한다.
    */
   async findAll(
     query: SourceQueryDto,
