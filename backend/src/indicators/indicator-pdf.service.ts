@@ -122,6 +122,15 @@ export interface FileProbe {
   error?: string;
 }
 
+interface ResolvedPdf {
+  /** 기계가 내려받을 실제 PDF URL */
+  url?: string;
+  /** 사람이 원문 맥락을 확인할 게시글·데이터셋 페이지 */
+  sourcePageUrl?: string;
+  reason?: string;
+  candidates?: FileProbe[];
+}
+
 /**
  * PDF 추출 → observations(status='pending') 적재 (AS-M3-2b/2d).
  *
@@ -306,7 +315,8 @@ export class IndicatorPdfService {
       }
 
       // 2) 내려받아 PDF인지 확인(매직바이트) — HTML 오류페이지/ZIP 오적재 방지
-      const probe = await this.probeFile(resolved.url, s.url);
+      const sourcePageUrl = resolved.sourcePageUrl ?? s.url;
+      const probe = await this.probeFile(resolved.url, sourcePageUrl);
       if (!probe.isPdf) {
         throw new Error(
           `PDF 아님 (status ${probe.status}, type ${probe.contentType ?? '?'}${probe.isZip ? ', ZIP' : ''})`,
@@ -316,15 +326,29 @@ export class IndicatorPdfService {
       dir = await mkdtemp(join(tmpdir(), `pdf-${s.id}-${period}-`));
       const pdfPath = join(dir, 'report.pdf');
       const res = await fetch(resolved.url, {
-        headers: { 'User-Agent': BROWSER_UA, Referer: s.url },
+        headers: { 'User-Agent': BROWSER_UA, Referer: sourcePageUrl },
         signal: AbortSignal.timeout(120_000),
         redirect: 'follow',
       });
       if (!res.ok) throw new Error(`PDF fetch HTTP ${res.status}`);
       await writeFile(pdfPath, Buffer.from(await res.arrayBuffer()));
 
-      // 3) 어댑터로 파싱 → pending 적재. 원본 딥링크는 소스 url(사람이 여는 페이지).
-      const payload = await this.runParser(pdfPath, adapter, period, s.url);
+      // 3) 어댑터로 파싱 → pending 적재. 원본 딥링크는 해당 회차 게시글/데이터셋 페이지.
+      const payload = await this.runParser(
+        pdfPath,
+        adapter,
+        period,
+        sourcePageUrl,
+      );
+      const observationCount = payload.indicators.reduce(
+        (count, row) => count + row.observations.length,
+        0,
+      );
+      if (payload.indicators.length === 0 || observationCount === 0) {
+        throw new Error(
+          `파서 결과 없음: 지표 ${payload.indicators.length}건, 관측치 ${observationCount}건`,
+        );
+      }
       const batch = newBatchId(s.id, period);
       const up = await this.upsertPending(
         payload,
@@ -335,7 +359,7 @@ export class IndicatorPdfService {
 
       const touched = up.pendingInserted + up.pendingUpdated;
       if (touched > 0) {
-        await this.notifyReview(s, period, batch, up);
+        await this.notifyReview(s, period, batch, sourcePageUrl, up);
       } else {
         this.logger.log(`[pdf] ${s.id}/${period} — 새 pending 없음(알림 생략)`);
       }
@@ -347,7 +371,9 @@ export class IndicatorPdfService {
           period,
           batch,
           pdfUrl: resolved.url,
+          sourcePageUrl,
           indicators: payload.indicators.length,
+          observations: observationCount,
           ...up,
         },
         notified: touched > 0,
@@ -392,6 +418,7 @@ export class IndicatorPdfService {
     s: Source,
     period: string,
     batch: string,
+    sourcePageUrl: string,
     up: {
       pendingInserted: number;
       pendingUpdated: number;
@@ -426,7 +453,7 @@ export class IndicatorPdfService {
         '추출값 (지표 | 기간 | 분류 | 값):',
         lines + more,
         '',
-        `원본: ${s.url}`,
+        `원본: ${sourcePageUrl}`,
         `검수(승인/폐기): ${link}`,
         '※ 승인 전까지 공개되지 않습니다. 링크는 14일 후 만료됩니다.',
       ]
@@ -445,11 +472,13 @@ export class IndicatorPdfService {
   }
 
   /** 회차의 PDF URL 확정(회차 설정 → 소스 기본값 순). */
-  async resolveRoundUrl(
-    s: Source,
-    round: PdfRound,
-  ): Promise<{ url?: string; reason?: string; candidates?: FileProbe[] }> {
-    if (round.pdf_url?.trim()) return { url: round.pdf_url.trim() };
+  async resolveRoundUrl(s: Source, round: PdfRound): Promise<ResolvedPdf> {
+    if (round.pdf_url?.trim()) {
+      return {
+        url: round.pdf_url.trim(),
+        sourcePageUrl: round.pdf_url.trim(),
+      };
+    }
     const finder = round.pdf_finder ?? this.hintOf(s).pdf_finder;
     if (!finder?.type) return { reason: 'pdf_url·pdf_finder 둘 다 없음' };
     return this.runFinder(finder, s);
@@ -457,19 +486,14 @@ export class IndicatorPdfService {
 
   /** access_detail 기반으로 실제 PDF URL을 확정한다(직접 URL → finder). */
   /** 소스 기본 설정 기준 URL 확정 — health() 진단용(하위호환). */
-  async resolvePdfUrl(
-    s: Source,
-  ): Promise<{ url?: string; reason?: string; candidates?: FileProbe[] }> {
+  async resolvePdfUrl(s: Source): Promise<ResolvedPdf> {
     const rounds = this.roundsOf(s);
     if (rounds.length === 0) return { reason: '회차 설정 없음' };
     return this.resolveRoundUrl(s, rounds[0]);
   }
 
   /** finder 종류별 분기. 새 소스가 늘면 여기에 한 줄 추가한다. */
-  private async runFinder(
-    finder: PdfFinder,
-    s: Source,
-  ): Promise<{ url?: string; reason?: string; candidates?: FileProbe[] }> {
+  private async runFinder(finder: PdfFinder, s: Source): Promise<ResolvedPdf> {
     if (finder.type === 'datagokr_filedata') {
       return this.findDataGoKrFile(finder.datasetUrl?.trim() || s.url);
     }
@@ -490,9 +514,7 @@ export class IndicatorPdfService {
    * 매직바이트를 확인한다. **URL을 추측해서 만들지 않는다** — 페이지에 실제로
    * 있는 링크만 따라간다.
    */
-  async findKcgpBoardFile(
-    finder: PdfFinder,
-  ): Promise<{ url?: string; reason?: string; candidates?: FileProbe[] }> {
+  async findKcgpBoardFile(finder: PdfFinder): Promise<ResolvedPdf> {
     const listUrl = finder.listUrl?.trim();
     if (!listUrl) return { reason: 'kcgp_board: listUrl 없음' };
     const needle = finder.titleContains?.trim();
@@ -540,7 +562,7 @@ export class IndicatorPdfService {
     for (const u of hrefs) candidates.push(await this.probeFile(u, viewUrl));
     const best = candidates.find((c) => c.isPdf);
     return best
-      ? { url: best.url, candidates }
+      ? { url: best.url, sourcePageUrl: viewUrl, candidates }
       : { reason: 'PDF 응답 후보 없음', candidates };
   }
 
@@ -570,9 +592,7 @@ export class IndicatorPdfService {
    * atchFileId는 데이터셋마다 다르고 페이지 HTML에만 있다 → 서버가 직접 긁어 확정한다
    * (추측 URL 금지). 후보를 실제로 받아 PDF 매직바이트까지 확인한다.
    */
-  async findDataGoKrFile(
-    datasetUrl: string,
-  ): Promise<{ url?: string; reason?: string; candidates?: FileProbe[] }> {
+  async findDataGoKrFile(datasetUrl: string): Promise<ResolvedPdf> {
     let html: string;
     try {
       const res = await fetch(datasetUrl, {
@@ -598,7 +618,7 @@ export class IndicatorPdfService {
     }
     const best = candidates.find((c) => c.isPdf);
     return best
-      ? { url: best.url, candidates }
+      ? { url: best.url, sourcePageUrl: datasetUrl, candidates }
       : {
           reason: 'PDF 응답 후보 없음(ZIP이면 압축 해제 경로 필요)',
           candidates,
@@ -666,6 +686,7 @@ export class IndicatorPdfService {
           period: String(r.period),
           population: r.population ?? null,
           resolvedUrl: resolved.url ?? null,
+          sourcePageUrl: resolved.sourcePageUrl ?? null,
           reason: resolved.reason ?? null,
           candidates: resolved.candidates ?? undefined,
         });

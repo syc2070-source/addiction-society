@@ -41,6 +41,14 @@ def main() -> int:
     )
 
     indicators = adapter.map(doc, {"surveyYear": args.year, "sourceUrl": args.url})
+    observation_count = sum(len(row.get("observations", [])) for row in indicators)
+    if not indicators or observation_count == 0:
+        print(
+            "[extract] no usable indicators/observations; refusing empty output",
+            file=sys.stderr,
+        )
+        return 1
+
     payload = {
         "sourceId": adapter.source_id,
         "sourceUrl": args.url,

@@ -13,30 +13,32 @@
    분해 행이 충돌 없이 저장된다.
 """
 
+import math
 from typing import List, Optional
 
 from engine.adapter import SourceAdapter
 from engine.extractor import ExtractedDoc
 
-# 표의 행 라벨 → (지표 code, 지표명, 정의). 정의는 M3-2b에서 보고서 원문으로 교체(현재는 잠정).
+# 표의 행 라벨 → (지표 code, 지표명, 정의).
 LEVEL_ROWS = {
     "도박문제 수준": (
         "kcgp_youth_gambling_problem_rate",
         "청소년 도박문제 수준(위험군+문제군) 비율",
-        "재학 중 청소년(초4~고3)을 도박문제 선별척도로 분류했을 때 위험군과 문제군을 합한 비율(%).",
+        "각 회차 조사 대상 재학 중 청소년을 CAGI의 GPSS 기준으로 분류했을 때 위험군과 문제군을 합한 비율(%).",
     ),
     "위험군": (
         "kcgp_youth_gambling_atrisk_rate",
         "청소년 도박문제 위험군(YELLOW) 비율",
-        "재학 중 청소년 중 도박문제 선별척도에서 위험군(중위험, YELLOW)으로 분류된 비율(%).",
+        "각 회차 조사 대상 재학 중 청소년 중 CAGI의 GPSS 기준에서 위험군(YELLOW)으로 분류된 비율(%).",
     ),
     "문제군": (
         "kcgp_youth_gambling_problem_group_rate",
         "청소년 도박문제 문제군(RED) 비율",
-        "재학 중 청소년 중 도박문제 선별척도에서 문제군(문제성, RED)으로 분류된 비율(%).",
+        "각 회차 조사 대상 재학 중 청소년 중 CAGI의 GPSS 기준에서 문제군(RED)으로 분류된 비율(%).",
     ),
 }
 TOTAL_COLS = {"전체", "계", "합계"}
+SUPPORTED_YEARS = {"2015", "2018", "2020", "2022"}
 
 # 회차별 조사대상(모집단). AS-PDF-RUN.
 #
@@ -52,7 +54,6 @@ POPULATION_BY_YEAR = {
     "2018": "조사대상: 중·고 재학생 (고3 제외) — 2차 시범조사",
     "2020": "조사대상: 중·고 재학생 (고3 포함) — 3차 시범조사",
     "2022": "조사대상: 초4~고3 재학생 — 4차 시범조사",
-    "2024": "조사대상: 초4~고3 재학생 — 국가승인통계(제469001호) 최초 회차",
 }
 
 
@@ -63,7 +64,10 @@ def _clean(s: Optional[str]) -> str:
 def _num(s: Optional[str]) -> Optional[str]:
     t = _clean(s).replace("%", "").replace(",", "")
     try:
-        return str(float(t))
+        value = float(t)
+        if not math.isfinite(value) or value < 0 or value > 100:
+            return None
+        return str(value)
     except ValueError:
         return None
 
@@ -82,6 +86,11 @@ class KcgpYouthAdapter(SourceAdapter):
     def map(self, doc: ExtractedDoc, meta: dict) -> List[dict]:
         year = str(meta["surveyYear"])
         url = meta["sourceUrl"]
+
+        # 2024년부터는 국가승인통계로 문항·기준이 개편되어 CAGI 위험군 표가 없다.
+        # 과거 CAGI 시계열에 잘못 이어 붙이지 않도록 지원 회차를 명시적으로 제한한다.
+        if year not in SUPPORTED_YEARS:
+            return []
 
         target = self._find_level_table(doc)
         if target is None:

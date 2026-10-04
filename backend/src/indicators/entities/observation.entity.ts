@@ -8,13 +8,15 @@ import {
 } from 'typeorm';
 import { Indicator } from './indicator.entity';
 
-/** 관측치 개정 이력 1건(revisions jsonb 배열 원소). 값이 바뀔 때 이전 값을 보존한다. */
+/** 관측치 개정 이력 1건(revisions jsonb 배열 원소). 값·출처·단서가 바뀔 때 이전 상태를 보존한다. */
 export interface ObservationRevision {
   value: string;
   valueLow: string | null;
   valueHigh: string | null;
   qualifier: string | null;
   sourceUrl: string;
+  /** 과거 revision에는 없을 수 있어 optional로 유지한다. */
+  note?: string | null;
   fetchedAt: string; // ISO
 }
 
@@ -23,10 +25,10 @@ export interface ObservationRevision {
  * "숫자는 얼마인가 + 어디서 왔나"에 답한다.
  *
  * ▸ 재수집 정책: **upsert + revisions 감사**(M3-1 확정).
- *   유니크 키 = (indicator_id, source_id, geo, period) — fetched_at 제외.
- *   같은 (지표·소스·지역·기간)을 재수집해도 새 행을 만들지 않고 **한 행을 갱신**(중복 방지).
- *   값이 바뀌면 이전 값을 revisions(jsonb 배열)에 누적하고 현재 값·fetched_at을 갱신한다.
- *   값이 같으면 fetched_at만 갱신(생존 확인).
+ *   유니크 키 = (indicator_id, source_id, geo, period, qualifier) — fetched_at 제외.
+ *   같은 (지표·소스·지역·기간·분해조건)을 재수집해도 새 행을 만들지 않고 **한 행을 갱신**(중복 방지).
+ *   값·출처·해석 단서가 바뀌면 이전 상태를 revisions(jsonb 배열)에 누적하고 현재 상태를 갱신한다.
+ *   모두 같으면 fetched_at만 갱신(생존 확인).
  *
  *   근거(단순 upsert 대신 revisions 채택): WHO/EUDA/KCGP는 과거 연도 수치를 재추정(개정)한다.
  *   덮어쓰기만 하면 "그 시점에 게시한 값"의 감사추적이 사라져 원칙3(원본 딥링크)·정관2조

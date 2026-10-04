@@ -10,8 +10,9 @@
  *
  * 멱등성:
  *  - indicators: code 기준 upsert(있으면 메타 갱신, 없으면 삽입). definition_ko 없으면 skip.
- *  - observations: (indicator_id, source_id, geo, period) 기준 upsert.
- *      값이 바뀌면 이전 값을 revisions(jsonb)에 push 후 갱신, 같으면 fetched_at만 갱신.
+ *  - observations: (indicator_id, source_id, geo, period, qualifier) 기준 upsert.
+ *      값·출처·해석 단서가 바뀌면 이전 상태를 revisions(jsonb)에 push 후 갱신한다.
+ *      모두 같으면 fetched_at만 갱신한다.
  *  재실행해도 중복 행이 생기지 않는다.
  */
 import 'reflect-metadata';
@@ -31,6 +32,7 @@ interface ObsRow {
   valueLow?: string | null;
   valueHigh?: string | null;
   sourceUrl?: string;
+  note?: string | null;
 }
 interface IndicatorRow {
   code: string;
@@ -131,19 +133,23 @@ async function run() {
             revisions: null,
             fetchedAt: now,
             sourceUrl,
+            note: o.note ?? null,
             // 큐레이션 시드는 사람이 검증한 값 → approved(원칙8). PDF 크론 추출분만 pending.
             status: 'approved',
+            reviewBatch: null,
           }),
         );
         obsInserted++;
         continue;
       }
 
-      // 값 변경 여부 판정(문자열 numeric 비교는 수치로).
+      // 값·출처·해석 단서 변경 여부 판정(문자열 numeric 비교는 수치로).
       const changed =
         Number(existing.value) !== Number(o.value) ||
         (existing.valueLow ?? null) !== (o.valueLow ?? null) ||
-        (existing.valueHigh ?? null) !== (o.valueHigh ?? null);
+        (existing.valueHigh ?? null) !== (o.valueHigh ?? null) ||
+        existing.sourceUrl !== sourceUrl ||
+        (existing.note ?? null) !== (o.note ?? null);
 
       if (changed) {
         const prior: ObservationRevision = {
@@ -152,6 +158,7 @@ async function run() {
           valueHigh: existing.valueHigh,
           qualifier: existing.qualifier,
           sourceUrl: existing.sourceUrl,
+          note: existing.note,
           fetchedAt: existing.fetchedAt.toISOString(),
         };
         const revisions = [...(existing.revisions ?? []), prior];
@@ -163,12 +170,19 @@ async function run() {
           revisions,
           fetchedAt: now,
           sourceUrl,
+          note: o.note ?? null,
           status: 'approved',
+          // 큐레이션 검증이 PDF pending을 대체하면 과거 검수 배치와의 연결을 끊는다.
+          reviewBatch: null,
         });
         obsRevised++;
       } else {
-        // 값 동일 → 생존 확인만(fetched_at 갱신).
-        await obsRepo.update(existing.id, { fetchedAt: now });
+        // 값·출처·단서 동일 → 생존 확인. 큐레이션 시드는 검수 완료 상태를 보장한다.
+        await obsRepo.update(existing.id, {
+          fetchedAt: now,
+          status: 'approved',
+          reviewBatch: null,
+        });
         obsUpdated++;
       }
     }

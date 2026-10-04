@@ -348,65 +348,27 @@ const SOURCES: Row[] = [
     scope: 'korea',
     kind: 'prevalence',
     cadence: 'annual',
-    expectedMonth: [2],
-    accessMethod: 'csv',
+    expectedMonth: [12],
+    accessMethod: 'pdf',
     reliability: 1,
     url: 'https://www.data.go.kr/data/15142248/fileData.do',
     titleKo: '청소년 도박문제 실태조사',
     titleEn: 'Youth Gambling Survey',
-    // AS-M3-2d: PDF 추출 대상. 대상·힌트를 env가 아니라 여기(DB)에 둔다.
-    // AS-PDF-RUN: 단일 period → pdf_rounds(회차 배열)로 확장. 시계열 확보용.
-    //
-    //  - 2024 회차는 공공데이터포털에 파일데이터로 올라와 있다(datagokr_filedata가
-    //    페이지에서 atchFileId를 직접 찾아 확정 — 추측 URL 금지).
-    //  - 과거 회차는 포털에 없고 kcgp 자료실 게시판에만 있다 → kcgp_board 탐색기가
-    //    목록에서 연도 게시글을 찾아 첨부 PDF를 확정한다.
-    //  - population: 회차별 조사대상. observations.note로 내려가 화면이 "회차 간
-    //    직접 비교 주의"를 표시한다. 이 조사는 모집단이 회차마다 바뀌었기 때문에
-    //    (2015·2018 고3 제외 → 2020 고3 포함 → 2022 초등 포함 → 2024 국가승인통계)
-    //    단서 없이 한 줄로 이으면 없는 급감·급증이 그려진다.
-    //
-    // ⚠️ kcgp_board의 listUrl은 운영에서 GET 200과 게시글 매칭을 실측해야 한다.
-    //    실패하면 해당 회차만 '보류'로 남고 나머지 회차는 정상 진행된다(회차별 격리).
+    lastPublishedAt: '2025-12-29',
+    // CAGI 어댑터는 2015~2022 시범조사 전용이다. 문항·기준이 개편된
+    // 2024년 이후 국가승인통계는 과거 시계열에 연결하지 않는다. 공식 PDF의
+    // 한글 텍스트 레이어도 안정적으로 해석되지 않아 자동추출은 안전하게 끈다.
+    // 검증값은 kcgp-youth.data.json에서 회차별 원문·모집단과 함께 큐레이션한다.
     accessDetail: {
       portal: '공공데이터포털',
       raw_data: true,
-      pdf: true,
-      parser_adapter: 'kcgp_youth',
-      pdf_rounds: [
-        {
-          period: '2024',
-          pdf_finder: {
-            type: 'datagokr_filedata',
-            datasetUrl: 'https://www.data.go.kr/data/15142248/fileData.do',
-          },
-          population:
-            '조사대상: 초4~고3 재학생 — 국가승인통계(제469001호) 최초 회차',
-        },
-        {
-          period: '2022',
-          pdf_finder: {
-            type: 'kcgp_board',
-            listUrl:
-              'https://www.kcgp.or.kr/portal/bbs/B0000063/list.do?menuNo=200240',
-            titleContains: '2022',
-          },
-          population: '조사대상: 초4~고3 재학생 — 4차 시범조사',
-        },
-        {
-          period: '2020',
-          pdf_finder: {
-            type: 'kcgp_board',
-            listUrl:
-              'https://www.kcgp.or.kr/portal/bbs/B0000063/list.do?menuNo=200240',
-            titleContains: '2020',
-          },
-          population: '조사대상: 중·고 재학생 (고3 포함) — 3차 시범조사',
-        },
-      ],
+      raw_data_url:
+        'https://www.kcgp.or.kr/portal/bbs/B0000064/list.do?menuNo=200241',
+      pdf: false,
+      manual_curation: true,
     },
     notes:
-      'Raw Data 공개. API 연동 가능. PDF 자동추출 대상(AS-M3-2d) · 회차 3종(AS-PDF-RUN)',
+      '공공데이터포털 항목은 결과보고서 PDF이며, 기관 조사원자료 페이지에는 SAV·XLSX·코드북이 별도 공개된다. 자동 수집은 비활성화하고, 2015·2018·2020·2022 CAGI와 개편된 2024년 이후 승인통계를 분리해 공식 원문 대조 큐레이션으로 관리한다.',
   },
   {
     id: 'kcgp_rehab',

@@ -30,22 +30,22 @@
 2. 레포 **`syc2070-source/addiction-society`** 선택 → Render가 루트 `render.yaml`을 읽음
 3. 서비스 `addiction-society-api` 확인 후 **환경변수 값 입력**:
 
-| 키 | 어디서 가져오나 | 필수 |
-|---|---|---|
-| `DB_HOST` | Supabase Connect의 Host | ✅ |
-| `DB_PORT` | `5432` | ✅ |
-| `DB_USER` | `postgres.<프로젝트ID>` (점 뒤까지) | ✅ |
-| `DB_PASSWORD` | Supabase DB 비밀번호 | ✅ |
-| `DB_NAME` | `postgres` | ✅ |
-| `JWT_SECRET` | 임의의 긴 무작위 문자열 | ✅ **미설정 시 서버 기동 실패**(AS-FIX-1) |
-| `JWT_EXPIRES_IN` | 예: `7d` | 선택(기본 24h) |
-| `CORS_ORIGINS` | 쉼표 구분 출처 목록 | 선택. 비우면 addictionsociety.net·www·localhost:3000 + `*.vercel.app` |
-| `LLM_POLICY_API_KEY` | DeepSeek API 키 (정책 D×P 분석) | 선택 |
-| `STATORY_API_URL` | Statory API 주소 (분석실 /lab) | 선택. **없으면 /lab이 영구 빈 목록** |
-| `DISCORD_WEBHOOK_OBSERVATORY` | Discord 웹훅 URL | 선택. 비우면 알림은 로그만 |
-| `INDICATOR_PDF_CRON_ENABLED` | `true`로 바꾸면 PDF 추출 크론 가동 | 기본 `false` — 아래 3-2 참조 |
-| `API_PUBLIC_URL` | Discord 검수 링크가 가리킬 API 주소 | 기본 `https://addiction-society-api.onrender.com` |
-| `REVIEW_TOKEN_SECRET` | 검수 토큰 서명키 | 선택. 비우면 `JWT_SECRET`에서 파생 |
+| 키                            | 어디서 가져오나                     | 필수                                                                  |
+| ----------------------------- | ----------------------------------- | --------------------------------------------------------------------- |
+| `DB_HOST`                     | Supabase Connect의 Host             | ✅                                                                    |
+| `DB_PORT`                     | `5432`                              | ✅                                                                    |
+| `DB_USER`                     | `postgres.<프로젝트ID>` (점 뒤까지) | ✅                                                                    |
+| `DB_PASSWORD`                 | Supabase DB 비밀번호                | ✅                                                                    |
+| `DB_NAME`                     | `postgres`                          | ✅                                                                    |
+| `JWT_SECRET`                  | 임의의 긴 무작위 문자열             | ✅ **미설정 시 서버 기동 실패**(AS-FIX-1)                             |
+| `JWT_EXPIRES_IN`              | 예: `7d`                            | 선택(기본 24h)                                                        |
+| `CORS_ORIGINS`                | 쉼표 구분 출처 목록                 | 선택. 비우면 addictionsociety.net·www·localhost:3000 + `*.vercel.app` |
+| `LLM_POLICY_API_KEY`          | DeepSeek API 키 (정책 D×P 분석)     | 선택                                                                  |
+| `STATORY_API_URL`             | Statory API 주소 (분석실 /lab)      | 선택. **없으면 /lab이 영구 빈 목록**                                  |
+| `DISCORD_WEBHOOK_OBSERVATORY` | Discord 웹훅 URL                    | 선택. 비우면 알림은 로그만                                            |
+| `INDICATOR_PDF_CRON_ENABLED`  | PDF 추출 크론 스위치                | **`false` 유지** — 현재 검증 완료된 자동추출 대상 없음(아래 3-2)      |
+| `API_PUBLIC_URL`              | Discord 검수 링크가 가리킬 API 주소 | 기본 `https://addiction-society-api.onrender.com`                     |
+| `REVIEW_TOKEN_SECRET`         | 검수 토큰 서명키                    | 선택. 비우면 `JWT_SECRET`에서 파생                                    |
 
 > ⚠️ `OPENAI_API_KEY`·`AUTO_COLLECT_*`·`STATORY_ACADEMIC_*`는 **AS-M3-1에서 폐기**되었습니다.
 > 남아 있다면 지워도 됩니다(코드가 읽지 않습니다).
@@ -71,7 +71,7 @@ Render 서비스 → **Logs** 탭에서 `[deploy-init]` 줄을 찾으세요.
 **선택 단계 (AS-FIX-1 — 실패해도 배포는 계속. ⚠️ 로그만 남음)**
 
 - `5/8 seed:recovery` → `73건`
-- `6/8 collect:indicators` → 지표 3 / 관측치 3
+- `6/8 collect:indicators` → 지표 7 / 관측치 20
 - `7/8 seed:documents` → 후보 29건 URL 실검증 (봇 차단분은 `REG*`로 구제 등록)
 - `8/8 collect:research` → OpenAlex 수집 건수
 
@@ -103,7 +103,7 @@ npm run backfill:next       # next_expected_at 계산·지난 예정일 이월
 
 # ── 자료 적재 (네트워크 필요한 것은 실패해도 무방, 나중에 재실행) ──
 npm run seed:recovery       # 회복자원 73건   (로컬 JSON, 네트워크 불요)
-npm run collect:indicators  # 지표 3 / 관측치 3 (로컬 JSON, 네트워크 불요)
+npm run collect:indicators  # 지표 7 / 관측치 20 (로컬 JSON, 네트워크 불요)
 npm run seed:documents      # 정책문서 ~29건  (URL 실검증 — 네트워크 필요)
 npm run collect:research    # 연구자료        (OpenAlex — 네트워크 필요)
 
@@ -114,80 +114,40 @@ npm run collect:research    # 연구자료        (OpenAlex — 네트워크 필
 
 기대 결과:
 
-| 테이블 | 건수 |
-|---|---|
-| `sources` | 23 |
-| `tags` | 17 |
-| `recovery_resources` | 73 |
-| `indicators` / `observations` | 3 / 3 |
-| `documents` | 최대 29 (법률 6 + 소스 산출물 23. URL 검증 실패분은 보류) |
-| `research` | OpenAlex 수집량에 따라 가변 |
+| 테이블                        | 건수                                                      |
+| ----------------------------- | --------------------------------------------------------- |
+| `sources`                     | 23                                                        |
+| `tags`                        | 17                                                        |
+| `recovery_resources`          | 73                                                        |
+| `indicators` / `observations` | 7 / 20                                                    |
+| `documents`                   | 최대 29 (법률 6 + 소스 산출물 23. URL 검증 실패분은 보류) |
+| `research`                    | OpenAlex 수집량에 따라 가변                               |
 
 ---
 
-## 3-2) ★ PDF 지표 추출 — 첫 실행과 크론 켜기 (AS-PDF-RUN)
+## 3-2) ★ PDF 지표 추출 — 현재 비활성
 
-PDF 표에서 뽑은 값은 기계 오독 위험이 있어 **항상 `pending`으로 들어가고 사람이
-승인해야 공개**된다(원칙 8). 승인은 **Discord 알림의 링크 클릭**으로 끝난다 —
-관리자 로그인이 필요 없다.
+현재 `sources`에는 `access_detail.pdf=true`인 검증 완료 대상이 없다.
+특히 한국도박문제예방치유원 청소년 조사 PDF는 다음 이유로 자동추출하지 않는다.
 
-### ① 즉시 1회 실행 (크론을 기다리지 않고)
+- 2015·2018·2020·2022 CAGI 시범조사와 2024년 이후 국가승인통계의 문항·기준이 다르다.
+- 공식 PDF 일부는 한글 텍스트 레이어가 깨져 표 라벨을 안정적으로 판독하지 못한다.
+- 따라서 검증한 7개 지표·20개 관측치는 `kcgp-youth.data.json`에서 공식 원문
+  딥링크와 회차별 모집단 단서를 함께 관리한다.
 
-Render 서비스 → **Shell**:
+운영에서는 `INDICATOR_PDF_CRON_ENABLED=false`를 유지하고, `npm run extract:pdf`나
+`npm run extract:pdf -- kcgp_youth`를 배포 절차로 실행하지 않는다. 이 명령들은
+새 어댑터를 개발·검증할 때만 쓰는 진단 도구다.
 
-```bash
-npm run extract:pdf                    # 대상 소스·회차 전부
-npm run extract:pdf -- kcgp_youth      # 그 소스의 모든 회차
-npm run extract:pdf -- kcgp_youth 2024 # 특정 회차만
-```
+향후 자동추출을 다시 켜려면 다음을 모두 충족한 별도 변경을 먼저 배포한다.
 
-스크립트가 먼저 환경(python·pdfplumber·회차별 PDF URL 확정)을 점검해 출력한다.
-`"ok": false`면 추출을 하지 않고 중단하므로, 빌드 로그의 `install-pdf-deps.sh`
-결과를 먼저 확인하면 된다.
+1. 승인통계와 과거 CAGI를 서로 다른 지표로 내보내는 회차별 어댑터
+2. 실제 공식 PDF fixture에 대한 회귀 테스트와 0건 추출 실패 검증
+3. 정확한 회차 게시글·PDF 딥링크, 모집단·분모 메타데이터
+4. `pending` 적재 → Discord 검수 링크 → 승인/폐기까지의 운영 리허설
 
-> Shell을 쓰는 것은 **첫 완주·재시도 부트스트랩**에 한정된다. 상시 운용은 크론이 한다.
-
-### ② Discord 알림에서 검수
-
-추출로 `pending`이 생기면 관측소 채널에 이런 알림이 온다:
-
-```
-🧾 지표 자동추출 — 검수 요망 (한국도박문제예방치유원 · 청소년 도박문제 실태조사)
-회차 2022 · pending 신규 9 / 갱신 0
-추출값 (지표 | 기간 | 분류 | 값):
-· 청소년 도박문제 위험군(YELLOW) 비율 | 2022 | 전체 | 3.9%
-· 청소년 도박문제 위험군(YELLOW) 비율 | 2022 | 남학생 | 5.1%
-  … (최대 25줄, 초과분은 링크에서)
-원본: https://www.data.go.kr/data/15142248/fileData.do
-검수(승인/폐기): https://…/api/indicators/review/<서명토큰>
-※ 승인 전까지 공개되지 않습니다. 링크는 14일 후 만료됩니다.
-```
-
-**값이 본문에 그대로 들어 있으므로 알림만 보고 원본과 대조**할 수 있다.
-링크를 열면 값 표와 [승인하고 공개] / [폐기(비공개 유지)] 버튼이 나온다.
-링크를 여는 것만으로는 아무것도 바뀌지 않는다(처리는 버튼 = POST).
-
-- **승인** → 즉시 공개. Discord에 `✅ 지표 검수 승인 — N건 공개` 회신.
-- **폐기** → 비공개 유지(삭제 아님 — 파서 수정의 근거로 남는다). `🗑️` 회신.
-- 이미 처리한 링크를 다시 눌러도 0건(1회성).
-
-### ③ 크론 켜기 — ①②가 실제로 동작한 뒤에
-
-`INDICATOR_PDF_CRON_ENABLED=true`로 바꾸고 재배포한다. 켜기 전에 확인할 것:
-
-| 확인 | 방법 |
-|---|---|
-| python·pdfplumber 준비됨 | `npm run extract:pdf`의 환경 점검 `"ok": true` |
-| 회차별 PDF URL 확정됨 | 같은 출력의 `rounds[].resolvedUrl`이 null이 아님 |
-| Discord 알림 도착 | ①을 돌렸을 때 채널에 검수 알림이 왔는지 |
-| 검수 링크 동작 | 실제로 승인/폐기를 한 번 눌러 봤는지 |
-| `API_PUBLIC_URL` 정확 | 알림 속 링크가 실제 서비스 주소인지 |
-
-- **첫 크론 실행**: 켠 다음 달 **1일 04:00 (KST)**. 매월 1일 04시 고정.
-- **예상 알림**: 대상 소스·회차마다 위 형태의 검수 알림 1건. 값이 그대로면
-  `pending 신규 0 / 갱신 N`이 되고, 아무 변화가 없으면 알림을 보내지 않는다.
-- **실패 시**: `⚠️ 지표 자동추출 실패 (소스 회차): 사유` 알림 + `/timeline`에 기록.
-  회차 하나가 실패해도 나머지 회차는 계속 진행된다.
+그 뒤에만 해당 소스의 `access_detail.pdf=true`와
+`INDICATOR_PDF_CRON_ENABLED=true`를 함께 검토한다.
 
 ---
 
