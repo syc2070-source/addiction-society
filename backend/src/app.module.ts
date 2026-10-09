@@ -23,6 +23,7 @@ import { SourceEvent } from './sources/entities/source-event.entity';
 import { Indicator } from './indicators/entities/indicator.entity';
 import { Observation } from './indicators/entities/observation.entity';
 import { validateJwtEnvironment } from './auth/jwt.config';
+import { HealthController } from './health.controller';
 
 @Module({
   imports: [
@@ -82,5 +83,6 @@ import { validateJwtEnvironment } from './auth/jwt.config';
     SourcesModule,
     IndicatorsModule,
   ],
+  controllers: [HealthController],
 })
 export class AppModule {}

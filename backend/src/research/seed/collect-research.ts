@@ -8,7 +8,9 @@
  * OpenAlex를 1차 소스로 쓴다. (구 AUTO_COLLECT 자동수집 경로는 AS-M3-1에서 폐기됨.)
  *
  * 절차: 도메인(D0~D3)별 질의어 2~3개로 인용수 상위 문헌을 수집 →
- *   DOI 있는 것만(없으면 제외) → research 테이블에 멱등 upsert(status='approved').
+ *   DOI 있는 것만(없으면 제외) → research 테이블에 멱등 upsert.
+ *   신규 행 status 는 관련성 관문(relevance.ts) 통과 시 'approved', 실패 시
+ *   'pending'(SOC-0 — 인용수 상위 무관 문헌이 자동 게시되던 문제).
  *
  * 게시 정책(원칙 8): 서지 메타데이터(제목·저자·연도·저널·DOI)는 기계 검증(DOI 존재 +
  *   OpenAlex/Crossref 신뢰 소스 메타데이터)만으로 자동 게시(approved)한다.
@@ -27,6 +29,7 @@ import 'reflect-metadata';
 import { AppDataSource } from '../../data-source';
 import { Research } from '../entities/research.entity';
 import { DomainCode, RegionCode } from '../../common/enums';
+import { collectedStatus } from '../relevance';
 
 const OPENALEX = 'https://api.openalex.org/works';
 const UA = 'AddictionSociety-Observatory/1.0 (+https://addictionsociety.net)';
@@ -135,20 +138,21 @@ async function fetchQuery(
       .filter((n): n is string => !!n)
       .slice(0, 12);
     const journal = w.primary_location?.source?.display_name?.trim();
+    const abstract = reconstructAbstract(w.abstract_inverted_index);
     out.push({
       doiUrl,
       payload: {
         title: title.slice(0, 500),
         authors: authors.length ? authors : undefined,
         year: w.publication_year ?? undefined,
-        abstract: reconstructAbstract(w.abstract_inverted_index),
+        abstract,
         keywords: [query],
         domains: [domain],
         sourceUrl: doiUrl.slice(0, 500),
         source: (journal || 'OpenAlex').slice(0, 200),
         region: RegionCode.OTHER,
-        // 서지 메타데이터 = DOI 기계 검증 → 자동 게시(원칙 8). AI 요약만 pending 유지.
-        status: 'approved',
+        // DOI 기계 검증 + 관련성 관문 통과분만 자동 게시. 실패분은 pending(검토 대기).
+        status: collectedStatus({ title, abstract, keywords: [query] }),
       },
     });
   }
@@ -208,10 +212,10 @@ async function run() {
     `\n[collect] 수집 ${collected.length}건(DOI 보유) · upsert 신규 ${inserted} / 갱신 ${updated}`,
   );
   console.log(
-    `[collect] research 총량 ${before} → ${after}건 (신규 서지분 status=approved · 자동 게시)`,
+    `[collect] research 총량 ${before} → ${after}건 (신규분: 관문 통과=approved · 실패=pending)`,
   );
   console.log(
-    "[collect] 기존 pending(과거 수집분) 일괄 게시 SQL: UPDATE research SET status='approved' WHERE status='pending';",
+    '[collect] pending = 관련성 관문 실패분. 일괄 승인 금지 — 건별 검토 후 승인한다(SOC-0).',
   );
 
   await ds.destroy();
