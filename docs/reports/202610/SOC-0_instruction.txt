@@ -1,0 +1,51 @@
+SOC-0 지시서 (2026-10-09 · 중독사회 첫 판 · 실행자 = 데스크탑 Claude Code · 폴더 D:\addiction-society)
+
+[위치판]
+저장소 D:\addiction-society · GitHub syc2070-source/addiction-society · main = b8fa2efe(AUTH-001 · 앞 main 8d674b0d) · 원격 가지 codex/auth-001-containment(d04dea57)
+Render addiction-society-api(branch main · root backend · preDeployCommand bash scripts/deploy-init.sh = 배포마다 migration:run·seed:tags·seed:sources·backfill:next·seed:recovery·collect:indicators·seed:documents·collect:research 자동) · Vercel addiction-society(root frontend-next · production main · 영향 없는 배포 건너뜀 켬)
+backend 시험 46 ✓ · frontend-next npm ci 실패 = FE-LOCK-001(이 판 손대지 않음) · 열린 것: ① b8fa2efe 배포 결과 미확인 ② P1 공개 연구 조회가 승인 상태 강제 안 함(status=all · findOne) → 무관 항목 노출(조현병 척도·기업가 정신건강·직무자원 모형·양자물리 소프트웨어) ③ 중독백과 YouTube 스케줄러가 Codex 없이 도는지 미확인
+
+[목표]
+① 중독사회는 중독 연구 근거를 모아 보여 주는 플랫폼이다 — 공개 화면에는 승인된 · 중독과 관련된 자료만 보인다.
+② 운영 사이트는 재작성하지 않고 측정한 뒤 깨진 것만 작은 판으로 고친다.
+③ 12월에 Statory 「맞다」 카드와 주제 ID 로 이어진다(ECO-LINK1) — 이 판은 그 바닥(승인 경계 · 출처 보존)을 흐트러뜨리지 않는다.
+항목마다 〔①〕〔②〕〔③〕 = 어느 목표에 닿는지.
+
+[규율 — 전부 지킬 것]
+- 오너에게 묻지 말고 끝까지 계속 진행. 오너 액션 0. 막히면 3번 시도 뒤 「미측」 으로 적고 다음 항목으로. 「미측 ≠ 0」.
+- 열쇠·비밀번호·토큰 값은 화면·보고서·파일 어디에도 적지 않음. .env* 파일은 읽지도 쓰지도 않음(환경변수는 코드 안의 이름만 봄).
+- DB 직접 접속 0 · migration 새로 만들기 0 · seed 손대기 0 · 스키마 변경 0. 운영 데이터는 공개 API(GET)로만 읽음.
+- 지우기 0(파일·커밋·작업 스케줄러·YouTube 영상 모두). 옮기기도 0. schtasks 는 /Query 만.
+- frontend-next 는 손대지 않음(npm ci 도 돌리지 않음). 옛 CRA·admin 도 손대지 않음.
+- git: 공유 가지 rebase·force push 0. 커밋 셋 = ⓐ 지시서 [skip ci] [skip render] → ⓑ 코드 → ⓒ 보고서 [skip ci] [skip render]. **push 는 세 번 따로**(Render 는 push 머리 커밋에 [skip render] 가 있으면 그 push 전체를 안 배포하므로 코드 머리는 혼자 push).
+- 시스템·전원·네트워크 설정 변경 0.
+
+■0 시작 〔②〕
+ⓐ 이 지시서 전문을 docs/reports/202610/SOC-0_instruction.txt 로 저장(폴더 없으면 만듦). git fetch origin → git checkout main → git pull --ff-only → HEAD 가 b8fa2efe 인지 확인(다르면 그 해시를 보고서 첫 줄에) → git checkout -b claude/soc-0 → 커밋 ⓐ 「docs(soc-0): instruction [skip ci] [skip render]」 → git push -u origin claude/soc-0.
+ⓑ 중독백과 YouTube 스케줄러 읽기 확인(읽기 전용): schtasks /Query /TN "중독백과 자동 업로드" /V /FO LIST → 「Task To Run」·「Last Run Time」·「Last Result」·「Next Run Time」 기록. Task To Run 이 가리키는 파일(.bat/.ps1/.py)을 열어 ⅰ codex 라는 글자가 한 군데도 없는지 ⅱ 부르는 python 경로가 실제로 있는지(where / Test-Path) 적음. D:\addicted-news\.publisher-runtime\data\logs\status.json 에서 10-08·10-09 항목(올린 수 · 누적/172 · 오류 문자열) 기록. 그리고 schtasks /Query /FO LIST /V 전체에서 Last Result ≠ 0 이고 10분 간격으로 도는 옛 고장 작업의 이름·Task To Run 만 적음(오너 「제거」 후보 · 손대지 않음).
+
+■1 Render 배포 실측(읽기 전용 · 공개 API) 〔②〕
+ⓐ 공개 API 기본 URL 을 코드에서 찾음(frontend-next 의 NEXT_PUBLIC_* 이름 · render.yaml · README). 못 찾으면 https://addiction-society-api.onrender.com 로 시도.
+ⓑ curl.exe -s -o NUL -w "%{http_code} %{time_total}\n" 로 아래를 각각 세 번(콜드 스타트 감안 · 첫 번째가 느리면 그대로 기록):
+   GET <api>/api/sources/summary (기대 200) · POST <api>/api/auth/register 빈 본문 (기대 403 또는 401 = AUTH-001 살아 있음 · 200 이면 P0 로 보고서 첫 줄) · GET <api>/ · GET <api>/api/health(있으면)
+   https://addictionsociety.net 의 / /research /recovery /lab /policy (기대 200)
+ⓒ 코드에 배포 커밋을 돌려주는 길(health·version 응답에 commit)이 있는지 확인 → 없으면 「b8fa2efe 배포 여부 = 미측(이 판 ■2 에서 길을 만듦)」.
+ⓓ /research 공개 응답(API 목록)에서 무관 네 제목(조현병 척도·기업가 정신건강·직무자원 모형·양자물리 소프트웨어)이 지금 보이는지 보임/안 보임 으로 기록. 목록 전체 수 N 과 status 값별 수도 적음(API 가 status 를 돌려주면).
+
+■2 공개 연구 경계 고치기(코드만) 〔①〕〔③〕
+ⓐ 실측 먼저: 연구 자료 엔티티(status 열거값 · 승인자/검토일/자동수집 표시 열이 있는지) · 공개 컨트롤러·서비스의 목록/검색/findOne 세 길 · collect:research 가 새 항목을 어떤 status 로 저장하는지 · 관리자 API 는 어느 guard 뒤에 있는지. 표로 보고서에.
+ⓑ 승인만: 공개 목록·검색·findOne 세 길 모두 status = 승인(실측한 값) 만 돌려줌. status 쿼리 파라미터로 all/pending 을 넘겨도 공개 길에서는 무시(관리자 길은 그대로). findOne 이 미승인 항목이면 404.
+ⓒ 관련성 관문: backend 안에 relevance 모듈 하나(순수 함수 · DB 0). 한국어·영어 핵심어 사전(중독·알코올·음주·단주·금주·도박·마약·약물·물질사용·흡연·담배·니코틴·게임·인터넷·스마트폰·디지털·행위중독·회복·재발·갈망·addiction·addictive·substance use·SUD·alcohol·drinking·gambling·drug·opioid·nicotine·smoking·tobacco·cannabis·gaming disorder·internet·smartphone·dependence·craving·recovery·relapse·abstinence·harm reduction — 실측 뒤 보태되 좁게). 제목·초록·키워드 중 하나에라도 핵심어가 있으면 통과. 적용 두 곳: ⅰ 공개 세 길은 관문 실패 항목을 돌려주지 않음(데이터는 안 바꿈 · 쿼리/코드 수준 필터) — 사람이 검토한 표시(승인자·검토일)가 있는 항목은 관문 없이 통과 ⅱ collect:research 가 새로 저장하는 항목은 관문 실패면 승인이 아닌 검토 필요 상태(실측한 값 · 없으면 승인 아님 상태)로 저장. 기존 행의 status 는 이 판에서 바꾸지 않음.
+ⓓ 시험: 승인만 세 길 · 관문 통과/실패 각 3건 · collect 저장 status · 공개 길의 status=all 무시. backend 에서 npm ci → npm run typecheck(있으면) → npm run build → npm test 전부 통과(46 → N 기록).
+ⓔ 배포 확인 길: GET /api/health 가 없으면 하나 추가 — { ok, commit: process.env.RENDER_GIT_COMMIT ?? "local", startedAt } (DB 안 봄 · 인증 없음 · 비밀 0). 있으면 commit 만 보탬.
+ⓕ 커밋 ⓑ 「fix(research): public approved-only + relevance gate + health commit (SOC-0)」 → git push origin claude/soc-0 → git checkout main → git merge --ff-only claude/soc-0 → **git push origin main (이 push 머리는 코드 커밋 · [skip] 글자 0)**. deploy-init 이 한 번 돌아 seed·collect 가 실행되는 것은 지금 설정의 기존 동작이라 허용(분리는 SOC-R1).
+ⓖ 배포 기다리기(최대 25분 · 60초마다): GET <api>/api/health 의 commit 이 방금 push 한 해시가 되면 배포 완료 시각 기록. 25분 넘으면 「배포 미확인」 으로 적고 계속(다음 판 첫머리가 읽음). 완료되면 ■1ⓑ·ⓓ 를 다시 한 번 돌려 전/후 표(무관 네 제목 안 보임 · 목록 수 N → N′ · 공개 화면 다섯 200).
+
+■3 기준점 기록(읽기 전용) 〔②〕〔③〕
+표 하나: main 해시(전/후) · 가지 · Render 서비스 이름·root·build·preDeploy(코드·render.yaml 에서 읽은 것) · Vercel root·production 가지 · backend 시험 수 전/후 · 공개 화면 다섯 응답 · API 넷 응답 · health commit · FE-LOCK-001 그대로 · 옛 CRA/admin 그대로 · 스케줄러 ⓑ 결과 한 줄 · 관문 통계(전체 N · 승인 N · 관문 실패 N + 실패 제목 전부 — 오너가 뒤에 검토). 보고서에 넣음.
+
+■4 보고서 〔②〕
+docs/reports/202610/SOC-0_<MMDD>.txt — 첫 줄 = 경보 한 줄(P0 있으면 그것 · 없으면 「경보 0」) · ■0~■3 표 · 바뀐 파일 목록 · 미측 목록(까닭 한 줄씩) · 다음 판 후보(열 줄 안) · 마지막 줄 「SOC-0 끝」. 커밋 ⓒ 「docs(soc-0): report [skip ci] [skip render]」 main 에 → git push origin main(따로). 끝나면 보고서 전문을 화면에 출력.
+
+[하지 않는 것]
+DB 접속·migration·seed·스키마 · frontend-next·CRA·admin · 지우기·옮기기 · YouTube 공개 전환·DB 동기화 · 스케줄러 변경 · 기존 연구 행 status 변경 · 수집기 키워드 바꾸기(SOC-R1) · .env 읽기 · 열쇠 값 출력 · rebase·force push.
