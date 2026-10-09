@@ -1,0 +1,147 @@
+경보 0 (P0 없음) · 단 main 시작 해시 = 24d8211c0c2cfc5f41394e7f70dedc4d9cd37ab1 (지시서의 b8fa2efe 아님 — 그 위에 FE-LOCK 커밋 1개) · 중독백과 업로드 10-07·10-08·10-09 연속 실패
+SOC-0 보고서 · 2026-10-09 · 실행 = 데스크탑 Claude Code (Opus 5.5) · 가지 claude/soc-0
+
+■0 시작 〔②〕
+| git fetch → main pull --ff-only | HEAD = 24d8211 (b8fa2ef 다음 커밋 「fix(frontend-next): restore reproducible npm install」) |
+| 가지 · 커밋 ⓐ | claude/soc-0 · 5f2456b docs(soc-0): instruction [skip ci] [skip render] · push ① (가지) |
+| 스케줄러 「중독백과 자동 업로드」 | 매일 14:10 · Last Run 2026-10-09 14:10:01 · Last Result = 2 (실패) · Next 2026-10-10 14:10:00 · Ready |
+| Task To Run | powershell.exe -NoLogo -NoProfile -NonInteractive -WindowStyle Hidden -ExecutionPolicy Bypass -File "D:\addicted-news\.publisher-runtime\data\run_youtube_publisher.ps1" -PipelineRoot "D:\addicted-news\video_pipeline" |
+| ⅰ codex 글자 | run_youtube_publisher.ps1 안 0건 (작업 설명란도 「Codex 앱과 무관하게」) → Codex 없이 돈다 ✓ |
+| ⅱ python 경로 | D:\addicted-news\.publisher-runtime\venv\Scripts\python.exe 있음(Test-Path True) · 업로더 release\upload_youtube.py 있음 |
+| status.json (10-09 14:10:26) | result=failed · 누적 44/172 · 남음 128 · exit_code 2 · detail "" |
+| 10-08 로그 | 시작 36/172 → 「치명적 오류: 'Message' 매개 변수가 빈 문자열이므로…」(업로더 빈 줄 출력을 Write-PublisherLog 가 못 받음) · 올린 수 기록 없음 · 10-07 도 같은 오류 |
+| 10-09 로그 | 시작 44/172 (10-08 크래시 뒤에도 기록 +8) · 원격 46 · 「대조 충돌 — addiction, blackout: enc-id 표식 영상의 제목/재생시간/개수가 모호함」 → 원격 쓰기 0 · 올린 수 0 · 종료 2 |
+| 10분 간격 · Last Result≠0 작업 | 0건 (10분 반복 작업 자체가 없음) |
+| 참고 (오너 「제거」 후보 · 손대지 않음) | \중독백과 업로드 — 매일 14:00 · Task To Run = python upload_youtube.py (작업폴더 D:\addicted-news\video_pipeline) · Last Result 0x80070002(파일 없음) · 새 자동 업로드와 겹치는 옛 작업 |
+
+■1 Render 배포 실측 (공개 API · 읽기만) 〔②〕
+ⓐ API = https://addiction-society-api.onrender.com (render.yaml API_PUBLIC_URL · frontend-next 는 NEXT_PUBLIC_API_URL 이름)
+ⓑ 전 (세 번 · 코드 초)
+| GET /api/sources/summary | 200 1.65 · 200 0.93 · 200 0.99 |
+| POST /api/auth/register 빈 본문 | 403 · 403 · 403 → AUTH-001 살아 있음 |
+| GET / | 404 ×3 (루트 경로 없음 — 기존 그대로) |
+| GET /api/health | 404 ×3 (없음) |
+| 사이트 / /research /recovery /lab /policy | 모두 308 → https://www.addictionsociety.net<경로> → 따라가면 200 ×5 (1.7~3.5초) |
+ⓒ 배포 커밋을 돌려주는 길: 없었음 → b8fa2efe 배포 여부 = 미측(■2 에서 /api/health 신설). 비관리자 status=all 이 이미 무시되는 것으로 보아 AS-FIX-1 이후 코드가 떠 있던 것으로 추정.
+ⓓ 공개 목록 GET /api/research?limit=100 : N = 49 · status 값별 approved 49 · status=all 붙여도 49 · /stats total 49
+   무관 네 제목: 조현병 척도(#47 PANSS) 보임 · 기업가 정신건강(#46) 보임 · 직무자원 모형(#40 JD-R · #42) 보임 · 양자물리 소프트웨어(#38 QUANTUM ESPRESSO) 보임
+   GET /api/research/:id 는 status 확인 없이 아무 id 나 돌려주는 코드 (P1 그대로)
+
+■2 공개 연구 경계 고치기 〔①〕〔③〕
+ⓐ 실측
+| research.status | varchar(20) default 'approved' · 쓰는 값 approved / pending (열거형 아님) |
+| 승인자·검토일·자동수집 표시 열 | 없음 → 「사람 검토분 관문 면제」는 적용할 대상 없음 (스키마 변경 금지라 추가 안 함) |
+| 목록·검색 | GET /api/research (OptionalJwtAuthGuard) · 검색은 같은 길의 ?search= · 비관리자 status='approved' 강제는 AS-FIX-1 로 이미 있었음 |
+| findOne | GET /api/research/:id · 가드 없음 · status 확인 없음 ← 구멍 |
+| featured / stats | featured = approved 만 · stats = 전체 행 수 (미승인 포함) |
+| collect:research 저장 status | 신규 'approved' 고정 (OpenAlex 인용수 상위 문헌을 그대로 자동 게시) · 기존 행 status 안 건드림 · keywords = 수집 검색어 그대로 |
+| 관리자 API | POST/PUT/DELETE /api/research = JwtAuthGuard + RolesGuard + @Roles(ADMIN) |
+ⓑ 승인만: 목록·검색 → findPublic (status=approved 강제 · ?status 무시) · 상세 → 비관리자는 findPublicOne (approved 이고 관문 통과 아니면 404) · 관리자 길(목록 status 필터 · 상세)은 그대로. featured·stats 도 같은 공개 집합으로 맞춤 (목록 수와 통계 수가 어긋나지 않게).
+ⓒ 관련성 관문 backend/src/research/relevance.ts (순수 함수 · DB 0)
+   - 한국어 20어 부분 일치 · 영어 22패턴 단어 경계 (지시서 목록 + workaholi 하나 보탬 = D3 일중독)
+   - 판정: 제목 1회 이상 · 키워드 1회 이상 · 초록 3회 이상 중 하나
+   - 지시서와 다른 점 두 가지 (실측 근거):
+     (1) 수집기가 넣은 keywords (검색어 11개, 예 'gaming disorder') 는 판정에서 뺌 — 안 빼면 49건 전부 통과
+     (2) 초록은 1회가 아니라 3회 — 1회 기준이면 PANSS(초록 'drug' 2회)·심방세동 지침('drugs' 1회)·GBD 등 13건 통과. 진짜 중독 문헌 초록은 4~10회
+   - 공개 길: 승인분을 모두 읽어 관문으로 거른 뒤 메모리에서 페이지를 자름 (total 정확 · 상한 5000) · 데이터 변경 0
+   - collect:research 신규 행: 관문 통과 approved · 실패 pending · 기존 행 status 변경 0 · 끝 안내문 「pending 일괄 승인 SQL」 → 「일괄 승인 금지 — 건별 검토」
+ⓓ 시험: npm ci ✓ · typecheck 스크립트 없음 → npx tsc --noEmit ✓ · npm run build ✓ · npm test 8 suites 46 → 63 ✓
+   새 research.public.spec.ts 17건: 관문 통과 3 · 실패 3 (+collect status approved/pending) · 큐레이션 키워드 1 · 목록/검색 승인 강제+관문+total · 상세 승인만 조회·없으면 404 · 관문 실패 404 · 통과 200 · stats · 공개 status=all 무시 · 관리자 목록 유지 · 공개 상세 404 · 관리자 상세 · health
+ⓔ GET /api/health 신설 → { ok:true, commit: RENDER_GIT_COMMIT ?? "local", startedAt } · DB·인증·비밀 0 · Render healthCheckPath 는 그대로 /api/sources/summary
+ⓕ 커밋 ⓑ 8f8f3c6 → push claude/soc-0 → main ff-merge → push origin main 16:20:20 (push ② · 머리 = 코드 커밋 · [skip] 글자 0)
+ⓖ 배포 완료 16:24:30 확인 (health commit = 8f8f3c6f3302aaab7c87be45022be813727b6344 · startedAt 2026-10-09T07:24:01Z · 약 4분)
+| 항목 | 전 | 후 |
+| 목록 N (?limit=100) | 49 (approved 49) | 7 (approved 7) |
+| ?status=all | 49 | 7 (무시) |
+| /stats total | 49 | 7 |
+| 무관 네 제목 (목록) | 보임 | 안 보임 (?search=PANSS → 0건) |
+| 상세 #47 #46 #40 #38 | (코드상 200 · 직접 측정 안 함) | 404 ×4 · 관련 #45 = 200 |
+| /api/health | 404 | 200 ×3 |
+| summary / register / root | 200 / 403 / 404 | 200 / 403 / 404 |
+| 사이트 다섯 | 308→200 | 308→200 · www /research HTML 에 무관 제목 0 · Cell-Phone Addiction 보임 |
+   후 공개 7건: #53 Workaholism: Definition, Measurement, and Preliminary Results · #52 Workaholism, Burnout, and Work Engagement · #45 Cell-Phone Addiction: A Review · #44 How can we conceptualize behavioural addiction… · #43 Are we overpathologizing everyday life? · #29 In search of how people change: Applications to addictive behaviors · #1 Short-Term Effects of Nose-Only Cigarette Smoke Exposure
+   주: 배포 때 deploy-init 의 collect:research 가 돌아 id 50~53 이 새로 생김 (기존 동작). 52·53 은 관문 통과 approved · 50·51 은 공개 API 에 안 보임 = pending 저장으로 추정 (DB 접속 금지라 미측)
+
+■3 기준점 〔②〕〔③〕
+| main 해시 | 전 24d8211 → 코드 후 8f8f3c6 (+ 이 보고서 커밋) |
+| 가지 | claude/soc-0 (원격 있음) |
+| Render | addiction-society-api · rootDir backend · build "npm ci && npm run build && bash scripts/install-pdf-deps.sh" · preDeploy "bash scripts/deploy-init.sh" (필수 migration:run·seed:tags·seed:sources·backfill:next / 선택 seed:recovery·collect:indicators·seed:documents·collect:research) · start "npm run start:prod" · healthCheckPath /api/sources/summary · starter · singapore (render.yaml) |
+| Vercel | root frontend-next · production main (지시서 위치판 · 저장소에 vercel.json 없음 → 코드로는 미확인) |
+| backend 시험 | 46 → 63 |
+| 공개 화면 다섯 | 308(→www) → 200 ×5 |
+| API 넷 | summary 200 · register 403 · / 404 · health 200 |
+| health commit | 8f8f3c6f3302aaab7c87be45022be813727b6344 |
+| FE-LOCK-001 | 손대지 않음 · main 24d8211 이 「restore reproducible npm install」 (lock 수정) · 이 판 npm ci 안 돌려 미검증 |
+| 옛 CRA(frontend/)·admin | 손대지 않음 (24d8211..8f8f3c6 사이 frontend·frontend-next 변경 0) |
+| 스케줄러 | Codex 무관 ✓ · python 있음 ✓ · 그러나 10-07·10-08 빈 Message 크래시, 10-09 대조 충돌(addiction·blackout) 로 실패 · 누적 44/172 |
+| 관문 통계 (배포 전 공개 49건 기준) | 전체 49 · 승인 49 · 관문 통과 5 · 관문 실패 44 |
+관문 실패 44건 (오너 검토용 · 행은 approved 그대로, 공개에서만 숨김):
+   #49 Conducting Meta-Analyses in R with the metafor Package
+   #48 Golden Eggs and Hyperbolic Discounting
+   #47 The Positive and Negative Syndrome Scale (PANSS) for Schizophrenia
+   #46 Entrepreneurs’ Mental Health and Well-Being: A Review and Research Agenda
+   #42 Reciprocal relationships between job resources, personal resources, and work engagement
+   #41 Latent profile analysis: A review and “how to” guide of its application within vocational behavior research
+   #40 A Critical Review of the Job Demands-Resources Model: Implications for Improving Work and Health
+   #39 Development and Distortion of Malaysian Public- Private Partnerships: Patronage, Privatised Profits and Pitfalls
+   #38 QUANTUM ESPRESSO: a modular and open-source software project for quantum simulations of materials
+   #37 A new criterion for assessing discriminant validity in variance-based structural equation modeling
+   #36 European Guidelines on cardiovascular disease prevention in clinical practice (version 2012)
+   #35 The REporting of studies Conducted using Observational Routinely-collected health Data (RECORD) Statement
+   #34 Whatever next? Predictive brains, situated agents, and the future of cognitive science
+   #33 2016 ESC Guidelines for the management of atrial fibrillation developed in collaboration with EACTS
+   #32 2016 ESC Guidelines for the management of atrial fibrillation developed in collaboration with EACTS
+   #31 2016 European Guidelines on cardiovascular disease prevention in clinical practice
+   #30 Older Adults' Reasons for Using Technology while Aging in Place
+   #28 The behaviour change wheel: A new method for characterising and designing behaviour change interventions
+   #27 Machine learning for molecular and materials science
+   #26 Rethinking Rumination
+   #25 Multidisciplinary research priorities for the COVID-19 pandemic: a call for action for mental health science
+   #24 Physics-informed machine learning
+   #23 Planetary Boundaries: Exploring the Safe Operating Space for Humanity
+   #22 Combining theory and experiment in electrocatalysis: Insights into materials design
+   #21 PRISMA 2020 explanation and elaboration: updated guidance and exemplars for reporting systematic reviews
+   #20 The PRISMA statement for reporting systematic reviews and meta-analyses of studies that evaluate healthcare interventions
+   #19 The PRISMA Statement for Reporting Systematic Reviews and Meta-Analyses of Studies That Evaluate Health Care Interventions
+   #18 A RATING SCALE FOR DEPRESSION
+   #17 Heavy Metal Toxicity and the Environment
+   #16 The International Classification of Headache Disorders, 3rd edition (beta version)
+   #15 The International Scientific Association for Probiotics and Prebiotics consensus statement on the scope and appropriate use of the term probiotic
+   #14 Designing qualitative research
+   #13 2013 ESH/ESC Guidelines for the management of arterial hypertension
+   #12 Global Strategy for the Diagnosis, Management, and Prevention of Chronic Obstructive Pulmonary Disease
+   #11 Global, regional, and national age-sex-specific mortality for 282 causes of death in 195 countries and territories, 1980–
+   #10 A comparative risk assessment of burden of disease and injury attributable to 67 risk factors and risk factor clusters in 21 regions, 1990–2010
+   #9 Preferred reporting items for systematic review and meta-analysis protocols (PRISMA-P) 2015: elaboration and explanation
+   #8 Global, regional, and national incidence, prevalence, and years lived with disability for 328 diseases and injuries…
+   #7 Global, regional, and national incidence, prevalence, and years lived with disability for 354 diseases and injuries…
+   #6 Global and regional mortality from 235 causes of death for 20 age groups in 1990 and 2010 (GBD 2010)
+   #5 2015 American Thyroid Association Management Guidelines for Adult Patients with Thyroid Nodules and Differentiated Thyroid Cancer
+   #4 Global Cancer Statistics, 2002
+   #3 Relationship of Childhood Abuse and Household Dysfunction to Many of the Leading Causes of Death in Adults
+   #2 Global burden of 369 diseases and injuries in 204 countries and territories, 1990–2019 (GBD 2019)
+
+바뀐 파일
+   새: backend/src/research/relevance.ts · backend/src/research/research.public.spec.ts · backend/src/health.controller.ts
+   고침: backend/src/research/research.service.ts · backend/src/research/research.controller.ts · backend/src/research/seed/collect-research.ts · backend/src/app.module.ts
+   문서: docs/reports/202610/SOC-0_instruction.txt · docs/reports/202610/SOC-0_1009.txt
+
+미측
+   - b8fa2efe 배포 여부: 배포 전엔 커밋을 돌려주는 길이 없었음 (지금은 /api/health 로 8f8f3c6 확인)
+   - id 50·51 의 status: 공개 API 에 안 보이고 DB 접속 금지 → pending 저장인지 확인 못 함
+   - 배포 전 상세 #47 등의 실제 응답: 전 측정에서 상세를 직접 치지 않음 (코드상 status 확인 없음)
+   - Vercel production 가지: 저장소에 설정 파일 없음 · 대시보드 접근 안 함
+   - FE-LOCK-001 실제 해소: frontend-next npm ci 금지라 안 돌림
+   - 10-08 크래시 뒤 기록 36→44 (+8) 의 출처: 로그에 업로드 줄 없음
+
+다음 판 후보
+   1. 중독백과 업로더: 빈 줄 로그 크래시 고치기 + addiction·blackout 대조 충돌 (원격 46 vs 기록 44) 해소
+   2. 옛 작업 \중독백과 업로드 (매일 14:00 · 0x80070002) 제거 — 오너 결정
+   3. SOC-R1: collect:research 검색어·정렬 손보기 (인용수 상위 = 무관 대작) + deploy-init 에서 수집 분리
+   4. 관문 실패 44건 + pending 건별 검토 (관리자 길 GET /api/research?status=pending)
+   5. 승인자·검토일 열 migration — 사람 검토분 관문 면제가 실제로 작동하도록
+   6. 공개 연구 7건뿐 — 중독 문헌 (한국 문헌 포함) 큐레이션 시드
+   7. addictionsociety.net → www 308 정규화가 의도인지 확인 (canonical)
+   8. Render healthCheckPath 를 /api/health 로 바꿀지 검토 (지금은 DB 포함 summary)
+
+SOC-0 끝
