@@ -29,7 +29,7 @@ import 'reflect-metadata';
 import { AppDataSource } from '../../data-source';
 import { Research } from '../entities/research.entity';
 import { DomainCode, RegionCode } from '../../common/enums';
-import { collectedStatus } from '../relevance';
+import { collectedStatus, relevanceColumns } from '../relevance';
 
 const OPENALEX = 'https://api.openalex.org/works';
 const UA = 'AddictionSociety-Observatory/1.0 (+https://addictionsociety.net)';
@@ -202,7 +202,10 @@ async function run() {
       await repo.update(existing.id, rest);
       updated++;
     } else {
-      await repo.save(repo.create(c.payload));
+      // 신규분만 관문 판정 기록을 남긴다(SOC-R1). 기존 행은 backfill:relevance 가 한 번 채운다.
+      await repo.save(
+        repo.create({ ...c.payload, ...relevanceColumns(c.payload) }),
+      );
       inserted++;
     }
   }

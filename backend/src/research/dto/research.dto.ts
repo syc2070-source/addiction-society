@@ -6,6 +6,7 @@ import {
   IsEnum,
   IsBoolean,
   MaxLength,
+  IsIn,
 } from 'class-validator';
 import { DomainCode, RegionCode } from '../../common/enums';
 
@@ -168,4 +169,18 @@ export class ResearchQueryDto {
   @IsOptional()
   @IsString()
   status?: string;
+}
+
+/** 검수 창 결정 (SOC-R1). null = 되돌리기(검토 대기로). */
+export class ReviewResearchDto {
+  @IsOptional()
+  @IsIn(['keep', 'hide'])
+  decision: 'keep' | 'hide' | null;
+}
+
+/** 검수 창 탭. pending = 승인 + 관문 실패 + 미검토. */
+export class ReviewQueueQueryDto {
+  @IsOptional()
+  @IsIn(['pending', 'keep', 'hide'])
+  tab?: 'pending' | 'keep' | 'hide';
 }

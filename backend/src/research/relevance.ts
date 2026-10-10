@@ -112,14 +112,75 @@ const collectorTerms = new Set(
   COLLECTOR_QUERY_TERMS.map((t) => t.toLowerCase()),
 );
 
+export interface RelevanceVerdict {
+  pass: boolean;
+  /** 제목·키워드·초록 핵심어 등장 합계(기록용). */
+  score: number;
+  /** 사람이 읽는 판정 근거, 예: "통과: 제목 2" · "실패: 제목 0 · 키워드 0 · 초록 2(<3)". */
+  reason: string;
+  hits: { title: number; keywords: number; abstract: number };
+}
+
+/** 관문 판정 + 근거 (SOC-R1). 판정 규칙은 isAddictionRelevant 와 같다. */
+export function relevanceVerdict(item: RelevanceInput): RelevanceVerdict {
+  const title = countAddictionTerms(item.title);
+  const keywords = (item.keywords ?? [])
+    .filter((k) => !collectorTerms.has(k.trim().toLowerCase()))
+    .reduce((n, k) => n + countAddictionTerms(k), 0);
+  const abstract = countAddictionTerms(item.abstract);
+  const hits = { title, keywords, abstract };
+  const score = title + keywords + abstract;
+  const passedBy: string[] = [];
+  if (title > 0) passedBy.push(`제목 ${title}`);
+  if (keywords > 0) passedBy.push(`키워드 ${keywords}`);
+  if (abstract >= ABSTRACT_MIN_HITS) passedBy.push(`초록 ${abstract}`);
+  if (passedBy.length > 0) {
+    return { pass: true, score, reason: `통과: ${passedBy.join(' · ')}`, hits };
+  }
+  return {
+    pass: false,
+    score,
+    reason: `실패: 제목 0 · 키워드 0 · 초록 ${abstract}(<${ABSTRACT_MIN_HITS})`,
+    hits,
+  };
+}
+
 /** 제목·키워드(수집기 검색어 제외) 1회 이상 또는 초록 3회 이상이면 true. */
 export function isAddictionRelevant(item: RelevanceInput): boolean {
-  if (countAddictionTerms(item.title) > 0) return true;
-  const keywords = (item.keywords ?? []).filter(
-    (k) => !collectorTerms.has(k.trim().toLowerCase()),
-  );
-  if (keywords.some((k) => countAddictionTerms(k) > 0)) return true;
-  return countAddictionTerms(item.abstract) >= ABSTRACT_MIN_HITS;
+  return relevanceVerdict(item).pass;
+}
+
+export interface VisibilityInput extends RelevanceInput {
+  status?: string | null;
+  reviewDecision?: string | null;
+}
+
+/**
+ * 공개 규칙 하나 (SOC-R1): 승인 이고 (관문 통과 또는 keep) 이고 hide 아님.
+ * 목록·검색·featured·stats·상세가 모두 이 함수만 쓴다. 관리자 길은 쓰지 않는다.
+ */
+export function isPubliclyVisible(item: VisibilityInput): boolean {
+  if (item.status !== 'approved') return false;
+  if (item.reviewDecision === 'hide') return false;
+  if (item.reviewDecision === 'keep') return true;
+  return isAddictionRelevant(item);
+}
+
+/** relevance_* 세 칸에 쓸 값 (collect:research 신규분 · 기존 행 보충). */
+export function relevanceColumns(
+  item: RelevanceInput,
+  checkedAt: Date = new Date(),
+): {
+  relevanceScore: string;
+  relevanceReason: string;
+  relevanceCheckedAt: Date;
+} {
+  const v = relevanceVerdict(item);
+  return {
+    relevanceScore: String(v.score),
+    relevanceReason: v.reason,
+    relevanceCheckedAt: checkedAt,
+  };
 }
 
 /**

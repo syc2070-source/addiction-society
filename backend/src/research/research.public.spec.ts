@@ -264,6 +264,7 @@ describe('ResearchController public vs admin routing', () => {
       ok: true,
       commit: process.env.RENDER_GIT_COMMIT ?? 'local',
       startedAt: expect.any(String),
+      schema: { review_columns: false },
     });
   });
 });

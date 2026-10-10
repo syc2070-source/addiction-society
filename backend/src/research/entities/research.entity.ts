@@ -52,6 +52,26 @@ export class Research {
   @Column({ type: 'varchar', length: 20, default: 'approved' })
   status: string;
 
+  /** 검수 창(SOC-R1): 관문에 걸린 승인분을 살린(keep)/숨긴(hide) 사람·시각. */
+  @Column({ name: 'reviewed_by', type: 'text', nullable: true })
+  reviewedBy: string | null;
+
+  @Column({ name: 'reviewed_at', type: 'timestamptz', nullable: true })
+  reviewedAt: Date | null;
+
+  @Column({ name: 'review_decision', type: 'text', nullable: true })
+  reviewDecision: 'keep' | 'hide' | null;
+
+  /** 관련성 관문 판정 기록(SOC-R1). 판정 자체는 늘 relevance.ts 가 다시 한다. */
+  @Column({ name: 'relevance_score', type: 'numeric', nullable: true })
+  relevanceScore: string | null;
+
+  @Column({ name: 'relevance_reason', type: 'text', nullable: true })
+  relevanceReason: string | null;
+
+  @Column({ name: 'relevance_checked_at', type: 'timestamptz', nullable: true })
+  relevanceCheckedAt: Date | null;
+
   @Column({ type: 'varchar', length: 10, default: RegionCode.KR })
   region: RegionCode;
 
