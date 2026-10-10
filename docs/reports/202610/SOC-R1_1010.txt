@@ -1,0 +1,178 @@
+경보 0 (P0 없음) · 배포 확인 20:16:24 (health commit 7a1f72b · schema.review_columns:true · push 뒤 약 2분)
+SOC-R1 보고서 · 2026-10-10 · 실행 = 데스크탑 Claude Code (Opus 5.5) · 가지 claude/soc-r1 → main ff
+
+■0 시작·실측 (읽기 전용)
+| 가지 | claude/soc-r1 (origin/main 753aad1 에서) · 작업 트리 깨끗 · 첫 커밋 2b5850a docs(soc-r1): instruction [skip ci] [skip render] |
+| DB 종류 | 호스트 값 미열람(.env 읽기 금지 · Render 대시보드 접근 안 함). render.yaml 주석「Supabase 접속정보」+ DB_SSL=true → supabase 로 추정, 호스트 꼴 미측 |
+| migration 틀 | backend/src/migrations/*.ts · npm run migration:run (typeorm-ts-node-commonjs -d src/data-source.ts) · 마지막 = 1788300000000-DefaultUserRole |
+| research 열 (엔티티) | id · title · authors · year · abstract · summary · keywords · domains · pdf_url · source_url · source · status · region · is_featured · view_count · created_at · updated_at (+ research_tags) |
+| 관리자 화면 | frontend-next: /admin 없음 · 로그인 없음 · JWT 쓰는 곳 없음. 옛 CRA frontend/ 에 /admin/login·/admin/research 등 있으나 API 주소 localhost 하드코딩 · 배포 안 됨(Vercel root = frontend-next). AUTH-001 로그인 = 백엔드 POST /api/auth/login 만 |
+| 매일 예약 (전) | in-app @nestjs/schedule 만: 매일 09:00 KST 발표감시(+예정일 이월) · 매주 월 09:00 비정기 감시 · 매월 1일 04:00 PDF 지표(INDICATOR_PDF_CRON_ENABLED=false). Render cron 없음. seed·collect 를 매일 돌리는 예약은 없었음(배포 때만) |
+| uploads | backend/uploads/{images,pdf} · 파일 0 · 0 MB(로컬) · upload 모듈과 /uploads 정적 서빙은 AS-FIX-1 에서 이미 제거 · 공개 API 5종 응답에 "/uploads" 참조 0 · 운영 인스턴스 디스크는 미측 · 인스턴스 로컬이므로 재배포 시 손실되는 구조 |
+| frontend-next npm ci | ✓ 통과(362 패키지 · 2분) → FE-LOCK-001 해소 확인 · npm run build ✓. 24d8211 = lock 만 수정(@emnapi/core·runtime·wasi-threads·@swc/helpers 중첩 항목 추가, peer 표기 정리, wasi-threads 1.2.1→1.2.3) |
+| 대문「수동 확인」 | messages/ko.json timelinePage.event.manual · 값 = source_events.eventType 'manual'. 매일 09:00 크론이 accessMethod=manual 소스(보건복지부 중독관리통합지원센터 운영현황)에 HTTP 확인 없이 남기는 기록 → 자동 점검도 사람 확인 완료도 아님 = "사람이 확인해야 함" 알림 |
+| 중독뉴스 분야 파일 | D:\addicted-news\backend\data\field_profiles\addiction.json 열쇠: _comment · field · site_name · database_default · freshness_hours · categories · keywords{strong{ko,en},negative,core,ad_penalty,dup_stopwords,incident_patterns,policy_context} · gate · prompts · sources{press_files,google_news,specialized,institutions,academic[{id,grade,source_name,outlet_id,url,...}],broadcast,statory_query} · messages · smoke_samples · encyclopedia · statory_scenario_id |
+| 중독뉴스 방송 끝점 | GET https://addicted-news-backend.onrender.com/articles/latest?kind=broadcast&limit=N (전역 접두사 없음) → Article[] (title · source · sourceUrl · googleUrl · publishedAt · sourceType …) · 실측 10-10 20시 = 200 [] (0건) |
+| 숨은 44건 | 아래 표 |
+
+deploy-init 단계와 seed 판정 (전)
+| 단계 | 쓰는 방식 | 판정 |
+| migration:run | 스키마 | 유지 |
+| seed:tags | insert orIgnore (있는 name 건너뜀) | 멱등·넣기만 → 유지 |
+| seed:sources | id 기준 upsert · next_expected_at 을 매번 null 로 | 덮어씀 → 예약 |
+| backfill:next | next_expected_at 재계산 | 지시대로 뺌 → 예약 (seed:sources 바로 뒤 고정) |
+| seed:recovery | name 기준 update (관리자 PUT /api/recovery/resources 로 고친 값 덮음) | 덮어씀 → 예약 |
+| collect:indicators | 지표 메타 update · 관측치 값 갱신 + status='approved' 덮음 | 덮어씀 → 예약 |
+| seed:documents | title/source_id 기준 update (관리자 PUT 값 덮음) | 덮어씀 → 예약 |
+| collect:research | DOI 기준 update(status 제외) · 신규 insert | 덮어씀 → 예약 |
+
+■1 FE-LOCK-001 — npm ci ✓ 그대로. 수리 커밋 없음(필요 없음).
+
+■2 검수 칸 migration (1d5b3a8)
+ - 1788400000000-AddResearchReviewColumns: reviewed_by text · reviewed_at timestamptz · review_decision text · relevance_score numeric · relevance_reason text · relevance_checked_at timestamptz — 전부 NULL · IF NOT EXISTS · 기본값 없음 · UPDATE 없음 · down() = 여섯 열 DROP IF EXISTS (지시서「열 여섯」은 여섯 열로 읽음)
+ - 공개 규칙 하나 isPubliclyVisible = approved ∧ (관문 통과 ∨ keep) ∧ ¬hide — 목록·검색·featured·stats·상세 모두 이것만. 관리자 길 그대로
+ - collect:research 신규 insert 때 relevance_* 채움 · 기존 행은 backfill:relevance (relevance_checked_at IS NULL 만, 세 열만 원시 UPDATE — updated_at 도 안 건드림) 가 매일 예약 첫 회에 한 번
+ - 시험: 필터 5(통과 / keep / hide / 미검토+실패 / keep 이어도 비승인은 숨김) · migration up/down 2 · 판정 사유 2
+
+■3 검수 창 (1d5b3a8 · 3cc7825)
+ - 주소: https://www.addictionsociety.net/admin/review (frontend-next 에 관리자 화면이 없어 한 쪽만 추가 · 로그인 = 기존 POST /api/auth/login, role=admin 만 · 토큰 sessionStorage · noindex · robots Disallow /admin)
+ - 탭: 검토 대기(approved ∧ 관문 실패 ∧ decision NULL) · 살린 것 · 숨긴 것(되돌리기 = decision NULL → 검토 대기로)
+ - 줄: #id · 출처 · 연도 · 관문 사유 · 초록 앞 200자 · 원문 링크 · 살림/숨김
+ - API: GET /api/admin/research/review?tab= · PUT /api/admin/research/:id/review {decision:'keep'|'hide'|null} → reviewed_by(로그인 이메일) · reviewed_at(now) · review_decision. 관리자 JWT 필수
+ - 즉시 반영: 백엔드는 캐시 없음(매 요청 DB). frontend-next 연구 목록 fetch(5분 재검증)에 꼬리표 research → 결정 뒤 /api/revalidate/research 가 관리자 토큰을 백엔드로 다시 확인하고 꼬리표를 즉시 만료(새 비밀값 0)
+ - 시험 6: 토큰 없음 401 · 비관리자 403 · 관리자 결정 기록자=로그인 사용자 · 엉뚱한 값 400 · 대기 목록도 관리자만 · 서비스가 review_* 셋만 씀
+ - 운영 실측: 토큰 없이 GET·PUT = 401 · /admin/review 200. 실제 살림/숨김 클릭은 오너 계정이 필요해 이 판에서 하지 않음
+
+■4 deploy-init 분리 + 매일 예약 (47b491b)
+ - deploy-init.sh = migration:run + seed:tags 만
+ - 매일 04:00 KST in-app (DailyJobsScheduler · @Cron '0 4 * * *' Asia/Seoul) — dist 빌드 산출 스크립트를 자식 프로세스로 순서대로, 단계가 실패해도 다음 단계 진행, 끝나면 실패 목록을 기존 Discord 알림(SourcesNotifier · DISCORD_WEBHOOK_OBSERVATORY)으로 · 단계 상한 900s(DAILY_JOB_STEP_TIMEOUT_SEC) · 겹침 실행 막음 · DAILY_JOBS_ENABLED=false 일 때만 멈춤(기본 켜짐)
+| 배포 때 돌던 것 | → 예약 (순서) |
+| 3/4 seed:sources (필수) | 1 seed:sources |
+| 4/4 backfill:next (필수) | 2 backfill:next |
+| 5/8 seed:recovery | 3 seed:recovery |
+| 6/8 collect:indicators | 4 collect:indicators |
+| 7/8 seed:documents | 5 seed:documents |
+| 8/8 collect:research | 6 collect:research |
+| (새) | 7 backfill:relevance (기존 행 relevance_* 한 번) |
+| (새, ■7) | 8 collect:broadcasts |
+ - 시험 8: deploy-init 에 두 단계만 · 뺀 여섯이 모두 예약에 · seed:sources 다음 backfill:next · npm 별칭 일치 · 실패해도 계속+알림 1회 · 예외도 실패로 · 전부 성공이면 조용
+ - 이번 배포 실측: collect:research 가 돌지 않음 → 공개 id 목록 53,52,45,44,43,29,1 그대로(SOC-0 때는 배포가 50~53 을 새로 만들었음)
+
+■5 관문 사전 = 분야 설정 파일 (7a1f72b)
+ - backend/data/field_profiles/addiction.json: field · site_name · keywords.strong.ko(20) · keywords.strong.en_patterns(21, 정규식·대소문자 무시) · en_patterns_case_sensitive(1, SUDs) · gate.research{title_min 1, keywords_min 1, abstract_min 3, exclude_collector_keywords} · sources.academic[acad-openalex, grade academic, 검색어 11 = D0~D3]
+   중독뉴스와 다른 점: 영어는 중독뉴스 strong.en(낱말)과 뜻이 달라(정규식·파생형) 같은 열쇠 en 대신 en_patterns 에 둠 — 같은 열쇠에 다른 뜻을 넣지 않으려는 선택
+ - 목록 값은 옮기기 전 relevance.ts 에서 기계로 뽑아 파일을 만듦(손 옮김 0)
+ - FIELD_PROFILE 환경변수로 파일 선택(기본 addiction · 이름 검사로 경로 탈출 막음) · FIELD_PROFILE_DIR 선택
+ - 코드 속 분야 글자(핵심어 41 어간 grep, 주석 제외): relevance.ts 70 → 0 · collect-research.ts 29 → 0 (주석에 남은 것: 기본 파일 이름 "addiction" 1 · "인터넷이 열린 운영 환경" 1 — 분야 사전 아님). 함수 이름 isAddictionRelevant/countAddictionTerms → isFieldRelevant/countFieldTerms
+ - 결과 변화 0 증명: 같은 51건 자료로 전/후 판정 비교 → 다른 줄 0
+   | 항목 | 전 (SOC-0 relevance.ts) | 후 (분야 파일) |
+   | 공개 | 7 | 7 |
+   | 숨김 | 44 | 44 |
+   | 44건 사유 | 아래 표 | 44건 모두 같음 |
+   SOC-0 원본 함수와 ■2 리팩터 사이도 pass 차이 0
+   자료 출처 정직 표기: DB 접속 금지라 공개 7건은 운영 API 응답 그대로, 숨김 44건은 SOC-0 보고서 제목으로 OpenAlex 공개 API 를 다시 조회해 초록을 복원(43건 일치 · #34 는 재조회 실패 → 제목만). 운영 DB 행과 글자가 다를 수 있음. 운영 사유는 매일 예약 첫 회(10-11 04:00) 뒤 검수 창에서 보임
+ - 시험 4: 기본 addiction·환경변수 · 중독뉴스와 같은 열쇠 · 잘못된/없는 이름 거부 · 다른 분야 파일이면 관문이 바뀜
+
+■6 uploads 영속화 — 코드 건너뜀
+ 사유: 올리는 길(upload 모듈·/uploads 서빙)이 AS-FIX-1 에서 이미 제거됨 · 로컬 파일 0 · 공개 데이터 참조 0 → 붙일 호출자가 없는 저장 어댑터와 500 화면은 만들 대상이 없음. 업로드 기능을 되살리는 판에서 어댑터(local | s3 호환)를 같이 넣는 것이 맞음
+| 선택지 | 공식 가격 (10-10 확인) | 지금 크기(0 MB) 기준 월 비용 | 비고 |
+| Render 디스크 | 미확인 (render.com/pricing · /docs/disks 에 GB 단가 표기 없음) | 미확인 | 디스크를 붙이면 무중단 배포 꺼짐 · 인스턴스 1개만 (docs/disks) |
+| Supabase Storage | Free 1 GB 포함 · Pro $25/월부터 100 GB 포함, 초과 $0.0213/GB | $0 (지금 플랜 한도 안 · 플랜은 미측) | 기존 DB 와 같은 곳 · S3 호환 |
+| Cloudflare R2 | $0.015/GB-월 · 무료 10 GB-월 · Class A 100만/월 · Class B 1,000만/월 무료 | $0 | S3 호환 · 송신료 없음 |
+
+■7 표기·연대기 (47b491b · 0225725)
+ - 「수동 확인」→「수동 확인 필요」(en: Needs manual check) — 실제 수단대로(자동 점검 불가 → 사람 확인 필요 알림). 운영 대문 실측: 보건복지부 4줄 「수동 확인 필요」
+ - 연대기「방송」줄: 매일 예약 8단계가 중독뉴스 GET ?kind=broadcast&limit=50 을 읽어 broadcast_items(새 표 · url 유일 · ON CONFLICT DO NOTHING · 넣기만)에 저장 → /api/timeline 응답 broadcasts(최근 30) → /timeline 에「방송」줄(날짜 · 방송 꼬리표 · 방송사 · 제목 링크 · 출처 등급 '방송'). 0건이면 줄 자체 숨김
+ - 운영 실측: broadcasts [] → 줄 숨김(중독뉴스 쪽 방송 0건)
+ - 시험 2: 응답 → 항목(링크 중복·링크 없음·제목 없음 제외) · 빈/엉뚱한 응답
+
+■8 시험·배포
+| backend 시험 | 63 → 94 (11 suites) ✓ · 단 기존 indicators/review-token.util.spec.ts 가 전체 실행 1회 실패(이번에 안 건드린 파일) → 단독 3회·전체 재실행 통과 = 간헐 실패로 표기 |
+| typecheck | npx tsc --noEmit ✓ (typecheck 스크립트 없음) |
+| backend build | nest build ✓ · dist 에서 분야 파일 읽기 확인(다른 cwd 에서도) |
+| frontend-next | npm ci ✓ · tsc ✓ · eslint(바뀐 파일) ✓ · npm run build ✓ (/[locale]/admin/review · /api/revalidate/research 생김) |
+| 커밋 | 2b5850a 지시서 · 1d5b3a8 ■2■3 API · 3cc7825 ■3 화면 · 47b491b ■4■7 백엔드 · 0225725 ■7 화면 · 7a1f72b ■5 |
+| push | main ff 753aad1..7a1f72b 20:14:17 · 머리 = 7a1f72b 코드 커밋([skip] 글자 0) · 가지 claude/soc-r1 도 push |
+| 폴링 | 20:14:24 commit 8f8f3c6 (전) → 20:16:24 commit 7a1f72bf25cc271532a1358fc7273d8868e3b16b · startedAt 2026-10-10T11:16:11Z · schema.review_columns:true → 끝 |
+| 운영 후 | /api/research 7 · /stats total 7 · /api/admin/research/review 401 · PUT .../2/review 401 · /api/timeline 200(broadcasts []) · www / /research /timeline /admin/review 200 · robots Disallow /admin |
+
+전/후
+| 항목 | 전 | 후 |
+| 공개 목록 수 | 7 | 7 (같은 id) |
+| 숨김 수 (approved ∧ 관문 실패) | 44 | 44 (결정 0건이라 그대로) |
+| 검토 대기 수 | (칸 없음) | 44 — 규칙으로 계산(관리자 토큰이 없어 운영 API 로 직접 세지 못함) · id 50·51 은 status=pending 추정이라 대기 목록 밖 |
+| 관문 사유 분포 (44) | 초록 0회 36 · 초록 1회 6 · 초록 2회 2 (제목·키워드 모두 0) | 같음 |
+| 배포 때 데이터 쓰기 | seed·collect·backfill 6단계 | 0 (migration + seed:tags 넣기만) |
+
+숨은 44건 (id · 제목 · 관문 사유 · 출처) — 사유는 OpenAlex 재조회 자료 기준
+| id | 제목 | 사유 | 출처 |
+| #49 | Conducting Meta-Analyses in R with the metafor Package | 제목 0 · 키워드 0 · 초록 0(<3) | Journal of Statistical Software |
+| #48 | Golden Eggs and Hyperbolic Discounting | 제목 0 · 키워드 0 · 초록 0(<3) | The Quarterly Journal of Economics |
+| #47 | The Positive and Negative Syndrome Scale (PANSS) for Schizophrenia | 제목 0 · 키워드 0 · 초록 2(<3) | Schizophrenia Bulletin |
+| #46 | Entrepreneurs’ Mental Health and Well-Being: A Review and Research Age | 제목 0 · 키워드 0 · 초록 0(<3) | Academy of Management Perspectives |
+| #42 | Reciprocal relationships between job resources, personal resources, an | 제목 0 · 키워드 0 · 초록 0(<3) | Journal of Vocational Behavior |
+| #41 | Latent profile analysis: A review and “how to” guide of its applicatio | 제목 0 · 키워드 0 · 초록 0(<3) | Journal of Vocational Behavior |
+| #40 | A Critical Review of the Job Demands-Resources Model: Implications for | 제목 0 · 키워드 0 · 초록 0(<3) | Springer eBooks |
+| #39 | Development and Distortion of Malaysian Public- Private Partnerships:  | 제목 0 · 키워드 0 · 초록 0(<3) | Intellectum (Universidad de La Sabana) |
+| #38 | QUANTUM ESPRESSO: a modular and open-source software project for quant | 제목 0 · 키워드 0 · 초록 0(<3) | Journal of Physics Condensed Matter |
+| #37 | A new criterion for assessing discriminant validity in variance-based  | 제목 0 · 키워드 0 · 초록 0(<3) | Journal of the Academy of Marketing Science |
+| #36 | European Guidelines on cardiovascular disease prevention in clinical p | 제목 0 · 키워드 0 · 초록 0(<3) | European Heart Journal |
+| #35 | The REporting of studies Conducted using Observational Routinely-colle | 제목 0 · 키워드 0 · 초록 0(<3) | PLoS Medicine |
+| #34 | Whatever next? Predictive brains, situated agents, and the future of c | 제목 0 · 키워드 0 · 초록 0(<3) | 미확인(OpenAlex 재조회 실패) |
+| #33 | 2016 ESC Guidelines for the management of atrial fibrillation develope | 제목 0 · 키워드 0 · 초록 0(<3) | EP Europace |
+| #32 | 2016 ESC Guidelines for the management of atrial fibrillation develope | 제목 0 · 키워드 0 · 초록 0(<3) | EP Europace |
+| #31 | 2016 European Guidelines on cardiovascular disease prevention in clini | 제목 0 · 키워드 0 · 초록 1(<3) | European Heart Journal |
+| #30 | Older Adults' Reasons for Using Technology while Aging in Place | 제목 0 · 키워드 0 · 초록 0(<3) | Gerontology |
+| #28 | The behaviour change wheel: A new method for characterising and design | 제목 0 · 키워드 0 · 초록 2(<3) | Implementation Science |
+| #27 | Machine learning for molecular and materials science | 제목 0 · 키워드 0 · 초록 0(<3) | Nature |
+| #26 | Rethinking Rumination | 제목 0 · 키워드 0 · 초록 1(<3) | Perspectives on Psychological Science |
+| #25 | Multidisciplinary research priorities for the COVID-19 pandemic: a cal | 제목 0 · 키워드 0 · 초록 0(<3) | The Lancet Psychiatry |
+| #24 | Physics-informed machine learning | 제목 0 · 키워드 0 · 초록 0(<3) | Nature Reviews Physics |
+| #23 | Planetary Boundaries: Exploring the Safe Operating Space for Humanity | 제목 0 · 키워드 0 · 초록 0(<3) | Ecology and Society |
+| #22 | Combining theory and experiment in electrocatalysis: Insights into mat | 제목 0 · 키워드 0 · 초록 0(<3) | Science |
+| #21 | PRISMA 2020 explanation and elaboration: updated guidance and exemplar | 제목 0 · 키워드 0 · 초록 0(<3) | BMJ |
+| #20 | The PRISMA statement for reporting systematic reviews and meta-analyse | 제목 0 · 키워드 0 · 초록 0(<3) | BMJ |
+| #19 | The PRISMA Statement for Reporting Systematic Reviews and Meta-Analyse | 제목 0 · 키워드 0 · 초록 0(<3) | PLoS Medicine |
+| #18 | A RATING SCALE FOR DEPRESSION | 제목 0 · 키워드 0 · 초록 0(<3) | Journal of Neurology Neurosurgery & Psychiatry |
+| #17 | Heavy Metal Toxicity and the Environment | 제목 0 · 키워드 0 · 초록 0(<3) | Proceedings of the Fourth International Symposium on Polarization Phenomena in Nuclear Reactions |
+| #16 | The International Classification of Headache Disorders, 3rd edition (b | 제목 0 · 키워드 0 · 초록 0(<3) | Cephalalgia |
+| #15 | The International Scientific Association for Probiotics and Prebiotics | 제목 0 · 키워드 0 · 초록 0(<3) | Nature Reviews Gastroenterology & Hepatology |
+| #14 | Designing qualitative research | 제목 0 · 키워드 0 · 초록 0(<3) | Choice Reviews Online |
+| #13 | 2013 ESH/ESC Guidelines for the management of arterial hypertension | 제목 0 · 키워드 0 · 초록 1(<3) | European Heart Journal |
+| #12 | Global Strategy for the Diagnosis, Management, and Prevention of Chron | 제목 0 · 키워드 0 · 초록 0(<3) | American Journal of Respiratory and Critical Care Medicine |
+| #11 | Global, regional, and national age-sex-specific mortality for 282 caus | 제목 0 · 키워드 0 · 초록 1(<3) | The Lancet |
+| #10 | A comparative risk assessment of burden of disease and injury attribut | 제목 0 · 키워드 0 · 초록 0(<3) | The Lancet |
+| #9 | Preferred reporting items for systematic review and meta-analysis prot | 제목 0 · 키워드 0 · 초록 0(<3) | BMJ |
+| #8 | Global, regional, and national incidence, prevalence, and years lived  | 제목 0 · 키워드 0 · 초록 1(<3) | The Lancet |
+| #7 | Global, regional, and national incidence, prevalence, and years lived  | 제목 0 · 키워드 0 · 초록 1(<3) | The Lancet |
+| #6 | Global and regional mortality from 235 causes of death for 20 age grou | 제목 0 · 키워드 0 · 초록 0(<3) | The Lancet |
+| #5 | 2015 American Thyroid Association Management Guidelines for Adult Pati | 제목 0 · 키워드 0 · 초록 0(<3) | Thyroid |
+| #4 | Global Cancer Statistics, 2002 | 제목 0 · 키워드 0 · 초록 0(<3) | CA A Cancer Journal for Clinicians |
+| #3 | Relationship of Childhood Abuse and Household Dysfunction to Many of t | 제목 0 · 키워드 0 · 초록 0(<3) | American Journal of Preventive Medicine |
+| #2 | Global burden of 369 diseases and injuries in 204 countries and territ | 제목 0 · 키워드 0 · 초록 0(<3) | The Lancet |
+
+건너뛴 것과 사유
+ - ■6 저장 어댑터·「파일 없음」화면: 위 사유(올리는 길 없음 · 파일 0 · 참조 0)
+ - DB 호스트 꼴: .env·대시보드 금지라 미측(Supabase 추정)
+ - 검수 창에서 실제 살림/숨김: 오너 관리자 계정이 필요 · 오너 액션 0 규율이라 하지 않음
+ - 운영 검토 대기 수 직접 측정: 관리자 토큰 없음 → 규칙 계산값
+ - Render 디스크 단가: 공식 페이지에서 찾지 못함 → 미확인
+
+정직 표기
+ - 실행 빈도 변화: 예전엔 배포할 때마다(불규칙) · 이제 하루 한 번 04:00. 배포가 드문 때엔 더 자주, 배포가 잦은 날엔 덜 돈다. 단계·내용은 같은 스크립트 그대로
+ - 매일 예약은 10-11 04:00 KST 가 첫 회 — 아직 운영에서 한 번도 돌지 않음. 첫 회 결과(backfill:relevance · collect:broadcasts · 자식 프로세스 메모리)는 미측. 실패하면 Discord 로 옴
+ - 새 DB 를 처음 세우면 소스 레지스트리 등은 다음 04:00 까지 비어 있음(예전엔 배포 즉시)
+ - seed:sources 와 backfill:next 사이 몇 초 동안 next_expected_at 이 비는 것은 예전과 같음
+ - broadcast_items 는 새 표(migration 1788400000001) — 지시서에 명시되지 않은 표지만 기존 표 변경 0, 넣기만
+ - 44건 사유는 재구성 자료 기준(■5 출처 표기)
+ - 정리: D:\ 에 잘못 쓴 npm ci 로그 한 개를 작업 폴더(scratchpad)로 옮김(지움 아님)
+
+다음 판 후보
+ 1. 10-11 04:00 첫 예약 결과 확인(Discord · 검수 창 사유 칸이 채워졌는지)
+ 2. 오너가 검수 창에서 44건 결정
+ 3. collect:research 검색어·정렬(인용수 상위 = 무관 대작) — 이제 분야 파일에서 고칠 수 있음
+ 4. 업로드 기능을 되살릴 때 s3 호환 어댑터(R2 또는 Supabase Storage)
+ 5. 중독뉴스도 같은 열쇠로 en_patterns 를 받을지 — 세 사이트 한 사전
+ 6. indicators/review-token.util.spec.ts 간헐 실패 원인
+
+SOC-R1 끝
