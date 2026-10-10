@@ -40,13 +40,15 @@
     "activity": "최근 {days}일 동안 소스 {sources}곳을 {checks}회 확인했습니다",
     "lastCheck": "마지막 확인 {date}",
     "quiet": "이 기간에 발간·변경 등 기록할 사건은 없었습니다. 확인은 계속되고 있습니다.",
+    "broadcastTitle": "방송",
     "event": {
       "published": "발간 감지",
       "changed": "변경 감지",
       "checked": "확인",
       "failed": "실패",
       "stale": "정지",
-      "manual": "수동 확인",
+      "manual": "수동 확인 필요",
+      "broadcast": "방송",
       "blocked": "차단",
       "rescheduled": "예정일 이월"
     }

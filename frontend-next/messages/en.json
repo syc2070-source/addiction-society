@@ -40,13 +40,15 @@
     "activity": "Checked {sources} sources {checks} times in the last {days} days",
     "lastCheck": "last check {date}",
     "quiet": "No publications or changes were recorded in this period. Monitoring continues.",
+    "broadcastTitle": "Broadcasts",
     "event": {
       "published": "Published",
       "changed": "Changed",
       "checked": "Checked",
       "failed": "Failed",
       "stale": "Stale",
-      "manual": "Manual check",
+      "manual": "Needs manual check",
+      "broadcast": "Broadcast",
       "blocked": "Blocked",
       "rescheduled": "Rescheduled"
     }

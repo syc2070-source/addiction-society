@@ -57,6 +57,36 @@ export default async function TimelinePage({
         </p>
       )}
 
+      {/* 「방송」 줄 (SOC-R1) — 중독뉴스 방송. 0건이면 줄 자체를 그리지 않는다. */}
+      {result?.broadcasts && result.broadcasts.length > 0 && (
+        <section aria-label={t('broadcastTitle')}>
+          <h2 className="group-heading">{t('broadcastTitle')}</h2>
+          <ul className="timeline-list">
+            {result.broadcasts.map((b) => (
+              <li key={`b-${b.id}`} className="timeline-item">
+                <span className="timeline-date">
+                  {b.publishedAt ? fmt(b.publishedAt) : '—'}
+                </span>
+                <span className="timeline-badge">{t('event.broadcast')}</span>
+                <span className="timeline-body">
+                  {b.broadcaster && (
+                    <span className="timeline-org">{b.broadcaster}</span>
+                  )}
+                  <a
+                    href={b.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="timeline-source"
+                  >
+                    {b.title}
+                  </a>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       {!result ? (
         <p className="status-note">{tc('unavailable')}</p>
       ) : result.data.length === 0 ? (

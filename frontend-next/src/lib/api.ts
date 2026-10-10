@@ -247,6 +247,16 @@ export interface ActivitySummary {
   lastEventAt: string | null;
 }
 
+/** 연대기 「방송」 줄 — 중독뉴스 공개 API 방송(매일 예약이 넣음, SOC-R1). */
+export interface BroadcastItem {
+  id: number;
+  url: string;
+  title: string;
+  broadcaster: string | null;
+  publishedAt: string | null;
+  grade: string;
+}
+
 export function fetchTimeline(params: { limit?: number; all?: boolean } = {}) {
   const qs = new URLSearchParams();
   if (params.limit) qs.set('limit', String(params.limit));
@@ -257,6 +267,8 @@ export function fetchTimeline(params: { limit?: number; all?: boolean } = {}) {
     total: number;
     /** 구버전 API 호환을 위해 optional */
     summary?: ActivitySummary;
+    /** SOC-R1 이전 API 에는 없음 */
+    broadcasts?: BroadcastItem[];
   }>(`/api/timeline${q ? `?${q}` : ''}`);
 }
 
