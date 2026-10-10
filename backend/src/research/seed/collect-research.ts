@@ -7,7 +7,7 @@
  * OpenAlex(무료·키 불필요·CC0)를 직접 호출하는 편이 재현성이 높다. 이 배치 스크립트는
  * OpenAlex를 1차 소스로 쓴다. (구 AUTO_COLLECT 자동수집 경로는 AS-M3-1에서 폐기됨.)
  *
- * 절차: 도메인(D0~D3)별 질의어 2~3개로 인용수 상위 문헌을 수집 →
+ * 절차: 도메인(D0~D3)별 질의어(분야 설정 파일)로 인용수 상위 문헌을 수집 →
  *   DOI 있는 것만(없으면 제외) → research 테이블에 멱등 upsert.
  *   신규 행 status 는 관련성 관문(relevance.ts) 통과 시 'approved', 실패 시
  *   'pending'(SOC-0 — 인용수 상위 무관 문헌이 자동 게시되던 문제).
@@ -30,49 +30,37 @@ import { AppDataSource } from '../../data-source';
 import { Research } from '../entities/research.entity';
 import { DomainCode, RegionCode } from '../../common/enums';
 import { collectedStatus, relevanceColumns } from '../relevance';
+import { loadFieldProfile } from '../../common/field-profile';
 
-const OPENALEX = 'https://api.openalex.org/works';
-const UA = 'AddictionSociety-Observatory/1.0 (+https://addictionsociety.net)';
+// 출처·검색어·한도는 분야 설정 파일(sources.academic, SOC-R1 ■5)에서 읽는다.
+const ACADEMIC = loadFieldProfile().sources.academic.find(
+  (s) => s.id === 'acad-openalex',
+);
+if (!ACADEMIC)
+  throw new Error('분야 설정 파일에 sources.academic acad-openalex 없음');
+const OPENALEX = ACADEMIC.url;
+const UA = ACADEMIC.user_agent;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 // polite pool 용 mailto(운영에서 OPENALEX_MAILTO로 오버라이드 가능)
-const MAILTO =
-  process.env.OPENALEX_MAILTO?.trim() || 'contact@addictionsociety.net';
-const PER_QUERY = Number(process.env.COLLECT_RESEARCH_PER_QUERY || 6);
-const MAX_TOTAL = Number(process.env.COLLECT_RESEARCH_MAX || 60);
+const MAILTO = process.env.OPENALEX_MAILTO?.trim() || ACADEMIC.mailto;
+const PER_QUERY = Number(
+  process.env.COLLECT_RESEARCH_PER_QUERY || ACADEMIC.per_query,
+);
+const MAX_TOTAL = Number(
+  process.env.COLLECT_RESEARCH_MAX || ACADEMIC.max_items,
+);
 
 interface DomainQueries {
   domain: DomainCode;
   queries: string[];
 }
 
-// 도메인별 질의어(자율 선정). 중독 연구의 대표 주제어 위주.
-const QUERY_PLAN: DomainQueries[] = [
-  {
-    domain: DomainCode.D0, // 물질중독(알코올·약물)
-    queries: [
-      'alcohol use disorder treatment',
-      'opioid use disorder',
-      'substance use disorder relapse',
-    ],
-  },
-  {
-    domain: DomainCode.D1, // 행위중독(도박·게임)
-    queries: ['gambling disorder', 'gaming disorder', 'behavioral addiction'],
-  },
-  {
-    domain: DomainCode.D2, // 디지털중독(SNS·스마트폰·인터넷)
-    queries: [
-      'problematic smartphone use',
-      'social media addiction',
-      'problematic internet use',
-    ],
-  },
-  {
-    domain: DomainCode.D3, // 관계/일중독
-    queries: ['work addiction workaholism', 'exercise addiction'],
-  },
-];
+// 도메인별 질의어 — 설정 파일 sources.academic[].queries 그대로.
+const QUERY_PLAN: DomainQueries[] = ACADEMIC.queries.map((q) => ({
+  domain: q.domain as DomainCode,
+  queries: q.terms,
+}));
 
 interface OAWork {
   id?: string;

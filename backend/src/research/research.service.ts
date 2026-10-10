@@ -8,7 +8,7 @@ import { Repository, In } from 'typeorm';
 import { Research } from './entities/research.entity';
 import { Tag } from '../tags/entities/tag.entity';
 import {
-  isAddictionRelevant,
+  isFieldRelevant,
   isPubliclyVisible,
   relevanceVerdict,
 } from './relevance';
@@ -217,7 +217,7 @@ export class ResearchService {
       order: { id: 'DESC' },
     });
     return approved
-      .filter((r) => !isAddictionRelevant(r))
+      .filter((r) => !isFieldRelevant(r))
       .filter((r) =>
         tab === 'pending' ? r.reviewDecision == null : r.reviewDecision === tab,
       )

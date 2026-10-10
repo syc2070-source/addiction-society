@@ -12,7 +12,7 @@ import { UserRole } from '../common/enums';
 import { Tag } from '../tags/entities/tag.entity';
 import { HealthController } from '../health.controller';
 import { Research } from './entities/research.entity';
-import { collectedStatus, isAddictionRelevant } from './relevance';
+import { collectedStatus, isFieldRelevant } from './relevance';
 import { ResearchController } from './research.controller';
 import { ResearchService } from './research.service';
 
@@ -60,18 +60,18 @@ const irrelevantRows = [
 
 describe('research relevance gate', () => {
   it.each(relevantRows)('passes: $title', (row) => {
-    expect(isAddictionRelevant(row)).toBe(true);
+    expect(isFieldRelevant(row)).toBe(true);
     expect(collectedStatus(row)).toBe('approved');
   });
 
   it.each(irrelevantRows)('fails: $title', (row) => {
-    expect(isAddictionRelevant(row)).toBe(false);
+    expect(isFieldRelevant(row)).toBe(false);
     expect(collectedStatus(row)).toBe('pending');
   });
 
   it('counts curated (non-collector) keywords', () => {
     expect(
-      isAddictionRelevant({ title: 'Cohort study', keywords: ['음주'] }),
+      isFieldRelevant({ title: 'Cohort study', keywords: ['음주'] }),
     ).toBe(true);
   });
 });

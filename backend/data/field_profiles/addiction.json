@@ -1,0 +1,119 @@
+{
+  "_comment": "SOC-R1 ■5 분야 설정. 중독뉴스 저장소의 backend/data/field_profiles/addiction.json 과 같은 열쇠 이름을 쓰고, 중독사회에 쓰는 항목만 채운다. relevance.ts(관련성 관문)와 collect:research(검색어)는 FIELD_PROFILE(기본 addiction)로 이 파일만 읽는다. 코드에는 분야 글자를 두지 않는다.",
+  "field": "addiction",
+  "site_name": "중독사회",
+  "keywords": {
+    "_comment": "관련성 관문 핵심어. ko = 부분 문자열 일치(중독뉴스 strong.ko 와 같은 뜻). en_patterns = 정규식 원문, 대소문자 무시 — 중독뉴스 strong.en(낱말 목록)과 뜻이 달라 다른 열쇠에 둔다. 끝 경계를 두지 않은 항목은 파생형까지 잡기 위함. en_patterns_case_sensitive = 대소문자를 가려 맞추는 정규식(약어).",
+    "strong": {
+      "ko": [
+        "중독",
+        "알코올",
+        "음주",
+        "단주",
+        "금주",
+        "도박",
+        "마약",
+        "약물",
+        "물질사용",
+        "흡연",
+        "담배",
+        "니코틴",
+        "게임",
+        "인터넷",
+        "스마트폰",
+        "디지털",
+        "행위중독",
+        "회복",
+        "재발",
+        "갈망"
+      ],
+      "en_patterns": [
+        "\\baddict",
+        "\\bsubstance[\\s-]use",
+        "\\balcohol",
+        "\\bdrinking\\b",
+        "\\bgambl",
+        "\\bdrugs?\\b",
+        "\\bopioid",
+        "\\bnicotine\\b",
+        "\\bsmoking\\b",
+        "\\btobacco\\b",
+        "\\bcannabis\\b",
+        "\\bgaming disorder",
+        "\\binternet\\b",
+        "\\bsmartphones?\\b",
+        "\\bdependence\\b",
+        "\\bcraving",
+        "\\brecovery\\b",
+        "\\brelapse",
+        "\\babstinen",
+        "\\bharm reduction\\b",
+        "\\bworkaholi"
+      ],
+      "en_patterns_case_sensitive": [
+        "\\bSUDs?\\b"
+      ]
+    }
+  },
+  "gate": {
+    "research": {
+      "_comment": "제목 title_min 회 이상 · 키워드 keywords_min 회 이상 · 초록 abstract_min 회 이상 중 하나면 통과. 초록만 3회인 까닭: 운영 실측(2026-10-09, 49건)에서 조현병 척도(PANSS)는 초록에 drug 2회, 심방세동 지침은 drugs 1회로 우연 언급만으로 통과했다. 실제 분야 문헌 초록은 4~10회. exclude_collector_keywords = 수집기가 keywords 에 넣는 자기 검색어는 문헌 내용이 아니라 수집 경로라 판정에서 뺀다.",
+      "title_min": 1,
+      "keywords_min": 1,
+      "abstract_min": 3,
+      "exclude_collector_keywords": true
+    }
+  },
+  "sources": {
+    "academic": [
+      {
+        "id": "acad-openalex",
+        "grade": "academic",
+        "source_name": "OpenAlex",
+        "outlet_id": "openalex",
+        "url": "https://api.openalex.org/works",
+        "user_agent": "AddictionSociety-Observatory/1.0 (+https://addictionsociety.net)",
+        "mailto": "contact@addictionsociety.net",
+        "per_query": 6,
+        "max_items": 60,
+        "queries": [
+          {
+            "domain": "D0",
+            "_comment": "물질중독(알코올·약물)",
+            "terms": [
+              "alcohol use disorder treatment",
+              "opioid use disorder",
+              "substance use disorder relapse"
+            ]
+          },
+          {
+            "domain": "D1",
+            "_comment": "행위중독(도박·게임)",
+            "terms": [
+              "gambling disorder",
+              "gaming disorder",
+              "behavioral addiction"
+            ]
+          },
+          {
+            "domain": "D2",
+            "_comment": "디지털중독(SNS·스마트폰·인터넷)",
+            "terms": [
+              "problematic smartphone use",
+              "social media addiction",
+              "problematic internet use"
+            ]
+          },
+          {
+            "domain": "D3",
+            "_comment": "관계/일중독",
+            "terms": [
+              "work addiction workaholism",
+              "exercise addiction"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
