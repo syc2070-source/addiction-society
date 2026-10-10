@@ -8,9 +8,15 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
 /** 공통 GET. 실패/비200 → null. 기본 5분 재검증(발표 감시가 일 1회라 충분). */
-async function get<T>(path: string, revalidate = 300): Promise<T | null> {
+async function get<T>(
+  path: string,
+  revalidate = 300,
+  tags?: string[],
+): Promise<T | null> {
   try {
-    const res = await fetch(`${API_URL}${path}`, { next: { revalidate } });
+    const res = await fetch(`${API_URL}${path}`, {
+      next: { revalidate, tags },
+    });
     if (!res.ok) return null;
     return (await res.json()) as T;
   } catch {
@@ -140,8 +146,13 @@ export function fetchPolicyDocuments(params: { page?: number; search?: string })
   );
 }
 
+/** 검수 창 결정 때 이 꼬리표로 캐시를 비운다(/api/revalidate/research, SOC-R1). */
+export const RESEARCH_CACHE_TAG = 'research';
+
 export function fetchResearch(params: { page?: number; search?: string }) {
-  return get<Paginated<Research>>(`/api/research?${pagedQuery(params)}`);
+  return get<Paginated<Research>>(`/api/research?${pagedQuery(params)}`, 300, [
+    RESEARCH_CACHE_TAG,
+  ]);
 }
 
 export function fetchRecoveryResources(params: {
