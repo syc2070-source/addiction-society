@@ -15,7 +15,8 @@ services:
     #    이제 설치·import 검증 실패 시 배포가 중단된다(구버전 유지).
     #    PDF 크론이 필요 없으면 env SKIP_PDF_DEPS=true로 명시적으로 건너뛴다.
     buildCommand: npm ci && npm run build && bash scripts/install-pdf-deps.sh
-    # 빌드 후·기동 전에 매 배포 실행(멱등). 마이그레이션·시딩을 서버가 스스로 수행.
+    # 빌드 후·기동 전에 매 배포 실행. migration:run + seed:tags(넣기만)뿐이다(SOC-R1).
+    # seed·collect·backfill 은 앱 안 매일 04:00 KST 예약(daily-jobs.scheduler)이 돌린다.
     # Starter+ 에서 동작. 실패 시 배포가 중단되어 구버전이 유지된다.
     preDeployCommand: bash scripts/deploy-init.sh
     startCommand: npm run start:prod

@@ -1,7 +1,7 @@
 /**
  * next_expected_at 재계산 (M2-1 백필 → AS-M3-FIX-DATE 상시 교정).
  *
- * 실행: npm run backfill:next  (deploy-init.sh 4/4에서 매 배포마다 호출)
+ * 실행: npm run backfill:next  (매일 04:00 KST 예약이 seed:sources 바로 뒤에 호출 — SOC-R1)
  *
  * 전 소스의 next_expected_at을 computeNextExpected로 다시 계산한다. 계산은
  * 결정적이므로 몇 번을 돌려도 같은 값이 나온다(멱등).

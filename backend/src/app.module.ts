@@ -20,6 +20,7 @@ import { RecoveryResource } from './recovery/entities/recovery-resource.entity';
 import { Tag } from './tags/entities/tag.entity';
 import { Source } from './sources/entities/source.entity';
 import { SourceEvent } from './sources/entities/source-event.entity';
+import { BroadcastItem } from './sources/entities/broadcast-item.entity';
 import { Indicator } from './indicators/entities/indicator.entity';
 import { Observation } from './indicators/entities/observation.entity';
 import { validateJwtEnvironment } from './auth/jwt.config';
@@ -57,6 +58,7 @@ import { HealthController } from './health.controller';
           Tag,
           Source,
           SourceEvent,
+          BroadcastItem,
           Indicator,
           Observation,
         ],

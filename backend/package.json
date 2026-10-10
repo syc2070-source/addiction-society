@@ -32,6 +32,7 @@
     "seed:documents": "ts-node src/policy/seed/documents.seed.ts",
     "collect:research": "ts-node src/research/seed/collect-research.ts",
     "backfill:relevance": "ts-node src/research/seed/backfill-relevance.ts",
+    "collect:broadcasts": "ts-node src/sources/seed/collect-broadcasts.ts",
     "collect:indicators": "ts-node src/indicators/seed/collect-indicators.ts",
     "extract:pdf": "ts-node src/indicators/seed/run-extract.ts"
   },

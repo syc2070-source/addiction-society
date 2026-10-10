@@ -10,6 +10,7 @@ import { RecoveryResource } from './recovery/entities/recovery-resource.entity';
 import { Tag } from './tags/entities/tag.entity';
 import { Source } from './sources/entities/source.entity';
 import { SourceEvent } from './sources/entities/source-event.entity';
+import { BroadcastItem } from './sources/entities/broadcast-item.entity';
 import { Indicator } from './indicators/entities/indicator.entity';
 import { Observation } from './indicators/entities/observation.entity';
 
@@ -32,7 +33,7 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_NAME || 'addiction_society',
   // Supabase 등 원격 DB는 SSL 필요. 로컬은 DB_SSL 미설정(false)이라 영향 없음.
   ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
-  // app.module.ts의 entities 배열과 반드시 일치해야 한다(10개).
+  // app.module.ts의 entities 배열과 반드시 일치해야 한다(11개).
   entities: [
     User,
     Research,
@@ -42,6 +43,7 @@ export const AppDataSource = new DataSource({
     Tag,
     Source,
     SourceEvent,
+    BroadcastItem,
     Indicator,
     Observation,
   ],

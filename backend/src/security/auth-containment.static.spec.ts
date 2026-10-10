@@ -42,6 +42,7 @@ const AUDITED_MUTATION_ENDPOINTS = [
   'backend/src/recovery/recovery.controller.ts DELETE /api/recovery/resources/:id',
   'backend/src/recovery/recovery.controller.ts POST /api/recovery/resources',
   'backend/src/recovery/recovery.controller.ts PUT /api/recovery/resources/:id',
+  'backend/src/research/research-review.controller.ts PUT /api/admin/research/:id/review',
   'backend/src/research/research.controller.ts DELETE /api/research/:id',
   'backend/src/research/research.controller.ts POST /api/research',
   'backend/src/research/research.controller.ts PUT /api/research/:id',
