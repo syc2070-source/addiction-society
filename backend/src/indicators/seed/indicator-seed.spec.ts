@@ -186,6 +186,60 @@ describe('지표 관측치 넣기만', () => {
     expect(isOfficialUrl('not a url')).toBe(false);
   });
 
+  // SOC-R4 ■1 — 10-14 04:00 첫 회차 실측: collect:indicators inserted 26(지표 2 + 관측치 24) ·
+  // 2022 행 3개 fetched_at 10-09 그대로. 운영 10-13 상태(지표 3 · 2022 관측치 3)에서 다시 재현.
+  const shipped = [kcgp, knhanes] as unknown as IndicatorDataFile[];
+  const prod1013 = () => {
+    const codes = [
+      'kcgp_youth_gambling_problem_rate',
+      'kcgp_youth_gambling_atrisk_rate',
+      'kcgp_youth_gambling_problem_group_rate',
+    ];
+    const values = ['4.8', '3.9', '0.9'];
+    return {
+      indicators: memRepo(codes.map((code, i) => ({ id: i + 1, code }))),
+      observations: memRepo(
+        values.map((value, i) => ({
+          ...existing2022,
+          id: i + 1,
+          indicatorId: i + 1,
+          value,
+        })),
+      ),
+    };
+  };
+  const runAll = async (repos: ReturnType<typeof prod1013>) => {
+    const r = report();
+    for (const f of shipped) await seedIndicatorFile(f, repos as never, r);
+    return r;
+  };
+
+  it('first run on the 10-13 production state inserts only new indicators and years', async () => {
+    const repos = prod1013();
+    const before = repos.observations.rows.map((o) => ({ ...o }));
+    const r = await runAll(repos);
+    const shippedIndicators = shipped.flatMap((f) => f.indicators);
+    const shippedObs = shippedIndicators.flatMap((i) => i.observations);
+    expect(r.rejected).toEqual([]);
+    expect(r.indicators.inserted).toBe(shippedIndicators.length - 3);
+    expect(r.observations.inserted).toBe(shippedObs.length - 3);
+    expect(r.observations.diffs).toEqual([]);
+    expect(repos.observations.rows.slice(0, 3)).toEqual(before);
+    expect(repos.observations.update).not.toHaveBeenCalled();
+  });
+
+  it('the next run (after 10-14) inserts nothing and changes no row', async () => {
+    const repos = prod1013();
+    await runAll(repos);
+    const after = repos.observations.rows.map((o) => ({ ...o }));
+    const r = await runAll(repos);
+    expect(r.indicators.inserted).toBe(0);
+    expect(r.observations.inserted).toBe(0);
+    expect(r.observations.diffs).toEqual([]);
+    expect(repos.observations.rows).toEqual(after);
+    expect(repos.indicators.update).not.toHaveBeenCalled();
+  });
+
   it('every shipped observation resolves (official URL, numeric value, no duplicate)', () => {
     for (const f of [kcgp, knhanes] as unknown as IndicatorDataFile[]) {
       const keys = new Set<string>();
