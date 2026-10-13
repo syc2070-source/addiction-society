@@ -8,6 +8,7 @@ import {
 } from './indicator-seed';
 import kcgp from './kcgp-youth.data.json';
 import knhanes from './knhanes.data.json';
+import drugOffenders from './drug-offenders.data.json';
 
 // SOC-R3 ■3ⓔ — 지표 관측치 넣기만 · 같은 값 중복 0 · 원본 URL 없는 관측치 거절.
 
@@ -188,7 +189,12 @@ describe('지표 관측치 넣기만', () => {
 
   // SOC-R4 ■1 — 10-14 04:00 첫 회차 실측: collect:indicators inserted 26(지표 2 + 관측치 24) ·
   // 2022 행 3개 fetched_at 10-09 그대로. 운영 10-13 상태(지표 3 · 2022 관측치 3)에서 다시 재현.
-  const shipped = [kcgp, knhanes] as unknown as IndicatorDataFile[];
+  // collect-indicators.ts DATA_FILES 와 같은 목록(그 파일은 import 하면 실행된다).
+  const shipped = [
+    kcgp,
+    knhanes,
+    drugOffenders,
+  ] as unknown as IndicatorDataFile[];
   const prod1013 = () => {
     const codes = [
       'kcgp_youth_gambling_problem_rate',
@@ -240,8 +246,53 @@ describe('지표 관측치 넣기만', () => {
     expect(repos.indicators.update).not.toHaveBeenCalled();
   });
 
+  // SOC-R4 ■3 — 원본만: 2022 기존 행(데이터포털 파일) 밖의 관측치는 모두 쪽 또는 표·문구를 단다.
+  it('every added observation names its page or table and an official URL', () => {
+    for (const f of shipped) {
+      for (const ind of f.indicators) {
+        for (const o of ind.observations) {
+          if (f.sourceId === 'kcgp_youth' && o.period === '2022') continue;
+          const r = resolveObservation(f, ind, o);
+          expect(r).toMatchObject({ ok: true });
+          if (!r.ok) continue;
+          expect(isOfficialUrl(r.row.sourceUrl)).toBe(true);
+          // PDF·보도자료 = 쪽 또는 표·문구 · 통계 웹표(KOSIS·e-나라지표) = 지표 단서에 표 번호
+          const where =
+            o.page != null ||
+            !!o.table?.trim() ||
+            /표 \S+/.test(ind.observationNote ?? '');
+          expect(where).toBe(true);
+          // 인원 값은 옮겨 적은 문구 안에 그대로 있어야 한다(11916 ↔ 「11,916명」)
+          if (ind.unit === '명') {
+            expect(o.table).toContain(
+              `${Number(o.value).toLocaleString('en-US')}명`,
+            );
+          }
+        }
+      }
+    }
+  });
+
+  it('the 2024~ survey is its own indicator — never mixed into the 2015~2022 CAGI series', () => {
+    const v2 = (kcgp as unknown as IndicatorDataFile).indicators.find(
+      (i) => i.code === 'kcgp_youth_v2',
+    );
+    expect(v2).toBeDefined();
+    expect(v2!.observations.map((o) => o.period)).toEqual(['2024', '2025']);
+    for (const o of v2!.observations) {
+      expect(o.note).toContain('2022 이전과 비교 불가');
+      expect(o.page).toBeDefined();
+    }
+    const cagi = (kcgp as unknown as IndicatorDataFile).indicators.filter((i) =>
+      i.code.startsWith('kcgp_youth_gambling_'),
+    );
+    for (const i of cagi) {
+      expect(i.observations.every((o) => Number(o.period) <= 2022)).toBe(true);
+    }
+  });
+
   it('every shipped observation resolves (official URL, numeric value, no duplicate)', () => {
-    for (const f of [kcgp, knhanes] as unknown as IndicatorDataFile[]) {
+    for (const f of shipped) {
       const keys = new Set<string>();
       for (const ind of f.indicators) {
         expect(ind.definitionKo.trim()).not.toBe('');

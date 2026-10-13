@@ -1,0 +1,83 @@
+{
+  "note": "SOC-R4 ■3ⓒ: 마약류 사범 단속 인원 — 대검찰청 「마약류 범죄백서」 발간 보도자료(spo.go.kr 발표자료 cbIdx=1403)가 스스로 적은 연도별 총계만. 마약·향정·대마를 더하지 않는다(더하기 0). 같은 해 값이 여러 보도자료에 다시 나오며 모두 같다(개정 0). 쪽 = 인쇄 쪽(PDF 쪽은 table 에). 2023·2025 는 korea.kr 정책브리핑 문장으로 한 번 더 대조.",
+  "sourceId": "spo_drug_monthly",
+  "indicators": [
+    {
+      "code": "spo_drug_offenders_total",
+      "domain": "D0",
+      "nameKo": "마약류 사범 단속 인원",
+      "nameEn": "Drug offenders apprehended (total)",
+      "unit": "명",
+      "definitionKo": "한 해 동안 단속된 마약류 사범(마약·향정신성의약품·대마 사범 전체) 인원. 대검찰청이 「마약류 범죄백서」 발간 보도자료에 적은 총계를 그대로 싣는다(검찰 및 유관기관 통계자료 기준).",
+      "methodNote": "대검찰청 마약·조직범죄부(옛 강력부·반부패·강력부) 연간 「마약류 범죄백서」. 보도자료 표현은 「마약류사범」·「단속 마약사범」·「마약사범 단속인원」. 입건·기소 중 어느 기준인지는 보도자료에 적혀 있지 않다. 세 종류 합을 이 쪽에서 계산하지 않는다.",
+      "observations": [
+        {
+          "geo": "KR", "period": "2015", "value": "11916", "qualifier": null,
+          "sourceUrl": "https://www.spo.go.kr/site/spo/ex/board/View.do?cbIdx=1403&bcIdx=623428",
+          "page": 1,
+          "table": "대검 「2015년 마약류범죄백서 발간」 보도자료 2016-08-22(PDF 1쪽) 「마약류사범은 역대 최다인 11,916명으로 2014년(9,984명) 대비 19.4% 증가」"
+        },
+        {
+          "geo": "KR", "period": "2016", "value": "14214", "qualifier": null,
+          "sourceUrl": "https://www.spo.go.kr/site/spo/ex/board/View.do?cbIdx=1403&bcIdx=649271",
+          "page": 1,
+          "table": "대검 2016년 백서 보도자료 2017-09-04(PDF 1쪽) 「2016년 마약류사범은 역대 최다인 14,214명으로 2015년(11,916명) 대비 19.3% 증가」"
+        },
+        {
+          "geo": "KR", "period": "2017", "value": "14123", "qualifier": null,
+          "sourceUrl": "https://www.spo.go.kr/site/spo/ex/board/View.do?cbIdx=1403&bcIdx=677081",
+          "page": 1,
+          "table": "대검 2017년 백서 보도자료 2018-08-28(PDF 1쪽) 「2017년 마약류사범은 14,123명으로 2년 연속 14,000명 상회」"
+        },
+        {
+          "geo": "KR", "period": "2018", "value": "12613", "qualifier": null,
+          "sourceUrl": "https://www.spo.go.kr/site/spo/ex/board/View.do?cbIdx=1403&bcIdx=979462",
+          "page": 1,
+          "table": "대검 2018년 백서 보도자료 2019-09-09(PDF 1쪽) 「2018년 마약류사범은 12,613명으로 전년(14,123명) 대비 10.7% 감소」"
+        },
+        {
+          "geo": "KR", "period": "2019", "value": "16044", "qualifier": null,
+          "sourceUrl": "https://www.spo.go.kr/site/spo/ex/board/View.do?cbIdx=1403&bcIdx=1002580",
+          "page": 1,
+          "table": "대검 2019년 백서 보도자료 2020-05-31(PDF 1쪽) 「2019년 마약류사범은 역대 최다인 16,044명으로 전년(12,613명) 대비 27.2% 증가」"
+        },
+        {
+          "geo": "KR", "period": "2020", "value": "18050", "qualifier": null,
+          "sourceUrl": "https://www.spo.go.kr/site/spo/ex/board/View.do?cbIdx=1403&bcIdx=1019010",
+          "page": 1,
+          "table": "대검 2020년 백서 보도자료 2021-06-09(PDF 1쪽) 「2020년 마약류사범은 역대 최다 18,050명으로 전년(16,044명) 대비 12.5% 증가」"
+        },
+        {
+          "geo": "KR", "period": "2021", "value": "16153", "qualifier": null,
+          "sourceUrl": "https://www.spo.go.kr/site/spo/ex/board/View.do?cbIdx=1403&bcIdx=1028391",
+          "page": 1,
+          "table": "대검 2021년 백서 보도자료 2022-05-06(PDF 1쪽) 「2021년 마약류사범은 16,153명으로 전년 대비 10.5% 감소」"
+        },
+        {
+          "geo": "KR", "period": "2022", "value": "18395", "qualifier": null,
+          "sourceUrl": "https://www.spo.go.kr/site/spo/ex/board/View.do?cbIdx=1403&bcIdx=1039054",
+          "page": 2,
+          "table": "대검 2022년 백서 보도자료 2023-07(PDF 2쪽) 「마약류사범은 '18년 12,613명에서 '22년 18,395명으로 45.8% 급증」"
+        },
+        {
+          "geo": "KR", "period": "2023", "value": "27611", "qualifier": null,
+          "sourceUrl": "https://www.spo.go.kr/site/spo/ex/board/View.do?cbIdx=1403&bcIdx=1054946",
+          "page": 4,
+          "table": "대검 2023년 백서 보도자료 2024-06(PDF 4쪽) 「(전체 마약사범) '23년 27,611명으로 최초로 2만명 넘겨」 · korea.kr 2024-11-18 「2만 7611명」"
+        },
+        {
+          "geo": "KR", "period": "2024", "value": "23022", "qualifier": null,
+          "sourceUrl": "https://www.spo.go.kr/site/spo/ex/board/View.do?cbIdx=1403&bcIdx=1081463",
+          "page": 1,
+          "table": "대검 2024년 백서 보도자료 2025-06-15(PDF 1쪽) 「2024년 단속 마약사범은 23,022명으로 전년(27,611명) 대비 16.6% 감소」"
+        },
+        {
+          "geo": "KR", "period": "2025", "value": "23403", "qualifier": null,
+          "sourceUrl": "https://www.spo.go.kr/site/spo/ex/board/View.do?cbIdx=1403&bcIdx=1108716",
+          "page": 1,
+          "table": "대검 2025년 백서 보도자료 2026-07-28(PDF 1쪽) 「2025년 단속 마약류 사범은 23,403명으로 전년(23,022명) 대비 1.7% 증가」 · korea.kr 2026-06-02 「2만 3403명」"
+        }
+      ]
+    }
+  ]
+}

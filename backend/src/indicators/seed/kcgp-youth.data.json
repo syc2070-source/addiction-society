@@ -1,5 +1,5 @@
 {
-  "note": "청소년 도박문제 지표 첫 수집분(AS-M3-1). 출처=한국도박문제예방치유원 청소년 도박(문제) 실태조사. 공공데이터포털 kcgp_youth(15142248)는 파일데이터(결과보고서·원자료)라 무키 JSON API가 없다 → 실태조사가 공표한 검증된 집계치를 정의와 함께 등록한다(정의 없는 지표 금지·원칙4). source_url은 원자료 딥링크(원칙3). 값 개정 시 collect:indicators가 revisions에 누적. 2024 세부 비율·오픈API(서비스키) 연동은 후속. SOC-R3 ■3ⓐ: 2015·2018 회차 값을 사감위(ngcc.go.kr) 공식 보고서·보도자료에서 쪽·문구와 함께 넣기만. 2020 = 공식 원본 미확보(넣지 않음). 2024 = 조사설계 변경으로 2015~2022 수치와 비교 불가(보고서 일러두기 10) → 같은 지표로 넣지 않음.",
+  "note": "청소년 도박문제 지표 첫 수집분(AS-M3-1). 출처=한국도박문제예방치유원 청소년 도박(문제) 실태조사. 공공데이터포털 kcgp_youth(15142248)는 파일데이터(결과보고서·원자료)라 무키 JSON API가 없다 → 실태조사가 공표한 검증된 집계치를 정의와 함께 등록한다(정의 없는 지표 금지·원칙4). source_url은 원자료 딥링크(원칙3). 값 개정 시 collect:indicators가 revisions에 누적. 2024 세부 비율·오픈API(서비스키) 연동은 후속. SOC-R3 ■3ⓐ: 2015·2018 회차 값을 사감위(ngcc.go.kr) 공식 보고서·보도자료에서 쪽·문구와 함께 넣기만. 2020 = 공식 원본 미확보(넣지 않음) → SOC-R4 ■3ⓐ: 한국청소년정책연구원이 아니라 관리센터(kcgp) 보도자료 2021-03-11(nttId 38755 · HWP · 결과보고서 원문은 게시 없음)에서 2020 재학생 2.4(1.7+0.7)와 같은 표의 2018 4.9·1.5 를 넣기만. 2024 = 조사설계 변경으로 2015~2022 수치와 비교 불가(보고서 일러두기 10) → 같은 지표로 넣지 않음. SOC-R4 ■3ⓑ: 2024~ 새 조사는 문제 수준(CAGI)을 재지 않고 경험률을 잰다 → 별도 지표 kcgp_youth_v2(평생 도박 경험률 2024·2025 두 점 · kcgp.or.kr 자료실 결과보고서 쪽 표시).",
   "sourceId": "kcgp_youth",
   "sourceUrl": "https://www.data.go.kr/data/15142248/fileData.do",
   "indicators": [
@@ -30,6 +30,15 @@
           "sourceUrl": "https://www.ngcc.go.kr/Download/Download.do?disposition=down&fileName=8297020190110102748.hwp&basePath=law",
           "note": "조사대상: 중1~고2 재학생 · 최근 3개월 · CAGI — 회차 간 직접 비교 주의",
           "table": "사감위 보도자료 2019-01-10(게시 9695) 「위험집단 비율 … 6.4%」"
+        },
+        {
+          "geo": "KR",
+          "period": "2020",
+          "value": "2.4",
+          "qualifier": null,
+          "sourceUrl": "https://www.kcgp.or.kr/portal/bbs/B0000031/view.do?nttId=38755&menuNo=200021",
+          "note": "조사대상: 중1~고3 재학생(N=15,349 · 고3 첫 포함) · 최근 3개월 · CAGI · 온라인·우편(코로나19) — 보고서 「이전 연도와 직접적 비교에는 주의」",
+          "table": "관리센터 보도자료 2021-03-11(총 7쪽 · HWP) 본문 첫 문단 「15,349명 중 2.4%(위험군 1.7%, 263명+문제군 0.7%, 114명)」"
         }
       ]
     },
@@ -51,6 +60,24 @@
           "sourceUrl": "https://www.ngcc.go.kr/Download/Download.do?disposition=down&fileName=4741520161101155230.pdf&basePath=pds",
           "note": "조사대상: 중1~고2 재학생(N=14,011) · 최근 3개월 · CAGI Yellow — 회차 간 직접 비교 주의",
           "table": "「2015 청소년 도박문제 실태조사」 PDF 41쪽(인쇄 27쪽) 〈그림 Ⅲ-1〉"
+        },
+        {
+          "geo": "KR",
+          "period": "2018",
+          "value": "4.9",
+          "qualifier": null,
+          "sourceUrl": "https://www.kcgp.or.kr/portal/bbs/B0000031/view.do?nttId=38755&menuNo=200021",
+          "note": "조사대상: 중1~고2 재학생 · 최근 3개월 · CAGI Yellow — 회차 간 직접 비교 주의",
+          "table": "관리센터 보도자료 2021-03-11 붙임2 〈[지난 3개월 기준] 재학 중 청소년 전체 도박문제 수준〉 「2018년 93.6 4.9 1.5」"
+        },
+        {
+          "geo": "KR",
+          "period": "2020",
+          "value": "1.7",
+          "qualifier": null,
+          "sourceUrl": "https://www.kcgp.or.kr/portal/bbs/B0000031/view.do?nttId=38755&menuNo=200021",
+          "note": "조사대상: 중1~고3 재학생(N=15,349 · 고3 첫 포함) · 최근 3개월 · CAGI Yellow · 코로나19 — 직접 비교 주의",
+          "table": "관리센터 보도자료 2021-03-11 붙임2 〈[지난 3개월 기준] 재학 중 청소년 전체 도박문제 수준〉 「2020년 97.5 1.7 0.7」"
         }
       ]
     },
@@ -72,6 +99,56 @@
           "sourceUrl": "https://www.ngcc.go.kr/Download/Download.do?disposition=down&fileName=4741520161101155230.pdf&basePath=pds",
           "note": "조사대상: 중1~고2 재학생(N=14,011) · 최근 3개월 · CAGI Red — 회차 간 직접 비교 주의",
           "table": "「2015 청소년 도박문제 실태조사」 PDF 41쪽(인쇄 27쪽) 〈그림 Ⅲ-1〉"
+        },
+        {
+          "geo": "KR",
+          "period": "2018",
+          "value": "1.5",
+          "qualifier": null,
+          "sourceUrl": "https://www.kcgp.or.kr/portal/bbs/B0000031/view.do?nttId=38755&menuNo=200021",
+          "note": "조사대상: 중1~고2 재학생 · 최근 3개월 · CAGI Red — 회차 간 직접 비교 주의",
+          "table": "관리센터 보도자료 2021-03-11 붙임2 〈[지난 3개월 기준] 재학 중 청소년 전체 도박문제 수준〉 「2018년 93.6 4.9 1.5」"
+        },
+        {
+          "geo": "KR",
+          "period": "2020",
+          "value": "0.7",
+          "qualifier": null,
+          "sourceUrl": "https://www.kcgp.or.kr/portal/bbs/B0000031/view.do?nttId=38755&menuNo=200021",
+          "note": "조사대상: 중1~고3 재학생(N=15,349 · 고3 첫 포함) · 최근 3개월 · CAGI Red · 코로나19 — 직접 비교 주의",
+          "table": "관리센터 보도자료 2021-03-11 붙임2 〈[지난 3개월 기준] 재학 중 청소년 전체 도박문제 수준〉 「2020년 97.5 1.7 0.7」"
+        }
+      ]
+    },
+    {
+      "code": "kcgp_youth_v2",
+      "domain": "D1",
+      "nameKo": "청소년 평생 도박 경험률 (2024~ 청소년 도박 실태조사)",
+      "nameEn": "Youth lifetime gambling experience rate (2024– Youth Gambling Survey)",
+      "unit": "%",
+      "definitionKo": "초등학교 4학년~고등학교 3학년 재학생 중 지금까지(평생) 도박을 직접 '해 본 적이 있다'고 답한 비율(%) — 보고서 표 이름 「청소년 도박 경험률(평생)」. 도박문제 선별척도(CAGI 위험군·문제군)가 아니라 경험 여부다.",
+      "methodNote": "한국도박문제예방치유원 「청소년 도박 실태조사」(2024~ · 국가승인통계 제469001호). 조사설계 변동으로 2015~2022 「청소년 도박문제 실태조사」 수치와 비교 불가(2024 보고서 일러두기 10) — 그래서 kcgp_youth_gambling_* 와 다른 지표로 둔다. 가중치 적용값.",
+      "observationNote": "2022 이전과 비교 불가 · 초4~고3 재학생",
+      "observations": [
+        {
+          "geo": "KR",
+          "period": "2024",
+          "value": "4.3",
+          "qualifier": null,
+          "sourceUrl": "https://www.kcgp.or.kr/portal/bbs/B0000063/view.do?nttId=315267&menuNo=200240",
+          "page": 23,
+          "note": "2022 이전과 비교 불가 · 초4~고3 재학생 응답 13,368명(모집단 3,936,614명) · 평생 기준",
+          "table": "「2024 청소년 도박 실태조사」(2025-02 · PDF 45쪽) 〈표2-1〉 전체 「(13,368) 4.3」 · 「청소년의 4.3%는 평생 1회 이상 도박을 경험」"
+        },
+        {
+          "geo": "KR",
+          "period": "2025",
+          "value": "4.0",
+          "qualifier": null,
+          "sourceUrl": "https://www.kcgp.or.kr/portal/bbs/B0000063/view.do?nttId=776740&menuNo=200240",
+          "page": 25,
+          "note": "2022 이전과 비교 불가 · 초4~고3 재학생 응답 13,481명(모집단 3,941,153명) · 평생 기준",
+          "table": "「2025 청소년 도박 실태조사 결과보고서」(PDF 47쪽) 〈표 2-1〉 「2025년 평생 도박 경험률은 4.0%로 전년(4.3%) 대비 소폭 감소」"
         }
       ]
     }

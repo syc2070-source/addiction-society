@@ -8,6 +8,8 @@
  *    공공데이터포털 kcgp_youth(15142248)는 '파일데이터'(결과보고서·원자료)라 무키 JSON
  *    API 가 없다(M3-0 실사). 회차별 값은 공식 결과보고서의 쪽 번호와 함께 싣는다.
  *  - knhanes.data.json — 국민건강영양조사(질병관리청) 성인 고위험음주율·현재흡연율.
+ *  - drug-offenders.data.json — 대검찰청 「마약류 범죄백서」 보도자료의 연도별 마약류 사범
+ *    단속 인원 총계(SOC-R4 · 원본이 적은 총계만 · 더하기 0).
  *
  * 넣기만(SOC-R2 ■3): 지표는 code, 관측치는 (지표·소스·지역·기간·qualifier) 기준.
  * 있으면 쓰지 않는다 — 값·status·fetched_at 모두 그대로. 값이 다르면 seed_diff 로그만.
@@ -19,6 +21,7 @@ import { Indicator } from '../entities/indicator.entity';
 import { Observation } from '../entities/observation.entity';
 import kcgp from './kcgp-youth.data.json';
 import knhanes from './knhanes.data.json';
+import drugOffenders from './drug-offenders.data.json';
 import { SeedInsertOnly } from '../../common/seed-insert-only';
 import { printJobCounts } from '../../common/job-counts';
 import {
@@ -27,7 +30,11 @@ import {
   seedIndicatorFile,
 } from './indicator-seed';
 
-export const DATA_FILES = [kcgp, knhanes] as unknown as IndicatorDataFile[];
+export const DATA_FILES = [
+  kcgp,
+  knhanes,
+  drugOffenders,
+] as unknown as IndicatorDataFile[];
 
 async function run() {
   const ds = AppDataSource;
