@@ -63,6 +63,17 @@ export default async function ResearchPage({
             {result.data.map((r) => (
               <div key={r.id} className="list-item">
                 <div className="list-item-meta">
+                  {/* 근거 등급 자리(SOC-R2 ■4) — Statory 등급 전까지는 공개 근거만 */}
+                  {r.publicBasis && (
+                    <span
+                      className={
+                        r.publicBasis === 'reviewed' ? 'tag tag-accent' : 'tag'
+                      }
+                      title={t(`basisTitle.${r.publicBasis}`)}
+                    >
+                      {t(`basis.${r.publicBasis}`)}
+                    </span>
+                  )}
                   {r.year && <span className="tag">{r.year}</span>}
                   {r.authors && r.authors.length > 0 && (
                     <span>{r.authors.slice(0, 3).join(', ')}</span>

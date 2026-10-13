@@ -436,3 +436,190 @@
   color: var(--text-main);
   font-weight: var(--fw-medium);
 }
+
+/* ── SOC-R2 첫 화면 넷: 오늘의 숫자 · 근거 지도 · 이번 달 발표 · 회복자원 ── */
+
+.heroLead {
+  margin-top: var(--space-2);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--text-muted);
+  max-width: 38em;
+}
+
+.firstHero {
+  padding-bottom: var(--space-4);
+}
+
+.four {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+@media (min-width: 900px) {
+  .four {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .fourWide {
+    grid-column: 1 / -1;
+  }
+}
+
+.box {
+  background: var(--card-bg);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3);
+  min-width: 0;
+}
+
+.boxKicker {
+  font-size: var(--fs-caption);
+  color: var(--accent-text);
+  margin-bottom: 4px;
+}
+
+.boxTitle {
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-medium);
+  margin: 0 0 var(--space-1);
+}
+
+.boxDesc {
+  font-size: var(--fs-caption);
+  color: var(--text-muted);
+  margin: 0 0 var(--space-2);
+}
+
+.mapCards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-2);
+}
+
+@media (min-width: 720px) {
+  .mapCards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.mapCard {
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2);
+  background: var(--bg);
+  min-width: 0;
+}
+
+.mapTopic {
+  font-size: var(--fs-body);
+  font-weight: var(--fw-medium);
+  margin: 0;
+}
+
+.mapNumbers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  margin: 4px 0 var(--space-1);
+  font-variant-numeric: tabular-nums;
+}
+
+.mapNumbers b {
+  color: var(--text-main);
+  font-weight: var(--fw-medium);
+}
+
+.mapLabel {
+  font-size: var(--fs-caption);
+  color: var(--text-muted);
+  margin: var(--space-1) 0 2px;
+}
+
+.mapList {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: var(--fs-sm);
+  line-height: var(--lh-heading);
+}
+
+.mapList li {
+  margin-bottom: 4px;
+  overflow-wrap: anywhere;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.chip {
+  background: var(--primary-soft);
+  border-radius: var(--radius-sm);
+  padding: 2px 8px;
+  font-size: var(--fs-caption);
+}
+
+.todayValue {
+  font-size: 2.25rem;
+  font-weight: var(--fw-medium);
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.todaySpark {
+  width: 100%;
+  max-width: 220px;
+  height: 48px;
+  display: block;
+  margin: var(--space-1) 0;
+}
+
+.todaySparkLine {
+  stroke: var(--secondary);
+  stroke-width: 2;
+  fill: none;
+}
+
+.monthList {
+  list-style: none;
+  margin: 0 0 var(--space-1);
+  padding: 0;
+}
+
+.monthItem {
+  display: flex;
+  gap: var(--space-1);
+  padding: 6px 0;
+  border-bottom: 0.5px solid var(--border);
+  font-size: var(--fs-sm);
+}
+
+.monthDate {
+  color: var(--text-muted);
+  min-width: 84px;
+  font-variant-numeric: tabular-nums;
+}
+
+.recoveryBig {
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-medium);
+  margin: 0 0 var(--space-1);
+}
+
+.recoveryForm {
+  display: flex;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+}
+
+.recoveryForm input {
+  flex: 1;
+  min-width: 0;
+}

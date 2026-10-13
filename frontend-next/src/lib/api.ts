@@ -118,6 +118,10 @@ export interface Research {
   summary: string | null;
   keywords: string[] | null;
   sourceUrl: string | null;
+  /** 왜 공개됐나 (SOC-R2) — 'reviewed' 오너 검수 · 'gate' 관련성 관문. 구버전 API 에는 없음 */
+  publicBasis?: 'reviewed' | 'gate';
+  /** 근거 등급 자리 — Statory 내보내기(12월) 전까지 null */
+  evidenceLevel?: string | null;
 }
 
 export interface RecoveryResource {
@@ -161,6 +165,13 @@ export function fetchRecoveryResources(params: {
 }) {
   return get<Paginated<RecoveryResource>>(
     `/api/recovery/resources?${pagedQuery(params, 24)}`,
+  );
+}
+
+/** 첫 화면 회복자원 상자용 — 유형·지역을 세려고 한 번에 읽는다(지금 73곳). */
+export function fetchRecoveryAll() {
+  return get<Paginated<RecoveryResource>>(
+    `/api/recovery/resources?page=1&limit=500`,
   );
 }
 
