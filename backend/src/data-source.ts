@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { config } from 'dotenv';
+import { join } from 'path';
 import { DataSource } from 'typeorm';
 
 import { User } from './auth/entities/user.entity';
@@ -16,6 +17,13 @@ import { Observation } from './indicators/entities/observation.entity';
 
 // CLI는 Nest 컨텍스트 밖에서 돌아가므로 .env를 직접 로드한다(app.module과 동일한 env 키).
 config();
+
+/** ts-node(src/*.ts) 면 src 의 .ts migration, 빌드 산출물(dist/*.js) 이면 dist 의 .js. */
+export function migrationGlobs(file: string, dir: string): string[] {
+  return file.endsWith('.ts')
+    ? ['src/migrations/*.ts']
+    : [join(dir, 'migrations', '*.js').replace(/\\/g, '/')];
+}
 
 /**
  * TypeORM CLI(마이그레이션) 전용 DataSource.
@@ -49,7 +57,9 @@ export const AppDataSource = new DataSource({
   ],
   // CLI는 ts-node로 실행되므로 소스(.ts) 경로만 지정.
   // (dist/*.js를 함께 넣으면 watch 컴파일 산출물과 중복 로드되어 오류)
-  migrations: ['src/migrations/*.ts'],
+  // SOC-R2: 매일 예약은 시드를 dist(.js)로 돌린다 — 그때 .ts 를 require 하면
+  // initialize 가 실패해 모든 단계가 죽는다. 실행 중인 파일 확장자로 고른다.
+  migrations: migrationGlobs(__filename, __dirname),
   synchronize: false,
   // CLI/시드 실행 시 쿼리 로그도 기본 off. DB_LOGGING='true'일 때만 켠다.
   logging: process.env.DB_LOGGING === 'true',
