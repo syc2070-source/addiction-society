@@ -10,6 +10,7 @@
     "indicators": "지표",
     "timeline": "연대기",
     "groupAnalysis": "분석",
+    "evidenceMap": "근거 지도",
     "lab": "분석실",
     "groupArchive": "자료실",
     "policy": "정책문서",
@@ -148,7 +149,15 @@
     "kicker": "Research",
     "title": "연구자료",
     "desc": "중독 관련 학술 연구를 메타데이터·요약과 함께 정리합니다.",
-    "searchPlaceholder": "검색: 제목, 저자, 키워드"
+    "searchPlaceholder": "검색: 제목, 저자, 키워드",
+    "basis": {
+      "gate": "관문 통과",
+      "reviewed": "검토됨"
+    },
+    "basisTitle": {
+      "gate": "제목·키워드·초록의 분야 핵심어 기준을 통과해 공개됨",
+      "reviewed": "운영자가 검수 창에서 확인해 공개함"
+    }
   },
   "recoveryPage": {
     "kicker": "Recovery Resources",
@@ -195,6 +204,72 @@
     "featuredTitle": "주목 지표",
     "featuredMore": "지표 전체 보기 →",
     "activityTitle": "최근 관측 활동",
-    "activityMore": "연대기 전체 보기 →"
+    "activityMore": "연대기 전체 보기 →",
+    "lead": "중독 연구의 지도, 공식 통계, 이번 달 발표, 가까운 회복자원을 원본에서 센 값과 링크로 보여 드립니다.",
+    "todayTitle": "오늘의 숫자",
+    "todaySource": "출처",
+    "todayMore": "지표 자세히 →",
+    "mapTitle": "중독 연구의 지도",
+    "mapDesc": "Statory 서재가 Europe PMC 서지에서 센 수입니다. 추정 값은 없습니다.",
+    "mapStudies": "연구 {count}편",
+    "mapTrend": "최근 5년 {last} · 앞 5년 {before}",
+    "mapInstruments": "많이 쓰인 척도",
+    "mapCore": "핵심 논문",
+    "mapReviews": "리뷰",
+    "mapOpen": "열린 원문 {open}/{total}",
+    "mapMore": "전체 보기 →",
+    "mapPending": "준비 중",
+    "monthTitle": "이번 달 발표 예정",
+    "monthEmpty": "이번 달 예정된 발표가 없습니다.",
+    "monthMore": "발표 달력 →",
+    "recoveryTitle": "가까운 회복자원",
+    "recoveryCount": "{total}곳 · {regions}개 지역",
+    "recoverySearch": "지역·기관 이름으로 찾기",
+    "recoveryType": {
+      "counseling": "상담기관",
+      "selfhelp": "자조모임",
+      "hotline": "상담전화",
+      "treatment": "치료기관",
+      "other": "기타"
+    },
+    "secondTitle": "관측소"
+  },
+  "evidenceMap": {
+    "kicker": "Evidence Map",
+    "title": "근거 지도",
+    "desc": "주제별로 지금까지 나온 연구를 셉니다 — 연도별 편수, 연구 설계, 척도, 핵심 논문과 리뷰, 원문 확보 정도.",
+    "listEmpty": "준비 중인 주제가 없습니다.",
+    "pending": "준비 중 — 이 주제의 묶음 파일이 아직 없습니다.",
+    "studies": "연구 수",
+    "trend": "최근 5년 / 앞 5년",
+    "trendValue": "{last} / {before}",
+    "openAccess": "열린 원문",
+    "openValue": "{open}/{total}",
+    "fullTextHeld": "서재가 가진 원문",
+    "byYear": "연도별 편수",
+    "countries": "학술지 나라 (연구 나라 아님)",
+    "countriesNone": "미측(출처가 주지 않음)",
+    "designs": "연구 설계",
+    "instruments": "척도 상위",
+    "corePapers": "핵심 논문 {count}",
+    "coreBasis": "고른 기준: {basis}",
+    "reviews": "리뷰 {count}",
+    "reviewKind": {
+      "systematic": "체계적",
+      "narrative": "서술적"
+    },
+    "cited": "인용 {count}",
+    "levels": "근거 등급 분포",
+    "level": {
+      "fulltext": "원문",
+      "abstract": "초록",
+      "indirect": "간접",
+      "bib_only": "서지만"
+    },
+    "gaps": "공백",
+    "gapNoFullText": "원문 없음 {none}/{total} — 원문 확보는 오너 몫(Statory 서재에 원문 추가).",
+    "honesty": "정직 표기",
+    "sourceLine": "Statory 서재 · Europe PMC 서지 · 갱신 {date}",
+    "back": "← 근거 지도 목록"
   }
 }

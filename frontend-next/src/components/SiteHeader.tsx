@@ -33,6 +33,7 @@ export default async function SiteHeader() {
           </span>
           <span className="nav-group">
             <span className="nav-group-label">{t('groupAnalysis')}</span>
+            <Link href="/evidence-map">{t('evidenceMap')}</Link>
             <Link href="/lab">{t('lab')}</Link>
           </span>
           <span className="nav-group">

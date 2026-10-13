@@ -1,0 +1,4 @@
+{
+  "_comment": "근거 지도 주제 목록 (SOC-R2). 묶음 JSON 은 Statory 서재가 만든다 — 이 폴더에 <topic>.json 을 두고 여기 topics 에 한 줄 넣으면 /evidence-map 과 첫 화면에 자동으로 붙는다. 파일이 없으면 「준비 중」.",
+  "topics": ["youth-gambling", "alcohol-recovery"]
+}

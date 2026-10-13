@@ -10,6 +10,7 @@
     "indicators": "Indicators",
     "timeline": "Timeline",
     "groupAnalysis": "Analysis",
+    "evidenceMap": "Evidence map",
     "lab": "Lab",
     "groupArchive": "Archive",
     "policy": "Policy",
@@ -148,7 +149,15 @@
     "kicker": "Research",
     "title": "Research",
     "desc": "Academic research on addiction, organized with metadata and summaries.",
-    "searchPlaceholder": "Search: title, authors, keywords"
+    "searchPlaceholder": "Search: title, authors, keywords",
+    "basis": {
+      "gate": "Passed relevance gate",
+      "reviewed": "Reviewed"
+    },
+    "basisTitle": {
+      "gate": "Shown because title, keywords or abstract meet the field keyword rule",
+      "reviewed": "Shown after an editor checked it in the review window"
+    }
   },
   "recoveryPage": {
     "kicker": "Recovery Resources",
@@ -195,6 +204,72 @@
     "featuredTitle": "Featured indicators",
     "featuredMore": "See all indicators →",
     "activityTitle": "Recent observatory activity",
-    "activityMore": "See full timeline →"
+    "activityMore": "See full timeline →",
+    "lead": "A map of addiction research, official statistics, this month's releases and recovery resources near you, shown as counts from the original sources with links.",
+    "todayTitle": "Today's number",
+    "todaySource": "Source",
+    "todayMore": "Indicator details →",
+    "mapTitle": "A map of addiction research",
+    "mapDesc": "Counted by the Statory library from the Europe PMC bibliography. No estimated values.",
+    "mapStudies": "{count} studies",
+    "mapTrend": "Last 5 years {last} · previous 5 years {before}",
+    "mapInstruments": "Most used instruments",
+    "mapCore": "Core papers",
+    "mapReviews": "Reviews",
+    "mapOpen": "Open full text {open}/{total}",
+    "mapMore": "See the full map →",
+    "mapPending": "In preparation",
+    "monthTitle": "Expected releases this month",
+    "monthEmpty": "No releases are expected this month.",
+    "monthMore": "Release calendar →",
+    "recoveryTitle": "Recovery resources",
+    "recoveryCount": "{total} places · {regions} regions",
+    "recoverySearch": "Search by region or name",
+    "recoveryType": {
+      "counseling": "Counseling centers",
+      "selfhelp": "Self-help groups",
+      "hotline": "Hotlines",
+      "treatment": "Treatment facilities",
+      "other": "Other"
+    },
+    "secondTitle": "Observatory"
+  },
+  "evidenceMap": {
+    "kicker": "Evidence Map",
+    "title": "Evidence map",
+    "desc": "Counts of the research on each topic so far: studies per year, study designs, instruments, core papers and reviews, and how much full text is held.",
+    "listEmpty": "No topics are ready yet.",
+    "pending": "In preparation: the bundle file for this topic is not here yet.",
+    "studies": "Studies",
+    "trend": "Last 5 years / previous 5",
+    "trendValue": "{last} / {before}",
+    "openAccess": "Open full text",
+    "openValue": "{open}/{total}",
+    "fullTextHeld": "Full text held by the library",
+    "byYear": "Studies per year",
+    "countries": "Journal country (not the study country)",
+    "countriesNone": "Not measured (the source does not provide it)",
+    "designs": "Study designs",
+    "instruments": "Top instruments",
+    "corePapers": "Core papers {count}",
+    "coreBasis": "Selection basis: {basis}",
+    "reviews": "Reviews {count}",
+    "reviewKind": {
+      "systematic": "systematic",
+      "narrative": "narrative"
+    },
+    "cited": "cited {count}",
+    "levels": "Evidence level distribution",
+    "level": {
+      "fulltext": "Full text",
+      "abstract": "Abstract",
+      "indirect": "Indirect",
+      "bib_only": "Bibliography only"
+    },
+    "gaps": "Gaps",
+    "gapNoFullText": "No full text {none}/{total}. Adding full text is up to the owner (via the Statory library).",
+    "honesty": "Honesty notes",
+    "sourceLine": "Statory library · Europe PMC bibliography · updated {date}",
+    "back": "← All evidence maps"
   }
 }

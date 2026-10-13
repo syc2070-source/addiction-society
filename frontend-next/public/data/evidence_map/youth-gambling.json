@@ -1,0 +1,261 @@
+{
+  "schema": "report_bundle.v0",
+  "kind": "evidence_map",
+  "topic": "youth-gambling",
+  "title": "청소년 도박",
+  "title_en": "Youth gambling",
+  "generated_at": "2026-10-13T00:11:12.187Z",
+  "source": "addiction bibliography (Europe PMC) — metadata and abstracts only",
+  "query": {
+    "all_of_groups": [
+      [
+        "gambling",
+        "gambler",
+        "betting",
+        "wagering",
+        "도박"
+      ],
+      [
+        "adolescen",
+        "youth",
+        "teen",
+        "student",
+        "young people",
+        "청소년",
+        "학생"
+      ]
+    ]
+  },
+  "values": {
+    "studies": 786,
+    "by_year": {
+      "2002": 5,
+      "2003": 6,
+      "2004": 6,
+      "2005": 8,
+      "2006": 12,
+      "2007": 12,
+      "2008": 6,
+      "2009": 15,
+      "2010": 23,
+      "2011": 25,
+      "2012": 22,
+      "2013": 23,
+      "2014": 31,
+      "2015": 46,
+      "2016": 36,
+      "2017": 38,
+      "2018": 39,
+      "2019": 50,
+      "2020": 63,
+      "2021": 62,
+      "2022": 59,
+      "2023": 44,
+      "2024": 37,
+      "2025": 45,
+      "2026": 45
+    },
+    "trend": {
+      "last_five_years": 230,
+      "five_years_before": 252,
+      "latest_year": 2026
+    },
+    "journal_countries_top": [
+      [
+        "AU",
+        3
+      ],
+      [
+        "GB",
+        2
+      ],
+      [
+        "MY",
+        1
+      ]
+    ],
+    "designs": {
+      "other": 283,
+      "survey": 211,
+      "cross-sectional": 88,
+      "cohort": 67,
+      "qualitative": 50,
+      "rct": 26,
+      "meta-analysis": 21,
+      "systematic-review": 20,
+      "experiment": 19,
+      "case-control": 1
+    },
+    "instruments_top": [
+      [
+        "SOGS",
+        88
+      ],
+      [
+        "PGSI",
+        42
+      ],
+      [
+        "IAT",
+        28
+      ],
+      [
+        "CPGI",
+        13
+      ],
+      [
+        "AUDIT",
+        9
+      ],
+      [
+        "BIS-11",
+        8
+      ],
+      [
+        "DSM-5 criteria",
+        7
+      ],
+      [
+        "GRCS",
+        7
+      ],
+      [
+        "SDQ",
+        5
+      ],
+      [
+        "IGDS9-SF",
+        4
+      ]
+    ],
+    "core_papers": [
+      {
+        "title": "Internet addiction: a systematic review of epidemiological research for the last decade.",
+        "doi": "10.2174/13816128113199990617",
+        "year": 2014,
+        "journal": "Current pharmaceutical design",
+        "cited": 1372
+      },
+      {
+        "title": "Gaming disorder: Its delineation as an important condition for diagnosis, management, and prevention.",
+        "doi": "10.1556/2006.6.2017.039",
+        "year": 2017,
+        "journal": "Journal of behavioral addictions",
+        "cited": 488
+      },
+      {
+        "title": "Comorbidity of DSM-IV pathological gambling and other psychiatric disorders: results from the National Epidemiologic Survey on Alcohol and Related Conditions.",
+        "doi": "10.4088/jcp.v66n0504",
+        "year": 2005,
+        "journal": "The Journal of clinical psychiatry",
+        "cited": 702
+      },
+      {
+        "title": "Scholars' open debate paper on the World Health Organization ICD-11 Gaming Disorder proposal.",
+        "doi": "10.1556/2006.5.2016.088",
+        "year": 2017,
+        "journal": "Journal of behavioral addictions",
+        "cited": 259
+      },
+      {
+        "title": "Global prevalence of gaming disorder: A systematic review and meta-analysis.",
+        "doi": "10.1177/0004867420962851",
+        "year": 2021,
+        "journal": "The Australian and New Zealand journal of psychiatry",
+        "cited": 847
+      },
+      {
+        "title": "Prevalence of internet gaming disorder in adolescents: A meta-analysis across three decades.",
+        "doi": "10.1111/sjop.12459",
+        "year": 2018,
+        "journal": "Scandinavian journal of psychology",
+        "cited": 407
+      },
+      {
+        "title": "Excessive Internet gaming and decision making: do excessive World of Warcraft players have problems in decision making under risky conditions?",
+        "doi": "10.1016/j.psychres.2011.05.017",
+        "year": 2011,
+        "journal": "Psychiatry research",
+        "cited": 97
+      },
+      {
+        "title": "Investigating risk factors for Internet gaming disorder: a comparison of patients with addictive gaming, pathological gamblers and healthy controls regarding the big five personality traits.",
+        "doi": "10.1159/000355832",
+        "year": 2014,
+        "journal": "European addiction research",
+        "cited": 98
+      },
+      {
+        "title": "Early risk and protective factors for problem gambling: A systematic review and meta-analysis of longitudinal studies.",
+        "doi": "10.1016/j.cpr.2016.10.008",
+        "year": 2017,
+        "journal": "Clinical psychology review",
+        "cited": 430
+      },
+      {
+        "title": "The Shorter PROMIS Questionnaire and the Internet Addiction Scale in the assessment of multiple addictions in a high-school population: prevalence and related disability.",
+        "doi": "10.1017/s1092852900015157",
+        "year": 2006,
+        "journal": "CNS spectrums",
+        "cited": 95
+      }
+    ],
+    "core_basis": "in-bibliography citations (reviews x3)",
+    "reviews": [
+      {
+        "title": "Internet addiction: a systematic review of epidemiological research for the last decade.",
+        "doi": "10.2174/13816128113199990617",
+        "year": 2014,
+        "journal": "Current pharmaceutical design",
+        "cited": 1372,
+        "kind": "systematic"
+      },
+      {
+        "title": "Global prevalence of gaming disorder: A systematic review and meta-analysis.",
+        "doi": "10.1177/0004867420962851",
+        "year": 2021,
+        "journal": "The Australian and New Zealand journal of psychiatry",
+        "cited": 847,
+        "kind": "systematic"
+      },
+      {
+        "title": "Gaming disorder: Its delineation as an important condition for diagnosis, management, and prevention.",
+        "doi": "10.1556/2006.6.2017.039",
+        "year": 2017,
+        "journal": "Journal of behavioral addictions",
+        "cited": 488,
+        "kind": "narrative"
+      },
+      {
+        "title": "Prevalence of Adolescent Problem Gambling: A Systematic Review of Recent Research.",
+        "doi": "10.1007/s10899-016-9627-5",
+        "year": 2017,
+        "journal": "Journal of gambling studies",
+        "cited": 477,
+        "kind": "systematic"
+      },
+      {
+        "title": "Early risk and protective factors for problem gambling: A systematic review and meta-analysis of longitudinal studies.",
+        "doi": "10.1016/j.cpr.2016.10.008",
+        "year": 2017,
+        "journal": "Clinical psychology review",
+        "cited": 430,
+        "kind": "systematic"
+      }
+    ],
+    "evidence_levels": {
+      "fulltext": 11,
+      "abstract": 0,
+      "indirect": 0,
+      "bib_only": 775
+    },
+    "open_access": 280,
+    "open_access_share": 0.356,
+    "full_text_held": 1
+  },
+  "honesty": [
+    "every value is counted from the bibliography; none is estimated",
+    "journal country, not the study country",
+    "the bibliography is still being harvested — counts grow until the harvest ends"
+  ]
+}

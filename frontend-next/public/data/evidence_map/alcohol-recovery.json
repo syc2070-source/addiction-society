@@ -1,0 +1,281 @@
+{
+  "schema": "report_bundle.v0",
+  "kind": "evidence_map",
+  "topic": "alcohol-recovery",
+  "title": "알코올 회복",
+  "title_en": "Alcohol recovery",
+  "generated_at": "2026-10-13T00:11:03.359Z",
+  "source": "addiction bibliography (Europe PMC) — metadata and abstracts only",
+  "query": {
+    "all_of_groups": [
+      [
+        "alcohol",
+        "drinking",
+        "알코올",
+        "음주"
+      ],
+      [
+        "recovery",
+        "relapse",
+        "abstinence",
+        "remission",
+        "sobriety",
+        "회복",
+        "재발",
+        "단주"
+      ]
+    ]
+  },
+  "values": {
+    "studies": 6927,
+    "by_year": {
+      "2002": 41,
+      "2003": 65,
+      "2004": 63,
+      "2005": 76,
+      "2006": 85,
+      "2007": 102,
+      "2008": 122,
+      "2009": 118,
+      "2010": 139,
+      "2011": 144,
+      "2012": 170,
+      "2013": 249,
+      "2014": 242,
+      "2015": 259,
+      "2016": 288,
+      "2017": 331,
+      "2018": 373,
+      "2019": 368,
+      "2020": 392,
+      "2021": 445,
+      "2022": 509,
+      "2023": 419,
+      "2024": 450,
+      "2025": 561,
+      "2026": 526
+    },
+    "trend": {
+      "last_five_years": 2465,
+      "five_years_before": 1909,
+      "latest_year": 2026
+    },
+    "journal_countries_top": [
+      [
+        "US",
+        35
+      ],
+      [
+        "DE",
+        4
+      ],
+      [
+        "FR",
+        2
+      ],
+      [
+        "NL",
+        1
+      ],
+      [
+        "IN",
+        1
+      ],
+      [
+        "GB",
+        1
+      ],
+      [
+        "DK",
+        1
+      ],
+      [
+        "ES",
+        1
+      ]
+    ],
+    "designs": {
+      "other": 3563,
+      "rct": 920,
+      "cohort": 883,
+      "qualitative": 451,
+      "survey": 388,
+      "experiment": 311,
+      "cross-sectional": 164,
+      "meta-analysis": 127,
+      "systematic-review": 105,
+      "case-control": 15
+    },
+    "instruments_top": [
+      [
+        "AUDIT",
+        135
+      ],
+      [
+        "ASI",
+        54
+      ],
+      [
+        "PACS",
+        49
+      ],
+      [
+        "TLFB",
+        44
+      ],
+      [
+        "OCDS",
+        42
+      ],
+      [
+        "BDI",
+        37
+      ],
+      [
+        "AUDIT-C",
+        29
+      ],
+      [
+        "CIWA-Ar",
+        22
+      ],
+      [
+        "DSM-5 criteria",
+        21
+      ],
+      [
+        "BIS-11",
+        20
+      ]
+    ],
+    "core_papers": [
+      {
+        "title": "The reinstatement model of drug relapse: history, methodology and major findings.",
+        "doi": "10.1007/s00213-002-1224-x",
+        "year": 2003,
+        "journal": "Psychopharmacology",
+        "cited": 1609
+      },
+      {
+        "title": "Drug dependence, a chronic medical illness: implications for treatment, insurance, and outcomes evaluation.",
+        "doi": "10.1001/jama.284.13.1689",
+        "year": 2000,
+        "journal": "JAMA",
+        "cited": 2611
+      },
+      {
+        "title": "Advances in the science and treatment of alcohol use disorder.",
+        "doi": "10.1126/sciadv.aax4043",
+        "year": 2019,
+        "journal": "Science advances",
+        "cited": 593
+      },
+      {
+        "title": "Toward a model of drug relapse: an assessment of the validity of the reinstatement procedure.",
+        "doi": "10.1007/s00213-006-0529-6",
+        "year": 2006,
+        "journal": "Psychopharmacology",
+        "cited": 620
+      },
+      {
+        "title": "Anticraving medications for relapse prevention: a possible new class of psychoactive medications.",
+        "doi": "10.1176/appi.ajp.162.8.1423",
+        "year": 2005,
+        "journal": "The American journal of psychiatry",
+        "cited": 403
+      },
+      {
+        "title": "Alcoholism: allostasis and beyond.",
+        "doi": "10.1097/01.alc.0000057122.36127.c2",
+        "year": 2003,
+        "journal": "Alcoholism, clinical and experimental research",
+        "cited": 736
+      },
+      {
+        "title": "Cue-induced activation of the striatum and medial prefrontal cortex is associated with subsequent relapse in abstinent alcoholics.",
+        "doi": "10.1007/s00213-004-1828-4",
+        "year": 2004,
+        "journal": "Psychopharmacology",
+        "cited": 460
+      },
+      {
+        "title": "Neurobiology of the incubation of drug craving.",
+        "doi": "10.1016/j.tins.2011.06.001",
+        "year": 2011,
+        "journal": "Trends in neurosciences",
+        "cited": 641
+      },
+      {
+        "title": "The role of corticotrophin-releasing factor in stress-induced relapse to alcohol-seeking behavior in rats.",
+        "doi": "10.1007/s002130000411",
+        "year": 2000,
+        "journal": "Psychopharmacology",
+        "cited": 249
+      },
+      {
+        "title": "Naltrexone decreases craving and alcohol self-administration in alcohol-dependent subjects and activates the hypothalamo-pituitary-adrenocortical axis.",
+        "doi": "10.1007/s002130100919",
+        "year": 2002,
+        "journal": "Psychopharmacology",
+        "cited": 370
+      }
+    ],
+    "core_basis": "in-bibliography citations (reviews x3)",
+    "reviews": [
+      {
+        "title": "Drug dependence, a chronic medical illness: implications for treatment, insurance, and outcomes evaluation.",
+        "doi": "10.1001/jama.284.13.1689",
+        "year": 2000,
+        "journal": "JAMA",
+        "cited": 2611,
+        "kind": "narrative"
+      },
+      {
+        "title": "The reinstatement model of drug relapse: history, methodology and major findings.",
+        "doi": "10.1007/s00213-002-1224-x",
+        "year": 2003,
+        "journal": "Psychopharmacology",
+        "cited": 1609,
+        "kind": "narrative"
+      },
+      {
+        "title": "Treatment of NAFLD with diet, physical activity and exercise.",
+        "doi": "10.1016/j.jhep.2017.05.016",
+        "year": 2017,
+        "journal": "Journal of hepatology",
+        "cited": 1340,
+        "kind": "narrative"
+      },
+      {
+        "title": "Extent of illicit drug use and dependence, and their contribution to the global burden of disease.",
+        "doi": "10.1016/s0140-6736(11)61138-0",
+        "year": 2012,
+        "journal": "Lancet (London, England)",
+        "cited": 1304,
+        "kind": "systematic"
+      },
+      {
+        "title": "Alcoholic liver disease.",
+        "doi": "10.1038/s41572-018-0014-7",
+        "year": 2018,
+        "journal": "Nature reviews. Disease primers",
+        "cited": 1195,
+        "kind": "narrative"
+      }
+    ],
+    "evidence_levels": {
+      "fulltext": 9,
+      "abstract": 0,
+      "indirect": 0,
+      "bib_only": 6918
+    },
+    "open_access": 1899,
+    "open_access_share": 0.274,
+    "full_text_held": 10
+  },
+  "honesty": [
+    "every value is counted from the bibliography; none is estimated",
+    "journal country, not the study country",
+    "the bibliography is still being harvested — counts grow until the harvest ends"
+  ]
+}

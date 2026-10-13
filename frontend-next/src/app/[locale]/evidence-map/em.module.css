@@ -1,0 +1,156 @@
+/* 근거 지도 (SOC-R2 ■2) — 목록·주제 화면 공용 */
+
+.summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.summaryCell {
+  background: var(--card-bg);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-2);
+}
+
+.summaryLabel {
+  display: block;
+  font-size: var(--fs-caption);
+  color: var(--text-muted);
+}
+
+.summaryValue {
+  display: block;
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-medium);
+  color: var(--text-main);
+  font-variant-numeric: tabular-nums;
+}
+
+.section {
+  margin-bottom: var(--space-4);
+}
+
+.sectionTitle {
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-medium);
+  margin: 0 0 var(--space-2);
+}
+
+.bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 160px;
+  padding: var(--space-1) 0;
+  border-bottom: 0.5px solid var(--border);
+  overflow-x: auto;
+}
+
+.bar {
+  flex: 1 0 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  height: 100%;
+  min-width: 14px;
+}
+
+.barFill {
+  width: 100%;
+  background: var(--secondary);
+  border-radius: 2px 2px 0 0;
+  min-height: 1px;
+}
+
+.barCount {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+.barYears {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--fs-caption);
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.pairList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.pairList li {
+  background: var(--primary-soft);
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+  font-size: var(--fs-sm);
+}
+
+.pairList b {
+  font-weight: var(--fw-medium);
+  margin-left: 6px;
+  font-variant-numeric: tabular-nums;
+}
+
+.two {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.papers {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.papers li {
+  margin-bottom: var(--space-1);
+  line-height: var(--lh-heading);
+}
+
+.paperMeta {
+  display: block;
+  font-size: var(--fs-caption);
+  color: var(--text-muted);
+}
+
+.note {
+  font-size: var(--fs-caption);
+  color: var(--text-muted);
+  margin: var(--space-1) 0 0;
+}
+
+.sourceLine {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  border-top: 0.5px solid var(--border);
+  padding-top: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+@media (max-width: 720px) {
+  .summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .two,
+  .cards {
+    grid-template-columns: 1fr;
+  }
+}

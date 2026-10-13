@@ -1,4 +1,5 @@
 import type { MetadataRoute } from 'next';
+import { evidenceTopics } from '@/lib/evidenceMap';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
 
@@ -14,6 +15,9 @@ const PATHS = [
   '/research',
   '/recovery',
   '/about',
+  '/evidence-map',
+  // 근거 지도 주제는 index.json 에서 자동으로 (SOC-R2)
+  ...evidenceTopics().map((tp) => `/evidence-map/${tp}`),
 ];
 
 /** sitemap.xml — ko(무접두사)·en 쌍 + hreflang alternate */
