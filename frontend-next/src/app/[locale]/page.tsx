@@ -276,7 +276,10 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
             <div className={styles.boxKicker}>{t('home.todayTitle')}</div>
             <h2 className={styles.boxTitle}>{indicatorName(today.indicator)}</h2>
             <div className={styles.todayValue}>
-              {todayLatest.value}
+              {/* SOC-R4: 인원 같은 큰 수는 자릿수 구분(23403 → 23,403) · 비율은 원문 그대로 */}
+              {Number(todayLatest.value) >= 1000
+                ? fmt(Number(todayLatest.value))
+                : todayLatest.value}
               {today.indicator.unit ? (
                 <span className={styles.featuredUnit}>
                   {today.indicator.unit}
