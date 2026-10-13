@@ -23,7 +23,13 @@ describe('issueReviewToken / verifyReviewToken', () => {
 
   it('서명을 한 글자만 바꿔도 거부한다', () => {
     const t = issueReviewToken('b1', SECRET);
-    const tampered = t.slice(0, -1) + (t.endsWith('A') ? 'B' : 'A');
+    // SOC-R4 ■4: 서명 가운데 글자를 바꾼다. 끝 글자는 32바이트 서명의 base64url 43번째 글자라
+    // 아래 2비트가 버려져 A↔B 를 바꿔도 같은 바이트로 풀릴 때가 있었다(간헐 실패).
+    const [payload, sig] = t.split('.');
+    const mid = Math.floor(sig.length / 2);
+    const swapped = sig[mid] === 'A' ? 'g' : 'A';
+    const tampered = `${payload}.${sig.slice(0, mid)}${swapped}${sig.slice(mid + 1)}`;
+    expect(tampered).not.toBe(t);
     expect(verifyReviewToken(tampered, SECRET)).toEqual({
       ok: false,
       reason: '서명 불일치',
