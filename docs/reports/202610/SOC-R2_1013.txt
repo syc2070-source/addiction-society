@@ -1,0 +1,106 @@
+경보 1 (P1 · SOC-R1 결함, 이번 판에서 고침) — 매일 04:00 예약이 운영에서 아무것도 쓰지 못함(dist 실행 때 .ts migration 을 require 해 DataSource 초기화 실패 · 로컬 재현) · 공개 연구 응답에 검토자 이메일 칸(reviewedBy) 노출 길(값은 아직 전부 null) → 둘 다 이 판 코드로 막음
+배포 확인 12:00:50 (health commit 3714503 · startedAt 02:58:52Z · schema.review_columns:true · push 11:56:30 뒤 약 4분) · Vercel 11:57:55 (근거 지도 페이지 200)
+SOC-R2 보고서 · 2026-10-13 · 실행 = 데스크탑 Claude Code (Opus 5.5) · 가지 claude/soc-r2 → main ff
+
+■0 실측·저장 (읽기 전용)
+| 지시서 | docs/reports/202610/SOC-R2_instruction.txt · 7c4ec65 [skip ci] [skip render] |
+| 04:00 예약 결과 | Discord 줄: 미열람(웹훅은 쓰기 전용 · 읽을 길 없음 · 대시보드 접근 안 함). 예약은 10-11·10-12·10-13 04:00 KST 세 번 돌 수 있었음(프로세스 startedAt 10-10T11:16Z 그대로 = 그 사이 재시작 0) |
+| 단계별 성공/실패 (간접) | 8단계 모두 실패로 판정. 근거: ① 회복자원 73건 updatedAt 전부 2026-10-09T07:22 (seed:recovery 가 성공했으면 update 로 갱신됐어야) ② 지표 3 updatedAt 전부 10-09T07:22 (collect:indicators) ③ 공개 연구 행 relevance_checked_at·relevance_reason 모두 null (backfill:relevance 성공이면 채워졌어야) ④ 공개 연구 id 목록 그대로 |
+| 원인 | src/data-source.ts migrations = ['src/migrations/*.ts']. 예약은 dist/*.js 를 node 로 돌리는데, TypeORM 이 초기화 때 .ts 를 require → "SyntaxError: The requested module 'typeorm' does not provide an export named 'MigrationInterface'" (로컬 node v24 에서 dist/data-source.buildMetadatas() 로 재현). 연결 뒤 메타 빌드에서 죽으므로 모든 단계가 첫 쓰기 전에 실패 → 데이터 손상 0, 갱신 0. 실패 알림은 Discord 로 갔을 것(미확인) |
+| backfill:relevance 결과 | 0건(위 원인으로 실행 실패) — 공개 7건 모두 relevance_* null |
+| 지표 3 | 청소년 도박문제 3종(kcgp_youth · 데이터포털 15142248) · 관측치 각 1개(2022 · 4.8 / 3.9 / 0.9 %) · 갱신 10-09 07:22 · 시계열(2점 이상) 0 → ⓐ 상자 숨김 |
+| 홈 코드 자리 | frontend-next/src/app/[locale]/page.tsx (+ page.module.css). 전: 히어로(슬로건 2줄 + 긴 소개) + 관측소 카드 → 모은 것 4칸 → 부처 지도 → 주목 지표 → 최근 활동 |
+| 달력 데이터 | GET /api/sources/calendar → Source[] 13건(next_expected_at 있는 것) · 10월 2건(마약류 통계 · 중독관리통합지원센터 운영현황) |
+| 회복자원 데이터 | GET /api/recovery/resources → 73건 · type 전부 counseling · region KR · city 18종 |
+| 근거 지도 파일 | frontend-next/public/data/evidence_map/ 없음 · D:\statory-lt14\pairs\evidence_map\ 없음 → 실제 위치 D:\statory-library\pairs\evidence_map\{youth-gambling,alcohol-recovery}.json (10-13 09:11 · 읽기만) 를 그대로 복사 · sha256 원본과 같음(13d4a0d6… · 6cb50fba…) · index.json 은 Statory 가 주지 않아 이쪽에서 만듦 |
+| 묶음 꼴 | report_bundle.v0: topic · title · title_en · generated_at · source · query · values{studies · by_year · trend{last_five_years, five_years_before, latest_year} · journal_countries_top · designs · instruments_top · core_papers · core_basis · reviews · evidence_levels · open_access · open_access_share · full_text_held} · honesty. 지시서 이름(total · counts_by_year · countries · instruments · oa_ratio · gaps)과 다름 → 읽는 쪽이 두 이름 다 받음. gaps 열쇠 없음 |
+| 알코올 회복 수 | 지시서 6,806편 · 묶음 6,927편(서지 수확 진행 중 — 묶음 honesty 「counts grow until the harvest ends」). 화면은 묶음 값 6,927 |
+
+■3 (먼저 함) seed 넣기만 (e219fa5) · dist 수리 (6d87618)
+ - dist 수리: data-source.ts migrationGlobs(file, dir) — 실행 파일이 .ts 면 src/migrations/*.ts(CLI·ts-node 그대로), .js 면 dist/migrations/*.js. 확인: dist buildMetadatas ok(migration 14 · entity 14) · ts-node 경로 ok(14) · 시험 3
+ - 넣기만 도우미 common/seed-insert-only.ts (SeedInsertOnly): 키로 찾아 없으면 save(create) 로 넣고, 있으면 쓰지 않음(updated_at 도 그대로). seed 가 가진 열쇠만 DB 값과 비교해 다르면 seed_diff 로 남김
+ - seed_diff = 실행 로그 줄 "[seed_diff] <표> <키> <칸>: db=… seed=…" + 요약 "신규 N · 기존 건너뜀 N · 다른 값 N건(기록만, 덮지 않음)". 표가 아님(이 판 스키마 변경 0). 예약 단계 로그(실패 시 Discord 꼬리 300자)로만 남음
+| 스크립트 | 전 | 후 |
+| seed:sources | id upsert · next_expected_at 매번 null (감시 크론이 고친 last_published_at 등을 되돌림) | 새 id 만 넣기(next_expected_at null → backfill:next 가 채움) · 기존 행 0 쓰기 |
+| seed:recovery | name 기준 update | 새 name 만 · 기존 0 쓰기 |
+| seed:documents | title/source_id 기준 update | 새 것만 · 기존 0 쓰기(URL 검사는 전과 같이 먼저 함) |
+| collect:indicators | 지표 메타 update · 관측치 값 개정+status='approved' 덮음 · 같으면 fetched_at 갱신 | 새 지표·새 관측치만 · 기존은 값·status·fetched_at·revisions 모두 그대로 · 값 다르면 seed_diff |
+ - 「관리자 수정 표시(edited_by_admin 열 · 없으면 updated_at > seed 시각)」: 기존 행을 모두 건너뛰므로 표시 없이도 사람 손이 지켜짐 → 열·규칙 안 만듦(migration 0 규율과 맞음)
+ - 시험 10: 없는 행 넣음 · 관리자가 고친 행은 save/update/upsert 0회·값·updated_at 그대로 · 다른 값은 seed_diff 만 · 같은 값 diff 0 · 정규화(숫자 문자열 4.80=4.8 · null/undefined · 열쇠 순서 · Date↔'YYYY-MM-DD') · 비교는 seed 열쇠만 + 제외 목록 · 네 스크립트에 .update( / .upsert( 0 (정적)
+ - backfill:next(계산값만 · 바뀐 행만) · collect:research(DOI update, status 제외) · backfill:relevance · collect:broadcasts 는 지시 범위 밖이라 그대로
+
+■4 연구 목록 준비 (8912e8d · 3714503)
+ - 공개 응답(목록·featured·단건)에서 reviewedBy(로그인 이메일) 칸을 뺌 — 오너가 「살림」을 누르면 이메일이 공개될 길이었음(지금 값은 전부 null · 노출 0). 관리자 길·검수 창은 그대로
+ - 공개 응답에 publicBasis('reviewed' = 검수 창 살림 · 'gate' = 관문 통과) 와 evidenceLevel(null · Statory 등급 12월 자리) 추가
+ - /research 카드에 꼬리표 「관문 통과」/「검토됨」(마우스 올리면 뜻) · 근거 등급은 아직 표시 없음(자리만)
+ - 운영 실측: /api/research 7건 publicBasis 모두 'gate' · reviewedBy 칸 0
+ - 숨긴 44 는 검수 창 그대로(결정 0)
+ - 시험 1: 단건·목록 모두 reviewedBy 없음 · keep 은 reviewed · 나머지 gate
+
+■2 근거 지도 페이지 (0c4d1c3)
+ - 주소: /evidence-map (목록) · /evidence-map/youth-gambling · /evidence-map/alcohol-recovery (+ /en/…) · 머리 메뉴 「분석」에 「근거 지도」 · sitemap 에 자동
+ - 칸: 연구 수 · 최근 5년/앞 5년(두 수) · 열린 원문 280/786 (있음/전체 두 수 · open_access_share 0.356 은 쓰지 않음) · 서재가 가진 원문 · 연도 막대(2002~2026 · 막대 위에 편수) · 척도 상위 10 · 연구 설계 · 학술지 나라(「연구 나라 아님」 · 비면 「미측(출처가 주지 않음)」) · 핵심 논문 10(DOI 링크 · 학술지 · 연도 · 인용) + 고른 기준(core_basis 그대로) · 리뷰 5(체계적/서술적) · 근거 등급 분포(원문 · 초록 · 간접 · 서지만) · 공백(「원문 없음 bib_only/전체 — 원문 확보는 오너 몫」 + 묶음 gaps 가 오면 그 줄들) · 정직 표기(묶음 honesty 그대로) · 출처 줄 「Statory 서재 · Europe PMC 서지 · 갱신 <generated_at 날짜>」
+ - 수 지어내기 0 · 화면에 보이는 나누기 0. 단 연도 막대 높이만 그 해 편수 ÷ 최대 편수로 그림(표시용 · 숫자는 원래 편수)
+ - 주제 추가: public/data/evidence_map/<topic>.json + index.json topics 한 줄 → 다음 빌드에 목록·첫 화면·sitemap 자동. index 에 있는데 파일 없으면 「준비 중」 · index 에 없는 주소는 404
+ - 묶음은 빌드에 import 로 들어감(서버 함수가 public/ 를 런타임에 읽지 않게) → Statory 가 파일을 고치면 push(=Vercel 재빌드) 뒤 반영
+ - 운영 실측: 목록·두 주제·/en 주제 200 · /evidence-map/nope 404
+
+■1 첫 화면 넷 (3714503)
+ - 위: 슬로건 한 줄(기존 hero.line1+line2 를 한 h1 로) + 설명 한 문장 「중독 연구의 지도, 공식 통계, 이번 달 발표, 가까운 회복자원을 원본에서 센 값과 링크로 보여 드립니다.」 (긴 소개 문단은 첫 화면에서 뺌 · 문구는 messages 에 남김)
+ - ⓐ 오늘의 숫자: 전체값 시계열 2점 이상인 지표 중 점이 가장 많은 것(값 · 기간 · 출처 기관 · 원본 링크 · 작은 추세선 · 지표 자세히). 지금 지표 3 모두 1점 → 상자 숨김(운영 HTML 에 없음 확인)
+ - ⓑ 근거 지도 카드 둘: 주제 · 연구 수 · 최근 5년 vs 앞 5년 · 열린 원문 있음/전체 · 척도 상위 3 · 핵심 논문 3(DOI) · 리뷰 2(DOI) · 「전체 보기 →」
+ - ⓒ 이번 달 발표 예정: 달력 데이터 중 next_expected_at 이 이번 달(KST) — 지금 2건(한국마약퇴치운동본부 마약류 통계 · 보건복지부 중독관리통합지원센터 운영현황) · 0건이면 「이번 달 예정된 발표가 없습니다」 · 발표 달력 링크
+ - ⓓ 회복자원: 「73곳 · 18개 지역」 · 유형 칩 「상담기관 73」 · 찾기 칸(→ /recovery?search=)
+ - 「지금까지 모은 것」 네 칸 유지 · 관측소 카드는 둘째 화면(그 아래 부처 지도 · 주목 지표 · 최근 활동 그대로)
+ - 모바일: 넷·카드는 900px/720px 아래 한 줄 · 연도 막대는 상자 안 가로 스크롤 · 긴 논문 제목 줄바꿈
+ - 운영 실측(www 홈 HTML): 중독 연구의 지도 · 연구 786편 · 연구 6,927편 · 최근 5년 230 · 앞 5년 252 · 열린 원문 280/786 · 이번 달 발표 예정(2026-10 두 줄) · 73곳 · 18개 지역 · 상담기관 73 · 지금까지 모은 것 · 중독 데이터 관측소 — 모두 있음 · 오늘의 숫자 없음(의도)
+
+■5 시험·배포
+| backend 시험 | 94 → 108 (11 → 13 suites) ✓ 전부 통과(이번엔 간헐 실패 없음) |
+| typecheck | backend tsc --noEmit ✓ · frontend-next tsc --noEmit ✓ |
+| backend build | nest build ✓ · dist data-source buildMetadatas ok(migration 14) |
+| frontend-next | eslint(바뀐 파일) ✓ · npm run build ✓ (/[locale]/evidence-map · /[locale]/evidence-map/[topic] 4쪽 SSG) · 로컬 next start 로 홈·근거 지도 HTML 확인 |
+| 커밋 | 7c4ec65 지시서 · 6d87618 dist 수리 · e219fa5 ■3 · 8912e8d ■4 백엔드 · 0c4d1c3 ■2 · 3714503 ■1■4 화면 |
+| push | main ff 3b7d9f7..3714503 11:56:30 · 머리 = 3714503 코드 커밋([skip] 글자 0) · 가지 claude/soc-r2 도 push |
+| 폴링 | 11:56:49 · 11:58:50 commit 7a1f72b (전) → 12:00:50 commit 371450354c4d661349e81e34774312460f421957 · startedAt 2026-10-13T02:58:52Z · schema.review_columns:true → 끝 |
+| Vercel | 11:56:53 /evidence-map/youth-gambling 404 → 11:57:55 200 · / /en /evidence-map /evidence-map/{youth-gambling,alcohol-recovery} /en/evidence-map/alcohol-recovery /research /sitemap.xml 200 |
+| 운영 후 | /api/research 7(같은 id 53,52,45,44,43,29,1 · publicBasis gate · reviewedBy 칸 없음) · /stats total 7 · /api/admin/research/review 401 · /api/timeline 200 |
+
+전/후
+| 항목 | 전 | 후 |
+| 첫 화면 | 슬로건 2줄 + 긴 소개 + 관측소 카드 | 슬로건 한 줄 + 설명 한 문장 + 근거 지도 카드 둘 · 이번 달 발표 2 · 회복자원 73곳/18지역 (+ 오늘의 숫자: 시계열 생기면 자동) · 관측소는 둘째 화면 |
+| 근거 지도 | 없음 | 목록 1 + 주제 2 쪽 (ko/en) |
+| 매일 예약 실제 쓰기 | 0 (3회 모두 초기화 실패 추정) | 다음 04:00(10-14)부터 실행 가능(dist 확인) — 미측 |
+| 예약 seed 가 기존 행 덮기 | 4 스크립트 덮음 | 0 (넣기만 + seed_diff 로그) |
+| 공개 연구 수 | 7 | 7 (같은 id) |
+| 공개 응답 검토자 이메일 칸 | 있음(값 null) | 없음 |
+| 연구 카드 공개 근거 표시 | 없음 | 「관문 통과」/「검토됨」 |
+| 숨김(검수 대기) | 44 | 44 (결정 0) |
+| 스키마 | — | 변경 0 (migration 0) |
+
+건너뛴 것과 사유
+ - 04:00 예약 Discord 줄 열람: 읽을 길 없음(웹훅 쓰기 전용) → 공개 API 의 updatedAt·relevance 칸으로 간접 판정
+ - 오늘의 숫자 상자: 시계열 있는 지표 0 → 지시대로 숨김
+ - edited_by_admin 열: 넣기만으로 불필요 + migration 0 규율
+ - seed_diff 표: 스키마 변경 0 이라 로그로만
+ - 운영 DB 에서 seed 실제 실행 확인: DB 직접 접속 0 · 로컬에서 시드를 돌리면 .env 의 DB 로 붙을 수 있어 돌리지 않음 → 다음 04:00 뒤 updatedAt 로 확인
+ - 프런트 단위 시험: frontend-next 에 시험 틀 없음(설치 0) → tsc · eslint · build · 렌더 HTML 확인으로 대신
+
+정직 표기
+ - 예약 실패 판정은 간접 증거 + 로컬 재현이지 운영 로그가 아님. 10-14 04:00 첫 정상 회차도 미측 — 그 회차부터 backfill:relevance 가 기존 51행 relevance_* 를 처음 채움(세 열만), collect:research 가 DOI update(status 제외)·새 행 insert 를 다시 시작함(R1 때 배포에서 빼 둔 것이 이제 실제로 돌기 시작)
+ - SOC-R1 보고서의 「매일 예약 8단계」는 코드상 맞았지만 운영에서는 dist 경로 결함으로 돌지 못했음 — R1 시험이 runAll 을 가짜 runner 로만 봐서 놓침. 이번 data-source 시험은 경로 고르기만 봄(실제 dist 시드 실행 시험은 DB 가 필요해 없음)
+ - 근거 지도 묶음 경로가 지시서(D:\statory-lt14\pairs\…)와 달랐음 — D:\statory-library\pairs\… 에서 읽음. Statory 가 frontend-next 로 push 한 흔적 없음
+ - 복사한 묶음 = 09:11 판. 11:56 에 Statory 가 두 파일을 다시 씀: generated_at 과 full_text_held 만 바뀜(청소년 도박 1→86 · 알코올 회복 10→11), 그 밖의 수는 같음. 화면의 「서재가 가진 원문」은 1·10(09:11 판) — Statory push 또는 다음 판 복사로 갱신
+ - 묶음의 evidence_levels.fulltext(11·9)와 full_text_held(1·10)는 서로 다른 칸이라 둘 다 그대로 보임 — 뜻 차이는 Statory 정의를 따름(이쪽에서 맞추지 않음)
+ - 알코올 회복 리뷰 5에 「Treatment of NAFLD…」「Alcoholic liver disease.」 처럼 회복과 먼 리뷰가 있음 — 묶음 그대로 보임(고르지 않음 · Statory 쪽 질의 범위 문제)
+ - 「이번 달 발표 예정」 두 건의 next_expected_at 은 2026-10-01(지난 날짜 · 월 단위 예정) — 예약이 돌면 backfill:next 가 이월할 수 있음
+ - /research 꼬리표: 12:02 확인 땐 프런트 fetch 캐시(5분)의 옛 응답이라 0 → 12:11 확인 「관문 통과」 7개(공개 7건 모두)
+
+다음 판 후보
+ 1. 10-14 04:00 첫 정상 예약 확인(Discord · 회복자원/지표 updatedAt 은 그대로여야 · 연구 relevance_* 채움 · seed_diff 줄)
+ 2. 예약 실제 실행 시험(dist 시드를 시험 DB 로 한 번 — 이번 결함을 잡을 시험)
+ 3. Statory 가 묶음을 frontend-next/public/data/evidence_map/ 로 직접 push (index.json 포함)
+ 4. 지표 시계열(kcgp 2회차 이상) → 오늘의 숫자 상자 자동 등장
+ 5. 오너 44 검수 · Statory 근거 등급(12월) → evidenceLevel 채움
+
+SOC-R2 끝
