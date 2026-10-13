@@ -1,0 +1,21 @@
+SOC-R2 — 첫 화면 재정의(오늘의 숫자 · 근거 지도 · 발표 · 회복자원) · 근거 지도 실물 · seed 보호 (발행 2026-10-13 11:35 · D:\addiction-society · 가지 claude/soc-r2)
+
+위치판: main 3b7d9f7(SOC-R1 보고서) ← 7a1f72b(코드 · health commit + schema.review_columns) · 검수 창 /admin/review · 매일 04:00 KST in-app 예약 8단계(첫 회 10-11 · 결과 미읽음) · 공개 연구 7 / 숨김 44(오너 검수 대기) · broadcast_items 0 · 지표 3 · 정책문서 22 · 회복자원 73 · 소스 23 · 오너 10-13 「뭘 보라는 건지」 · 근거 지도 실물 = Statory 데스크탑이 frontend-next/public/data/evidence_map/{youth-gambling,alcohol-recovery}.json 으로 push(덧 16 ⑥ · 없으면 D:\statory-lt14\pairs\evidence_map\ 읽기만으로 복사).
+
+목표 세 문장: ① 첫 화면을 넷(오늘의 숫자 · 근거 지도 · 이번 달 발표 · 회복자원)으로 다시 짜 손님이 얻을 것을 보인다. ② 근거 지도는 Statory 가 준 묶음 JSON 을 그대로 그린다(세 사이트 연계의 첫 실물 · 수만 · 지어내기 0). ③ 매일 예약이 관리자 손을 덮지 않게 한다.
+
+손님에게 달라지는 것: 첫 화면에서 「중독 연구의 지도」(청소년 도박 786편 · 알코올 회복 6,806편 · 연도 추세 · 척도 · 핵심 논문)와 오늘의 숫자를 봄 — 지금은 슬로건 + 관측소. LLM 의존: 0(센 값만).
+
+오너에게 묻지 말고 끝까지 계속 진행. 오너 액션 0(숨긴 44 검수는 오너 몫 · 기한 0). 설치 0 · .env*·열쇠 값 0 · DB = TypeORM migration 덧붙임만(이 판은 스키마 변경 0) · 기존 행 status 변경·삭제 0 · D:\statory-lt14 쓰기 0(읽기만) · 중독뉴스 저장소 쓰기 0 · Vercel 설정 0 · Edit/Write 만 · 명령 하나씩 · git add 파일별 · rebase/force 0.
+
+■0 〔①〕 실측·저장: 지시서 docs/reports/202610/SOC-R2_instruction.txt · 04:00 예약 2회 결과(Discord 줄 · 단계별 성공/실패 · backfill:relevance 결과) · 지표 3 의 시계열 유무·출처·갱신 · 홈 구성 요소 코드 자리(frontend-next) · 달력·회복자원 데이터 꼴 · public/data/evidence_map/ 파일 있는지(없으면 D:\statory-lt14\pairs\evidence_map\*.json 을 읽어 복사 · 출처 줄).
+
+■1 〔①〕 첫 화면 넷(frontend-next 홈 · ko/en · 모바일): ⓐ 오늘의 숫자 = 지표 3 중 시계열 있는 것 하나(값 · 연도 · 출처 · 링크 · 작은 추세) · 없으면 상자 숨김 ⓑ 근거 지도 카드 둘(주제 · 연구 수 · 최근 5년 vs 앞 5년 · 척도 상위 3 · 핵심 논문 3 제목(DOI 링크) · 리뷰 2 · 열린 원문 「있음/전체」 · 「전체 보기」) ⓒ 이번 달 발표(달력 데이터) ⓓ 회복자원 73(유형·지역 수 + 찾기) · 슬로건 한 줄 + 설명 한 문장 · 관측소 블록은 둘째 화면 · 「지금까지 모은 것」 수 네 칸 유지.
+
+■2 〔②〕 근거 지도 페이지 /evidence-map/<topic>: 묶음 JSON(topic · total · counts_by_year · countries · designs · instruments · core_papers · reviews · evidence_levels · oa_ratio · gaps)을 그대로 — 연도 막대 · 나라 비면 「미측(출처가 주지 않음)」 · 척도 상위 · 핵심 논문 10(DOI) · 리뷰 5 · 등급 분포 · 공백(원문 없음·오너 손) · 출처 줄 「Statory 서재 · Europe PMC 서지 · 갱신 날짜」 · 수 지어내기 0 · 나누기 0(비율은 있음/전체 그대로) · 파일 없으면 「준비 중」 · 목록 index.json 으로 주제 자동 추가.
+
+■3 〔③〕 seed insert-only: seed:sources · seed:recovery · seed:documents · collect:indicators 가 기존 행을 덮지 않음(새 행만 · 기존 행은 관리자 수정 표시(edited_by_admin 열 없으면 updated_at > seed 시각 규칙) 있으면 건너뜀 · 바뀐 값은 seed_diff 기록만) · 시험.
+
+■4 〔①〕 연구 목록 준비: 공개 연구 항목에 근거 등급 자리(Statory 내보내기 12월 · 지금은 「검토됨」/「관문 통과」 표시만) · 숨긴 44 는 검수 창 그대로.
+
+■5 〔공통〕 시험 · ff-merge main · push ⓑ(머리 [skip render] 0) · health 폴링 25분 · Vercel 배포 확인(홈 요소 넷 · 근거 지도 페이지 둘 200) · 전/후 표 · 보고서 SOC-R2_<MMDD>.txt [skip ci] [skip render]. 하지 않는 것 = 기존 행 status 변경·삭제 · 44 결정 · migration · .env · 중독뉴스 쓰기 · D:\statory-lt14 쓰기.
