@@ -143,8 +143,31 @@ describe('ResearchService public paths', () => {
 
   it('findOne returns an approved, relevant row', async () => {
     repo.findOne.mockResolvedValue(rows[0]);
-    await expect(service.findPublicOne(1)).resolves.toBe(rows[0]);
+    await expect(service.findPublicOne(1)).resolves.toMatchObject({
+      id: rows[0].id,
+      title: rows[0].title,
+    });
     expect(repo.increment).toHaveBeenCalledWith({ id: 1 }, 'viewCount', 1);
+  });
+
+  // SOC-R2 ■4 — 공개 응답은 검토자(이메일)를 싣지 않고 공개 근거를 싣는다.
+  it('public rows drop reviewedBy and carry publicBasis', async () => {
+    const kept = {
+      ...rows[1],
+      reviewDecision: 'keep',
+      reviewedBy: 'owner@example.com',
+    };
+    repo.findOne.mockResolvedValue(kept);
+    const one = await service.findPublicOne(kept.id);
+    expect(one).not.toHaveProperty('reviewedBy');
+    expect(one.publicBasis).toBe('reviewed');
+    expect(one.evidenceLevel).toBeNull();
+
+    const list = await service.findPublic({ page: 1, limit: 10 });
+    for (const r of list.data) {
+      expect(r).not.toHaveProperty('reviewedBy');
+      expect(r.publicBasis).toBe('gate');
+    }
   });
 
   it('stats count only publicly visible rows', async () => {

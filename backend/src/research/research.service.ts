@@ -34,6 +34,26 @@ export interface ReviewQueueItem {
   reviewedAt: Date | null;
 }
 
+/**
+ * 공개 응답 한 줄 (SOC-R2 ■4). 검토자(로그인 이메일)는 공개하지 않고, 왜 공개됐는지를
+ * 붙인다. 근거 등급은 Statory 내보내기(12월) 전까지 자리만 둔다(null).
+ */
+export type PublicResearch = Omit<Research, 'reviewedBy'> & {
+  /** 'reviewed' = 오너가 검수 창에서 살림 · 'gate' = 관련성 관문 통과 */
+  publicBasis: 'reviewed' | 'gate';
+  evidenceLevel: null;
+};
+
+export function toPublicResearch(r: Research): PublicResearch {
+  const rest: Partial<Research> = { ...r };
+  delete rest.reviewedBy;
+  return {
+    ...(rest as Omit<Research, 'reviewedBy'>),
+    publicBasis: r.reviewDecision === 'keep' ? 'reviewed' : 'gate',
+    evidenceLevel: null,
+  };
+}
+
 /** 공개 목록이 관문 전에 읽는 승인분 상한(표 규모의 안전판). */
 const PUBLIC_SCAN_LIMIT = 5000;
 
@@ -122,9 +142,12 @@ export class ResearchService {
    * 읽어 거른 뒤 메모리에서 자른다. 데이터는 바꾸지 않는다.
    * SOC-R1: 판정은 isPubliclyVisible 하나(승인 + (관문 통과 또는 keep) + hide 아님).
    */
-  async findPublic(
-    query: ResearchQueryDto,
-  ): Promise<{ data: Research[]; total: number; page: number; limit: number }> {
+  async findPublic(query: ResearchQueryDto): Promise<{
+    data: PublicResearch[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
     const { page = 1, limit = 20 } = query;
     const all = await this.findAll({
       ...query,
@@ -135,7 +158,7 @@ export class ResearchService {
     const visible = all.data.filter((r) => isPubliclyVisible(r));
     const start = (page - 1) * limit;
     return {
-      data: visible.slice(start, start + limit),
+      data: visible.slice(start, start + limit).map(toPublicResearch),
       total: visible.length,
       page,
       limit,
@@ -143,7 +166,7 @@ export class ResearchService {
   }
 
   /** 공개 단건 (SOC-0): 미승인·관문 실패는 존재하지 않는 것과 같게 404. */
-  async findPublicOne(id: number): Promise<Research> {
+  async findPublicOne(id: number): Promise<PublicResearch> {
     const research = await this.researchRepository.findOne({
       where: { id, status: 'approved' },
       relations: ['tags'],
@@ -154,7 +177,7 @@ export class ResearchService {
     }
 
     await this.researchRepository.increment({ id }, 'viewCount', 1);
-    return research;
+    return toPublicResearch(research);
   }
 
   async findOne(id: number): Promise<Research> {
@@ -171,13 +194,16 @@ export class ResearchService {
     return research;
   }
 
-  async findFeatured(): Promise<Research[]> {
+  async findFeatured(): Promise<PublicResearch[]> {
     const featured = await this.researchRepository.find({
       where: { isFeatured: true, status: 'approved' },
       relations: ['tags'],
       order: { createdAt: 'DESC' },
     });
-    return featured.filter((r) => isPubliclyVisible(r)).slice(0, 10);
+    return featured
+      .filter((r) => isPubliclyVisible(r))
+      .slice(0, 10)
+      .map(toPublicResearch);
   }
 
   async update(id: number, updateDto: UpdateResearchDto): Promise<Research> {
