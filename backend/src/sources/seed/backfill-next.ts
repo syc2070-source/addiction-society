@@ -12,6 +12,10 @@
  *    배포 시점의 교정도 "예정일이 언제 어떻게 바뀌었나"의 이력이다(원칙 11).
  *    크론(sources.scheduler.reconcileExpected)이 남기는 이벤트와 같은 형식이며,
  *    detail.by로 어느 경로가 이월했는지 구분한다.
+ *
+ * SOC-R3 ■4: 지난 예정(예정 월이 끝남) 수를 로그로 — 주기 있음은 주기만큼 앞으로,
+ *  주기 없음은 「확인 필요」(null, 지어내지 않음). 「지남」은 월 단위(그 달 말일까지는
+ *  지나지 않음). 화면의 「지난 예정 · 미확인」 줄은 GET /api/sources/calendar/missed.
  */
 import 'reflect-metadata';
 import { AppDataSource } from '../../data-source';
@@ -19,6 +23,7 @@ import { Source } from '../entities/source.entity';
 import { SourceEvent } from '../entities/source-event.entity';
 import { computeNextExpected, isExpectedOverdue } from '../next-expected.util';
 import { printJobCounts } from '../../common/job-counts';
+import { overdueAction } from '../missed-releases';
 
 async function run() {
   // 공용 AppDataSource 재사용(synchronize:false). 스키마는 마이그레이션이 담당.
@@ -32,11 +37,18 @@ async function run() {
   const byCadence: Record<string, { filled: number; nulled: number }> = {};
   const changes: { id: string; from: string | null; to: string | null }[] = [];
   const rolled: string[] = [];
+  // SOC-R3 ■4: 지난 예정(그 달이 끝남)을 주기 있음/없음으로 나눠 센다.
+  const overdue: { id: string; from: string; to: string | null }[] = [];
+  const needsCheck: string[] = [];
   let filledTotal = 0;
 
   for (const s of sources) {
     const from = s.nextExpectedAt ?? null;
     const next = computeNextExpected(s, today);
+    if (from && isExpectedOverdue(from, today)) {
+      overdue.push({ id: s.id, from, to: next });
+      if (overdueAction(s) === 'check' || !next) needsCheck.push(s.id);
+    }
 
     byCadence[s.cadence] ??= { filled: 0, nulled: 0 };
     if (next) {
@@ -83,6 +95,10 @@ async function run() {
   console.log(
     `[backfill] 지난 예정일 이월 ${rolled.length}건:`,
     JSON.stringify(rolled),
+  );
+  console.log(
+    `[backfill] 지난 예정 ${overdue.length}건 · 주기만큼 앞으로 ${overdue.length - needsCheck.length} · 확인 필요 ${needsCheck.length}:`,
+    JSON.stringify({ overdue, needsCheck }),
   );
   printJobCounts({
     updated: changes.length,

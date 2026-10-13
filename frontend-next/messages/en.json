@@ -137,6 +137,10 @@
     "scheduledFor": "Expected {ym}",
     "undatedGroup": "Release date undetermined",
     "undated": "Release date undetermined",
+    "missedGroup": "Past expected · unconfirmed",
+    "missedDesc": "The expected month has ended but the release has not been confirmed yet. Expectations are monthly, so a release only becomes past once its month is over.",
+    "missedRolled": "Expected {expected}, passed · next {next}",
+    "missedCheck": "Expected {expected}, passed · next date needs checking",
     "star": "★ Coverage priority"
   },
   "policyPage": {

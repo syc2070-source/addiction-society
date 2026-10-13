@@ -175,6 +175,8 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
   const todayLatest = today?.series[today.series.length - 1];
 
   // ⓒ 이번 달 발표 예정(달력 데이터 = next_expected_at 이 이번 달).
+  // SOC-R3 ■4: 예정은 월 단위 — 이번 달 것은 그 달 말일까지 「지나지 않은」 예정이다.
+  // 지난 달 이전 것은 여기 오지 않고 달력 페이지 「지난 예정 · 미확인」 줄에만 보인다.
   const month = currentMonthKst();
   const thisMonth = (calendar ?? []).filter((s) =>
     String(s.nextExpectedAt ?? '').startsWith(month),

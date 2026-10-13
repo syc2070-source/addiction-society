@@ -5,7 +5,7 @@
  * 모든 fetcher는 실패 시 null을 반환하고, 화면은 "수집 중"으로 처리한다
  * (가짜 데이터 금지 — 블루프린트 불변 원칙 1).
  */
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
 /** 공통 GET. 실패/비200 → null. 기본 5분 재검증(발표 감시가 일 1회라 충분). */
 async function get<T>(
@@ -43,7 +43,7 @@ export interface SourcesSummary {
 }
 
 export function fetchSourcesSummary() {
-  return get<SourcesSummary>('/api/sources/summary');
+  return get<SourcesSummary>("/api/sources/summary");
 }
 
 // ── 소스 레지스트리 ──
@@ -78,16 +78,35 @@ export function fetchSources(params: {
   cadence?: string;
 }) {
   const qs = new URLSearchParams();
-  if (params.search) qs.set('search', params.search);
-  if (params.domain) qs.set('domain', params.domain);
-  if (params.scope) qs.set('scope', params.scope);
-  if (params.cadence) qs.set('cadence', params.cadence);
+  if (params.search) qs.set("search", params.search);
+  if (params.domain) qs.set("domain", params.domain);
+  if (params.scope) qs.set("scope", params.scope);
+  if (params.cadence) qs.set("cadence", params.cadence);
   const q = qs.toString();
-  return get<SourceListResult>(`/api/sources${q ? `?${q}` : ''}`);
+  return get<SourceListResult>(`/api/sources${q ? `?${q}` : ""}`);
 }
 
 export function fetchCalendar() {
-  return get<Source[]>('/api/sources/calendar');
+  return get<Source[]>("/api/sources/calendar");
+}
+
+/** 지난 예정 · 미확인 (SOC-R3) — 예정 월이 끝났는데 발표를 확인하지 못한 것. */
+export interface MissedRelease {
+  sourceId: string;
+  titleKo: string;
+  titleEn: string;
+  orgKo: string;
+  org: string;
+  url: string;
+  /** YYYY-MM */
+  expected: string;
+  /** YYYY-MM · 확인 필요면 null */
+  next: string | null;
+  action: "rolled" | "check";
+}
+
+export function fetchMissedReleases() {
+  return get<MissedRelease[]>("/api/sources/calendar/missed");
 }
 
 // ── 자료실 3종 (페이지네이션 목록 공통 형태) ──
@@ -119,7 +138,7 @@ export interface Research {
   keywords: string[] | null;
   sourceUrl: string | null;
   /** 왜 공개됐나 (SOC-R2) — 'reviewed' 오너 검수 · 'gate' 관련성 관문. 구버전 API 에는 없음 */
-  publicBasis?: 'reviewed' | 'gate';
+  publicBasis?: "reviewed" | "gate";
   /** 근거 등급 자리 — Statory 내보내기(12월) 전까지 null */
   evidenceLevel?: string | null;
 }
@@ -138,20 +157,23 @@ export interface RecoveryResource {
 
 function pagedQuery(params: { page?: number; search?: string }, limit = 12) {
   const qs = new URLSearchParams();
-  qs.set('page', String(params.page || 1));
-  qs.set('limit', String(limit));
-  if (params.search) qs.set('search', params.search);
+  qs.set("page", String(params.page || 1));
+  qs.set("limit", String(limit));
+  if (params.search) qs.set("search", params.search);
   return qs.toString();
 }
 
-export function fetchPolicyDocuments(params: { page?: number; search?: string }) {
+export function fetchPolicyDocuments(params: {
+  page?: number;
+  search?: string;
+}) {
   return get<Paginated<PolicyDocument>>(
     `/api/policy/documents?${pagedQuery(params)}`,
   );
 }
 
 /** 검수 창 결정 때 이 꼬리표로 캐시를 비운다(/api/revalidate/research, SOC-R1). */
-export const RESEARCH_CACHE_TAG = 'research';
+export const RESEARCH_CACHE_TAG = "research";
 
 export function fetchResearch(params: { page?: number; search?: string }) {
   return get<Paginated<Research>>(`/api/research?${pagedQuery(params)}`, 300, [
@@ -218,10 +240,10 @@ export interface Observation {
 
 export function fetchIndicators(params: { domain?: string } = {}) {
   const qs = new URLSearchParams();
-  if (params.domain) qs.set('domain', params.domain);
+  if (params.domain) qs.set("domain", params.domain);
   const q = qs.toString();
   return get<{ data: Indicator[]; total: number }>(
-    `/api/indicators${q ? `?${q}` : ''}`,
+    `/api/indicators${q ? `?${q}` : ""}`,
   );
 }
 
@@ -270,8 +292,8 @@ export interface BroadcastItem {
 
 export function fetchTimeline(params: { limit?: number; all?: boolean } = {}) {
   const qs = new URLSearchParams();
-  if (params.limit) qs.set('limit', String(params.limit));
-  if (params.all) qs.set('all', 'true');
+  if (params.limit) qs.set("limit", String(params.limit));
+  if (params.all) qs.set("all", "true");
   const q = qs.toString();
   return get<{
     data: TimelineEvent[];
@@ -280,7 +302,7 @@ export function fetchTimeline(params: { limit?: number; all?: boolean } = {}) {
     summary?: ActivitySummary;
     /** SOC-R1 이전 API 에는 없음 */
     broadcasts?: BroadcastItem[];
-  }>(`/api/timeline${q ? `?${q}` : ''}`);
+  }>(`/api/timeline${q ? `?${q}` : ""}`);
 }
 
 // ── 분석실 (statory 프록시 GET /api/reports) ──
@@ -310,7 +332,7 @@ export interface Report {
 }
 
 export function fetchReports() {
-  return get<{ count: number; items: Report[] }>('/api/reports?limit=50');
+  return get<{ count: number; items: Report[] }>("/api/reports?limit=50");
 }
 
 export function fetchReport(id: string) {

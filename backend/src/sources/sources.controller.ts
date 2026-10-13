@@ -22,6 +22,12 @@ export class SourcesController {
     return this.sourcesService.findCalendar();
   }
 
+  /** 지난 예정 · 미확인 (SOC-R3 ■4 · :id 보다 먼저 선언) */
+  @Get('calendar/missed')
+  findMissed() {
+    return this.sourcesService.findMissed();
+  }
+
   /** 히어로 카드 요약 (:id 보다 먼저 선언) */
   @Get('summary')
   getSummary() {

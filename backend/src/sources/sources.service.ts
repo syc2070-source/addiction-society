@@ -1,9 +1,15 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, MoreThanOrEqual, Repository } from 'typeorm';
 import { Source } from './entities/source.entity';
+import { SourceEvent } from './entities/source-event.entity';
 import { SourceQueryDto } from './dto/source.dto';
 import { monthStartOf } from './next-expected.util';
+import {
+  MISSED_WINDOW_DAYS,
+  MissedRelease,
+  missedReleases,
+} from './missed-releases';
 
 /**
  * 소스 레지스트리 서비스 (읽기 전용).
@@ -14,6 +20,8 @@ export class SourcesService {
   constructor(
     @InjectRepository(Source)
     private readonly sourceRepository: Repository<Source>,
+    @InjectRepository(SourceEvent)
+    private readonly eventRepository: Repository<SourceEvent>,
   ) {}
 
   /**
@@ -83,6 +91,29 @@ export class SourcesService {
       })
       .orderBy('source.nextExpectedAt', 'ASC')
       .getMany();
+  }
+
+  /** 지난 예정 · 미확인 (SOC-R3 ■4) — 달력 페이지 한 줄. missed-releases.ts 참고. */
+  async findMissed(today: Date = new Date()): Promise<MissedRelease[]> {
+    const since = new Date(
+      today.getTime() - MISSED_WINDOW_DAYS * 24 * 3600 * 1000,
+    );
+    const [sources, events] = await Promise.all([
+      this.sourceRepository.find(),
+      this.eventRepository.find({
+        where: {
+          eventType: In(['rescheduled', 'published', 'changed']),
+          detectedAt: MoreThanOrEqual(since),
+        },
+        select: {
+          sourceId: true,
+          eventType: true,
+          detectedAt: true,
+          detail: true,
+        },
+      }),
+    ]);
+    return missedReleases(sources, events, today);
   }
 
   /** 단건 상세 */
