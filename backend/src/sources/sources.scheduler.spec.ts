@@ -1,4 +1,4 @@
-import { SourcesScheduler } from './sources.scheduler';
+import { MONITORED_STATUSES, SourcesScheduler } from './sources.scheduler';
 import { Source } from './entities/source.entity';
 import { SourcesNotifier } from './discord.notifier';
 import { SourceEventsService } from './source-events.service';
@@ -113,6 +113,62 @@ describe('SourcesScheduler.reconcileExpected', () => {
     expect(rolled).toEqual([{ id: 'no_month', from: '2026-05-01', to: null }]);
     expect(updates).toEqual([{ id: 'no_month', next: null }]);
     expect(recorded).toHaveLength(1);
+  });
+
+  // SOC-R4 ■2 — stale 은 막다른 길이 아니다: 다시 읽고, 읽히면 active 로 돌아온다.
+  it('a stale source is read again, retried once, and comes back active', async () => {
+    const patches: { id: string; patch: Partial<Source> }[] = [];
+    const repo = {
+      update: (id: string, patch: Partial<Source>) => {
+        patches.push({ id, patch });
+        return Promise.resolve({ affected: 1 });
+      },
+    } as unknown as Repository<Source>;
+    const { events, recorded } = fakeEvents();
+    const sched = new SourcesScheduler(repo, notifier, events);
+    const s = sched as unknown as {
+      sleep: (ms: number) => Promise<void>;
+      detectChange: (s: Source) => Promise<unknown>;
+    };
+    const sleeps: number[] = [];
+    s.sleep = (ms) => (sleeps.push(ms), Promise.resolve());
+    let calls = 0;
+    s.detectChange = () =>
+      ++calls === 1
+        ? Promise.reject(new Error('fetch failed'))
+        : Promise.resolve({
+            changed: false,
+            method: 'board-latest',
+            update: {},
+          });
+
+    const drugfree = src({
+      id: 'drugfree_stats',
+      status: 'stale',
+      failCount: 3,
+      accessMethod: 'html',
+    });
+    const res = await sched.monitorSources([drugfree]);
+
+    expect(MONITORED_STATUSES).toContain('stale');
+    expect(calls).toBe(2);
+    expect(sleeps).toEqual([5000]);
+    expect(res).toEqual([
+      { id: 'drugfree_stats', status: 'unchanged', method: 'board-latest' },
+    ]);
+    expect(patches[0].patch).toMatchObject({ failCount: 0, status: 'active' });
+    expect(recorded[0]).toMatchObject({
+      eventType: 'checked',
+      detail: { method: 'board-latest', recoveredFrom: 'stale' },
+    });
+
+    // 두 번 다 실패해야 연속 실패 1회 — stale 그대로, failCount 4
+    calls = 0;
+    s.detectChange = () => Promise.reject(new Error('fetch failed'));
+    patches.length = 0;
+    const again = await sched.monitorSources([drugfree]);
+    expect(again[0]).toMatchObject({ status: 'stale', failCount: 4 });
+    expect(patches[0].patch).toMatchObject({ failCount: 4, status: 'stale' });
   });
 
   it('이월할 것이 없으면 아무것도 쓰지 않는다', async () => {

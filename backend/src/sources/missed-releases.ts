@@ -39,6 +39,58 @@ export interface MissedRelease {
   next: string | null;
   /** rolled = 주기만큼 앞으로 · check = 확인 필요(주기 없음) */
   action: 'rolled' | 'check';
+  /** 감시가 그 달 뒤에 원본을 읽었나 (SOC-R4 ■2) — MonitorState 참고 */
+  monitor: MonitorState;
+}
+
+/**
+ * 「발표 없음」과 「감시가 못 읽음」을 가른다 (SOC-R4 ■2).
+ *  - unreadable    읽지 못함: 소스가 stale(연속 실패 3회+)이거나 마지막 읽기가 실패·차단
+ *  - manual        사람 확인: 감시가 HTTP 로 읽지 않는 소스(accessMethod manual)
+ *  - unchecked     확인 전: 예정 달이 끝난 뒤 아직 한 번도 읽지 않음
+ *  - not_published 발표 없음: 예정 달이 끝난 뒤 원본을 읽었고 발간을 보지 못함
+ * 「발표 없음」은 읽기에 성공한 사실이 있을 때만 쓴다 — 못 읽은 것을 발표 없음으로 말하지 않는다.
+ */
+export type MonitorState =
+  | 'unreadable'
+  | 'manual'
+  | 'unchecked'
+  | 'not_published';
+
+/** 감시 결과 사건 — 마지막 것이 읽기 성공인지 실패인지 */
+export const READ_OK_EVENTS = ['checked', 'changed', 'published'];
+export const READ_FAIL_EVENTS = ['failed', 'stale', 'blocked'];
+
+/** 'YYYY-MM' 달이 끝난 다음 순간(다음 달 1일 00:00 KST)의 epoch ms */
+function monthEndMs(expected: string): number {
+  const [y, m] = expected.split('-').map(Number);
+  return Date.UTC(y, m, 1) - 9 * 3600 * 1000;
+}
+
+/**
+ * 감시 건강 수 (SOC-R4 ■2 · /api/health/nightly monitor).
+ *  - stale: 연속 실패 3회+ 로 stale 인 소스
+ *  - unreachable: 마지막 읽기가 실패한 소스(fail_count > 0 · stale 포함)
+ */
+export function monitorCounts(
+  sources: Pick<Source, 'status' | 'failCount'>[],
+): { sources: number; stale: number; unreachable: number } {
+  return {
+    sources: sources.length,
+    stale: sources.filter((s) => s.status === 'stale').length,
+    unreachable: sources.filter((s) => (s.failCount ?? 0) > 0).length,
+  };
+}
+
+export function monitorState(
+  s: Pick<Source, 'status' | 'accessMethod'>,
+  expected: string,
+  lastRead: { ok: boolean; at: number } | undefined,
+): MonitorState {
+  if (s.accessMethod === 'manual') return 'manual';
+  if (s.status === 'stale' || (lastRead && !lastRead.ok)) return 'unreadable';
+  if (!lastRead || lastRead.at < monthEndMs(expected)) return 'unchecked';
+  return 'not_published';
 }
 
 export interface EventLike {
@@ -79,6 +131,18 @@ export function missedReleases(
     if (t > (confirmedAt.get(e.sourceId) ?? 0)) confirmedAt.set(e.sourceId, t);
   }
 
+  // 마지막 감시 결과(읽음/못 읽음) — SOC-R4 ■2
+  const lastRead = new Map<string, { ok: boolean; at: number }>();
+  for (const e of events) {
+    const ok = READ_OK_EVENTS.includes(e.eventType);
+    if (!ok && !READ_FAIL_EVENTS.includes(e.eventType)) continue;
+    const t = new Date(e.detectedAt).getTime();
+    if (t >= (lastRead.get(e.sourceId)?.at ?? -Infinity))
+      lastRead.set(e.sourceId, { ok, at: t });
+  }
+  const tag = (s: Source, expected: string) =>
+    monitorState(s, expected, lastRead.get(s.id));
+
   // 1) 이미 이월된 것 — rescheduled(reason overdue) 사건.
   for (const e of events) {
     if (e.eventType !== 'rescheduled') continue;
@@ -96,6 +160,7 @@ export function missedReleases(
       expected,
       next,
       action: next ? 'rolled' : 'check',
+      monitor: tag(s, expected),
     });
   }
 
@@ -111,6 +176,7 @@ export function missedReleases(
       expected,
       next,
       action: next ? 'rolled' : 'check',
+      monitor: tag(s, expected),
     });
   }
 

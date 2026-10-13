@@ -14,6 +14,16 @@ const UA = 'AddictionSociety-Observatory/1.0 (+https://addictionsociety.net)';
 const TIMEOUT_MS = 30_000;
 const GAP_MS = 2000; // 요청 간 최소 2초
 const MAX_FAIL = 3; // 최대값: 연속 실패 3회면 stale
+const RETRY_MS = 5000; // 읽기 실패(네트워크·HTTP·파싱) 시 한 번 더 — SOC-R4 ■2
+
+/**
+ * 감시 대상 상태 (SOC-R4 ■2).
+ * stale 도 다시 읽는다 — 전에는 크론이 active 만 골라, 연속 실패 3회로 stale 이 된 소스는
+ * 다시는 읽히지 않았다(drugfree_stats: 2026-07-21 09:00 TLS 실패 3회 → 같은 날 13:27
+ * tls:insecure 수리가 들어갔지만 그 뒤 한 번도 다시 읽지 않아 석 달 stale).
+ * 읽기에 성공하면 active 로 돌아온다(checked 사건 detail.recoveredFrom).
+ */
+export const MONITORED_STATUSES = ['active', 'stale'];
 
 // 알림 쿨다운: 같은 소스가 이 기간 안에 또 트리거되면 알림 생략(로그만)
 const COOLDOWN_CHANGE_MS = 7 * 24 * 3600_000; // 갱신 감지 7일
@@ -146,7 +156,7 @@ export class SourcesScheduler {
       const hz = horizon.toISOString().slice(0, 10);
       const due = await this.repo
         .createQueryBuilder('s')
-        .where("s.status = 'active'")
+        .where('s.status IN (:...st)', { st: MONITORED_STATUSES })
         .andWhere('s.nextExpectedAt IS NOT NULL')
         .andWhere('s.nextExpectedAt <= :hz', { hz })
         .getMany();
@@ -188,7 +198,7 @@ export class SourcesScheduler {
     try {
       const irr = await this.repo
         .createQueryBuilder('s')
-        .where("s.status = 'active'")
+        .where('s.status IN (:...st)', { st: MONITORED_STATUSES })
         .andWhere("(s.cadence = 'irregular' OR s.nextExpectedAt IS NULL)")
         .getMany();
       this.logger.log(`[cron:weekly] 예정일 미상 대상 ${irr.length}건`);
@@ -322,9 +332,9 @@ export class SourcesScheduler {
     }
 
     try {
-      const det = await this.detectChange(s);
+      const det = await this.detectWithRetry(s);
 
-      // 403/405 차단은 stale 아님 — 확인만 갱신
+      // 403/405 차단은 stale 아님 — 확인만 갱신(차단은 「읽음」이 아니라 stale 이면 그대로 둔다)
       if (det.blocked) {
         await this.repo.update(s.id, { lastCheckedAt: now, failCount: 0 });
         await this.events.record({
@@ -352,11 +362,19 @@ export class SourcesScheduler {
         );
       }
 
+      // 읽기 성공 — stale 이었으면 active 로 돌아온다(SOC-R4 ■2)
+      const recoveredFrom = s.status === 'stale' ? 'stale' : null;
       await this.repo.update(s.id, {
         lastCheckedAt: now,
         failCount: 0, // 성공 시 카운터 리셋
+        ...(recoveredFrom ? { status: 'active' } : {}),
         ...update,
       });
+      if (recoveredFrom) {
+        this.logger.log(
+          `[monitor] RECOVER ${s.id} — stale → active (이전 연속 실패 ${s.failCount}회)`,
+        );
+      }
 
       if (det.changed) {
         const { prevHash, newHash } = this.hashPair(s, det);
@@ -378,6 +396,7 @@ export class SourcesScheduler {
           newPublishedAt: newPub,
           detail: {
             method: det.method,
+            ...(recoveredFrom ? { recoveredFrom } : {}),
             // 발간 감지로 예정일이 바뀌었으면 그 변화도 이력에 남긴다(원칙 11)
             ...(newPub
               ? {
@@ -402,7 +421,10 @@ export class SourcesScheduler {
       await this.events.record({
         sourceId: s.id,
         eventType: 'checked',
-        detail: { method: det.method },
+        detail: {
+          method: det.method,
+          ...(recoveredFrom ? { recoveredFrom } : {}),
+        },
         notified: false,
       });
       this.logger.log(`[monitor] OK      ${s.id} (${det.method})`);
@@ -431,6 +453,24 @@ export class SourcesScheduler {
         detail: String(e?.message || e),
         failCount,
       };
+    }
+  }
+
+  /**
+   * 읽기 한 번 실패(네트워크·타임아웃·HTTP 오류·파싱)면 RETRY_MS 뒤 한 번 더 (SOC-R4 ■2).
+   * 두 번째도 실패해야 연속 실패 1회로 센다 — 일시 오류로 stale 이 되지 않게.
+   */
+  private async detectWithRetry(
+    s: Source,
+  ): ReturnType<SourcesScheduler['detectChange']> {
+    try {
+      return await this.detectChange(s);
+    } catch (first: any) {
+      this.logger.warn(
+        `[monitor] RETRY   ${s.id} (${first?.message || first}) — ${RETRY_MS / 1000}초 뒤 한 번 더`,
+      );
+      await this.sleep(RETRY_MS);
+      return this.detectChange(s);
     }
   }
 

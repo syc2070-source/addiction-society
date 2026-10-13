@@ -103,6 +103,11 @@ export interface MissedRelease {
   /** YYYY-MM · 확인 필요면 null */
   next: string | null;
   action: "rolled" | "check";
+  /**
+   * 감시가 그 달 뒤에 원본을 읽었나 (SOC-R4) — 「읽지 못함」↔「발표 없음」.
+   * 배포 사이 옛 API 응답엔 없을 수 있다.
+   */
+  monitor?: "unreadable" | "manual" | "unchecked" | "not_published";
 }
 
 export function fetchMissedReleases() {

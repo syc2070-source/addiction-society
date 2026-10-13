@@ -142,7 +142,18 @@ export default async function CalendarPage({
                       <span className="tag tag-org">
                         {l === "en" ? m.org : m.orgKo || m.org}
                       </span>
-                      <span className="tag tag-warn">{t("missedGroup")}</span>
+                      {/* SOC-R4: 「읽지 못함」(감시 실패)과 「발표 없음」(읽었는데 없음)을 가른다 */}
+                      {m.monitor ? (
+                        <span
+                          className={
+                            m.monitor === "unreadable" ? "tag tag-warn" : "tag"
+                          }
+                        >
+                          {t(`missedMonitor.${m.monitor}`)}
+                        </span>
+                      ) : (
+                        <span className="tag tag-warn">{t("missedGroup")}</span>
+                      )}
                     </div>
                     <h3 className="list-item-title">
                       <a href={m.url} target="_blank" rel="noopener noreferrer">

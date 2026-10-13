@@ -7,6 +7,8 @@ import {
 import { DataSource } from 'typeorm';
 import { JobRun } from './scheduler/entities/job-run.entity';
 import { nightlySummary, NightlySummary } from './scheduler/job-runs';
+import { Source } from './sources/entities/source.entity';
+import { monitorCounts } from './sources/missed-releases';
 
 const startedAt = new Date().toISOString();
 
@@ -46,14 +48,30 @@ export class HealthController {
    * job_runs 표가 없으면(migration 전) 503.
    */
   @Get('nightly')
-  async nightly(): Promise<NightlySummary> {
+  async nightly(): Promise<
+    NightlySummary & { monitor: ReturnType<typeof monitorCounts> | null }
+  > {
     if (!this.dataSource?.isInitialized) {
       throw new ServiceUnavailableException('db not ready');
     }
+    let summary: NightlySummary;
     try {
-      return await nightlySummary(this.dataSource.getRepository(JobRun));
+      summary = await nightlySummary(this.dataSource.getRepository(JobRun));
     } catch {
       throw new ServiceUnavailableException('job_runs not ready');
+    }
+    return { ...summary, monitor: await this.monitor() };
+  }
+
+  /** 발표 감시 건강 (SOC-R4 ■2) — stale·읽지 못한 소스 수. 실패하면 null(밤 기록은 그대로). */
+  private async monitor(): Promise<ReturnType<typeof monitorCounts> | null> {
+    try {
+      const rows = await this.dataSource!.getRepository(Source).find({
+        select: { id: true, status: true, failCount: true },
+      });
+      return monitorCounts(rows);
+    } catch {
+      return null;
     }
   }
 

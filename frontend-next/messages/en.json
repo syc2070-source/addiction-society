@@ -138,7 +138,13 @@
     "undatedGroup": "Release date undetermined",
     "undated": "Release date undetermined",
     "missedGroup": "Past expected · unconfirmed",
-    "missedDesc": "The expected month has ended but the release has not been confirmed yet. Expectations are monthly, so a release only becomes past once its month is over.",
+    "missedDesc": "The expected month has ended but the release has not been confirmed yet. Expectations are monthly, so a release only becomes past once its month is over. The tag says whether the monitor read the source after that month — \"No release\" means it read the page and saw nothing new, \"Could not read\" means reading the page failed.",
+    "missedMonitor": {
+      "unreadable": "Could not read",
+      "manual": "Manual check",
+      "unchecked": "Not checked yet",
+      "not_published": "No release"
+    },
     "missedRolled": "Expected {expected}, passed · next {next}",
     "missedCheck": "Expected {expected}, passed · next date needs checking",
     "star": "★ Coverage priority"

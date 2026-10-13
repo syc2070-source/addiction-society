@@ -9,6 +9,8 @@ import {
   MISSED_WINDOW_DAYS,
   MissedRelease,
   missedReleases,
+  READ_FAIL_EVENTS,
+  READ_OK_EVENTS,
 } from './missed-releases';
 
 /**
@@ -102,7 +104,12 @@ export class SourcesService {
       this.sourceRepository.find(),
       this.eventRepository.find({
         where: {
-          eventType: In(['rescheduled', 'published', 'changed']),
+          // 감시 결과(읽음·못 읽음)까지 — SOC-R4 ■2 「읽지 못함」↔「발표 없음」
+          eventType: In([
+            'rescheduled',
+            ...READ_OK_EVENTS,
+            ...READ_FAIL_EVENTS,
+          ]),
           detectedAt: MoreThanOrEqual(since),
         },
         select: {
