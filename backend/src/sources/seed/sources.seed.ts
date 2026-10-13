@@ -499,6 +499,26 @@ const SOURCES: Row[] = [
     notes:
       '센터 63개소, 예산 55.85억(+57.4%), 인력 258명, 청소년 등록자 4년 누적 89명. 국정감사가 금광',
   },
+  // SOC-R3 ■3ⓑ — 성인 고위험음주율·현재흡연율 시계열의 출처(넣기만).
+  {
+    id: 'kdca_knhanes',
+    org: 'KDCA',
+    orgKo: '질병관리청',
+    domain: 'multi',
+    scope: 'korea',
+    kind: 'prevalence',
+    cadence: 'annual',
+    // e-나라지표 「음주 및 흡연현황」 갱신 2026-01-21 · 다음 갱신 예정 2027-01-29(페이지 표기).
+    expectedMonth: [1],
+    accessMethod: 'html',
+    reliability: 1,
+    url: 'https://www.index.go.kr/unity/potal/main/EachDtlPageDetail.do?idx_cd=2771',
+    titleKo: '국민건강영양조사 (음주·흡연)',
+    titleEn:
+      'Korea National Health and Nutrition Examination Survey (drinking, smoking)',
+    notes:
+      '국가승인통계 제117002호. 고위험음주율(KOSIS DT_11702_N018)·현재흡연율(e-나라지표 277103), 만19세이상 연령표준화. 2006년 조사 없음',
+  },
 ];
 
 async function run() {

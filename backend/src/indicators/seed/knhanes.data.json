@@ -1,0 +1,52 @@
+{
+  "note": "SOC-R3 ■3ⓑ — 국민건강영양조사(질병관리청, 국가승인통계 제117002호) 성인 고위험음주율·현재흡연율 연도별(2015~2024). 값은 공식 표에서 그대로 옮김(지어내기·추정 0). 둘 다 만19세이상·2005년 추계인구 연령표준화 값(전체). 넣기만(insert-only).",
+  "sourceId": "kdca_knhanes",
+  "indicators": [
+    {
+      "code": "knhanes_high_risk_drinking_rate",
+      "domain": "D0",
+      "nameKo": "성인 고위험음주율",
+      "nameEn": "Adult high-risk drinking rate",
+      "unit": "%",
+      "definitionKo": "만19세 이상 중 최근 1년 동안 1회 평균 음주량이 남자 7잔 이상, 여자 5잔 이상이며 주 2회 이상 음주하는 분율(%). 2005년 추계인구로 연령표준화한 값.",
+      "methodNote": "질병관리청 국민건강영양조사(국가승인통계 제117002호). KOSIS 「고위험음주율 추이」(orgId=177, tblId=DT_11702_N018) 19세이상(표준화) 행. 2006년은 조사 없음.",
+      "sourceUrl": "https://kosis.kr/statHtml/statHtml.do?orgId=177&tblId=DT_11702_N018",
+      "observationNote": "KOSIS 표 DT_11702_N018 · 19세이상(표준화) · 분율(%)",
+      "observations": [
+        { "geo": "KR", "period": "2015", "value": "13.3" },
+        { "geo": "KR", "period": "2016", "value": "13.8" },
+        { "geo": "KR", "period": "2017", "value": "14.2" },
+        { "geo": "KR", "period": "2018", "value": "14.7" },
+        { "geo": "KR", "period": "2019", "value": "12.6" },
+        { "geo": "KR", "period": "2020", "value": "14.1" },
+        { "geo": "KR", "period": "2021", "value": "13.4" },
+        { "geo": "KR", "period": "2022", "value": "14.2" },
+        { "geo": "KR", "period": "2023", "value": "13.8" },
+        { "geo": "KR", "period": "2024", "value": "13.6" }
+      ]
+    },
+    {
+      "code": "knhanes_current_smoking_rate",
+      "domain": "D0",
+      "nameKo": "성인 현재흡연율",
+      "nameEn": "Adult current smoking rate",
+      "unit": "%",
+      "definitionKo": "만19세 이상 중 평생 일반담배(궐련) 5갑(100개비) 이상 피웠고 현재 일반담배(궐련)를 피우는 분율(%). 2005년 추계인구로 연령표준화한 값.",
+      "methodNote": "질병관리청 국민건강영양조사(국가승인통계 제117002호) · 「2024 국민건강통계」. e-나라지표 「음주 및 흡연현황」(idx_cd=2771) 통계표 「현재흡연율」(stts_cd=277103) 전체 행. 2019년부터 '담배'를 '일반담배(궐련)'로 용어 변경.",
+      "sourceUrl": "https://www.index.go.kr/unity/potal/eNara/sub/showStblGams3.do?stts_cd=277103&idx_cd=2771&freq=Y&period=2005:2024",
+      "observationNote": "e-나라지표 표 277103 「현재흡연율」 · 전체 · 연령표준화(%)",
+      "observations": [
+        { "geo": "KR", "period": "2015", "value": "22.6" },
+        { "geo": "KR", "period": "2016", "value": "23.9" },
+        { "geo": "KR", "period": "2017", "value": "22.3" },
+        { "geo": "KR", "period": "2018", "value": "22.4" },
+        { "geo": "KR", "period": "2019", "value": "21.5" },
+        { "geo": "KR", "period": "2020", "value": "20.6" },
+        { "geo": "KR", "period": "2021", "value": "19.3" },
+        { "geo": "KR", "period": "2022", "value": "17.7" },
+        { "geo": "KR", "period": "2023", "value": "19.6" },
+        { "geo": "KR", "period": "2024", "value": "16.7" }
+      ]
+    }
+  ]
+}
