@@ -1,0 +1,32 @@
+SOC-R4 지시서 — 첫 밤 회차 실측 · 오늘의 숫자 확인 · 감시 실패 가르기 · 지표 원본 넓히기 (중독사회 · 2026-10-14 수)
+
+위치판
+
+저장소 D:\addiction-society · main = 5aecaf9(SOC-R3 보고서) ← 8393188(코드 · Render 배포 16:05 ✓ · /api/health/nightly 200 · migration 15). 끝난 것 SOC-0 · R1 · R2 · R3(job_runs · dist 시험 · 관측치 +24 · 월 단위 이월).
+오늘 04:00 = 첫 정상 밤 회차(미측 · 이 판 ■0 이 첫 실측) · 「오늘의 숫자」 등장 여부 미측 · drugfree_stats(마약류 통계) 감시 stale.
+도는 것: 이 저장소엔 없음 · D:\statory-lt14 덧 17 세션이 오늘 frontend-next/public/data/evidence_map/ 두 파일을 push 할 수 있음(main+clean 때만) → 이 판은 그 폴더 쓰기 0 · push 직전 git pull --ff-only.
+실행자: 데스크탑 Claude Code(VS Code D:\addiction-society · --model opus) · 가지 claude/soc-r4 → main ff · 오너 출장(하루) = 묻지 말고 끝까지.
+
+목표 세 문장
+
+04:00 첫 정상 회차를 숫자로 읽고(nightly 단계 8 · 관측치 · updatedAt 불변 · 오늘의 숫자 등장) 어긋난 것은 오늘 고친다.
+관측소가 「발표 안 됨」과 「감시가 못 읽음」을 가르게 한다 — 달력 「지난 예정 · 미확인」이 거짓 경보가 되지 않게.
+지표를 원본에서만 넓힌다(kcgp 2020 공식 원본 · 2024~ 새 척도 별도 지표 · 마약류 사범 수는 원본 합계가 있을 때만) · 간헐 시험 결함을 고친다.
+
+규율: 오너에게 묻지 말고 끝까지 계속 진행 · 오너 액션 0 · 열쇠 값 0 · .env* 0 · 운영 DB 직접 접속 0(API·코드만) · 스키마 = migration 덧붙임만 · 기존 행 값 변경 0(관측치 insert-only · 공식 도메인 · URL·쪽 필수) · 지움 0 · 설치 0 · 다른 저장소 0 · public/data/evidence_map/ 쓰기 0 · Edit/Write 만 · 명령 하나씩 · git add 파일별 · rebase/force 0 · 코드 머리 [skip render] 0 · 지시서·보고서 [skip ci][skip render].
+
+■0 〔마디 1·2·3〕 저장 + 실측(읽기만): 지시서 docs/reports/202610/SOC-R4_instruction.txt 저장·커밋 · /api/health/nightly 전문(lastRun · 단계 8 status·seconds·counts · totals · last7Days) · /api/health · www 홈 HTML(오늘의 숫자 상자 유무 · 지표 · 값 · 점 수) · 지표 API(지표 5 · 관측치 27 · 2022 행 updatedAt 불변 · 소스 24) · 회복자원 73 updatedAt 불변 · 공개 연구 7 의 relevance_* 채움 수 · seed_diff 수 · /calendar/missed · drugfree_stats 감시 설정(주소 · 방식 · 마지막 성공 시각 · 연속 실패 수 · 상태코드) · review-token 시험 코드 · kcgp 2024·2025 게시글(척도 이름 · 값 · 모집단) · 한국청소년정책연구원 2020 보고서 검색(URL · 쪽) · 대검 마약류 범죄백서/보도자료의 연도별 「총 사범 수」 문장 유무 · 표.
+
+■1 〔마디 1〕 첫 회차 판정·수리: 기대 = run ok · 8단계 ok · collect:indicators inserted 26(지표 2 + 관측치 24) · seed:sources inserted 1 · recovery·documents inserted 0 · backfill:relevance updated 51 · 2022 행·회복자원 변경 0 · 홈 오늘의 숫자 = 시계열 지표(흡연율 예상) · 어긋나면 원인(코드·데이터 파일·캐시)·수리 → 보고서 「다음 04:00 재확인」 줄 · 실패 단계가 있으면 error 300자 읽고 오늘 고침 · 시험 +2.
+
+■2 〔마디 2〕 감시 실패 가르기: drugfree_stats 연속 실패 원인 실측(주소 바뀜·차단·선택자) → 고칠 수 있으면 고침(주소·선택자·UA·재시도) · 못 고치면 소스 상태 unreachable(값 추가 = migration 덧붙임 · 없으면 jsonb 메모) · 달력 「지난 예정 · 미확인」 줄에 「읽지 못함」 꼬리표 ↔ 「발표 없음」 구별 · nightly/health 에 monitor{stale, unreachable} 수 · 모든 소스 감시 연속 실패 표(보고서) · 시험 3.
+
+■3 〔마디 3〕 지표 넓히기(원본만 · insert-only): ⓐ kcgp 2020 = 한국청소년정책연구원(nypi.re.kr) 「2020 청소년 도박문제 실태조사」 PDF — 위험군+문제군 값·쪽 찾으면 넣음(note 모집단) · 못 찾으면 기록 ⓑ 2024·2025 새 척도 = 별도 지표 kcgp_youth_v2(척도 이름 그대로 · 2점 · note 「2022 이전과 비교 불가」) ⓒ 마약류 사범 수 = 대검 백서·korea.kr 보도자료의 연도별 「마약류 사범 n명」 문장이 있는 연도만(더하기 0 · 없으면 기록) ⓓ 검증 표(지표·연도·값·URL·쪽) · 시험 2.
+
+■4 review-token 간헐 시험: 끝 글자 대신 가운데 글자 바꾸기(결정적) · 전량 2회 연속 통과.
+
+■5 시험·배포·보고: jest 128+ · tsc 둘 · nest build · frontend 바뀐 쪽 build · main ff · push([skip render] 0) · /api/health 25분(commit) · Vercel 홈·달력 200 · 보고서 docs/reports/202610/SOC-R4_<MMDD>.txt(■0 표 · 첫 회차 표 · 전/후 · 관측치 검증 표 · 주소 · 건너뜀+사유 · 정직 표기) [skip ci][skip render].
+
+하지 않는 것: 숨긴 44(오너) · 기존 행 값 변경 · evidence_map 폴더 쓰기 · 중독뉴스·Statory 저장소 · evidenceLevel(12월) · .env · rebase/force · 삭제.
+
+손님에게 달라지는 것: 첫 화면 「오늘의 숫자」가 실제로 뜨는지 확인·수리 · 달력이 「발표 없음」과 「읽지 못함」을 가름 · 지표 ≤3 추가(원본 있을 때만). LLM 의존: 0.
