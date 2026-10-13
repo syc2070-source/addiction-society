@@ -17,6 +17,7 @@ import 'reflect-metadata';
 import { AppDataSource } from '../../data-source';
 import { Source } from '../entities/source.entity';
 import { SeedInsertOnly } from '../../common/seed-insert-only';
+import { printJobCounts } from '../../common/job-counts';
 
 const M_ALL = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; // 월간 소스용 1~12월
 
@@ -518,6 +519,11 @@ async function run() {
     );
   }
   seed.print();
+  printJobCounts({
+    inserted: seed.inserted,
+    skipped: seed.skipped,
+    diff: seed.diffs.length,
+  });
 
   const total = await repo.count();
   const byScope = await repo

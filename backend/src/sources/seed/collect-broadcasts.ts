@@ -9,6 +9,7 @@
 import 'reflect-metadata';
 import { AppDataSource } from '../../data-source';
 import { DEFAULT_NEWS_API_URL, toBroadcastRows } from '../broadcast.util';
+import { printJobCounts } from '../../common/job-counts';
 
 async function run() {
   const base = (
@@ -37,6 +38,7 @@ async function run() {
   console.log(
     `[collect:broadcasts] 받음 ${rows.length}건 · 새로 넣음 ${inserted}건 (링크 중복 건너뜀)`,
   );
+  printJobCounts({ inserted, skipped: rows.length - inserted });
   await ds.destroy();
 }
 

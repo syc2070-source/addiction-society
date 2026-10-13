@@ -1,7 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { SourcesModule } from '../sources/sources.module';
 import { DailyJobsScheduler } from './daily-jobs.scheduler';
+import { JobRun } from './entities/job-run.entity';
 
 /**
  * 크론 인프라 등록 전용 모듈.
@@ -13,9 +15,14 @@ import { DailyJobsScheduler } from './daily-jobs.scheduler';
  *
  * SOC-R1: DailyJobsScheduler — 배포 때 돌던 seed·collect·backfill 을 매일 04:00 KST
  * 한 번으로 옮겼다(배포 = migration + 멱등 seed 만). 실패 알림은 SourcesNotifier.
+ * SOC-R3: 회차 기록 job_runs(GET /api/health/nightly 로 공개).
  */
 @Module({
-  imports: [ScheduleModule.forRoot(), SourcesModule],
+  imports: [
+    ScheduleModule.forRoot(),
+    SourcesModule,
+    TypeOrmModule.forFeature([JobRun]),
+  ],
   providers: [DailyJobsScheduler],
 })
 export class SchedulerModule {}

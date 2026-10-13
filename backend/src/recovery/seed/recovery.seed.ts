@@ -20,6 +20,7 @@ import { AppDataSource } from '../../data-source';
 import { RecoveryResource } from '../entities/recovery-resource.entity';
 import directory from './recovery-directory.data.json';
 import { SeedInsertOnly } from '../../common/seed-insert-only';
+import { printJobCounts } from '../../common/job-counts';
 
 interface DirectoryRow {
   name: string;
@@ -65,6 +66,11 @@ async function run() {
     `[seed:recovery] 디렉토리 ${directory.resources.length}건 → 신규 ${seed.inserted} / 기존 건너뜀 ${seed.skipped}`,
   );
   seed.print();
+  printJobCounts({
+    inserted: seed.inserted,
+    skipped: seed.skipped,
+    diff: seed.diffs.length,
+  });
   console.log(`[seed:recovery] 테이블 총량 ${before} → ${after}건`);
   console.log(
     '[seed:recovery] 출처:',

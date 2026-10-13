@@ -21,6 +21,7 @@ import { Indicator } from '../entities/indicator.entity';
 import { Observation } from '../entities/observation.entity';
 import kcgp from './kcgp-youth.data.json';
 import { SeedInsertOnly } from '../../common/seed-insert-only';
+import { printJobCounts } from '../../common/job-counts';
 
 interface ObsRow {
   geo: string;
@@ -140,6 +141,11 @@ async function run() {
   );
   indSeed.print();
   obsSeed.print();
+  printJobCounts({
+    inserted: indSeed.inserted + obsSeed.inserted,
+    skipped: indSeed.skipped + obsSeed.skipped,
+    diff: indSeed.diffs.length + obsSeed.diffs.length,
+  });
 
   await ds.destroy();
 }

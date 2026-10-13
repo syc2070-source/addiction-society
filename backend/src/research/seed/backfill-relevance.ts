@@ -12,6 +12,7 @@ import { IsNull } from 'typeorm';
 import { AppDataSource } from '../../data-source';
 import { Research } from '../entities/research.entity';
 import { relevanceColumns } from '../relevance';
+import { printJobCounts } from '../../common/job-counts';
 
 async function run() {
   const ds = AppDataSource;
@@ -36,6 +37,7 @@ async function run() {
   console.log(
     `[backfill:relevance] 대상 ${rows.length}건 · 기록 ${written}건 (relevance_* 세 칸만)`,
   );
+  printJobCounts({ updated: written, skipped: rows.length - written });
   await ds.destroy();
 }
 

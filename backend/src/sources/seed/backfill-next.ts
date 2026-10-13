@@ -18,6 +18,7 @@ import { AppDataSource } from '../../data-source';
 import { Source } from '../entities/source.entity';
 import { SourceEvent } from '../entities/source-event.entity';
 import { computeNextExpected, isExpectedOverdue } from '../next-expected.util';
+import { printJobCounts } from '../../common/job-counts';
 
 async function run() {
   // 공용 AppDataSource 재사용(synchronize:false). 스키마는 마이그레이션이 담당.
@@ -83,6 +84,10 @@ async function run() {
     `[backfill] 지난 예정일 이월 ${rolled.length}건:`,
     JSON.stringify(rolled),
   );
+  printJobCounts({
+    updated: changes.length,
+    skipped: sources.length - changes.length,
+  });
 
   await ds.destroy();
 }

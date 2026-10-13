@@ -1,5 +1,12 @@
-import { Controller, Get, Optional } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Optional,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import { DataSource } from 'typeorm';
+import { JobRun } from './scheduler/entities/job-run.entity';
+import { nightlySummary, NightlySummary } from './scheduler/job-runs';
 
 const startedAt = new Date().toISOString();
 
@@ -31,6 +38,23 @@ export class HealthController {
       startedAt,
       schema: { review_columns: await this.reviewColumns() },
     };
+  }
+
+  /**
+   * 밤 예약 기록 (SOC-R3 ■1) — 마지막 회차(시작·끝·단계 표) + 최근 7일 회차·실패 수.
+   * 숫자·시각·단계 이름만. 출력 원문(error)·사람 칸은 내보내지 않는다.
+   * job_runs 표가 없으면(migration 전) 503.
+   */
+  @Get('nightly')
+  async nightly(): Promise<NightlySummary> {
+    if (!this.dataSource?.isInitialized) {
+      throw new ServiceUnavailableException('db not ready');
+    }
+    try {
+      return await nightlySummary(this.dataSource.getRepository(JobRun));
+    } catch {
+      throw new ServiceUnavailableException('job_runs not ready');
+    }
   }
 
   private async reviewColumns(): Promise<boolean> {

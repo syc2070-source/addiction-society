@@ -30,6 +30,7 @@ import { Source } from '../../sources/entities/source.entity';
 import { RegionCode } from '../../common/enums';
 import lawsData from './documents.data.json';
 import { SeedInsertOnly } from '../../common/seed-insert-only';
+import { printJobCounts } from '../../common/job-counts';
 
 // 실브라우저 UA. 공공기관/학술지 페이지의 데이터센터-봇 차단(403)을 줄이기 위해 사용.
 const UA =
@@ -230,6 +231,12 @@ async function run() {
     `\n[seed:documents] 신규 ${seed.inserted} / 기존 건너뜀 ${seed.skipped} (봇차단 구제 ${botRescued}) · 보류 ${held.length}`,
   );
   seed.print();
+  // 보류(URL 미검증)도 건너뜀으로 센다.
+  printJobCounts({
+    inserted: seed.inserted,
+    skipped: seed.skipped + held.length,
+    diff: seed.diffs.length,
+  });
   console.log(`[seed:documents] documents 총량 ${before} → ${after}건`);
   if (held.length) {
     console.log('[seed:documents] 보류 목록(URL 미검증):');

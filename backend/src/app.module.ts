@@ -23,6 +23,7 @@ import { SourceEvent } from './sources/entities/source-event.entity';
 import { BroadcastItem } from './sources/entities/broadcast-item.entity';
 import { Indicator } from './indicators/entities/indicator.entity';
 import { Observation } from './indicators/entities/observation.entity';
+import { JobRun } from './scheduler/entities/job-run.entity';
 import { validateJwtEnvironment } from './auth/jwt.config';
 import { HealthController } from './health.controller';
 
@@ -61,6 +62,7 @@ import { HealthController } from './health.controller';
           BroadcastItem,
           Indicator,
           Observation,
+          JobRun,
         ],
         // 스키마 변경은 오직 마이그레이션으로만. DB_SYNCHRONIZE='true'를 명시한
         // 경우에만 켜짐(기본 false). 운영에서는 절대 금지(테이블 파괴 위험).

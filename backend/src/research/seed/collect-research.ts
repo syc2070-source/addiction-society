@@ -31,6 +31,7 @@ import { Research } from '../entities/research.entity';
 import { DomainCode, RegionCode } from '../../common/enums';
 import { collectedStatus, relevanceColumns } from '../relevance';
 import { loadFieldProfile } from '../../common/field-profile';
+import { printJobCounts } from '../../common/job-counts';
 
 // 출처·검색어·한도는 분야 설정 파일(sources.academic, SOC-R1 ■5)에서 읽는다.
 const ACADEMIC = loadFieldProfile().sources.academic.find(
@@ -202,6 +203,7 @@ async function run() {
   console.log(
     `\n[collect] 수집 ${collected.length}건(DOI 보유) · upsert 신규 ${inserted} / 갱신 ${updated}`,
   );
+  printJobCounts({ inserted, updated });
   console.log(
     `[collect] research 총량 ${before} → ${after}건 (신규분: 관문 통과=approved · 실패=pending)`,
   );
