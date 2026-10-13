@@ -4,7 +4,7 @@
   "topic": "youth-gambling",
   "title": "청소년 도박",
   "title_en": "Youth gambling",
-  "generated_at": "2026-10-13T00:11:12.187Z",
+  "generated_at": "2026-10-13T02:56:31.771Z",
   "source": "addiction bibliography (Europe PMC) — metadata and abstracts only",
   "query": {
     "all_of_groups": [
@@ -251,11 +251,332 @@
     },
     "open_access": 280,
     "open_access_share": 0.356,
-    "full_text_held": 1
+    "full_text_held": 86
   },
   "honesty": [
     "every value is counted from the bibliography; none is estimated",
     "journal country, not the study country",
     "the bibliography is still being harvested — counts grow until the harvest ends"
-  ]
+  ],
+  "evidence_map": {
+    "topic": {
+      "ko": "청소년 도박",
+      "en": "Youth gambling"
+    },
+    "source": "addiction bibliography (Europe PMC) — metadata and abstracts only",
+    "total": 786,
+    "counts_by_year": [
+      {
+        "year": 2002,
+        "n": 5
+      },
+      {
+        "year": 2003,
+        "n": 6
+      },
+      {
+        "year": 2004,
+        "n": 6
+      },
+      {
+        "year": 2005,
+        "n": 8
+      },
+      {
+        "year": 2006,
+        "n": 12
+      },
+      {
+        "year": 2007,
+        "n": 12
+      },
+      {
+        "year": 2008,
+        "n": 6
+      },
+      {
+        "year": 2009,
+        "n": 15
+      },
+      {
+        "year": 2010,
+        "n": 23
+      },
+      {
+        "year": 2011,
+        "n": 25
+      },
+      {
+        "year": 2012,
+        "n": 22
+      },
+      {
+        "year": 2013,
+        "n": 23
+      },
+      {
+        "year": 2014,
+        "n": 31
+      },
+      {
+        "year": 2015,
+        "n": 46
+      },
+      {
+        "year": 2016,
+        "n": 36
+      },
+      {
+        "year": 2017,
+        "n": 38
+      },
+      {
+        "year": 2018,
+        "n": 39
+      },
+      {
+        "year": 2019,
+        "n": 50
+      },
+      {
+        "year": 2020,
+        "n": 63
+      },
+      {
+        "year": 2021,
+        "n": 62
+      },
+      {
+        "year": 2022,
+        "n": 59
+      },
+      {
+        "year": 2023,
+        "n": 44
+      },
+      {
+        "year": 2024,
+        "n": 37
+      },
+      {
+        "year": 2025,
+        "n": 45
+      },
+      {
+        "year": 2026,
+        "n": 45
+      }
+    ],
+    "countries": [
+      {
+        "name": "AU",
+        "n": 3
+      },
+      {
+        "name": "GB",
+        "n": 2
+      },
+      {
+        "name": "MY",
+        "n": 1
+      }
+    ],
+    "designs": [
+      {
+        "name": "other",
+        "n": 283
+      },
+      {
+        "name": "survey",
+        "n": 211
+      },
+      {
+        "name": "cross-sectional",
+        "n": 88
+      },
+      {
+        "name": "cohort",
+        "n": 67
+      },
+      {
+        "name": "qualitative",
+        "n": 50
+      },
+      {
+        "name": "rct",
+        "n": 26
+      },
+      {
+        "name": "meta-analysis",
+        "n": 21
+      },
+      {
+        "name": "systematic-review",
+        "n": 20
+      },
+      {
+        "name": "experiment",
+        "n": 19
+      },
+      {
+        "name": "case-control",
+        "n": 1
+      }
+    ],
+    "instruments": [
+      {
+        "name": "SOGS",
+        "n": 88
+      },
+      {
+        "name": "PGSI",
+        "n": 42
+      },
+      {
+        "name": "IAT",
+        "n": 28
+      },
+      {
+        "name": "CPGI",
+        "n": 13
+      },
+      {
+        "name": "AUDIT",
+        "n": 9
+      },
+      {
+        "name": "BIS-11",
+        "n": 8
+      },
+      {
+        "name": "DSM-5 criteria",
+        "n": 7
+      },
+      {
+        "name": "GRCS",
+        "n": 7
+      },
+      {
+        "name": "SDQ",
+        "n": 5
+      },
+      {
+        "name": "IGDS9-SF",
+        "n": 4
+      }
+    ],
+    "core_papers": [
+      {
+        "title": "Internet addiction: a systematic review of epidemiological research for the last decade.",
+        "year": 2014,
+        "doi": "10.2174/13816128113199990617",
+        "url": "https://doi.org/10.2174/13816128113199990617"
+      },
+      {
+        "title": "Gaming disorder: Its delineation as an important condition for diagnosis, management, and prevention.",
+        "year": 2017,
+        "doi": "10.1556/2006.6.2017.039",
+        "url": "https://doi.org/10.1556/2006.6.2017.039"
+      },
+      {
+        "title": "Comorbidity of DSM-IV pathological gambling and other psychiatric disorders: results from the National Epidemiologic Survey on Alcohol and Related Conditions.",
+        "year": 2005,
+        "doi": "10.4088/jcp.v66n0504",
+        "url": "https://doi.org/10.4088/jcp.v66n0504"
+      },
+      {
+        "title": "Scholars' open debate paper on the World Health Organization ICD-11 Gaming Disorder proposal.",
+        "year": 2017,
+        "doi": "10.1556/2006.5.2016.088",
+        "url": "https://doi.org/10.1556/2006.5.2016.088"
+      },
+      {
+        "title": "Global prevalence of gaming disorder: A systematic review and meta-analysis.",
+        "year": 2021,
+        "doi": "10.1177/0004867420962851",
+        "url": "https://doi.org/10.1177/0004867420962851"
+      },
+      {
+        "title": "Prevalence of internet gaming disorder in adolescents: A meta-analysis across three decades.",
+        "year": 2018,
+        "doi": "10.1111/sjop.12459",
+        "url": "https://doi.org/10.1111/sjop.12459"
+      },
+      {
+        "title": "Excessive Internet gaming and decision making: do excessive World of Warcraft players have problems in decision making under risky conditions?",
+        "year": 2011,
+        "doi": "10.1016/j.psychres.2011.05.017",
+        "url": "https://doi.org/10.1016/j.psychres.2011.05.017"
+      },
+      {
+        "title": "Investigating risk factors for Internet gaming disorder: a comparison of patients with addictive gaming, pathological gamblers and healthy controls regarding the big five personality traits.",
+        "year": 2014,
+        "doi": "10.1159/000355832",
+        "url": "https://doi.org/10.1159/000355832"
+      },
+      {
+        "title": "Early risk and protective factors for problem gambling: A systematic review and meta-analysis of longitudinal studies.",
+        "year": 2017,
+        "doi": "10.1016/j.cpr.2016.10.008",
+        "url": "https://doi.org/10.1016/j.cpr.2016.10.008"
+      },
+      {
+        "title": "The Shorter PROMIS Questionnaire and the Internet Addiction Scale in the assessment of multiple addictions in a high-school population: prevalence and related disability.",
+        "year": 2006,
+        "doi": "10.1017/s1092852900015157",
+        "url": "https://doi.org/10.1017/s1092852900015157"
+      }
+    ],
+    "reviews": [
+      {
+        "title": "Internet addiction: a systematic review of epidemiological research for the last decade.",
+        "year": 2014,
+        "doi": "10.2174/13816128113199990617",
+        "url": "https://doi.org/10.2174/13816128113199990617",
+        "kind": "systematic"
+      },
+      {
+        "title": "Global prevalence of gaming disorder: A systematic review and meta-analysis.",
+        "year": 2021,
+        "doi": "10.1177/0004867420962851",
+        "url": "https://doi.org/10.1177/0004867420962851",
+        "kind": "systematic"
+      },
+      {
+        "title": "Gaming disorder: Its delineation as an important condition for diagnosis, management, and prevention.",
+        "year": 2017,
+        "doi": "10.1556/2006.6.2017.039",
+        "url": "https://doi.org/10.1556/2006.6.2017.039",
+        "kind": "narrative"
+      },
+      {
+        "title": "Prevalence of Adolescent Problem Gambling: A Systematic Review of Recent Research.",
+        "year": 2017,
+        "doi": "10.1007/s10899-016-9627-5",
+        "url": "https://doi.org/10.1007/s10899-016-9627-5",
+        "kind": "systematic"
+      },
+      {
+        "title": "Early risk and protective factors for problem gambling: A systematic review and meta-analysis of longitudinal studies.",
+        "year": 2017,
+        "doi": "10.1016/j.cpr.2016.10.008",
+        "url": "https://doi.org/10.1016/j.cpr.2016.10.008",
+        "kind": "systematic"
+      }
+    ],
+    "evidence_levels": {
+      "fulltext": 11,
+      "abstract": 0,
+      "indirect": 0,
+      "bib_only": 775
+    },
+    "oa_ratio": {
+      "with_fulltext": 280,
+      "total": 786
+    },
+    "gaps": {
+      "no_fulltext": 700,
+      "owner_hands": 4
+    }
+  }
 }

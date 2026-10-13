@@ -4,7 +4,7 @@
   "topic": "alcohol-recovery",
   "title": "알코올 회복",
   "title_en": "Alcohol recovery",
-  "generated_at": "2026-10-13T00:11:03.359Z",
+  "generated_at": "2026-10-13T02:56:22.761Z",
   "source": "addiction bibliography (Europe PMC) — metadata and abstracts only",
   "query": {
     "all_of_groups": [
@@ -271,11 +271,352 @@
     },
     "open_access": 1899,
     "open_access_share": 0.274,
-    "full_text_held": 10
+    "full_text_held": 11
   },
   "honesty": [
     "every value is counted from the bibliography; none is estimated",
     "journal country, not the study country",
     "the bibliography is still being harvested — counts grow until the harvest ends"
-  ]
+  ],
+  "evidence_map": {
+    "topic": {
+      "ko": "알코올 회복",
+      "en": "Alcohol recovery"
+    },
+    "source": "addiction bibliography (Europe PMC) — metadata and abstracts only",
+    "total": 6927,
+    "counts_by_year": [
+      {
+        "year": 2002,
+        "n": 41
+      },
+      {
+        "year": 2003,
+        "n": 65
+      },
+      {
+        "year": 2004,
+        "n": 63
+      },
+      {
+        "year": 2005,
+        "n": 76
+      },
+      {
+        "year": 2006,
+        "n": 85
+      },
+      {
+        "year": 2007,
+        "n": 102
+      },
+      {
+        "year": 2008,
+        "n": 122
+      },
+      {
+        "year": 2009,
+        "n": 118
+      },
+      {
+        "year": 2010,
+        "n": 139
+      },
+      {
+        "year": 2011,
+        "n": 144
+      },
+      {
+        "year": 2012,
+        "n": 170
+      },
+      {
+        "year": 2013,
+        "n": 249
+      },
+      {
+        "year": 2014,
+        "n": 242
+      },
+      {
+        "year": 2015,
+        "n": 259
+      },
+      {
+        "year": 2016,
+        "n": 288
+      },
+      {
+        "year": 2017,
+        "n": 331
+      },
+      {
+        "year": 2018,
+        "n": 373
+      },
+      {
+        "year": 2019,
+        "n": 368
+      },
+      {
+        "year": 2020,
+        "n": 392
+      },
+      {
+        "year": 2021,
+        "n": 445
+      },
+      {
+        "year": 2022,
+        "n": 509
+      },
+      {
+        "year": 2023,
+        "n": 419
+      },
+      {
+        "year": 2024,
+        "n": 450
+      },
+      {
+        "year": 2025,
+        "n": 561
+      },
+      {
+        "year": 2026,
+        "n": 526
+      }
+    ],
+    "countries": [
+      {
+        "name": "US",
+        "n": 35
+      },
+      {
+        "name": "DE",
+        "n": 4
+      },
+      {
+        "name": "FR",
+        "n": 2
+      },
+      {
+        "name": "NL",
+        "n": 1
+      },
+      {
+        "name": "IN",
+        "n": 1
+      },
+      {
+        "name": "GB",
+        "n": 1
+      },
+      {
+        "name": "DK",
+        "n": 1
+      },
+      {
+        "name": "ES",
+        "n": 1
+      }
+    ],
+    "designs": [
+      {
+        "name": "other",
+        "n": 3563
+      },
+      {
+        "name": "rct",
+        "n": 920
+      },
+      {
+        "name": "cohort",
+        "n": 883
+      },
+      {
+        "name": "qualitative",
+        "n": 451
+      },
+      {
+        "name": "survey",
+        "n": 388
+      },
+      {
+        "name": "experiment",
+        "n": 311
+      },
+      {
+        "name": "cross-sectional",
+        "n": 164
+      },
+      {
+        "name": "meta-analysis",
+        "n": 127
+      },
+      {
+        "name": "systematic-review",
+        "n": 105
+      },
+      {
+        "name": "case-control",
+        "n": 15
+      }
+    ],
+    "instruments": [
+      {
+        "name": "AUDIT",
+        "n": 135
+      },
+      {
+        "name": "ASI",
+        "n": 54
+      },
+      {
+        "name": "PACS",
+        "n": 49
+      },
+      {
+        "name": "TLFB",
+        "n": 44
+      },
+      {
+        "name": "OCDS",
+        "n": 42
+      },
+      {
+        "name": "BDI",
+        "n": 37
+      },
+      {
+        "name": "AUDIT-C",
+        "n": 29
+      },
+      {
+        "name": "CIWA-Ar",
+        "n": 22
+      },
+      {
+        "name": "DSM-5 criteria",
+        "n": 21
+      },
+      {
+        "name": "BIS-11",
+        "n": 20
+      }
+    ],
+    "core_papers": [
+      {
+        "title": "The reinstatement model of drug relapse: history, methodology and major findings.",
+        "year": 2003,
+        "doi": "10.1007/s00213-002-1224-x",
+        "url": "https://doi.org/10.1007/s00213-002-1224-x"
+      },
+      {
+        "title": "Drug dependence, a chronic medical illness: implications for treatment, insurance, and outcomes evaluation.",
+        "year": 2000,
+        "doi": "10.1001/jama.284.13.1689",
+        "url": "https://doi.org/10.1001/jama.284.13.1689"
+      },
+      {
+        "title": "Advances in the science and treatment of alcohol use disorder.",
+        "year": 2019,
+        "doi": "10.1126/sciadv.aax4043",
+        "url": "https://doi.org/10.1126/sciadv.aax4043"
+      },
+      {
+        "title": "Toward a model of drug relapse: an assessment of the validity of the reinstatement procedure.",
+        "year": 2006,
+        "doi": "10.1007/s00213-006-0529-6",
+        "url": "https://doi.org/10.1007/s00213-006-0529-6"
+      },
+      {
+        "title": "Anticraving medications for relapse prevention: a possible new class of psychoactive medications.",
+        "year": 2005,
+        "doi": "10.1176/appi.ajp.162.8.1423",
+        "url": "https://doi.org/10.1176/appi.ajp.162.8.1423"
+      },
+      {
+        "title": "Alcoholism: allostasis and beyond.",
+        "year": 2003,
+        "doi": "10.1097/01.alc.0000057122.36127.c2",
+        "url": "https://doi.org/10.1097/01.alc.0000057122.36127.c2"
+      },
+      {
+        "title": "Cue-induced activation of the striatum and medial prefrontal cortex is associated with subsequent relapse in abstinent alcoholics.",
+        "year": 2004,
+        "doi": "10.1007/s00213-004-1828-4",
+        "url": "https://doi.org/10.1007/s00213-004-1828-4"
+      },
+      {
+        "title": "Neurobiology of the incubation of drug craving.",
+        "year": 2011,
+        "doi": "10.1016/j.tins.2011.06.001",
+        "url": "https://doi.org/10.1016/j.tins.2011.06.001"
+      },
+      {
+        "title": "The role of corticotrophin-releasing factor in stress-induced relapse to alcohol-seeking behavior in rats.",
+        "year": 2000,
+        "doi": "10.1007/s002130000411",
+        "url": "https://doi.org/10.1007/s002130000411"
+      },
+      {
+        "title": "Naltrexone decreases craving and alcohol self-administration in alcohol-dependent subjects and activates the hypothalamo-pituitary-adrenocortical axis.",
+        "year": 2002,
+        "doi": "10.1007/s002130100919",
+        "url": "https://doi.org/10.1007/s002130100919"
+      }
+    ],
+    "reviews": [
+      {
+        "title": "Drug dependence, a chronic medical illness: implications for treatment, insurance, and outcomes evaluation.",
+        "year": 2000,
+        "doi": "10.1001/jama.284.13.1689",
+        "url": "https://doi.org/10.1001/jama.284.13.1689",
+        "kind": "narrative"
+      },
+      {
+        "title": "The reinstatement model of drug relapse: history, methodology and major findings.",
+        "year": 2003,
+        "doi": "10.1007/s00213-002-1224-x",
+        "url": "https://doi.org/10.1007/s00213-002-1224-x",
+        "kind": "narrative"
+      },
+      {
+        "title": "Treatment of NAFLD with diet, physical activity and exercise.",
+        "year": 2017,
+        "doi": "10.1016/j.jhep.2017.05.016",
+        "url": "https://doi.org/10.1016/j.jhep.2017.05.016",
+        "kind": "narrative"
+      },
+      {
+        "title": "Extent of illicit drug use and dependence, and their contribution to the global burden of disease.",
+        "year": 2012,
+        "doi": "10.1016/s0140-6736(11)61138-0",
+        "url": "https://doi.org/10.1016/s0140-6736(11)61138-0",
+        "kind": "systematic"
+      },
+      {
+        "title": "Alcoholic liver disease.",
+        "year": 2018,
+        "doi": "10.1038/s41572-018-0014-7",
+        "url": "https://doi.org/10.1038/s41572-018-0014-7",
+        "kind": "narrative"
+      }
+    ],
+    "evidence_levels": {
+      "fulltext": 9,
+      "abstract": 0,
+      "indirect": 0,
+      "bib_only": 6918
+    },
+    "oa_ratio": {
+      "with_fulltext": 1899,
+      "total": 6927
+    },
+    "gaps": {
+      "no_fulltext": 6916,
+      "owner_hands": 10
+    }
+  }
 }
