@@ -18,7 +18,8 @@
  *  ⚠️ 조직 egress가 외부 도메인을 막는 샌드박스에서는 대부분 보류/구제로 잡힌다.
  *     실제 판정은 인터넷이 열린 운영 환경(Render Shell)에서 확정된다.
  *
- * 멱등성: 법률은 title, 소스 산출물은 source_id 기준 upsert(있으면 갱신/없으면 삽입).
+ * 멱등성: 법률은 title, 소스 산출물은 source_id 기준 넣기만(SOC-R2 ■3 — 없으면 삽입,
+ * 있으면 쓰지 않음 · 관리자 PUT 값을 되돌리지 않음 · 다른 값은 seed_diff 로그만).
  * 스키마 변경 없음(source_id 컬럼은 마이그레이션으로 선행 추가). synchronize 사용 안 함.
  * deploy-init에는 태우지 않는다(외부 URL 검증이 매 배포마다 돌 필요 없음). 수동 1회 실행.
  */
@@ -28,6 +29,7 @@ import { Document } from '../entities/document.entity';
 import { Source } from '../../sources/entities/source.entity';
 import { RegionCode } from '../../common/enums';
 import lawsData from './documents.data.json';
+import { SeedInsertOnly } from '../../common/seed-insert-only';
 
 // 실브라우저 UA. 공공기관/학술지 페이지의 데이터센터-봇 차단(403)을 줄이기 위해 사용.
 const UA =
@@ -187,8 +189,7 @@ async function run() {
   );
 
   const before = await docRepo.count();
-  let inserted = 0;
-  let updated = 0;
+  const seed = new SeedInsertOnly('documents');
   let botRescued = 0;
   const held: { label: string; url: string; reason: string }[] = [];
 
@@ -220,21 +221,15 @@ async function run() {
     const where = c.key.sourceId
       ? { sourceId: c.key.sourceId }
       : { title: c.key.title! };
-    const existing = await docRepo.findOne({ where });
-    if (existing) {
-      await docRepo.update(existing.id, payload);
-      updated++;
-    } else {
-      await docRepo.save(docRepo.create(payload));
-      inserted++;
-    }
+    await seed.insertOnly(docRepo, where, payload, c.label);
     await sleep(600);
   }
 
   const after = await docRepo.count();
   console.log(
-    `\n[seed:documents] upsert 신규 ${inserted} / 갱신 ${updated} (봇차단 구제 ${botRescued}) · 보류 ${held.length}`,
+    `\n[seed:documents] 신규 ${seed.inserted} / 기존 건너뜀 ${seed.skipped} (봇차단 구제 ${botRescued}) · 보류 ${held.length}`,
   );
+  seed.print();
   console.log(`[seed:documents] documents 총량 ${before} → ${after}건`);
   if (held.length) {
     console.log('[seed:documents] 보류 목록(URL 미검증):');

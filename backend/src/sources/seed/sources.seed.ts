@@ -8,10 +8,15 @@
  * 이 스크립트 전용 DataSource는 entities:[Source]만 알고 있으므로 synchronize:true
  * 라도 sources 테이블만 생성/동기화하며 기존 테이블은 건드리지 않는다.
  * upsert(conflict: id)이므로 재실행해도 중복이 생기지 않는다.
+ *
+ * SOC-R2 ■3: 넣기만. 없는 id 만 넣고(next_expected_at null → backfill:next 가 채움),
+ * 있는 행은 쓰지 않는다 — 감시 크론이 갱신한 last_published_at 등을 매일 되돌리던 것을
+ * 멈춘다. seed 값과 다르면 seed_diff 로그만 남긴다.
  */
 import 'reflect-metadata';
 import { AppDataSource } from '../../data-source';
 import { Source } from '../entities/source.entity';
+import { SeedInsertOnly } from '../../common/seed-insert-only';
 
 const M_ALL = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; // 월간 소스용 1~12월
 
@@ -501,10 +506,18 @@ async function run() {
   await ds.initialize();
   const repo = ds.getRepository(Source);
 
-  // nextExpectedAt은 M1에서 전부 null (M2에서 계산)
+  // 새 행의 nextExpectedAt 은 null (바로 뒤 backfill:next 가 계산). 기존 행은 쓰지 않는다.
+  const seed = new SeedInsertOnly('sources');
   for (const row of SOURCES) {
-    await repo.upsert({ ...row, nextExpectedAt: null }, ['id']);
+    await seed.insertOnly(
+      repo,
+      { id: row.id },
+      { ...row, nextExpectedAt: null },
+      row.id,
+      ['nextExpectedAt'],
+    );
   }
+  seed.print();
 
   const total = await repo.count();
   const byScope = await repo

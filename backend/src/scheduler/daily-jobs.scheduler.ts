@@ -16,6 +16,11 @@ import { SourcesNotifier } from '../sources/discord.notifier';
  * DataSource 를 열고 닫는 독립 실행 파일이라 앱 안에서 import 하지 않는다).
  * 빌드 산출물(dist/*.js)을 node 로 돌려 ts-node 컴파일 부담을 없앤다.
  * 단계 실패는 다음 단계를 막지 않고, 끝나면 실패 목록을 Discord 로 알린다.
+ *
+ * SOC-R2: seed 넷(sources·recovery·documents·indicators)은 넣기만 한다 — 기존 행은
+ * 쓰지 않는다(common/seed-insert-only.ts). dist 실행 때 migration 경로는
+ * data-source.ts 의 migrationGlobs 가 .js 로 고른다(전에는 .ts 를 require 해 initialize
+ * 가 실패 — 10-11~13 운영 예약이 아무것도 쓰지 못한 원인으로 추정).
  */
 export interface DailyStep {
   /** npm 스크립트 이름(기록·알림용). */

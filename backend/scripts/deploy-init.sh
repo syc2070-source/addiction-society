@@ -15,6 +15,8 @@
 #   seed:sources(id upsert · next_expected_at 비움) → backfill:next(다시 채움)
 #   seed:recovery(name 기준 update) · collect:indicators(관측치 갱신·status 승인 덮음)
 #   seed:documents(title/source_id 기준 update) · collect:research(DOI 기준 update)
+# SOC-R2 ■3: seed:sources · seed:recovery · seed:documents · collect:indicators 는 이제
+# 넣기만(기존 행은 쓰지 않고 다른 값은 seed_diff 로그만) — 위 「덮어씀」은 R1 당시 기록.
 # 한 단계라도 실패하면 명확한 로그를 남기고 배포를 중단(비정상 스키마로 기동 방지).
 
 set -uo pipefail

@@ -8,20 +8,19 @@
  *  공표한 검증된 집계치를 정의(definition_ko)와 함께 등록한다(정의 없는 지표 금지·원칙4).
  *  값의 근거는 원자료 딥링크(source_url·원칙3). 서비스키 기반 오픈API 자동갱신은 후속(§보고).
  *
- * 멱등성:
- *  - indicators: code 기준 upsert(있으면 메타 갱신, 없으면 삽입). definition_ko 없으면 skip.
- *  - observations: (indicator_id, source_id, geo, period) 기준 upsert.
- *      값이 바뀌면 이전 값을 revisions(jsonb)에 push 후 갱신, 같으면 fetched_at만 갱신.
+ * 멱등성 (SOC-R2 ■3 — 넣기만):
+ *  - indicators: code 기준. 없으면 삽입, 있으면 쓰지 않음. definition_ko 없으면 skip.
+ *  - observations: (indicator_id, source_id, geo, period, qualifier) 기준. 없으면 삽입,
+ *      있으면 쓰지 않음 — 값·status·fetched_at 모두 그대로(검수에서 바뀐 status 를 매일
+ *      approved 로 되돌리던 것을 멈춤). 값이 다르면 seed_diff 로그만 남긴다.
  *  재실행해도 중복 행이 생기지 않는다.
  */
 import 'reflect-metadata';
 import { AppDataSource } from '../../data-source';
 import { Indicator } from '../entities/indicator.entity';
-import {
-  Observation,
-  ObservationRevision,
-} from '../entities/observation.entity';
+import { Observation } from '../entities/observation.entity';
 import kcgp from './kcgp-youth.data.json';
+import { SeedInsertOnly } from '../../common/seed-insert-only';
 
 interface ObsRow {
   geo: string;
@@ -58,12 +57,9 @@ async function run() {
   const data = kcgp as unknown as DataFile;
   const now = new Date();
 
-  let indInserted = 0;
-  let indUpdated = 0;
+  const indSeed = new SeedInsertOnly('indicators');
+  const obsSeed = new SeedInsertOnly('observations');
   let indSkipped = 0;
-  let obsInserted = 0;
-  let obsUpdated = 0;
-  let obsRevised = 0;
 
   for (const row of data.indicators) {
     // 원칙4: 정의 없는 지표 금지.
@@ -84,16 +80,12 @@ async function run() {
       sourceId: row.sourceId ?? data.sourceId ?? null,
     };
 
-    let indicator = await indRepo.findOne({ where: { code: row.code } });
-    if (indicator) {
-      await indRepo.update(indicator.id, meta);
-      indicator = await indRepo.findOne({ where: { code: row.code } });
-      indUpdated++;
-    } else {
-      indicator = await indRepo.save(indRepo.create(meta));
-      indInserted++;
-    }
-    if (!indicator) continue;
+    const { entity: indicator } = await indSeed.insertOnly(
+      indRepo,
+      { code: row.code },
+      meta,
+      row.code,
+    );
 
     for (const o of row.observations) {
       const sourceId = row.sourceId ?? data.sourceId ?? null;
@@ -107,81 +99,47 @@ async function run() {
       }
       // 전체값은 sentinel 'total'(NULL 금지 — 유니크 키 포함). 분해는 'group=…' 등.
       const qualifier = o.qualifier ?? 'total';
-      const existing = await obsRepo.findOne({
-        where: {
+      // 비교는 seed 가 정하는 값 셋만(status·fetched_at·revisions 는 DB 의 일).
+      await obsSeed.insertOnly(
+        obsRepo,
+        {
           indicatorId: indicator.id,
           sourceId: sourceId ?? undefined,
           geo: o.geo,
           period: o.period,
           qualifier,
         },
-      });
-
-      if (!existing) {
-        await obsRepo.save(
-          obsRepo.create({
-            indicatorId: indicator.id,
-            sourceId,
-            geo: o.geo,
-            period: o.period,
-            value: o.value,
-            valueLow: o.valueLow ?? null,
-            valueHigh: o.valueHigh ?? null,
-            qualifier,
-            revisions: null,
-            fetchedAt: now,
-            sourceUrl,
-            // 큐레이션 시드는 사람이 검증한 값 → approved(원칙8). PDF 크론 추출분만 pending.
-            status: 'approved',
-          }),
-        );
-        obsInserted++;
-        continue;
-      }
-
-      // 값 변경 여부 판정(문자열 numeric 비교는 수치로).
-      const changed =
-        Number(existing.value) !== Number(o.value) ||
-        (existing.valueLow ?? null) !== (o.valueLow ?? null) ||
-        (existing.valueHigh ?? null) !== (o.valueHigh ?? null);
-
-      if (changed) {
-        const prior: ObservationRevision = {
-          value: existing.value,
-          valueLow: existing.valueLow,
-          valueHigh: existing.valueHigh,
-          qualifier: existing.qualifier,
-          sourceUrl: existing.sourceUrl,
-          fetchedAt: existing.fetchedAt.toISOString(),
-        };
-        const revisions = [...(existing.revisions ?? []), prior];
-        await obsRepo.update(existing.id, {
+        {
+          indicatorId: indicator.id,
+          sourceId,
+          geo: o.geo,
+          period: o.period,
           value: o.value,
           valueLow: o.valueLow ?? null,
           valueHigh: o.valueHigh ?? null,
           qualifier,
-          revisions,
+          revisions: null,
           fetchedAt: now,
           sourceUrl,
+          // 큐레이션 시드는 사람이 검증한 값 → approved(원칙8). PDF 크론 추출분만 pending.
           status: 'approved',
-        });
-        obsRevised++;
-      } else {
-        // 값 동일 → 생존 확인만(fetched_at 갱신).
-        await obsRepo.update(existing.id, { fetchedAt: now });
-        obsUpdated++;
-      }
+        },
+        `${row.code} ${o.geo} ${o.period} ${qualifier}`,
+        ['revisions', 'fetchedAt', 'status'],
+      );
     }
   }
 
   const indTotal = await indRepo.count();
   const obsTotal = await obsRepo.count();
   console.log(
-    `[collect:indicators] indicators: 신규 ${indInserted} / 갱신 ${indUpdated} / skip ${indSkipped} (총 ${indTotal})`,
+    `[collect:indicators] indicators: 신규 ${indSeed.inserted} / 기존 건너뜀 ${indSeed.skipped} / skip ${indSkipped} (총 ${indTotal})`,
   );
   console.log(
-    `[collect:indicators] observations: 신규 ${obsInserted} / 개정 ${obsRevised} / 확인 ${obsUpdated} (총 ${obsTotal})`,
+    `[collect:indicators] observations: 신규 ${obsSeed.inserted} / 기존 건너뜀 ${obsSeed.skipped} (총 ${obsTotal})`,
   );
+  indSeed.print();
+  obsSeed.print();
 
   await ds.destroy();
 }
