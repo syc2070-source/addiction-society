@@ -23,6 +23,7 @@
     "migration:revert": "npm run typeorm -- migration:revert",
     "migration:show": "npm run typeorm -- migration:show",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "pretest": "node scripts/ensure-dist.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
