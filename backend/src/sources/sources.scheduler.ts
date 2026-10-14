@@ -25,6 +25,24 @@ const RETRY_MS = 5000; // 읽기 실패(네트워크·HTTP·파싱) 시 한 번 
  */
 export const MONITORED_STATUSES = ['active', 'stale'];
 
+/**
+ * 매일 감시 대상 (SOC-R5 ■2) = 발표 임박(다음 예정 ≤ 오늘+30일) 또는 한 번도 읽지 않은 소스.
+ * 전에는 다음 예정이 30일 넘게 남은 소스는 첫 읽기조차 없어(kocca_game·who_whs 등 9)
+ * 기준선(contentHash·ETag·게시판 최신글)이 비어 있었다. 첫 읽기는 성공·실패와 무관하게
+ * lastCheckedAt 을 채우므로 딱 한 번만 끼어든다 — 그 뒤로는 예정일 규칙대로.
+ */
+export const DAILY_DUE_WHERE =
+  '(s.lastCheckedAt IS NULL OR (s.nextExpectedAt IS NOT NULL AND s.nextExpectedAt <= :hz))';
+
+/** DAILY_DUE_WHERE 와 같은 판정(메모리) — 시험·손 실행용. hz = 'YYYY-MM-DD' */
+export function isDailyDue(
+  s: Pick<Source, 'lastCheckedAt' | 'nextExpectedAt'>,
+  hz: string,
+): boolean {
+  if (s.lastCheckedAt == null) return true;
+  return s.nextExpectedAt != null && s.nextExpectedAt <= hz;
+}
+
 // 알림 쿨다운: 같은 소스가 이 기간 안에 또 트리거되면 알림 생략(로그만)
 const COOLDOWN_CHANGE_MS = 7 * 24 * 3600_000; // 갱신 감지 7일
 const COOLDOWN_MANUAL_MS = 30 * 24 * 3600_000; // 수동 확인 요망 30일
@@ -144,7 +162,7 @@ export class SourcesScheduler {
     return JSON.stringify(c);
   }
 
-  /** 매일 09:00 KST — 발표 임박(오늘+30일 이내) 소스 감시 */
+  /** 매일 09:00 KST — 발표 임박(오늘+30일 이내) 소스 + 한 번도 읽지 않은 소스 감시 */
   @Cron('0 9 * * *', {
     name: 'sourcesDailyMonitor',
     timeZone: 'Asia/Seoul',
@@ -157,11 +175,11 @@ export class SourcesScheduler {
       const due = await this.repo
         .createQueryBuilder('s')
         .where('s.status IN (:...st)', { st: MONITORED_STATUSES })
-        .andWhere('s.nextExpectedAt IS NOT NULL')
-        .andWhere('s.nextExpectedAt <= :hz', { hz })
+        .andWhere(DAILY_DUE_WHERE, { hz })
         .getMany();
+      const first = due.filter((s) => s.lastCheckedAt == null).length;
       this.logger.log(
-        `[cron:daily] 대상 ${due.length}건 (next_expected_at <= ${hz})`,
+        `[cron:daily] 대상 ${due.length}건 (next_expected_at <= ${hz} · 첫 읽기 ${first})`,
       );
       const res = await this.monitorSources(due);
       this.logger.log(`[cron:daily] 완료 ${this.summarize(res)}`);

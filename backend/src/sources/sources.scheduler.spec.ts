@@ -1,4 +1,9 @@
-import { MONITORED_STATUSES, SourcesScheduler } from './sources.scheduler';
+import {
+  DAILY_DUE_WHERE,
+  isDailyDue,
+  MONITORED_STATUSES,
+  SourcesScheduler,
+} from './sources.scheduler';
 import { Source } from './entities/source.entity';
 import { SourcesNotifier } from './discord.notifier';
 import { SourceEventsService } from './source-events.service';
@@ -169,6 +174,117 @@ describe('SourcesScheduler.reconcileExpected', () => {
     const again = await sched.monitorSources([drugfree]);
     expect(again[0]).toMatchObject({ status: 'stale', failCount: 4 });
     expect(patches[0].patch).toMatchObject({ failCount: 4, status: 'stale' });
+  });
+
+  // SOC-R5 ■2 — 한 번도 읽지 않은 소스는 다음 예정과 무관하게 첫 읽기 1회.
+  it('a never-read source joins the daily run once, whatever its next date', async () => {
+    const hz = '2026-11-14'; // 10-15 + 30일
+    const rows = [
+      // 10-15 실측: 다음 예정 30일 넘음 · lastCheckedAt null → 전에는 영영 빠짐
+      src({ id: 'who_whs', nextExpectedAt: '2027-05-01', lastCheckedAt: null }),
+      // 예정일 규칙으로 이미 대상
+      src({
+        id: 'drugfree_stats',
+        nextExpectedAt: '2026-11-01',
+        lastCheckedAt: at('2026-10-14'),
+      }),
+      // 읽어 봤고 예정이 멀다 → 빠짐
+      src({
+        id: 'unodc_wdr',
+        nextExpectedAt: '2027-06-01',
+        lastCheckedAt: at('2026-10-15'),
+      }),
+      // 첫 읽기가 실패했어도 lastCheckedAt 이 채워져 다시 끼지 않는다
+      src({
+        id: 'euda_edr',
+        nextExpectedAt: '2027-06-01',
+        lastCheckedAt: at('2026-10-15'),
+        failCount: 1,
+      }),
+    ];
+    expect(rows.filter((r) => isDailyDue(r, hz)).map((r) => r.id)).toEqual([
+      'who_whs',
+      'drugfree_stats',
+    ]);
+    expect(DAILY_DUE_WHERE).toContain('s.lastCheckedAt IS NULL');
+
+    // 크론이 그 조건을 그대로 쓰는지(가짜 QueryBuilder 가 SQL 을 받아 같은 판정)
+    const seen: string[] = [];
+    const qb = {
+      where: () => qb,
+      andWhere: (sql: string, params?: Record<string, string>) => {
+        seen.push(sql);
+        if (sql === DAILY_DUE_WHERE) expect(params?.hz).toMatch(/^\d{4}-/);
+        return qb;
+      },
+      getMany: () => Promise.resolve(rows.filter((r) => isDailyDue(r, hz))),
+    };
+    const repo = {
+      createQueryBuilder: () => qb,
+    } as unknown as Repository<Source>;
+    const sched = new SourcesScheduler(repo, notifier, fakeEvents().events);
+    const picked: string[] = [];
+    const stub = sched as unknown as {
+      monitorSources: (s: Source[]) => Promise<unknown[]>;
+      reconcileExpected: () => Promise<unknown[]>;
+    };
+    stub.monitorSources = (s) => (
+      picked.push(...s.map((x) => x.id)),
+      Promise.resolve([])
+    );
+    stub.reconcileExpected = () => Promise.resolve([]);
+    await sched.handleDailyMonitor();
+    expect(seen).toContain(DAILY_DUE_WHERE);
+    expect(picked).toEqual(['who_whs', 'drugfree_stats']);
+  });
+
+  it('the first read stores a baseline as checked (not changed); a failure only counts', async () => {
+    const patches: Partial<Source>[] = [];
+    const repo = {
+      update: (_id: string, patch: Partial<Source>) => {
+        patches.push(patch);
+        return Promise.resolve({ affected: 1 });
+      },
+    } as unknown as Repository<Source>;
+    const { events, recorded } = fakeEvents();
+    const sched = new SourcesScheduler(repo, notifier, events);
+    const s = sched as unknown as {
+      sleep: (ms: number) => Promise<void>;
+      fetchPage: (s: Source, m: string) => Promise<unknown>;
+    };
+    s.sleep = () => Promise.resolve();
+    // HEAD 검증자 없음 → GET 본문 해시가 기준선
+    s.fetchPage = (_s, m) =>
+      Promise.resolve({
+        status: 200,
+        ok: true,
+        headers: { get: () => null },
+        text: () => Promise.resolve(m === 'GET' ? '<p>WHS 2026</p>' : ''),
+      });
+    const who = src({
+      id: 'who_whs',
+      accessMethod: 'pdf',
+      contentHash: null,
+      lastCheckedAt: null,
+    });
+    const res = await sched.monitorSources([who]);
+    expect(res).toEqual([
+      { id: 'who_whs', status: 'unchanged', method: 'hash' },
+    ]);
+    expect(patches[0].lastCheckedAt).toBeInstanceOf(Date);
+    expect(patches[0].contentHash).toMatch(/^[0-9a-f]{64}$/);
+    expect(patches[0].failCount).toBe(0);
+    expect(recorded.map((r) => r.eventType)).toEqual(['checked']);
+
+    // 첫 읽기 실패(재시도 포함 두 번) → failCount 1 · stale 아님 · lastCheckedAt 채움
+    patches.length = 0;
+    recorded.length = 0;
+    s.fetchPage = () => Promise.reject(new Error('fetch failed'));
+    const bad = await sched.monitorSources([{ ...who, id: 'euda_edr' }]);
+    expect(bad[0]).toMatchObject({ status: 'error', failCount: 1 });
+    expect(patches[0]).toMatchObject({ failCount: 1, status: 'active' });
+    expect(patches[0].lastCheckedAt).toBeInstanceOf(Date);
+    expect(recorded.map((r) => r.eventType)).toEqual(['failed']);
   });
 
   it('이월할 것이 없으면 아무것도 쓰지 않는다', async () => {
