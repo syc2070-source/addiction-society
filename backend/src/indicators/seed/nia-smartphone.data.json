@@ -1,0 +1,70 @@
+{
+  "note": "SOC-R5 ■3ⓐ: 스마트폰 과의존 위험군 비율(전체) 2016~2025 — 과학기술정보통신부 「스마트폰 과의존 실태조사」 결과 발표 보도자료(msit.go.kr) 문장 그대로 · 2021·2022 는 보도자료 화면 본문이 비어 한국지능정보사회진흥원(NIA) 결과보고서 쪽으로. 2025 보고서 [표 3-1-1](인쇄 p.38)이 2016~2025 열 해를 「17.8 18.6 19.1 20.0 23.3 24.2 23.6 23.1 22.9 22.7」로 다시 싣는다(개정 0). 2015 이전(8.4~16.2)은 연령·척도가 달라 보고서 스스로 「단순비교 불가」 → 넣지 않음. 기간 = 조사 연도(발표는 다음 해 초).",
+  "sourceId": "nia_smartphone",
+  "indicators": [
+    {
+      "code": "nia_smartphone_overdependence_rate",
+      "domain": "D2",
+      "nameKo": "스마트폰 과의존 위험군 비율 (만 3~69세)",
+      "nameEn": "Smartphone overdependence risk group rate (ages 3–69)",
+      "unit": "%",
+      "definitionKo": "만 3~69세 스마트폰 이용자 중 스마트폰 과의존 척도로 고위험군 또는 잠재적위험군으로 분류된 사람의 비율(%) — 보고서 표현 「과의존위험군(고위험군+잠재적위험군)」.",
+      "methodNote": "과학기술정보통신부·한국지능정보사회진흥원 「스마트폰 과의존 실태조사」(국가승인통계). 전국 10,000가구 방문 면접 · 가구원 2만~3만 명. 2016 부터 「스마트폰 과의존 척도」 통합 · 만 3~69세 — 2015 이전 값과 비교 불가(2025 보고서 p.38). 보도자료·보고서가 적은 전체값만, 계산 0.",
+      "observationNote": "만 3~69세 스마트폰 이용자 · 고위험군+잠재적위험군",
+      "observations": [
+        {
+          "geo": "KR", "period": "2016", "value": "17.8", "qualifier": null,
+          "sourceUrl": "https://www.msit.go.kr/bbs/view.do?sCode=user&mId=307&mPid=208&bbsSeqNo=94&nttSeqNo=1325370",
+          "table": "과기정통부 보도자료 2017-01-23 「전체 스마트폰 과의존 위험군(고위험군＋잠재적위험군)은 17.8%(7,426천명)」 · NIA 보고서 인쇄 p.28 · 척도 통합 첫해"
+        },
+        {
+          "geo": "KR", "period": "2017", "value": "18.6", "qualifier": null,
+          "sourceUrl": "https://www.msit.go.kr/bbs/view.do?sCode=user&mId=307&mPid=208&bbsSeqNo=94&nttSeqNo=1374954",
+          "table": "과기정통부 보도자료 2018-02-08 「전체스마트폰 과의존 위험군(고위험군＋잠재적위험군)은 18.6%(7,860천명)」 · NIA 보고서 인쇄 p.21"
+        },
+        {
+          "geo": "KR", "period": "2018", "value": "19.1", "qualifier": null,
+          "sourceUrl": "https://www.msit.go.kr/bbs/view.do?sCode=user&mId=307&mPid=208&bbsSeqNo=94&nttSeqNo=1564332",
+          "table": "과기정통부 보도자료 2019-02-13 「과의존 위험군(고위험군+잠재적위험군)은 19.1%로 전년 대비 0.5%p 증가」 · NIA 보고서 인쇄 p.21"
+        },
+        {
+          "geo": "KR", "period": "2019", "value": "20.0", "qualifier": null,
+          "sourceUrl": "https://www.msit.go.kr/bbs/view.do?sCode=user&mId=307&mPid=208&bbsSeqNo=94&nttSeqNo=2629605",
+          "table": "과기정통부 보도자료 2020-02-20 「과의존 위험군(고위험군+잠재적위험군) 비율은 20.0%로 전년 대비 0.9%p 증가」 · NIA 보고서 [표 3-1-1] 인쇄 p.33"
+        },
+        {
+          "geo": "KR", "period": "2020", "value": "23.3", "qualifier": null,
+          "sourceUrl": "https://www.msit.go.kr/bbs/view.do?sCode=user&mId=307&mPid=208&bbsSeqNo=94&nttSeqNo=3180014",
+          "table": "과기정통부 보도자료 2021-03-10 「과의존위험군(고위험군+잠재적위험군)의 비율은 23.3%로 전년(20.0%)대비3.3%p 증가」 · NIA 보고서 인쇄 p.19"
+        },
+        {
+          "geo": "KR", "period": "2021", "value": "24.2", "qualifier": null,
+          "sourceUrl": "https://www.nia.or.kr/common/board/Download.do?bcIdx=24288&cbIdx=65914&fileNo=2",
+          "page": 34,
+          "table": "NIA 「2021 스마트폰 과의존 실태조사」 보고서(PDF 36쪽) 「스마트폰 과의존위험군 비율은 24.2%로 스마트폰 이용자 작년 대비 0.9%p 상승」"
+        },
+        {
+          "geo": "KR", "period": "2022", "value": "23.6", "qualifier": null,
+          "sourceUrl": "https://www.nia.or.kr/common/board/Download.do?bcIdx=25356&cbIdx=65914&fileNo=1",
+          "page": 20,
+          "table": "NIA 「2022 스마트폰 과의존 실태조사」 보고서(PDF 48쪽) 「스마트폰 과의존위험군 비율은 23.6%로 전년 대비 0.6%p 하락」"
+        },
+        {
+          "geo": "KR", "period": "2023", "value": "23.1", "qualifier": null,
+          "sourceUrl": "https://www.msit.go.kr/bbs/view.do?sCode=user&mId=307&mPid=208&bbsSeqNo=94&nttSeqNo=3184252",
+          "table": "과기정통부 보도자료 2024-03-28 「과의존 위험군(고위험군+잠재적위험군)의비율은 23.1%로 전년(23.6%)대비0.5%p 감소」 · NIA 보고서 인쇄 p.20"
+        },
+        {
+          "geo": "KR", "period": "2024", "value": "22.9", "qualifier": null,
+          "sourceUrl": "https://www.msit.go.kr/bbs/view.do?sCode=user&mId=307&mPid=208&bbsSeqNo=94&nttSeqNo=3185618",
+          "table": "과기정통부 보도자료 2025-03-27 「과의존 위험군(고위험군+잠재적위험군)의비율은 22.9%로 전년(23.1%)대비0.2%p 감소」 · NIA 보고서 [표 3-1-1](PDF 64쪽)"
+        },
+        {
+          "geo": "KR", "period": "2025", "value": "22.7", "qualifier": null,
+          "sourceUrl": "https://www.msit.go.kr/bbs/view.do?sCode=user&mId=307&mPid=208&bbsSeqNo=94&nttSeqNo=3187077",
+          "table": "과기정통부 보도자료 2026-03-26 「과의존 위험군(잠재적 위험군 + 고위험군)비율은 22.7%로 전년(22.9%)대비 0.2%P 감소」 · NIA 보고서 [표 3-1-1] 인쇄 p.38"
+        }
+      ]
+    }
+  ]
+}

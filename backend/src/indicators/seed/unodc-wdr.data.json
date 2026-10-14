@@ -1,0 +1,42 @@
+{
+  "note": "SOC-R5 ■3ⓓ: 세계 약물 사용자 수(15~64세 · 지난 1년 · 백만 명) — UNODC 「World Drug Report」 각 판이 그 판의 기준 연도에 적은 머리 추정치 그대로(WDR 2019 → 2017 … WDR 2026 → 2024). 구간은 판이 함께 적은 경우만(2017~2020). 뒤 판이 앞 기준 연도를 다르게 적은 사례 없음(WDR 2021 이 2018 을 269 로 다시 적음). 쪽 = PDF 쪽(#page) · 인쇄 쪽은 table 에. UNODC 는 판마다 「새롭고 더 정확한 자료」로 추정이 바뀌며 해 사이 비교는 넓은 불확실 구간을 고려하라고 적는다.",
+  "sourceId": "unodc_wdr",
+  "indicators": [
+    {
+      "code": "unodc_global_drug_users",
+      "domain": "D0",
+      "nameKo": "세계 약물 사용자 수 (15~64세 · 지난 1년)",
+      "nameEn": "People who used drugs in the past year, worldwide (aged 15–64)",
+      "unit": "백만 명",
+      "definitionKo": "전 세계 15~64세 인구 가운데 지난 12개월 동안 마약류(술·담배 제외)를 한 번 이상 사용한 사람 수의 UNODC 추정치(백만 명).",
+      "methodNote": "UNODC 「World Drug Report」 연간판. 각국 조사·간접 추정을 모은 모형 추정 — 판마다 새 자료(예: WDR 2019 의 인도·나이지리아 조사)로 수준이 바뀐다. UNODC: 「any comparison of estimates over time should be undertaken with caution, given the wide uncertainty intervals」(WDR 2019 Booklet 2). 기간 = 기준 연도(발간은 2년 뒤 6월).",
+      "observationNote": "세계 · 15~64세 · 지난 1년 사용",
+      "observations": [
+        { "geo": "WORLD", "period": "2017", "value": "271", "valueLow": "201", "valueHigh": "341", "qualifier": null,
+          "sourceUrl": "https://wdr.unodc.org/wdr2019/prelaunch/WDR19_Booklet_2_DRUG_DEMAND.pdf", "page": 11,
+          "table": "WDR 2019 Booklet 2 인쇄 p.9 「In 2017, an estimated 271 million people worldwide aged 15-64 had used drugs at least once in the previous year (range: 201 million to 341 million)」" },
+        { "geo": "WORLD", "period": "2018", "value": "269", "valueLow": "166", "valueHigh": "373", "qualifier": null,
+          "sourceUrl": "https://wdr.unodc.org/wdr2020/field/WDR20_Booklet_2.pdf", "page": 12,
+          "table": "WDR 2020 Booklet 2 인쇄 p.10 「In 2018, an estimated 269 million people worldwide had used drugs at least once in the previous year (range: 166 million to 373 million)」" },
+        { "geo": "WORLD", "period": "2019", "value": "275", "valueLow": "175", "valueHigh": "374", "qualifier": null,
+          "sourceUrl": "https://www.unodc.org/res/wdr2021/field/WDR21_Booklet_2.pdf", "page": 19,
+          "table": "WDR 2021 Booklet 2 인쇄 p.19 「In 2019, an estimated 275 million people worldwide aged 15-64 … (range: 175 million to 374 million)」" },
+        { "geo": "WORLD", "period": "2020", "value": "284", "valueLow": "185", "valueHigh": "384", "qualifier": null,
+          "sourceUrl": "https://www.unodc.org/res/wdr2022/MS/WDR22_Booklet_2.pdf", "page": 15,
+          "table": "WDR 2022 Booklet 2 인쇄 p.15 「In 2020, an estimated 284a million people worldwide aged 15-64 … had used a drug within the last 12 months」 각주 「a 185-384 million」" },
+        { "geo": "WORLD", "period": "2021", "value": "296", "qualifier": null,
+          "sourceUrl": "https://www.unodc.org/res/WDR-2023/WDR23_Exsum_fin_SP.pdf", "page": 12,
+          "table": "WDR 2023 Executive Summary 인쇄 p.12 「The estimated number of users grew from 240 million in 2011 to 296 million in 2021」 · 구간 표기 없음" },
+        { "geo": "WORLD", "period": "2022", "value": "292", "qualifier": null,
+          "sourceUrl": "https://www.unodc.org/documents/data-and-analysis/WDR_2024/WDR24_Key_findings_and_conclusions.pdf", "page": 44,
+          "table": "WDR 2024 Key findings 「the global estimate of people who used a drug in the past year at 292 million (or 5.6 per cent of the population aged 15 to 64) in 2022」 · 구간 표기 없음" },
+        { "geo": "WORLD", "period": "2023", "value": "316", "qualifier": null,
+          "sourceUrl": "https://www.unodc.org/documents/data-and-analysis/WDR_2025/WDR25_B1_Key_findings.pdf", "page": 48,
+          "table": "WDR 2025 Key findings 「In 2023, the global number of people who used a drug in the past year was estimated at 316 million people」 · 구간 표기 없음" },
+        { "geo": "WORLD", "period": "2024", "value": "331", "qualifier": null,
+          "sourceUrl": "https://www.unodc.org/documents/data-and-analysis/WDR_2026/WDR26_Highlights.pdf", "page": 70,
+          "table": "WDR 2026 Highlights 인쇄 p.70 「In 2024, 331 million people were estimated to have used a drug in the past year, or 6.2 per cent of the global population aged between 15 and 64」" }
+      ]
+    }
+  ]
+}

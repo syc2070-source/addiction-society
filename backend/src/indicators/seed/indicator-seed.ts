@@ -52,8 +52,22 @@ export interface IndicatorDataFile {
   indicators: IndicatorRow[];
 }
 
-/** 정부·공공기관 도메인만 원본으로 받는다. */
-const OFFICIAL_HOSTS = ['kcgp.or.kr', 'kosis.kr', 'data.go.kr', 'korea.kr'];
+/**
+ * 정부·공공기관 도메인만 원본으로 받는다.
+ * SOC-R5 ■3: 국제기구 원 발행처(who.int · unodc.org · euda.europa.eu) 추가 ·
+ * 공공기관 조사 수행처 nia.or.kr(스마트폰 과의존 실태조사) · kocca.kr(게임이용자 실태조사) 추가.
+ */
+const OFFICIAL_HOSTS = [
+  'kcgp.or.kr',
+  'nia.or.kr',
+  'kocca.kr',
+  'kosis.kr',
+  'data.go.kr',
+  'korea.kr',
+  'who.int',
+  'unodc.org',
+  'euda.europa.eu',
+];
 
 export function isOfficialUrl(url: string | undefined | null): boolean {
   if (!url) return false;

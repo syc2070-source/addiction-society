@@ -9,6 +9,10 @@ import {
 import kcgp from './kcgp-youth.data.json';
 import knhanes from './knhanes.data.json';
 import drugOffenders from './drug-offenders.data.json';
+import whoAlcohol from './who-alcohol.data.json';
+import niaSmartphone from './nia-smartphone.data.json';
+import koccaGame from './kocca-game.data.json';
+import unodcWdr from './unodc-wdr.data.json';
 
 // SOC-R3 ■3ⓔ — 지표 관측치 넣기만 · 같은 값 중복 0 · 원본 URL 없는 관측치 거절.
 
@@ -194,6 +198,10 @@ describe('지표 관측치 넣기만', () => {
     kcgp,
     knhanes,
     drugOffenders,
+    whoAlcohol,
+    niaSmartphone,
+    koccaGame,
+    unodcWdr,
   ] as unknown as IndicatorDataFile[];
   const prod1013 = () => {
     const codes = [
@@ -288,6 +296,63 @@ describe('지표 관측치 넣기만', () => {
     );
     for (const i of cagi) {
       expect(i.observations.every((o) => Number(o.period) <= 2022)).toBe(true);
+    }
+  });
+
+  // SOC-R5 ■3 — 10-15 04:00 둘째 회차 뒤 운영 상태(지표 7 · 관측치 45 = R4 까지의 파일)에서
+  // 다음 회차는 R5 새 파일의 지표·관측치만 넣는다. 기존 45 행 변경 0.
+  it('on the 10-15 production state (7 indicators · 45 rows) the next run inserts only the R5 files', async () => {
+    const r4Files = [
+      kcgp,
+      knhanes,
+      drugOffenders,
+    ] as unknown as IndicatorDataFile[];
+    const repos = { indicators: memRepo(), observations: memRepo() };
+    const warm = report();
+    for (const f of r4Files) await seedIndicatorFile(f, repos as never, warm);
+    expect(repos.indicators.rows).toHaveLength(7);
+    expect(repos.observations.rows).toHaveLength(45);
+    const before = repos.observations.rows.map((o) => ({ ...o }));
+
+    const r = await runAll(repos as never);
+    const r5 = shipped.filter((f) => !r4Files.includes(f));
+    const r5Ind = r5.flatMap((f) => f.indicators);
+    expect(r.rejected).toEqual([]);
+    expect(r.indicators.inserted).toBe(r5Ind.length);
+    expect(r.observations.inserted).toBe(
+      r5Ind.flatMap((i) => i.observations).length,
+    );
+    expect(r.observations.skipped).toBe(45);
+    expect(r.observations.diffs).toEqual([]);
+    expect(repos.observations.rows.slice(0, 45)).toEqual(before);
+  });
+
+  it('international publishers are official; WHO values are exactly the GHO display (value [low - high])', () => {
+    expect(isOfficialUrl('https://www.who.int/data/gho/data/indicators')).toBe(
+      true,
+    );
+    expect(
+      isOfficialUrl(
+        'https://www.unodc.org/unodc/en/data-and-analysis/wdr.html',
+      ),
+    ).toBe(true);
+    expect(isOfficialUrl('https://www.euda.europa.eu/publications/x_en')).toBe(
+      true,
+    );
+    expect(
+      isOfficialUrl('https://ghoapi.azureedge.net/api/SA_0000001688'),
+    ).toBe(false);
+    expect(isOfficialUrl('https://who.int.example.com/x')).toBe(false);
+    const ind = (whoAlcohol as unknown as IndicatorDataFile).indicators[0];
+    expect(ind.observations.length).toBeGreaterThanOrEqual(2);
+    for (const o of ind.observations) {
+      // 값+링크만 — 표시값 문구 안에 값·구간이 그대로(우리 쪽 반올림 0)
+      expect(o.table).toContain(
+        `「${o.value} [${o.valueLow} - ${o.valueHigh}]」`,
+      );
+      const r = resolveObservation(whoAlcohol as never, ind, o);
+      expect(r).toMatchObject({ ok: true });
+      if (r.ok) expect(r.row.sourceUrl).toMatch(/^https:\/\/www\.who\.int\//);
     }
   });
 

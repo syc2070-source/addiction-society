@@ -1,0 +1,44 @@
+{
+  "note": "SOC-R5 ■3ⓒ: WHO GHO 「Alcohol, total per capita (15+) consumption (in litres of pure alcohol) (SDG Indicator 3.5.2)」 대한민국 · 남녀 전체. 값+링크만(WHO 데이터 면허 CC BY-NC-SA 3.0 IGO — 표를 다시 배포하지 않고 표시값과 원본 주소만). 값 = GHO 가 표시하는 소수 한 자리(우리 쪽 반올림·계산 0) · 구간 = 같은 표시값의 95% 불확실 구간. 2026-10-15 GHO OData(SA_0000001688 · 갱신 2026-06-15)에서 읽음. 2000=2001, 2023=2024 는 WHO 원값이 소수 끝까지 같다(앞뒤 연장 추정으로 보임 — 그대로 싣고 단서에 적음).",
+  "sourceId": "who_gho_alcohol",
+  "sourceUrl": "https://www.who.int/data/gho/data/indicators/indicator-details/GHO/total-(recorded-unrecorded)-alcohol-per-capita-(15-)-consumption",
+  "indicators": [
+    {
+      "code": "who_alcohol_per_capita_kr",
+      "domain": "D0",
+      "nameKo": "1인당 알코올 소비량 (15세 이상 · 순수 알코올 L · WHO)",
+      "nameEn": "Total alcohol per capita (15+) consumption, litres of pure alcohol (WHO, Republic of Korea)",
+      "unit": "L",
+      "definitionKo": "15세 이상 인구 1인당 한 해 동안 마신 순수 알코올의 양(리터). 등록 소비(판매·생산 통계)와 비등록 소비(밀주·관광 등 추정)를 더한 WHO 추정치이며, 3년 평균이다(SDG 3.5.2).",
+      "methodNote": "WHO Global Information System on Alcohol and Health(GISAH) · GHO 지표 SA_0000001688 · 남녀 전체(SEX_BTSX). 국가 통계가 아니라 WHO 모형 추정이며 판이 바뀌면 과거 값도 다시 계산된다(이번 값 = 2026-06-15 갱신판). 질병관리청 고위험음주율(조사 응답)과 다른 잣대다.",
+      "observationNote": "WHO GHO 표 SA_0000001688 · 대한민국 · Both sexes · 3년 평균 · 값+링크만",
+      "observations": [
+        { "geo": "KR", "period": "2000", "value": "11.0", "valueLow": "9.4", "valueHigh": "12.6", "qualifier": null, "table": "GHO 표시값 「11.0 [9.4 - 12.6]」 · 2001 과 같은 원값" },
+        { "geo": "KR", "period": "2001", "value": "11.0", "valueLow": "9.4", "valueHigh": "12.6", "qualifier": null, "table": "GHO 표시값 「11.0 [9.4 - 12.6]」" },
+        { "geo": "KR", "period": "2002", "value": "10.7", "valueLow": "9.2", "valueHigh": "12.4", "qualifier": null, "table": "GHO 표시값 「10.7 [9.2 - 12.4]」" },
+        { "geo": "KR", "period": "2003", "value": "10.0", "valueLow": "8.4", "valueHigh": "11.6", "qualifier": null, "table": "GHO 표시값 「10.0 [8.4 - 11.6]」" },
+        { "geo": "KR", "period": "2004", "value": "9.8", "valueLow": "8.3", "valueHigh": "11.4", "qualifier": null, "table": "GHO 표시값 「9.8 [8.3 - 11.4]」" },
+        { "geo": "KR", "period": "2005", "value": "9.6", "valueLow": "8.1", "valueHigh": "11.1", "qualifier": null, "table": "GHO 표시값 「9.6 [8.1 - 11.1]」" },
+        { "geo": "KR", "period": "2006", "value": "9.5", "valueLow": "8.0", "valueHigh": "11.2", "qualifier": null, "table": "GHO 표시값 「9.5 [8.0 - 11.2]」" },
+        { "geo": "KR", "period": "2007", "value": "9.6", "valueLow": "8.1", "valueHigh": "11.3", "qualifier": null, "table": "GHO 표시값 「9.6 [8.1 - 11.3]」" },
+        { "geo": "KR", "period": "2008", "value": "9.6", "valueLow": "8.1", "valueHigh": "11.3", "qualifier": null, "table": "GHO 표시값 「9.6 [8.1 - 11.3]」" },
+        { "geo": "KR", "period": "2009", "value": "9.6", "valueLow": "8.1", "valueHigh": "11.2", "qualifier": null, "table": "GHO 표시값 「9.6 [8.1 - 11.2]」" },
+        { "geo": "KR", "period": "2010", "value": "9.4", "valueLow": "8.0", "valueHigh": "10.9", "qualifier": null, "table": "GHO 표시값 「9.4 [8.0 - 10.9]」" },
+        { "geo": "KR", "period": "2011", "value": "9.4", "valueLow": "7.8", "valueHigh": "11.0", "qualifier": null, "table": "GHO 표시값 「9.4 [7.8 - 11.0]」" },
+        { "geo": "KR", "period": "2012", "value": "9.4", "valueLow": "7.8", "valueHigh": "11.0", "qualifier": null, "table": "GHO 표시값 「9.4 [7.8 - 11.0]」" },
+        { "geo": "KR", "period": "2013", "value": "9.4", "valueLow": "7.7", "valueHigh": "11.0", "qualifier": null, "table": "GHO 표시값 「9.4 [7.7 - 11.0]」" },
+        { "geo": "KR", "period": "2014", "value": "9.4", "valueLow": "7.9", "valueHigh": "11.2", "qualifier": null, "table": "GHO 표시값 「9.4 [7.9 - 11.2]」" },
+        { "geo": "KR", "period": "2015", "value": "9.4", "valueLow": "7.8", "valueHigh": "11.1", "qualifier": null, "table": "GHO 표시값 「9.4 [7.8 - 11.1]」" },
+        { "geo": "KR", "period": "2016", "value": "9.3", "valueLow": "7.8", "valueHigh": "11.0", "qualifier": null, "table": "GHO 표시값 「9.3 [7.8 - 11.0]」" },
+        { "geo": "KR", "period": "2017", "value": "9.1", "valueLow": "7.5", "valueHigh": "10.7", "qualifier": null, "table": "GHO 표시값 「9.1 [7.5 - 10.7]」" },
+        { "geo": "KR", "period": "2018", "value": "8.9", "valueLow": "7.4", "valueHigh": "10.6", "qualifier": null, "table": "GHO 표시값 「8.9 [7.4 - 10.6]」" },
+        { "geo": "KR", "period": "2019", "value": "8.7", "valueLow": "7.3", "valueHigh": "10.4", "qualifier": null, "table": "GHO 표시값 「8.7 [7.3 - 10.4]」" },
+        { "geo": "KR", "period": "2020", "value": "8.5", "valueLow": "7.0", "valueHigh": "10.0", "qualifier": null, "table": "GHO 표시값 「8.5 [7.0 - 10.0]」" },
+        { "geo": "KR", "period": "2021", "value": "8.4", "valueLow": "6.8", "valueHigh": "10.0", "qualifier": null, "table": "GHO 표시값 「8.4 [6.8 - 10.0]」" },
+        { "geo": "KR", "period": "2022", "value": "8.3", "valueLow": "6.9", "valueHigh": "9.7", "qualifier": null, "table": "GHO 표시값 「8.3 [6.9 - 9.7]」" },
+        { "geo": "KR", "period": "2023", "value": "8.3", "valueLow": "6.7", "valueHigh": "9.8", "qualifier": null, "table": "GHO 표시값 「8.3 [6.7 - 9.8]」" },
+        { "geo": "KR", "period": "2024", "value": "8.3", "valueLow": "6.7", "valueHigh": "9.8", "qualifier": null, "table": "GHO 표시값 「8.3 [6.7 - 9.8]」 · 2023 과 같은 원값" }
+      ]
+    }
+  ]
+}
