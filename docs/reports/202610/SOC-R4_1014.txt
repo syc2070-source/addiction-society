@@ -1,0 +1,150 @@
+경보 0 (P0·P1 없음) — 첫 밤 회차 ok 8/8 · 감시 실패(drugfree_stats stale) 09:00 감시에서 스스로 회복 확인(active · failCount 0) · 새 지표 2개(kcgp_youth_v2 · 마약류 사범)는 배포가 아니라 10-15(목) 04:00 collect:indicators 가 넣는다 → 그 뒤 「오늘의 숫자」가 마약류 사범으로 바뀔 예정(미측)
+배포 확인 ① 07:36:49 (commit 572966b · startedAt 2026-10-13T22:36:28Z · push 07:34:36) ② 07:49:47 (commit e4d553e · startedAt 2026-10-13T22:49:40Z · push 07:47:38) · Vercel 홈 200 · /calendar 200
+SOC-R4 보고서 · 2026-10-14 · 실행 = 데스크탑 Claude Code (Opus 5.5) · 가지 claude/soc-r4 → main ff · 오너 액션 0
+
+주소
+ - 밤 예약 기록: https://addiction-society-api.onrender.com/api/health/nightly  (이제 monitor{sources, stale, unreachable} 포함)
+ - 지난 예정 · 미확인: https://addiction-society-api.onrender.com/api/sources/calendar/missed  (줄마다 monitor 칸 · 화면 = www.addictionsociety.net/calendar)
+ - 감시 회복 근거: https://addiction-society-api.onrender.com/api/sources/drugfree_stats · https://addiction-society-api.onrender.com/api/timeline?source=drugfree_stats&all=1
+ - 오늘의 숫자: https://www.addictionsociety.net
+
+커밋 (모두 main · push 끝)
+| 3c64b45 | docs(soc-r4): 지시서 [skip ci] [skip render] |
+| 858fb0d | ■1 test(indicators) 10-13 운영 상태 첫 회차 재현 · 다음 회차 0 |
+| 6dcf5a8 | ■2 fix(sources) stale 재읽기 · 재시도 1 · active 복귀 · missed monitor 칸 · nightly monitor 수 |
+| 572966b | ■4 test(review-token) 서명 가운데 글자 바꾸기 |
+| 5fd6093 | ■3 feat(indicators) kcgp 2020·2018 분해 · kcgp_youth_v2 · 대검 마약류 사범 2015~2025 |
+| e4d553e | ■3 fix(home) 오늘의 숫자 천 단위 쉼표(23403 → 23,403) · 비율은 그대로 |
+| (이 보고서) | docs(soc-r4): 보고서 [skip ci] [skip render] |
+
+시험 · 빌드
+ - jest 128 → 136 (17 suites) · ■3 전 2회 연속 통과 · ■3 뒤 다시 통과
+ - tsc backend·frontend ok · nest build ok · next build ok
+ - 바꾼 파일 lint 깨끗 · 남은 lint 오류는 옛것(sources.scheduler.ts 의 e: any · sources.service getSummary) — 이번에 손대지 않음
+
+■0 첫 밤 회차 실측 (읽기 전용 · /api/health/nightly)
+runId 782a8b33-d40c-4405-b4e5-0c062de88663 · 2026-10-13T19:00:00.012Z → 19:01:22.848Z (= 10-14 04:00:00 ~ 04:01:22 KST) · status ok · 8/8 ok
+| 단계 | 초 | inserted | updated | skipped | diff | 예상과 |
+| seed:sources | 1 | 1 | 0 | 23 | 0 | = (kdca_knhanes 새 출처) |
+| backfill:next | 1 | 0 | 1 | 23 | 0 | 새 출처 next_expected 2027-01-01 채움 |
+| seed:recovery | 1 | 0 | 0 | 73 | 0 | = |
+| collect:indicators | 1 | 26 | 0 | 6 | 0 | = (지표 2 + 관측치 24) |
+| seed:documents | 43 | 1 | 0 | 29 | 0 | 예상 0 ≠ 1 — doc 23 「국민건강영양조사 (음주·흡연)」(kdca_knhanes 대표 문서) |
+| collect:research | 33 | 0 | 48 | 0 | 0 | 공개 연구 7행 updatedAt 만 바뀜(제목·초록·저자·연도·status = 10-10 사본과 같음) |
+| backfill:relevance | 1 | 0 | 54 | 0 | 0 | 예상 51 ≠ 54 — relevance_checked_at null 행만 건드림 · 연구 전체 행 수는 DB 없이 확인 불가 → 51 은 추정이었던 듯(미측) |
+| collect:broadcasts | 1 | 0 | 0 | 0 | 0 | = |
+totals inserted 28 · updated 103 · skipped 154 · diff 0 · last7Days runs 1 · failedRuns 0 · skipped 0
+
+첫 회차 전/후 (API 읽기)
+| 항목 | 전(10-13) | 후(10-14) |
+| 지표 | 3 | 5 (knhanes 2 updatedAt 10-13T19:00:04 · kcgp 3 updatedAt 10-09T07:22:15 그대로) |
+| 관측치 | 3 | 27 |
+| 2022 행(4.8 · 3.9 · 0.9) | fetchedAt 2026-10-09T07:22:15.487Z | 같음 — 값·status·fetchedAt 변경 0 ✓ |
+| 출처 | 23 | 24 |
+| 회복 기관 | 73 | 73 · updatedAt min/max 10-09T07:22:10.384Z/.851Z · 10-13T18:00Z 뒤 바뀐 행 0 ✓ |
+| 공개 연구 | 7 | 7 · relevance_* 7/7 채움(10-13T19:01:21.554Z · 점수 6·7·11·7·6·5·3) |
+| 정책 문서 | 22 | 23 |
+| seed_diff | 0 | 0 |
+| 홈 「오늘의 숫자」 | 청소년 도박문제 4.8% 한 점 | 「성인 현재흡연율 16.7 % · 2024 · 출처 질병관리청」 + 10점 sparkline — R3 예측대로 ✓ |
+
+■1 첫 회차 재현 시험 (858fb0d)
+ - indicator-seed.spec: 10-13 운영 상태(지표 3 · 2022 관측치 3)에서 출시 데이터 파일 전부 넣기 → 새 지표·새 연도만 insert · 2022 행 deepEqual 그대로 · update 호출 0 · diff 0
+ - 같은 상태에서 두 번째 회차 → inserted 0 · 행 변경 0 (10-15 04:00 이후 같은 모양이어야 함)
+
+■2 감시 실패 가르기 (6dcf5a8)
+원인
+ - drugfree_stats: status stale · failCount 3 · lastCheckedAt 2026-07-21T00:00:00.038Z(= 07-21 09:00 KST) · lastPublishedAt null
+ - 세 번 실패는 07-21 09:00 — tls insecure·게시판 선택자를 넣은 커밋 81fc260(AS-OBS-M2.6, 07-21 13:27 KST)보다 앞. 고친 뒤에도 감시 크론 둘 다 status='active' 만 읽어서 stale 은 다시 읽히지 않았다(막다른 길)
+ - 로컬 실측: curl 200 · 73,515 바이트 · Node fetch 기본 = UNABLE_TO_VERIFY_LEAF_SIGNATURE · insecure agent = 200 · 저장된 선택자로 10줄 · 최신 글 「마약관련 통계자료 2026년도 1월중」 2026-03-09(출처 대검찰청) → 사이트가 3월 뒤로 실제로 올리지 않음
+고침
+ - MONITORED_STATUSES = active·stale (매일 09:00 · 월요일 09:00 주간 크론 둘 다)
+ - detectWithRetry: 읽기가 throw 하면 5초 뒤 한 번 더
+ - stale 출처를 읽기 성공 → status active · checked/changed 사건 detail 에 recoveredFrom:'stale' · 로그 RECOVER · blocked(403/405)는 stale 그대로
+ - calendar/missed 줄마다 monitor 칸:
+   | unreadable | 읽지 못함 | 출처 stale 이거나 마지막 읽기가 failed/stale/blocked |
+   | manual | 사람 확인 | accessMethod manual |
+   | unchecked | 확인 전 | 예정 월이 끝난 뒤(다음 달 1일 00:00 KST) 성공한 읽기 없음 |
+   | not_published | 발표 없음 | 월이 끝난 뒤 읽기 ok · 발표 못 봄 |
+ - /api/health/nightly 에 monitor{sources, stale, unreachable}(unreachable = failCount>0, stale 포함 · 질의 실패면 null)
+ - 화면: /calendar 지난 예정 줄에 태그(읽지 못함 = tag-warn) · 칸이 없으면 옛 태그 · ko/en missedMonitor.* · missedDesc 갱신
+ - 시험 4: missed-releases.spec 3(stale→unreadable · 월말 뒤 읽기→not_published · 9월 안 읽기→unchecked · blocked→unreadable · manual · monitorCounts) · sources.scheduler.spec 1(stale 재읽기+재시도→active · 두 번 실패→failCount 4 · stale 유지)
+운영 실측
+| 시각 | drugfree_stats | missed 태그 | nightly monitor |
+| 07:50 (배포 직후) | stale · failCount 3 | 읽지 못함 ×2 | sources 24 · stale 1 · unreachable 1 |
+| 09:07 (09:00 감시 뒤) | active · failCount 0 · lastCheckedAt 2026-10-14T00:00:00.030Z · lastPublishedAt 2026-03-09 · contentHash e6b32686… · nextExpectedAt 2026-11-01 | 발표 없음 ×2 (2026-09 · 2026-08) | sources 24 · stale 0 · unreachable 0 |
+ - 사건 252 checked 2026-10-14T00:00:01.005Z detail {method:board-latest, recoveredFrom:stale} ✓ — Render 에서 drugfree.or.kr 읽기 성공(로컬에서 미리 잴 수 없던 부분, 이제 실측)
+ - 03-09 는 기준선(lastPublishedAt)으로 잡혔고 published 사건은 아님(첫 읽기라 「새 발표」로 세지 않음)
+출처 감시 표 (10-14 09:00 전 /api/sources)
+ - failCount>0 = drugfree_stats 하나(3 · stale) → 이제 0 · 나머지 전부 0 · active
+ - 한 번도 읽지 않음(lastCheckedAt null · 다음 예정 30일 넘음 · 비정기 아님) 9: kocca_game · kdca_knhanes · kcgp_youth · nia_smartphone · who_whs · euda_statbulletin · unodc_wdr · unodc_wdr_trends · euda_edr → 후속 후보
+ - 10-13 읽음: mohw_addiction_center(manual) · spo_drug_monthly · hri_gshr · 10-12 주간 읽음 10 · samhsa_nsduh 마지막 08-02
+
+■3 지표 원본 넓히기 (5fd6093 · e4d553e) — 원본만 · 더하기 0 · 넣기만
+ⓐ kcgp 2020 — 발행처는 한국청소년정책연구원(NYPI)이 아니라 한국도박문제관리센터
+ - 보도자료 2021-03-11 「한국도박문제관리센터, 2020년 청소년 도박문제 실태조사 결과 발표」(총 7쪽 · 붙임 5쪽 · HWP)
+   https://www.kcgp.or.kr/portal/bbs/B0000031/view.do?nttId=38755&menuNo=200021
+ - 2020 결과보고서 원문은 온라인 게시 없음 · 2020 은 3차 시범 · 승인통계 469001 은 2024 부터
+ - 조사: 중1~고3 재학생 N=15,349(고3 첫 포함) · 최근 3개월 · CAGI · 온라인·우편(코로나19) · 「이전 연도 조사결과와 직접적 비교에는 주의를 요함」
+ - 학교 밖 6.9%(4.9+2.0)는 인포그래픽에만(ngcc.go.kr/police/plan/4_4.do 「재학중 2.4% → 4.8%, 학교 밖 6.9% → 12.6%」로 대조) → 넣지 않음
+ - 2022 의 4.8% 는 초등 포함(고 3.2 < 중 5.1 < 초 6) → 2020→2022 는 다른 모집단 비교
+ⓑ kcgp_youth_v2 「청소년 평생 도박 경험률 (2024~ 청소년 도박 실태조사)」 — 별도 지표
+ - 2024~ 조사는 문제 수준(CAGI)을 재지 않음 · 목적 「청소년의 도박 실태와 경험을 판별하는 것」 · 일러두기 10 = 2015~2022 와 비교 불가 → kcgp_youth_gambling_* 에 섞지 않음(시험으로 고정)
+ⓒ spo_drug_offenders_total 「마약류 사범 단속 인원」(명 · D0 · sourceId spo_drug_monthly · drug-offenders.data.json 새 파일 · DATA_FILES 연결)
+ - 대검 「마약류 범죄백서」 발간 보도자료가 스스로 적은 총계만(마약·향정·대마 더하기 0) · 여러 해 보도자료에 같은 해가 다시 나오며 모두 같음(개정 0)
+
+관측치 검증 표 (새로 넣는 18 · 쪽 = 인쇄 쪽)
+| 지표 | 연도 | 값 | 원본 URL | 쪽·표 | 문구 |
+| kcgp problem_rate | 2020 | 2.4 | kcgp nttId=38755 | 본문 첫 문단(쪽 없음 · HWP) | 「15,349명 중 2.4%(위험군 1.7%, 263명+문제군 0.7%, 114명)」 |
+| kcgp atrisk | 2018 | 4.9 | kcgp nttId=38755 | 붙임2 표 | 「2018년 93.6 4.9 1.5」 |
+| kcgp atrisk | 2020 | 1.7 | kcgp nttId=38755 | 붙임2 표 | 「2020년 97.5 1.7 0.7」 |
+| kcgp problem_group | 2018 | 1.5 | kcgp nttId=38755 | 붙임2 표 | 「2018년 93.6 4.9 1.5」 (4.9+1.5 = 기존 6.4 와 맞음) |
+| kcgp problem_group | 2020 | 0.7 | kcgp nttId=38755 | 붙임2 표 | 「2020년 97.5 1.7 0.7」 |
+| kcgp_youth_v2 | 2024 | 4.3 | kcgp B0000063 nttId=315267 (atchFileId 631e6ddc… · 2025-02-27 게시) | 〈표2-1〉 p.23 (PDF 45) | 「청소년의 4.3%는 평생 1회 이상 도박을 경험」 · N 13,368(모집단 3,936,614) |
+| kcgp_youth_v2 | 2025 | 4.0 | kcgp B0000063 nttId=776740 (atchFileId da2fab02… · 2025-12-29 게시) | 〈표 2-1〉 p.25 (PDF 47) | 「2025년 평생 도박 경험률은 4.0%로 전년(4.3%) 대비 소폭 감소」 · N 13,481(모집단 3,941,153) |
+| 마약류 사범 | 2015 | 11,916 | spo bcIdx=623428 | p1 | 「마약류사범은 역대 최다인 11,916명」 |
+| 마약류 사범 | 2016 | 14,214 | spo bcIdx=649271 | p1 | 「2016년 마약류사범은 역대 최다인 14,214명」 |
+| 마약류 사범 | 2017 | 14,123 | spo bcIdx=677081 | p1 | 「2017년 마약류사범은 14,123명」 |
+| 마약류 사범 | 2018 | 12,613 | spo bcIdx=979462 | p1 | 「2018년 마약류사범은 12,613명」 |
+| 마약류 사범 | 2019 | 16,044 | spo bcIdx=1002580 | p1 | 「2019년 마약류사범은 역대 최다인 16,044명」 |
+| 마약류 사범 | 2020 | 18,050 | spo bcIdx=1019010 | p1 | 「2020년 마약류사범은 역대 최다 18,050명」 |
+| 마약류 사범 | 2021 | 16,153 | spo bcIdx=1028391 | p1 | 「2021년 마약류사범은 16,153명」 |
+| 마약류 사범 | 2022 | 18,395 | spo bcIdx=1039054 | p2 | 「'22년 18,395명으로 45.8% 급증」 |
+| 마약류 사범 | 2023 | 27,611 | spo bcIdx=1054946 | p4 | 「'23년 27,611명으로 최초로 2만명 넘겨」 · korea.kr newsId=148936403 「2만 7611명」 |
+| 마약류 사범 | 2024 | 23,022 | spo bcIdx=1081463 | p1 | 「2024년 단속 마약사범은 23,022명」 |
+| 마약류 사범 | 2025 | 23,403 | spo bcIdx=1108716 (보도 2026-07-28) | p1 | 「2025년 단속 마약류 사범은 23,403명」 · korea.kr newsId=148965694 「2만 3403명」 |
+ spo 주소 꼴: https://www.spo.go.kr/site/spo/ex/board/View.do?cbIdx=1403&bcIdx=… (bcIdx 1108716 · 623428 착지 200 확인)
+ - 시험 2: 2022 기존 행 밖 관측치는 모두 쪽·표·문구 + 공식 URL · 명 단위 값은 문구 안에 그대로(11916 ↔ 「11,916명」) / v2 는 2점 · 「2022 이전과 비교 불가」 · CAGI 계열은 ≤2022
+ - 다음 회차 예상 collect:indicators: 지표 inserted 2(kcgp_youth_v2 · spo_drug_offenders_total) + 관측치 18(kcgp 5 + v2 2 + 마약 11) = inserted 20 · skipped 32(지표 5 + 관측치 27) · diff 0
+ - 홈 「오늘의 숫자」는 점이 가장 많은 계열을 고름 → 마약류 사범(11점)이 흡연(10점)을 이김 → 「23,403명 · 2025 · 출처 대검찰청」 예정(e4d553e 가 1000 이상 값에 쉼표)
+
+■4 review-token 흔들림 (572966b)
+ - 원인: 서명 32바이트 = base64url 43자 → 마지막 글자 아래 2비트는 버려짐 → 마지막 글자 A↔B 바꾸기가 같은 바이트로 풀릴 수 있었음(시험이 가끔 통과 못 함)
+ - 고침: 서명 가운데 글자를 바꿈('A'면 'g', 아니면 'A') · 바꾼 토큰이 원래와 다름을 먼저 확인 · 전체 2회 연속 통과
+
+건너뜀 + 사유
+ - 학교 밖 청소년 2020 6.9% — 인포그래픽에만 있음, 본문 표 없음
+ - 2020 결과보고서 원문 — 온라인 게시 없음
+ - drugfree.or.kr · KOSIS 의 마약류 사범 표 대조 — 이번에 하지 않음(대검 보도자료 + korea.kr 2개 해로 대조)
+ - 9개 한 번도 읽지 않은 출처 — 지시서 범위 밖 · 후속 후보
+ - 옛 lint 오류(e: any) — 이번 변경 밖
+
+정직 표기
+ - kcgp 2020·2018 분해값은 쪽 번호 없음: HWP 를 렌더할 수 없어 「본문 첫 문단 / 붙임2 표」로만 위치를 적음
+ - 지시서가 가정한 NYPI 는 발행처가 아님 — 관리센터 보도자료로 대신함
+ - 마약류 사범 값이 입건 기준인지 기소 기준인지 보도자료에 적혀 있지 않음(methodNote 에 그대로 적음)
+ - 마약 PDF 는 pdftotext 가 한글을 못 풀어 조사 에이전트가 쪽 그림을 보고 문구를 옮김 → 2023 · 2025 만 korea.kr 로 독립 대조
+ - backfill:relevance 54 vs 예상 51 — DB 없이 연구 전체 행 수를 셀 수 없어 확인 못 함
+ - seed:documents inserted 1(예상 0) — 새 출처의 대표 문서 · 기존 행 변경 0
+ - 조사 에이전트는 FINDINGS.md 를 쓰지 못함(하위 에이전트 쓰기 막힘) → 내려받은 파일은 scratchpad 에만, 저장소에 넣지 않음
+ - 「명령 하나씩」을 몇 번 어겼다: 몇몇 확인 명령을 && 로 이어 붙임(읽기 전용 확인 · 파일 변경 없음). 다음 회차부터 하나씩
+ - 이 보고서의 「다음 회차」 수(inserted 20 등)는 예측이며 미측
+
+규율 확인: 오너 액션 0 · 열쇠 값 0 · .env* 읽기·쓰기 0 · 운영 DB 직접 접속 0(API·코드만) · migration 추가 0(이번엔 스키마 변경 없음) · 기존 행 값 변경 0 · 지움 0 · 설치 0 · 다른 저장소 쓰기 0 · public/data/evidence_map/ 쓰기 0 · rebase/force 0 · git add 파일별 · push 전 git pull --ff-only(Statory 7ef1b94 까지만, 새 것 없음)
+
+다음 04:00 재확인 (10-15 목)
+ 1. /api/health/nightly lastRun status ok · 8/8 · last7Days runs 2 · failedRuns 0
+ 2. collect:indicators inserted 20 · skipped 32 · diff 0 (다르면 rejected 로그 확인)
+ 3. 2022 행 3개 fetchedAt 2026-10-09T07:22:15.487Z 그대로
+ 4. 홈 「오늘의 숫자」 = 마약류 사범 단속 인원 23,403명 · 2025 · 11점 sparkline
+ 5. drugfree_stats active · failCount 0 · missed 「발표 없음」 유지 · nightly monitor stale 0
+ 6. collect:research = updatedAt 만 · 공개 연구 내용 변경 0 · seed_diff 0
