@@ -1,0 +1,32 @@
+SOC-R5 지시서 — 둘째 회차 재확인 · 안 읽은 출처 9 첫 읽기 · 지표 넓히기 둘째 · 「오늘의 숫자」 날마다 순환 (중독사회 · 2026-10-15 목)
+
+위치판
+
+저장소 D:\addiction-society · main = 419835e(SOC-R4 보고서) ← e4d553e(07:49 배포 ✓). 끝난 것 SOC-0 · R1~R4(첫 밤 회차 ok 8/8 · 홈 오늘의 숫자 흡연율 ✓ · drugfree 회복 · 지표 5 → 7 예정).
+오늘 04:00 둘째 회차 = 미측(이 판 ■0): 기대 = inserted 20(지표 2 + 관측치 18) · skipped 32 · 2022 행 불변 · 홈 「마약류 사범 단속 인원 23,403명 · 2025 · 11점」 · drugfree active · research 내용 불변.
+한 번도 읽지 않은 출처 9(kocca_game · kdca_knhanes · kcgp_youth · nia_smartphone · who_whs · euda_statbulletin · unodc_wdr · unodc_wdr_trends · euda_edr) = 「다음 예정 30일 넘으면 안 읽음」 규칙 탓.
+도는 것: 이 저장소엔 없음 · LT14 의 public/data/evidence_map/ push 가능 → 그 폴더 쓰기 0 · push 전 git pull --ff-only. 실행자 · 가지 claude/soc-r5 · 오너 부재(저녁).
+
+목표 세 문장
+
+둘째 회차를 R4 재확인 6줄로 읽고 어긋남을 고친다.
+한 번도 읽지 않은 출처 9를 처음 읽어 감시를 살리고, 그중 연도별 공개 표가 있는 것(스마트폰 과의존 · 게임 이용 · WHO 알코올 · UNODC 약물)을 원본에서만 지표로 넣는다.
+첫 화면 「오늘의 숫자」가 날마다 다른 지표를 보이게 한다(시계열 2점 이상 지표를 날짜로 순환) — 고정된 한 숫자는 죽은 첫 화면.
+
+규율: 오너에게 묻지 말고 끝까지 계속 진행 · 오너 액션 0 · 열쇠 값 0 · .env* 0 · 운영 DB 직접 접속 0 · 스키마 = migration 덧붙임만 · 기존 행 값 변경 0(관측치 insert-only · 공식 도메인 목록에 who.int · unodc.org · euda.europa.eu 추가 가능 · URL·쪽 필수 · 더하기 0) · WHO 값 = 값+링크만(면허) · 지움 0 · 설치 0 · 다른 저장소 0 · evidence_map 폴더 쓰기 0 · Edit/Write 만 · 명령 하나씩(&& 0) · git add 파일별 · rebase/force 0 · 코드 머리 [skip render] 0 · 문서 [skip ci][skip render].
+
+■0 〔마디 1·2·3〕 저장 + 실측(읽기만): 지시서 docs/reports/202610/SOC-R5_instruction.txt · /api/health/nightly 둘째 회차 전문 · 홈 HTML(오늘의 숫자 · 쉼표) · 지표 7 · 관측치 45 · 2022 행 fetchedAt · drugfree_stats · 공개 연구 7 내용 · 출처 9 각 설정(URL · 방식 · 주기 · lastCheckedAt null 까닭) · 각 원본에 연도별 표가 있는지(NIA 스마트폰 과의존 실태조사 과의존 위험군 % 연도별 · KOCCA 게임이용자 실태조사 게임 이용률 % · WHO GHO 한국 1인당 알코올 소비 L 연도별 · UNODC WDR 세계 약물 사용자 수 연도별) · 표.
+
+■1 〔마디 1〕 둘째 회차 판정·수리: 6줄 대조 · 어긋나면 원인·수리 · 「다음 04:00 재확인」 줄.
+
+■2 〔마디 2〕 출처 9 첫 읽기: 규칙 「한 번도 안 읽은 출처는 다음 예정과 무관하게 첫 읽기 1회」(기준선 contentHash·lastPublishedAt · 사건 checked · 실패는 failCount) → 손 1회 실행 결과 표(9 × 상태코드·방식·기준선) · 시험 2.
+
+■3 〔마디 2〕 지표 넓히기 둘째(원본만 · insert-only · 검증 표): ⓐ 스마트폰 과의존 위험군 비율(전체 · 연도별 · NIA/과기정통부 공개 표) ⓑ 게임 이용률(KOCCA · 연도별) ⓒ WHO GHO 한국 1인당 알코올 소비(L · 연도별 · 값+링크) ⓓ UNODC 세계 약물 사용자 수(백만 명 · 연도별) — 실제 원본에서 읽힌 것만(≤4) · 소스 등록 insert-only · 시험 2.
+
+■4 〔마디 3〕 오늘의 숫자 순환: 후보 = 시계열 2점 이상 지표 전부 · 오늘(KST) 날짜 수 % 후보 수(code 순) = 결정적 · 「다른 숫자 보기 →」(지표 목록) · ko/en · 시험 2 · 운영 HTML 확인.
+
+■5 시험·배포·보고: jest 136+ · tsc 둘 · nest build · frontend build(바뀐 쪽) · main ff · push · health 25분 · Vercel 홈 200 · 보고서 docs/reports/202610/SOC-R5_<MMDD>.txt(■0 · 6줄 · 출처 9 표 · 관측치 검증 표 · 건너뜀+사유 · 정직 표기).
+
+하지 않는 것: 숨긴 44(오너) · 기존 행 값 변경 · evidence_map 쓰기 · 다른 저장소 · evidenceLevel(12월) · .env · 삭제 · rebase/force.
+
+손님에게 달라지는 것: 첫 화면 숫자가 날마다 바뀜 · 지표 7 → ≤11 · 관측소 출처 9 가 살아 움직임. LLM 의존: 0.
