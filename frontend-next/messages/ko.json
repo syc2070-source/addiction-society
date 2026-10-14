@@ -219,6 +219,7 @@
     "todayTitle": "오늘의 숫자",
     "todaySource": "출처",
     "todayMore": "지표 자세히 →",
+    "todayOthers": "다른 숫자 보기 → (날마다 {total}개 중 하나)",
     "mapTitle": "중독 연구의 지도",
     "mapDesc": "Statory 서재가 Europe PMC 서지에서 센 수입니다. 추정 값은 없습니다.",
     "mapStudies": "연구 {count}편",

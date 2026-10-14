@@ -219,6 +219,7 @@
     "todayTitle": "Today's number",
     "todaySource": "Source",
     "todayMore": "Indicator details →",
+    "todayOthers": "See other numbers → (one of {total}, changes daily)",
     "mapTitle": "A map of addiction research",
     "mapDesc": "Counted by the Statory library from the Europe PMC bibliography. No estimated values.",
     "mapStudies": "{count} studies",

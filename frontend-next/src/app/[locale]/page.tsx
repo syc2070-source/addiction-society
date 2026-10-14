@@ -24,6 +24,7 @@ import {
   loadEvidenceMap,
 } from '@/lib/evidenceMap';
 import { MINISTRY_MAP } from '@/data/ministry-map';
+import { pickTodaysNumber } from '@/lib/todayNumber';
 import styles from './page.module.css';
 
 /**
@@ -155,17 +156,19 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
     if (obs) featured.push({ indicator: detail.indicator, obs });
   }
 
-  // ⓐ 오늘의 숫자 — 전체값 시계열이 2점 이상인 지표 중 점이 가장 많은 것 하나. 없으면 숨김.
-  const today = seriesMeta
-    .map((m) => details.get(m.code))
-    .filter((d) => d !== undefined)
-    .map((d) => ({ indicator: d.indicator, series: totalSeries(d.observations) }))
-    .filter((c) => c.series.length >= 2)
-    .sort(
-      (a, b) =>
-        b.series.length - a.series.length ||
-        a.indicator.code.localeCompare(b.indicator.code),
-    )[0];
+  // ⓐ 오늘의 숫자 — 전체값 시계열이 2점 이상인 지표 전부를 후보로, 오늘(KST) 날짜로 하나씩
+  // 돌아가며(SOC-R5 ■4 · lib/todayNumber). 같은 날엔 같은 지표. 후보가 없으면 숨김.
+  const todayPick = pickTodaysNumber(
+    seriesMeta
+      .map((m) => details.get(m.code))
+      .filter((d) => d !== undefined)
+      .map((d) => {
+        const series = totalSeries(d.observations);
+        return { code: d.indicator.code, points: series.length, indicator: d.indicator, series };
+      }),
+    new Date(),
+  );
+  const today = todayPick?.pick;
   const sourceById = new Map<string, Source>(
     (sourceList?.data ?? []).map((s) => [s.id, s]),
   );
@@ -309,6 +312,12 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
             >
               {t('home.todayMore')}
             </Link>
+            {/* SOC-R5 ■4: 날마다 바뀐다 — 나머지 후보는 지표 목록에서 */}
+            {todayPick && todayPick.total > 1 && (
+              <Link href="/indicators" className={styles.blockLink}>
+                {t('home.todayOthers', { total: todayPick.total })}
+              </Link>
+            )}
           </section>
         )}
 
