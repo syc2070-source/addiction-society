@@ -1,0 +1,158 @@
+경보 0 (P0·P1 없음) — 둘째 밤 회차 ok 8/8 · R4 재확인 6줄 모두 맞음 · 한 번도 안 읽은 출처 9 → 10-15 09:00 감시에서 첫 읽기 9/9 checked(실패 0) · 단 kocca_game 기준선은 빈 본문 해시(아래 정직 표기) · 새 지표 4(관측치 53)는 배포가 아니라 10-16(금) 04:00 collect:indicators 가 넣는다(미측) · 「오늘의 숫자」 날마다 순환 운영 확인
+배포 확인 ① 07:31:33 (commit cb2c9ce · startedAt 2026-10-14T22:30:55Z · push 07:28:50) ② 07:48:13 (commit cef3ab4 · startedAt 2026-10-14T22:47:42Z · push 07:45:36 · 673f1c2 포함) · Vercel 홈 200
+SOC-R5 보고서 · 2026-10-15 · 실행 = 데스크탑 Claude Code (Opus 5.5) · 가지 claude/soc-r5 → main ff · 오너 액션 0
+
+주소
+ - 밤 예약 기록: https://addiction-society-api.onrender.com/api/health/nightly
+ - 첫 읽기 근거(9): https://addiction-society-api.onrender.com/api/sources/<id> · https://addiction-society-api.onrender.com/api/timeline?source=<id>&all=1
+ - 오늘의 숫자: https://www.addictionsociety.net (en: https://www.addictionsociety.net/en)
+ - 지표 목록(「다른 숫자 보기 →」 가는 곳): https://www.addictionsociety.net/indicators
+
+커밋 (모두 main · push 끝)
+| dd02eb5 | docs(soc-r5): 지시서 [skip ci] [skip render] |
+| cb2c9ce | ■2 fix(sources) 한 번도 안 읽은 출처는 다음 예정과 무관하게 첫 읽기 1회 |
+| 673f1c2 | ■4 feat(home) 「오늘의 숫자」 날마다 순환 · 「다른 숫자 보기 →」 |
+| cef3ab4 | ■3 feat(indicators) 스마트폰 과의존 · 게임 이용률 · WHO 한국 알코올 L · UNODC 세계 약물 사용자 |
+| (이 보고서) | docs(soc-r5): 보고서 [skip ci] [skip render] |
+
+시험 · 빌드
+ - jest 136 → 140 (17 suites) · ■3 뒤 2회 연속 통과
+ - 프런트 node --test 2 통과(src/lib/todayNumber.test.mts · 설치 0)
+ - tsc backend·frontend ok · nest build ok · next build ok
+ - 바꾼 파일 lint 깨끗 · 남은 lint 오류는 옛것(sources.scheduler.ts 의 e: any) — 이번에 손대지 않음
+
+■0 둘째 밤 회차 실측 (읽기 전용 · /api/health/nightly)
+runId 2e1a3dec-411b-484f-ae9e-98e635c99c25 · 2026-10-14T19:00:00.009Z → 19:01:25.312Z (= 10-15 04:00:00 ~ 04:01:25 KST) · status ok · 8/8 ok
+| 단계 | 초 | inserted | updated | skipped | diff |
+| seed:sources | 1 | 0 | 0 | 24 | 0 |
+| backfill:next | 1 | 0 | 0 | 24 | 0 |
+| seed:recovery | 1 | 0 | 0 | 73 | 0 |
+| collect:indicators | 1 | 20 | 0 | 32 | 0 |
+| seed:documents | 43 | 0 | 0 | 30 | 0 |
+| collect:research | 35 | 0 | 48 | 0 | 0 |
+| backfill:relevance | 1 | 0 | 0 | 0 | 0 |
+| collect:broadcasts | 1 | 0 | 0 | 0 | 0 |
+totals inserted 20 · updated 48 · skipped 183 · diff 0 · last7Days runs 2 · failedRuns 0 · monitor sources 24 · stale 0 · unreachable 0
+
+■1 R4 재확인 6줄 판정 — 6/6 맞음 · 고칠 것 없음
+| # | R4 예상 | 실측 | 판정 |
+| 1 | nightly ok · 8/8 · runs 2 · failedRuns 0 | ok · 8/8 · runs 2 · failedRuns 0 | ✓ |
+| 2 | collect:indicators inserted 20 · skipped 32 · diff 0 | 20 · 32 · 0 (지표 7 · 관측치 45 · spo_drug_offenders_total·kcgp_youth_v2 updatedAt 10-14T19:00:04) | ✓ |
+| 3 | 2022 행 3개 fetchedAt 2026-10-09T07:22:15.487Z | 4.8 · 3.9 · 0.9 · fetchedAt 같음 · status approved | ✓ |
+| 4 | 홈 = 마약류 사범 23,403명 · 2025 · 11점 | 「마약류 사범 단속 인원 23,403 명 · 2025 · 출처 대검찰청」 + 11점 sparkline (■4 배포 전) | ✓ |
+| 5 | drugfree_stats active · failCount 0 · monitor stale 0 | active · failCount 0 · lastCheckedAt 10-14T00:00:00.030Z · lastPublishedAt 2026-03-09 · next 2026-11-01 · stale 0 | ✓ |
+| 6 | collect:research updatedAt 만 · 내용 변경 0 · seed_diff 0 | 공개 연구 7 · 제목·초록·저자·연도·status·doi = 10-10 사본 · updatedAt 만 바뀜(id 53·52·29·1 → 10-14T19:01 · 45·44·43 그대로) · diff 0 | ✓ |
+
+■2 한 번도 안 읽은 출처 9 첫 읽기 (cb2c9ce)
+원인
+ - 9개 모두 active · failCount 0 · lastCheckedAt null · nextExpectedAt 30일 넘게 뒤 → 매일 09:00 감시는 nextExpectedAt <= 오늘+30 만 읽어서 한 번도 차례가 오지 않았다
+규칙 「한 번도 안 읽은 출처는 다음 예정과 무관하게 첫 읽기 1회」
+ - DAILY_DUE_WHERE = (lastCheckedAt IS NULL OR (nextExpectedAt IS NOT NULL AND nextExpectedAt <= 오늘+30)) · 판정 순수 함수 isDailyDue · 로그에 「첫 읽기 n」
+ - 첫 읽기는 성공·실패와 무관하게 lastCheckedAt 을 채움 → 한 번만 끼고 다음날부터 원래 일정대로
+ - 성공: 게시판 아닌 출처는 contentHash · ETag · Last-Modified 중 하나를 기준선으로 저장 · checked 사건 · lastPublishedAt 은 게시판 출처만 채움
+ - 실패: failCount 1 · failed 사건 · active 유지
+ - 시험 2: ① 안 읽은 출처가 매일 회차에 한 번 끼고 handleDailyMonitor 가 DAILY_DUE_WHERE 를 씀 ② 첫 읽기 해시 기준선 = checked · 실패는 수만 셈
+ - 「손 1회 실행」 = 09:00 전에 배포해 10-15 09:00 KST 실제 감시 크론이 돌림(DB 직접 접속 0 · 관리 호출 0)
+
+결과 표 (09:12 API 읽기 · 시각은 UTC = +9 KST)
+| 출처 | 방식(설정) | 읽은 시각 | 사건 | 기준선 | status · failCount | 다음 예정 |
+| who_whs | pdf | 00:00:00.023Z | ev 256 checked | Last-Modified 「Wed, 14 Oct 2026 15:39:58 GMT」 | active · 0 | 2027-05-01 |
+| unodc_wdr | csv | 00:00:05.267Z | ev 258 checked | hash 972566cf… | active · 0 | 2027-06-01 |
+| euda_statbulletin | csv | 00:00:12.123Z | ev 260 checked | hash 844a3e87… | active · 0 | 2027-06-01 |
+| nia_smartphone | pdf | 00:00:20.838Z | ev 263 checked | hash 806ba77c… | active · 0 | 2027-03-01 |
+| kocca_game | pdf | 00:00:24.103Z | ev 264 checked | hash e3b0c442…(빈 본문 · 아래) | active · 0 | 2026-12-01 |
+| unodc_wdr_trends | csv | 00:00:26.987Z | ev 265 checked | ETag "1792017731" | active · 0 | 2027-06-01 |
+| euda_edr | pdf | 00:00:30.113Z | ev 266 checked | hash 844a3e87…(euda_statbulletin 과 같은 URL) | active · 0 | 2027-06-01 |
+| kcgp_youth | csv | 00:00:33.491Z | ev 267 checked | hash 7c18711d… | active · 0 | 2027-02-01 |
+| kdca_knhanes | html | 00:00:36.956Z | ev 268 checked | hash 0b6ecccd… | active · 0 | 2027-01-01 |
+ - 9/9 checked · failed 0 · blocked 0 · 그날 nightly monitor 24 · stale 0 · unreachable 0
+ - 상태코드는 앱이 저장하지 않음 → 사건 종류 + 판정 방식(last-modified · etag · hash)으로 적음. checked 이므로 HEAD/GET 은 2xx(403/405 면 blocked, 그 밖은 failed 로 남음)
+ - lastPublishedAt: kocca_game 2025-12-18 · nia_smartphone 2026-03-27 은 첫 읽기 전부터 있던 값(10-15 아침 사본과 같음) — 이번 첫 읽기가 채운 것 아님
+
+■3 지표 넓히기 둘째 (cef3ab4) — 지표 4 · 관측치 53 · 10-16 04:00 collect:indicators 가 넣음(미측)
+ - 공식 도메인 추가: who.int · unodc.org · euda.europa.eu(지시서 허용) + nia.or.kr · kocca.kr(아래 정직 표기)
+ - ghoapi.azureedge.net 은 공식 목록에 넣지 않음 → 값 읽기에만 쓰고 출처 링크는 who.int
+ - 시험 2: ① 10-15 운영 상태(지표 7 · 관측치 45)에서 다음 회차는 R5 파일만 insert · 45행 그대로 · diff 0 ② 국제 호스트 허용 · ghoapi·위장 호스트 거부 · WHO 표마다 「값 [low - high]」 문구
+ - 다음 회차 예상: inserted 4 + 53 = 57 · skipped 7 + 45 = 52 · diff 0 → 지표 11 · 관측치 98
+
+관측치 검증 표 (53)
+ⓐ nia_smartphone_overdependence_rate · % · D2 · sourceId nia_smartphone (10점)
+| 연도 | 값 | 원본 URL | 쪽·문구 |
+| 2016 | 17.8 | msit nttSeqNo=1325370 | 보도자료 본문 |
+| 2017 | 18.6 | msit nttSeqNo=1374954 | 보도자료 본문 |
+| 2018 | 19.1 | msit nttSeqNo=1564332 | 보도자료 본문 |
+| 2019 | 20.0 | msit nttSeqNo=2629605 | 보도자료 본문 |
+| 2020 | 23.3 | msit nttSeqNo=3180014 | 보도자료 본문 |
+| 2021 | 24.2 | nia Download.do?bcIdx=24288&cbIdx=65914&fileNo=2 | p.34 「24.2%로 … 0.9%p 상승」 |
+| 2022 | 23.6 | nia Download.do?bcIdx=25356&cbIdx=65914&fileNo=1 | p.20 「23.6%로 전년 대비 0.6%p 하락」 |
+| 2023 | 23.1 | msit nttSeqNo=3184252 | 보도자료 본문 |
+| 2024 | 22.9 | msit nttSeqNo=3185618 | 보도자료 본문 |
+| 2025 | 22.7 | msit nttSeqNo=3187077 | 보도자료 본문 · 2025 보고서 p.38 계열 「17.8 18.6 19.1 20.0 23.3 24.2 23.6 23.1 22.9 22.7」 |
+ msit 주소 꼴: https://www.msit.go.kr/bbs/view.do?sCode=user&mId=307&mPid=208&bbsSeqNo=94&nttSeqNo=… · 2021(3181550)·2022(3182854) 보도자료 쪽은 본문이 렌더되지 않아 NIA 보고서로 대신함 · 2021·2022 문구와 2025 계열 줄은 직접 대조
+ⓑ kocca_game_usage_rate · % · D2 · sourceId kocca_game (10점 · 쪽 = 인쇄 쪽)
+| 연도 | 값 | 보고서 ID | 쪽 |
+| 2016 | 67.9 | 1831102 | p13 |
+| 2017 | 70.3 | 1833674 | p11 |
+| 2018 | 67.2 | 1836595 | p11 |
+| 2019 | 65.7 | 1840157 | p11 |
+| 2020 | 70.5 | 1842858 | p11 |
+| 2021 | 71.3 | 1845578 | p13 |
+| 2022 | 74.4 | 2001145 | p13 |
+| 2023 | 62.9 | 2004168 | p13 |
+| 2024 | 62.8 | 2007554 | p13 (10~64세 기준 · 머리값 59.9 는 10~69세) |
+| 2025 | 52.7 | 2010445 | p15 (10~64세 기준 · 머리값 50.2 는 10~69세) |
+ 주소 꼴: https://www.kocca.kr/kocca/bbs/view/B0000147/<ID>.do?menuNo=204153 (쪽 제목의 연도로 ID 확인)
+ⓒ who_alcohol_per_capita_kr · L(순수 알코올) · D0 · sourceId who_gho_alcohol (25점 · 값+링크만)
+ 링크: https://www.who.int/data/gho/data/indicators/indicator-details/GHO/total-(recorded-unrecorded)-alcohol-per-capita-(15-)-consumption
+ 쪽 제목 「Alcohol, total per capita (15+) consumption (in litres of pure alcohol) (SDG Indicator 3.5.2)」 · GHO SA_0000001688 · KOR · SEX_BTSX · 갱신 2026-06-15 · WHO 표시값(소수 1자리) + [low - high]
+| 2000 11.0 | 2001 11.0 | 2002 10.7 | 2003 10.0 | 2004 9.8 | 2005 9.6 | 2006 9.5 | 2007 9.6 | 2008 9.6 | 2009 9.6 |
+| 2010~2015 9.4 (6해) | 2016 9.3 | 2017 9.1 | 2018 8.9 | 2019 8.7 | 2020 8.5 | 2021 8.4 | 2022 8.3 | 2023 8.3 | 2024 8.3 |
+ⓓ unodc_global_drug_users · 백만 명 · D0 · geo WORLD · sourceId unodc_wdr (8점 · page = PDF 쪽(#page) · 인쇄 쪽은 표에)
+| 연도 | 값 | 범위 | 출처 |
+| 2017 | 271 | 201–341 | WDR 2019 Booklet 2 (wdr.unodc.org) p11 |
+| 2018 | 269 | 166–373 | WDR 2020 Booklet 2 p12 |
+| 2019 | 275 | 175–374 | WDR 2021 Booklet 2 p19 |
+| 2020 | 284 | 185–384 | WDR 2022 Booklet 2 p15 |
+| 2021 | 296 | — | WDR 2023 Executive summary p12 |
+| 2022 | 292 | — | WDR 2024 Key findings p44 |
+| 2023 | 316 | — | WDR 2025 Key findings p48 |
+| 2024 | 331 | — | WDR 2026 Highlights p70 |
+ PDF URL 모두 206 응답 확인 · UNODC 의 「판(edition) 간 비교 주의」 문구를 methodNote 에 넣음
+
+■4 「오늘의 숫자」 날마다 순환 (673f1c2)
+ - 후보 = 전체값 계열 2점 이상인 지표 전부 · code 오름차순 · 자리 = KST 날짜 수(1970-01-01 부터) % 후보 수 → 같은 날 = 누구에게나 같은 숫자 · KST 자정에 바뀜
+ - 「다른 숫자 보기 → (날마다 {total}개 중 하나)」 / en 「See other numbers → (one of {total}, changes daily)」 → /indicators · 키 home.todayOthers (ko·en)
+ - 시험 2(node --test): ① 같은 KST 날 = 같은 숫자 · 다음날 = 다음 후보 · 7일이면 7개 한 번씩 · UTC 아닌 KST 자정 ② 입력 순서·점 수와 무관하게 code 순 · 후보 0 → null
+ - 운영 HTML 확인(10-15): dayNumber 20741 % 7 = 0 → kcgp_youth_gambling_atrisk_rate · 홈 「청소년 도박문제 위험군(YELLOW) 비율 3.9 % · 2022 · 출처 한국도박문제예방치유원」 + 「다른 숫자 보기 → (날마다 7개 중 하나)」 · en 「Youth gambling at-risk (yellow) rate 3.9 % … See other numbers → (one of 7, changes daily)」 — 시험 예측과 같음 ✓
+
+건너뜀 + 사유
+ - KOCCA 2015(74.5%) — 조사 대상 10~59세로 2016 이후와 다름
+ - NIA 2016 이전(8.4~16.2%) — 보고서가 「단순비교 불가」라고 적음
+ - WHO SA_0000001400(기록분·주종별) · SA_0000001465(한국 값 없음) — 쓰지 않음
+ - KOSIS · index.go.kr 대조 — 이번에 하지 않음
+ - kocca_game 감시 URL 바꾸기 — 기존 행 값 변경 0 규율 → 후속 후보(아래)
+ - 옛 lint 오류(e: any) — 이번 변경 밖
+
+정직 표기
+ - kocca_game 기준선 e3b0c442… = 빈 문자열의 SHA-256. welcon.kocca.kr/ 는 109바이트 `<script>location.href = "/ko/main";</script>` 만 돌려주고, 해시 전 정규화가 script 를 지워 본문이 비게 됨 → 이 출처는 앞으로도 「바뀜」을 볼 수 없다. 첫 읽기 자체는 성공(checked)이지만 쓸모 있는 기준선은 아님. 고침은 URL 을 /ko/main 으로 바꾸거나 JS 이동을 따라가기 — 출처 행 값 변경이라 이번엔 하지 않음(후속 후보)
+ - euda_statbulletin · euda_edr 는 같은 URL → 같은 해시 · 감시가 두 번 읽음
+ - 「손 1회 실행」은 사람이 누른 것이 아니라 09:00 실제 감시 크론(그 전에 배포) · 상태코드는 저장되지 않아 표에 없음
+ - nia.or.kr · kocca.kr 공식 도메인 추가는 지시서가 이름 댄 3개 밖 — 둘 다 해당 조사의 발행처라 내 판단으로 넣음
+ - KOCCA: 2024·2025 는 보고서가 직접 찍은 10~64세 값(머리값 10~69세와 다름) · 2023 설계 변경(n 10,000)과 −11.5%p 하락이 겹침 · 2022 연령 범위 표기가 10~64/10~65 로 엇갈리고 2025 보고서는 2022 N 을 3,000 으로 적음 · PDF 는 form POST 로만 내려받아 착지 쪽을 인용
+ - WHO: 2000=2001 · 2023=2024 원값이 같음(앞 값을 이어 쓴 것으로 보임) · 값+링크만(면허)
+ - UNODC: 2021~2024 는 범위 없음 · 값마다 다른 판(edition)의 머리값 · WDR 2021 본문 안에 274/275 엇갈림 · page = PDF 쪽(다른 지표는 인쇄 쪽)
+ - NIA: msit 2021·2022 보도자료 쪽은 본문이 비어 NIA 보고서로 대신함
+ - 조사 에이전트는 PDF 를 pdftotext·쪽 그림으로 읽음 · 내려받은 파일은 scratchpad 에만, 저장소에 넣지 않음
+ - 프런트 시험은 Node 형 지우기로 돌아 MODULE_TYPELESS_PACKAGE_JSON 경고가 남 · tsconfig 에 allowImportingTsExtensions 추가(noEmit 이미 켜짐)
+ - && 는 쓰지 않았으나, 읽기 전용 확인 몇 번은 ; 로 두 명령을 이어 붙임(파일 변경·git 명령 아님)
+ - 10-16 의 수(inserted 57 등)와 홈 숫자는 예측이며 미측
+
+규율 확인: 오너 액션 0 · 열쇠 값 0 · .env* 읽기·쓰기 0 · 운영 DB 직접 접속 0(API·코드만) · migration 추가 0(스키마 변경 없음) · 기존 행 값 변경 0(관측치 insert-only) · 지움 0 · 설치 0 · 다른 저장소 쓰기 0 · public/data/evidence_map/ 쓰기 0 · rebase/force 0 · git add 파일별 · && 0 · push 전 git pull --ff-only(매번 Already up to date)
+
+다음 04:00 재확인 (10-16 금)
+ 1. /api/health/nightly lastRun status ok · 8/8 · last7Days runs 3 · failedRuns 0
+ 2. collect:indicators inserted 57 · skipped 52 · diff 0 → 지표 11 · 관측치 98 (다르면 rejected 로그 확인)
+ 3. 2022 행 3개 fetchedAt 2026-10-09T07:22:15.487Z 그대로 · 기존 45행 변경 0
+ 4. 홈 「오늘의 숫자」 = dayNumber 20742 % 11 = 7 → code 순 8번째 nia_smartphone_overdependence_rate 「22.7 % · 2025」 + 「(날마다 11개 중 하나)」 (페이지 캐시가 04:00 뒤 갱신된 다음)
+ 5. 첫 읽기 9 출처 lastCheckedAt 그대로 · 10-16 09:00 감시에 다시 끼지 않음(첫 읽기 0) · drugfree_stats active · monitor stale 0
+ 6. collect:research = updatedAt 만 · 공개 연구 내용 변경 0 · seed_diff 0
