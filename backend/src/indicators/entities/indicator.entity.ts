@@ -62,6 +62,13 @@ export class Indicator {
   @Column({ name: 'source_id', type: 'text', nullable: true })
   sourceId: string | null;
 
+  /**
+   * 조사 설계 변경 해(SOC-R6 ■2). 이 해의 관측치는 앞 해와 직접 비교하지 않는다 —
+   * 추세선은 이 해 앞에서 끊고(점선) 「조사 설계 변경(연도)」 꼬리를 단다. 값 변경 0.
+   */
+  @Column('int', { array: true, nullable: true, name: 'break_years' })
+  breakYears: number[] | null;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 

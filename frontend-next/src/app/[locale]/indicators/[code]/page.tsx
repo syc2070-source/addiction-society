@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import type { AppLocale } from '@/i18n/routing';
 import { Link } from '@/i18n/navigation';
 import { fetchIndicator, type Observation } from '@/lib/api';
+import { seriesBreakYears, splitAtBreaks } from '@/lib/seriesBreaks';
 
 /** 지표 상세 (/indicators/{code}) — 정의·읽는 법 + 추이(시계열 차트) + 분해 + 원본 딥링크(원칙3). */
 
@@ -29,8 +30,17 @@ function byPeriod(a: Observation, b: Observation) {
   return a.period.localeCompare(b.period);
 }
 
-/** 전체 시계열(qualifier='total')로 초소형 SVG 라인차트. 2점 이상일 때만 호출. */
-function Sparkline({ series }: { series: Observation[] }) {
+/**
+ * 전체 시계열(qualifier='total')로 초소형 SVG 라인차트. 2점 이상일 때만 호출.
+ * SOC-R6 ■2: 조사 설계 변경 해(breakYears)에서 실선을 끊고 토막 사이를 점선으로 잇는다.
+ */
+function Sparkline({
+  series,
+  breakYears,
+}: {
+  series: Observation[];
+  breakYears?: number[] | null;
+}) {
   const W = 560;
   const H = 180;
   const PAD = 28;
@@ -41,7 +51,11 @@ function Sparkline({ series }: { series: Observation[] }) {
   const n = series.length;
   const x = (i: number) => PAD + (i * (W - 2 * PAD)) / (n - 1);
   const y = (v: number) => H - PAD - ((v - min) / span) * (H - 2 * PAD);
-  const pts = series.map((o, i) => `${x(i)},${y(Number(o.value))}`).join(' ');
+  const pt = (i: number) => `${x(i)},${y(vals[i])}`;
+  const segs = splitAtBreaks(
+    series.map((o) => o.period),
+    breakYears,
+  );
 
   return (
     <svg
@@ -50,7 +64,23 @@ function Sparkline({ series }: { series: Observation[] }) {
       role="img"
       preserveAspectRatio="xMidYMid meet"
     >
-      <polyline className="spark-line" points={pts} fill="none" />
+      {segs.slice(1).map((seg, k) => (
+        <polyline
+          key={`b${seg[0]}`}
+          className="spark-break"
+          points={`${pt(segs[k][segs[k].length - 1])} ${pt(seg[0])}`}
+        />
+      ))}
+      {segs
+        .filter((seg) => seg.length > 1)
+        .map((seg) => (
+          <polyline
+            key={`s${seg[0]}`}
+            className="spark-line"
+            points={seg.map(pt).join(' ')}
+            fill="none"
+          />
+        ))}
       {series.map((o, i) => {
         const cx = x(i);
         const cy = y(Number(o.value));
@@ -111,6 +141,13 @@ export default async function IndicatorDetailPage({
     totalSeries.map((o) => o.note ?? '').filter(Boolean),
   );
   const seriesBreak = hasTrend && seriesNotes.size > 1;
+  // SOC-R6 ■2: 지표 메타의 조사 설계 변경 해 중 이 시계열 안에 드는 것
+  const designBreaks = hasTrend
+    ? seriesBreakYears(
+        totalSeries.map((o) => o.period),
+        indicator?.breakYears,
+      )
+    : [];
 
   return (
     <main className="page-container">
@@ -162,7 +199,15 @@ export default async function IndicatorDetailPage({
                 {seriesBreak && (
                   <p className="status-note">{t('comparabilityWarning')}</p>
                 )}
-                <Sparkline series={totalSeries} />
+                <Sparkline
+                  series={totalSeries}
+                  breakYears={indicator.breakYears}
+                />
+                {designBreaks.length > 0 && (
+                  <p className="status-note">
+                    {tc('designChange', { years: designBreaks.join(' · ') })}
+                  </p>
+                )}
                 {seriesBreak && (
                   <ul className="series-notes">
                     {totalSeries

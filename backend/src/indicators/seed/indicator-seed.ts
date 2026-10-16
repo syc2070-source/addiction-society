@@ -39,6 +39,8 @@ export interface IndicatorRow {
   definitionKo: string;
   methodNote: string | null;
   sourceId?: string | null;
+  /** 조사 설계 변경 해(SOC-R6 ■2 · break-years.ts 와 같아야 함) */
+  breakYears?: number[];
   /** 이 지표 관측치의 기본 원본 URL(관측치에 sourceUrl 이 없을 때) */
   sourceUrl?: string;
   /** 이 지표 관측치에 공통으로 붙는 단서 */
@@ -166,6 +168,7 @@ export async function seedIndicatorFile(
         definitionKo: row.definitionKo,
         methodNote: row.methodNote ?? undefined,
         sourceId: row.sourceId ?? file.sourceId ?? null,
+        breakYears: row.breakYears ?? undefined,
       },
       row.code,
     );

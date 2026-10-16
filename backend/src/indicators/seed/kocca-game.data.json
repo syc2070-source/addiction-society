@@ -4,6 +4,7 @@
   "indicators": [
     {
       "code": "kocca_game_usage_rate",
+      "breakYears": [2023],
       "domain": "D2",
       "nameKo": "게임 이용률 (최근 1년 · 만 10~64·65세)",
       "nameEn": "Game usage rate, past year (ages 10–64/65)",

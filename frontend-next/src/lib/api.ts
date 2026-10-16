@@ -214,6 +214,8 @@ export interface Indicator {
   definitionKo: string;
   methodNote: string | null;
   sourceId: string | null;
+  /** 조사 설계 변경 해(SOC-R6 ■2) — 추세선을 이 해 앞에서 끊는다. 구버전 API 는 없음. */
+  breakYears?: number[] | null;
   observationCount?: number;
 }
 

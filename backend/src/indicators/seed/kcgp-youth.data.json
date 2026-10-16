@@ -5,6 +5,7 @@
   "indicators": [
     {
       "code": "kcgp_youth_gambling_problem_rate",
+      "breakYears": [2020, 2022],
       "domain": "D1",
       "nameKo": "청소년 도박문제 수준(위험군+문제군) 비율",
       "nameEn": "Youth gambling problem severity rate (at-risk + problem)",
@@ -44,6 +45,7 @@
     },
     {
       "code": "kcgp_youth_gambling_atrisk_rate",
+      "breakYears": [2020, 2022],
       "domain": "D1",
       "nameKo": "청소년 도박문제 위험군(YELLOW) 비율",
       "nameEn": "Youth gambling at-risk (yellow) rate",
@@ -83,6 +85,7 @@
     },
     {
       "code": "kcgp_youth_gambling_problem_group_rate",
+      "breakYears": [2020, 2022],
       "domain": "D1",
       "nameKo": "청소년 도박문제 문제군(RED) 비율",
       "nameEn": "Youth gambling problem group (red) rate",

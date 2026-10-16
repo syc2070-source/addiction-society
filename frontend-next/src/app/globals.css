@@ -557,6 +557,14 @@ a {
   fill: var(--accent);
 }
 
+/* SOC-R6 ■2: 조사 설계 변경 해 — 토막 사이 점선 */
+.spark-break {
+  stroke: var(--text-faint);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 4;
+  fill: none;
+}
+
 .spark-val {
   fill: var(--text-main);
   font-size: 11px;

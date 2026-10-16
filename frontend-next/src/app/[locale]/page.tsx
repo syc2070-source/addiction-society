@@ -25,6 +25,7 @@ import {
 } from '@/lib/evidenceMap';
 import { MINISTRY_MAP } from '@/data/ministry-map';
 import { pickTodaysNumber } from '@/lib/todayNumber';
+import { seriesBreakYears, splitAtBreaks } from '@/lib/seriesBreaks';
 import styles from './page.module.css';
 
 /**
@@ -64,8 +65,17 @@ function pickFeatured(indicators: Indicator[]): Indicator[] {
     .slice(0, 2);
 }
 
-/** 오늘의 숫자 작은 추세선 — 2점 이상일 때만. */
-function MiniTrend({ series }: { series: Observation[] }) {
+/**
+ * 오늘의 숫자 작은 추세선 — 2점 이상일 때만.
+ * SOC-R6 ■2: 조사 설계 변경 해(breakYears)에서 선을 끊고 토막 사이를 점선으로 잇는다.
+ */
+function MiniTrend({
+  series,
+  breakYears,
+}: {
+  series: Observation[];
+  breakYears?: number[] | null;
+}) {
   const W = 220;
   const H = 48;
   const P = 4;
@@ -74,6 +84,11 @@ function MiniTrend({ series }: { series: Observation[] }) {
   const span = Math.max(...vals) - min || 1;
   const x = (i: number) => P + (i * (W - 2 * P)) / (series.length - 1);
   const y = (v: number) => H - P - ((v - min) / span) * (H - 2 * P);
+  const segs = splitAtBreaks(
+    series.map((o) => o.period),
+    breakYears,
+  );
+  const pt = (i: number) => `${x(i)},${y(vals[i])}`;
   return (
     <svg
       className={styles.todaySpark}
@@ -81,10 +96,30 @@ function MiniTrend({ series }: { series: Observation[] }) {
       role="img"
       aria-label={series.map((o) => `${o.period} ${o.value}`).join(', ')}
     >
-      <polyline
-        className={styles.todaySparkLine}
-        points={vals.map((v, i) => `${x(i)},${y(v)}`).join(' ')}
-      />
+      {segs.slice(1).map((seg, k) => (
+        <polyline
+          key={`b${seg[0]}`}
+          className={styles.todaySparkBreak}
+          points={`${pt(segs[k][segs[k].length - 1])} ${pt(seg[0])}`}
+        />
+      ))}
+      {segs.map((seg) =>
+        seg.length > 1 ? (
+          <polyline
+            key={`s${seg[0]}`}
+            className={styles.todaySparkLine}
+            points={seg.map(pt).join(' ')}
+          />
+        ) : segs.length > 1 ? (
+          <circle
+            key={`s${seg[0]}`}
+            className={styles.todaySparkDot}
+            cx={x(seg[0])}
+            cy={y(vals[seg[0]])}
+            r={2.5}
+          />
+        ) : null,
+      )}
     </svg>
   );
 }
@@ -176,6 +211,13 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
     ? sourceById.get(today.indicator.sourceId)
     : undefined;
   const todayLatest = today?.series[today.series.length - 1];
+  // SOC-R6 ■2: 이 시계열 안에서 실제로 선을 끊는 조사 설계 변경 해(꼬리 한 줄)
+  const todayBreaks = today
+    ? seriesBreakYears(
+        today.series.map((o) => o.period),
+        today.indicator.breakYears,
+      )
+    : [];
 
   // ⓒ 이번 달 발표 예정(달력 데이터 = next_expected_at 이 이번 달).
   // SOC-R3 ■4: 예정은 월 단위 — 이번 달 것은 그 달 말일까지 「지나지 않은」 예정이다.
@@ -305,7 +347,15 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
                 {t('common.viewOriginal')}
               </a>
             </div>
-            <MiniTrend series={today.series} />
+            <MiniTrend
+              series={today.series}
+              breakYears={today.indicator.breakYears}
+            />
+            {todayBreaks.length > 0 && (
+              <p className={styles.todayBreakNote}>
+                {t('common.designChange', { years: todayBreaks.join(' · ') })}
+              </p>
+            )}
             <Link
               href={`/indicators/${today.indicator.code}`}
               className={styles.blockLink}

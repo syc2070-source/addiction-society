@@ -94,6 +94,7 @@
     "prev": "Prev",
     "next": "Next",
     "viewOriginal": "View original ↗",
+    "designChange": "Survey design changed ({years}) — do not compare directly across the dashed line",
     "unavailable": "Failed to load data — collecting"
   },
   "sources": {

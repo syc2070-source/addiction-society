@@ -587,6 +587,24 @@
   fill: none;
 }
 
+/* SOC-R6 ■2: 조사 설계 변경 — 토막 사이는 점선, 한 점짜리 토막은 점 */
+.todaySparkBreak {
+  stroke: var(--text-faint);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 3;
+  fill: none;
+}
+
+.todaySparkDot {
+  fill: var(--secondary);
+}
+
+.todayBreakNote {
+  margin: 0 0 var(--space-1);
+  font-size: 0.8rem;
+  color: var(--text-faint);
+}
+
 .monthList {
   list-style: none;
   margin: 0 0 var(--space-1);
