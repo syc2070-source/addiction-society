@@ -54,6 +54,8 @@ export const DAILY_STEPS: readonly DailyStep[] = [
   { name: 'backfill:relevance', entry: 'research/seed/backfill-relevance' },
   // 중독뉴스 공개 API 방송 → 연대기 「방송」 줄 (SOC-R1 ■7).
   { name: 'collect:broadcasts', entry: 'sources/seed/collect-broadcasts' },
+  // 마지막: 홈 ko·en on-demand 재굽기 + 데우기 — 아침 첫 손님도 오늘 숫자 (SOC-R6 ■3).
+  { name: 'refresh:home', entry: 'scheduler/refresh-home' },
 ];
 
 export interface StepResult {

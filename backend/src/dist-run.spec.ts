@@ -94,7 +94,8 @@ describe('dist (빌드 산출물) 실행 길', () => {
     expect(r.globs.every((g) => g.endsWith('.js'))).toBe(true);
   });
 
-  it('the daily runner loads from dist with the same 8 steps, each a real dist .js', () => {
+  // SOC-R6 ■3: 8 → 9 단계(마지막 refresh:home)
+  it('the daily runner loads from dist with the same 9 steps, each a real dist .js', () => {
     const { status, out } = runNode(`
       const m = require(${js(join(DIST, 'scheduler', 'daily-jobs.scheduler.js'))});
       const fs = require('fs');
@@ -112,7 +113,7 @@ describe('dist (빌드 산출물) 실행 길', () => {
       exists: boolean;
     }[];
     expect(steps.map((s) => s.name)).toEqual(DAILY_STEPS.map((s) => s.name));
-    expect(steps).toHaveLength(8);
+    expect(steps).toHaveLength(9);
     for (const s of steps) {
       expect(s.file.replace(/\\/g, '/')).toContain('/dist/');
       expect(s.file.endsWith('.js')).toBe(true);
