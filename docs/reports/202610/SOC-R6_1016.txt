@@ -1,0 +1,114 @@
+경보 0 (P0·P1 없음) — 감시 URL 2 수정(사건 2 기록) · ⑤ 첫 읽기 9 출처 09:00 에 다시 끼지 않음 ✓ · 설계 변경 계열 4 추세선 끊김+꼬리(값 변경 0) · 04:00 예약 마지막 단계 refresh:home(홈 ko·en 재굽기) · npm audit 운영 경로 critical·high 0 · jest 145/145 · 배포 4296f79 (Render·Vercel)
+
+SOC-R6 보고 — 2026-10-16(금) · 실행자 Claude · 가지 claude/soc-r6 → main ff · 오너 액션 0
+ - 지시서: docs/reports/202610/SOC-R6_instruction.txt
+ - 읽기 근거: https://addiction-society-api.onrender.com/api/sources · /api/timeline?all=1 · /api/indicators · /api/observations · /api/health/nightly · https://www.addictionsociety.net (API·공개 HTML 만, DB 직접 접속 0)
+
+커밋
+| becd3f5 | ■1 fix(sources) 감시 URL 2 · migration · source_updated 사건 · 연대기 이름표 ko/en |
+| 47dc247 | ■2 feat(indicators) break_years 열 · 추세선 끊김(점선 다리) · 꼬리 ko/en |
+| 94e1da7 | ■3 feat(nightly) 마지막 단계 refresh:home · /api/revalidate/home |
+| cc2f7ad | ■4 chore(deps) npm audit fix(semver 안) · next 16.2.10 → 16.4.2 |
+| 4296f79 | ■1 test 정리(lint) |
+
+■0 실측 표
+| # | 항목 | 실측 | 판정 |
+|---|---|---|---|
+| ⑤ | 첫 읽기 9 출처 09:00(10-16) | 13:27 KST 읽기: who_whs 00:00:00.023Z · unodc_wdr 05.267Z · euda_statbulletin 12.123Z · nia_smartphone 20.838Z · kocca_game 24.103Z · unodc_wdr_trends 26.987Z · euda_edr 30.113Z · kcgp_youth 33.491Z · kdca_knhanes 36.956Z (모두 10-15T00:00, 10-15 보고서 값과 ms 까지 같음) · 10-16 09:00 에 읽힌 것 = 예정일 규칙 대상 4(mohw_addiction_center · spo_drug_monthly · drugfree_stats · hri_gshr) | ✓ 다시 끼지 않음 |
+| 셋째 회차 | 10-16 04:00 | status ok · 8/8 ok · collect:indicators ins 57 · skip 52 · diff 0 · collect:research upd 48 · 합계 ins 57 · upd 48 · skip 203 · diff 0 · last7Days runs 3 · failed 0 · monitor 24 · stale 0 · unreachable 0 · 지표 11 · 관측치 98 | ✓ |
+| | 2022 kcgp 3행 | 4.8 · 3.9 · 0.9 · fetchedAt 2026-10-09T07:22:15.487Z 그대로 · 기존 45행 오늘 fetchedAt 0 · revisions 0 | ✓ |
+| | drugfree_stats | active · failCount 0 · lastCheckedAt 10-16T00:00:02.670Z · next 2026-11-01 | ✓ |
+| kocca 설정 | 수정 전 | url https://welcon.kocca.kr/ · accessDetail null · method pdf · 기준선 e3b0c442…(빈 본문) | |
+| welcon 이동 끝 | /ko/main | 200 · 135,914바이트 · <title>「콘텐츠 수출 허브, 맞춤형 수출정보 큐레이션 | WelCon 콘텐츠수출마케팅플랫폼」 → 게임이용자 실태조사와 무관. JS 이동을 따라가도 엉뚱한 페이지 | 둘 다 아님 → 아래 |
+| kocca 실제 발간처 | kocca.kr 연구보고서 B0000147 | 관측치 sourceUrl 10개 모두 이 게시판. 「게임이용자 실태조사」 검색 목록 첫 행 = 「2025 게임이용자 실태조사 · 2025-12-18」(두 번 읽어 같음 · 출처 lastPublishedAt 과 같음) · HEAD 403 → 게시판 감지(GET)는 영향 없음 | ✓ 채택 |
+| euda 설정 | 수정 전 | euda_statbulletin · euda_edr 둘 다 …/publications/european-drug-report/2026_en (기준선 844a3e87 같음) | |
+| EDR 고유 주소 | 2026_en | node fetch(감시와 같은 UA) GET 200 「European Drug Report 2026: Trends and Developments」 = EDR 자기 주소. 통계공보 고유 주소 /data/stats2026_en = 200 「Statistical Bulletin 2026 home」 | 옮길 쪽 = statbulletin |
+| KOCCA·kcgp note | 관측치 note | kocca 2023 「만 10~64세 n=10,000 · 설계 변경 해(면접 10~13·60~64세)」 · kcgp 2020 「중1~고3 재학생(N=15,349 · 고3 첫 포함) · 온라인·우편(코로나19)」 · 2022 = 초4~고3 4차 시범조사(출처 accessDetail.pdf_rounds) · 2015·2018 중1~고2 | break_years 근거 |
+| 홈 en 캐시 | 수정 전 | frontend-next/src/lib/api.ts revalidate 300 · /ko · /en = SSG+ISR(stale-while-revalidate) · 재굽기 길 없음(research 꼬리표 길만) · 08:49 en 첫 요청 = 어제 「one of 7」 → 두 번째 요청 22.7% | 수정 대상 |
+
+■1 감시 URL 수정 (becd3f5 · 4296f79)
+ - backend/src/sources/source-url-fixes.ts: 고칠 2행(from·to·reason) + SQL 만드는 함수. migration 1788600000000-FixSourceMonitorUrls 가 「id 가 맞고 url 이 아직 옛 주소」일 때만 UPDATE(멱등) → 바뀐 행마다 source_events 에 source_updated{from,to,reason,reset,by:'SOC-R6'} 넣기
+ - 비운 것: content_hash · etag · last_modified · last_checked_at (감시 설정의 기준선) → 다음 09:00 감시가 첫 읽기 규칙(DAILY_DUE_WHERE · lastCheckedAt IS NULL)으로 한 번 새 기준선을 잡고 그 뒤엔 예정일 규칙대로
+ - kocca_game: url = kocca.kr B0000147 「게임이용자 실태조사」 검색 목록 · accessDetail.board = {row 'table tbody tr', title 'td[data-label="제목"] a', date 'td[data-label="등록일"]'} → 게시판 최신글(제목+등록일) 감지. 새 실태조사가 올라오면 published 사건 + lastPublishedAt
+ - euda_statbulletin: url = https://www.euda.europa.eu/data/stats2026_en (euda_edr 은 그대로)
+ - seed:sources 의 두 행도 같은 값 → 새 DB 와 seed_diff 0
+ - 연대기 SIGNIFICANT 에 source_updated 추가 · 이름표 「감시 주소 변경」 / 「Monitor URL changed」
+ - 관측치·지표·관리자 값 변경 0 · lastPublishedAt·nextExpectedAt·status 그대로
+ 운영 결과 (Render 배포 직후 API 읽기)
+| 출처 | url | accessDetail | 기준선·lastCheckedAt | 사건 |
+| kocca_game | kocca.kr …B0000147.do?…searchWrd=게임이용자 실태조사 | board 셀렉터 3 | 모두 null | ev 273 source_updated 2026-10-16T04:51:27Z(13:51 KST) from welcon.kocca.kr/ |
+| euda_statbulletin | euda.europa.eu/data/stats2026_en | 그대로(note·format) | 모두 null | ev 274 source_updated 같은 시각 from …/2026_en |
+| euda_edr | …/european-drug-report/2026_en(그대로) | null | 844a3e87 · 10-15T00:00:30Z 그대로 | 없음 |
+ 첫 읽기 규칙 재확인
+| 회차 | 판정 |
+| 10-16 09:00 | 첫 읽기 0 (9 출처 모두 이미 읽음 → 예정일 규칙 대상 4만) ✓ |
+| 10-17 09:00 | 첫 읽기 2 예상(kocca_game · euda_statbulletin, lastCheckedAt null) — 미측 |
+| 10-18 09:00 | 두 출처 다시 끼지 않음 예상(next 2026-12-01 · 2027-06-01 > 오늘+30) — 미측 |
+ 시험 3 (backend/src/sources/source-url-fixes.spec.ts)
+  ① 두 행만 · 한 번만 · 사건{from,to,reason} · 다시 돌리면 UPDATE 0 → 사건 0 · seed 와 같은 주소 · EDR 주소는 seed 에 하나만
+  ② 새 kocca 게시판 기준선 = 「2025 게임이용자 실태조사」 제목+날짜, checked(바뀜 아님) · lastPublishedAt 2025-12-18 · GET 한 번
+  ③ 고친 뒤 다음 09:00 에 첫 읽기로 한 번 · 그다음 날 빠짐 · 11월부터 예정일 규칙으로 매일
+
+■2 설계 변경 계열 (47dc247)
+ - indicators.break_years integer[] NULL 열 덧붙임(migration 1788600000001) · 비어 있을 때만 채움:
+   kocca_game_usage_rate [2023] · kcgp_youth_gambling_problem_rate · atrisk_rate · problem_group_rate [2020, 2022]
+ - 데이터 파일(kocca-game · kcgp-youth .data.json)에 같은 breakYears · collect:indicators 는 넣기만(새 DB 용)
+ - 화면: 끊는 해 = 앞 점의 해 < Y ≤ 이 점의 해. 토막 안은 실선, 토막 사이는 점선 다리, 한 점 토막은 점. 꼬리 「조사 설계 변경(2023) — 점선 앞뒤는 직접 비교하지 않습니다」 / 「Survey design changed (2023) — do not compare directly across the dashed line」
+   - 지표 자세히 추이 아래 · 홈 「오늘의 숫자」 추세선 아래 한 줄(그날 숫자가 이 4개 중 하나일 때만)
+   - 기존 「회차마다 조사대상이 달라…」 경고(note 기준)는 그대로 둠
+ - 값 변경 0: 관측치 98 · 아침 사본과 id 별 value·fetchedAt·note 비교 변경 0
+ 운영 결과
+| 쪽 | HTTP | 실측 |
+| /indicators/kocca_game_usage_rate | 200 | spark-break 있음 · 「조사 설계 변경(2023)」 |
+| /en/indicators/kocca_game_usage_rate | 200 | 「Survey design changed (2023) — …」 |
+| /indicators/kcgp_youth_gambling_problem_rate | 200 | 「조사 설계 변경(2020 · 2022)」 |
+| /api/indicators | 200 | 11개 중 breakYears 4 · null 7 |
+ - 홈 꼬리 한 줄은 오늘(nia 22.7%)이 해당 지표가 아니라 화면에서는 아직 못 봄(정직 표기) — 순환 차례상 kcgp 3개·kocca 가 나오는 날 보임
+ 시험 2 + 1: frontend src/lib/seriesBreaks.test.mts 2개(KOCCA·kcgp 토막 · 범위 밖·없는 해) + backend break-years.spec.ts 1개(파일 = migration 값 · 설계 변경 해에 실제 관측치 있음 · UPDATE 는 indicators 만)
+
+■3 en 홈 캐시 (94e1da7)
+ - 04:00 예약 DAILY_STEPS 마지막에 refresh:home(8 → 9 단계): 사이트 POST /api/revalidate/home → GET / · /en 한 번씩(데우기). DB 쓰기 0 → counts 0(합계 안 흐림). 거절·실패면 exit 1 → 밤 기록 fail + 알림
+ - 사이트 길 /api/revalidate/home: 새 비밀값 없이 공개 /api/health/nightly 의 lastRun.startedAt 이 한 시간 안일 때만 revalidatePath('/[locale]','page')(ko '/' · en '/en' 함께), 아니면 409. Next 문서: on-demand 무효화 뒤 「다음 요청이 새로 그린다」(시간 기반 SWR 과 다름)
+ - 운영: Vercel 배포 직후 POST → 409 {"ok":false,"reason":"no nightly run in the last hour"} (설계대로 — 아무나 불러도 캐시를 흔들 수 없음)
+ - 대안(revalidate 60초)은 쓰지 않음: 시간 기반은 여전히 첫 요청에 묵은 것을 준다
+ - 정직 표기: 0시~04시 사이 첫 요청은 여전히 전날 그린 홈일 수 있음(오늘의 숫자는 KST 날짜로 바뀌는데 재굽기는 04:00)
+ - 다음 04:00(10-17) 뒤 첫 요청이 새 숫자인지 = 다음 판 첫머리 — 미측
+ 시험 1: backend/src/scheduler/refresh-home.spec.ts(마지막 단계 · POST 1 → GET 2 · 409 면 데우지 않고 실패 · 사이트 길의 revalidatePath·nightly·409) + dist-run.spec 9 단계로
+
+■4 npm audit (cc2f7ad)
+| | 전 (crit/high/mod/low = 총) | 후 | 남은 것 · 사유 |
+| backend | 2 / 44 / 17 / 4 = 67 | 0 / 0 / 20 / 0 = 20 | moderate 20(대부분 jest·eslint·nest-cli 개발 도구 계열) — 이번 범위(critical·high) 밖 |
+| frontend-next | 1 / 12 / 1 / 0 = 14 | 0 / 5 / 0 / 0 = 5 | high 5 = eslint-config-next → @next/eslint-plugin-next → fast-glob · micromatch · braces(lint 전용 · 런타임 0). 고침이 14.2.35 로 메이저 내리기라 건너뜀 |
+ - 운영 경로에서 고친 것: backend @nestjs/core · @nestjs/platform-express · multer · path-to-regexp · proxy-addr(critical) · undici · form-data · lodash 등 (npm audit fix, --force 없음) / frontend next 16.2.10 → 16.4.2(같은 16 대 · critical: proxy 우회·DoS 등) → postcss · sharp 함께
+ - 정직 표기: 「설치 0」 규율과 겹침 — lockfile 을 고치고 시험하려면 node_modules 를 맞춰야 해서 npm audit fix · npm install next@16.4.2 --save-exact 를 돌렸다. 새 패키지 0, 이미 쓰는 패키지의 판만 바뀜. eslint-config-next 는 16.2.10 그대로(next 와 판이 달라짐 — lint 는 통과)
+ - next 16.4.2 로 frontend build 통과 · 운영 200
+
+■5 시험·배포
+| 항목 | 결과 |
+| backend jest | 20 묶음 · 145/145 (처음 실행 143/145: dist 가 낡고 「8 단계」 고정 → nest build · 9 로 고친 뒤 145) |
+| tsc backend · frontend | 0 · 0 |
+| nest build | ok |
+| frontend build | ok (next 16.4.2 · /ko · /en SSG · /api/revalidate/home 생김) |
+| frontend npm test | 4/4 (todayNumber 2 · seriesBreaks 2) |
+| lint(바뀐 파일) | frontend 0 · backend 0 (source-events.service.ts:172 assertion 1건은 이 판 전부터 있던 줄 — 손대지 않음) |
+| main ff · push | 1a56d3b..4296f79 · 13:49:51 KST |
+| Render | /api/health commit 4296f79 · migration 둘 적용(사건 13:51:27 KST) |
+| Vercel | / · /en · /indicators · /indicators/kocca_game_usage_rate · /en/… · /indicators/kcgp_youth_gambling_problem_rate · /timeline 모두 200 · 홈 오늘의 숫자 ko·en 22.7 |
+
+건너뜀 + 사유
+ - kocca 를 /ko/main 이나 JS 이동 따라가기로: 둘 다 같은 「콘텐츠수출마케팅플랫폼」이라 감시해도 실태조사 발간을 볼 수 없음 → 실측한 실제 발간처(kocca.kr 연구보고서 게시판)로. 지시서 문구와 다름
+ - euda_edr 주소 바꾸기: 지금 주소가 EDR 자기 주소라 바꿀 이유가 없음 → 같은 주소를 빌려 쓰던 euda_statbulletin 을 옮김. 지시서 문구와 다름, 목표(두 출처가 따로 감시됨)는 같음
+ - EUDA 해시 안정성: 연속 탐침 뒤 euda.europa.eu 가 이 PC 에 Cloudflare 차단 페이지를 주기 시작해 더 재지 않음(첫 GET 두 개는 200 · 제목 확인). Render 에서는 10-15 첫 읽기 checked. 통계공보 새 기준선은 10-17 09:00 첫 읽기 결과로 확인
+ - eslint-config-next 계열 high 5 · backend moderate 20: 위 표
+
+정직 표기
+ - 앞 판 R5 보고에서 「euda_edr = statbulletin 과 같은 URL」의 문제 쪽을 edr 로 적었지만, 실측해 보니 주소의 주인은 edr 이었다
+ - EDR 페이지는 HEAD 403 → GET 해시로 감시. Last-Modified 가 요청마다 바뀌어(GET 응답 헤더) 검증자로 쓰지 않는 지금 방식이 맞음. 본문 해시가 날마다 흔들리는지는 이번에 못 쟀다 — 두 EUDA 출처가 매일 감시에 드는 2027-05 전까지 지켜볼 일
+ - 「명령 하나씩」: 초반 명령 2개에서 && · ; 를 썼다(git pull 확인 · 커밋 뒤 로그). 둘 다 읽기·기록 명령이라 결과에 영향 없음
+
+다음 판 첫머리 (재확인 줄)
+ 1. 10-17 04:00 nightly: 9/9 ok · refresh:home ok · counts 0 · 합계는 R5 와 같은 꼴(collect:indicators skip 109 · ins 0)
+ 2. 10-17 04:0x 이후 첫 요청 홈 ko·en 「오늘의 숫자」 = 그날 숫자(dayNumber % 11) · en 도 첫 요청부터
+ 3. 10-17 09:00 감시: 첫 읽기 2(kocca_game board-latest checked · lastPublishedAt 2025-12-18 · euda_statbulletin hash checked) · 다른 출처 첫 읽기 0
+ 4. 10-18 09:00: 두 출처 다시 끼지 않음
+ 5. 관측치 98 · 값 변경 0 · breakYears 4 그대로 · seed:sources diff 0 · collect:indicators diff 0

@@ -1,0 +1,31 @@
+SOC-R6 지시서 — 감시 URL 수정 · 설계 변경 계열 표시 · en 홈 캐시 · 첫 읽기 재확인 (중독사회 · 2026-10-16 금)
+
+위치판
+
+저장소 D:\addiction-society · main = 1a56d3b(R5 보고서) ← cef3ab4(07:48 배포) · 셋째 회차 10-16 04:00 ok 8/8 · 지표 11 · 관측치 98 · 홈 ko 22.7% ✓ · en 첫 요청 300초 캐시(어제 숫자).
+열린 것: kocca_game 기준선 = 빈 본문 해시(welcon.kocca.kr JS 이동) · euda_edr = statbulletin 과 같은 URL · KOCCA 2023 설계 변경(−11.5%p)·kcgp 2015~2022 모집단 다름을 홈 추세선이 못 보임 · ⑤ 첫 읽기 9 출처가 09:00 에 다시 끼지 않았는지 미측.
+실행자 · 가지 claude/soc-r6 · 오너 액션 0 · LT14 의 public/data/evidence_map/ 쓰기 0 · push 전 git pull --ff-only.
+
+목표 세 문장
+
+감시가 실제로 「바뀜」을 볼 수 있게 출처 둘의 감시 URL 을 고치고(관측치·관리자 값이 아닌 감시 설정 · 사건 기록) 첫 읽기 규칙이 하루 한 번만 끼는지 확인한다.
+조사 설계가 바뀐 계열은 추세선에 단절과 꼬리를 보여 손님이 오해하지 않게 한다(숫자는 그대로).
+아침 첫 손님이 어제 숫자를 보지 않게 04:00 회차 뒤 홈을 다시 굽고, 의존 패키지 보안 알림을 가려 갱신한다.
+
+규율: 오너에게 묻지 말고 끝까지 계속 진행 · 오너 액션 0 · 열쇠 값 0 · .env* 0 · 운영 DB 직접 접속 0 · 스키마 = migration 덧붙임만 · 기존 관측치 값 변경 0(출처 감시 설정 URL 은 이 판에서 허용 · 사건 기록 필수) · 지움 0 · 설치 0 · 다른 저장소 0 · evidence_map 쓰기 0 · Edit/Write · 명령 하나씩(&& ; 0) · git add 파일별 · rebase/force 0 · 코드 머리 [skip render] 0 · 문서 [skip ci][skip render].
+
+■0 저장 + 실측: 지시서 docs/reports/202610/SOC-R6_instruction.txt · ⑤ 9 출처 lastCheckedAt 이 10-15 값 그대로인지(09:00 뒤 · 「다시 끼지 않음」 판정) · 셋째 회차 표 · kocca/euda 출처 설정 · welcon 이동 끝 주소 · euda EDR 고유 주소 · KOCCA·kcgp 관측치 note · 홈 en 캐시 설정(revalidate 값 · 재굽기 길) · 표.
+
+■1 〔마디 1〕 감시 URL 수정: kocca_game → /ko/main(또는 JS 이동 따라가기 코드 · 둘 중 실측으로) · euda_edr → EDR 고유 URL · migration/스크립트로 URL 만 갱신 · 사건 source_updated{from,to,reason} 기록 · 기준선 새로(다음 09:00) · 첫 읽기 규칙 재확인 결과 표 · 시험 3.
+
+■2 〔마디 2〕 설계 변경 계열: 지표 메타 break_years[](넣기만 · KOCCA 2023 · kcgp 2020·2022 모집단) → 홈 추세선·지표 자세히에 단절(점선 끊김) + 꼬리 「조사 설계 변경(연도)」 ko/en · 「오늘의 숫자」 상자에도 꼬리 한 줄 · 값 변경 0 · 시험 2.
+
+■3 〔마디 3〕 en 홈 캐시: 04:00 예약 마지막 단계에 홈 ko·en on-demand 재굽기(revalidatePath) — 없으면 revalidate 60초 · 다음 04:00 뒤 첫 요청이 새 숫자인지 = 다음 판 첫머리(미측 표기) · 시험 1.
+
+■4 npm audit(backend · frontend-next): critical·high 를 운영 경로 기준으로 가려 lockfile 갱신(semver 안) · 전/후 수 · 시험 전량 통과 · 안 되는 것 사유.
+
+■5 시험·배포·보고: jest 140+ · tsc 둘 · nest build · frontend build · main ff · push · health 25분 · Vercel 홈·지표 200 · 보고서 docs/reports/202610/SOC-R6_<MMDD>.txt(■0 표 · 전/후 · 건너뜀+사유 · 정직 표기 · 다음 04:00 재확인 줄).
+
+하지 않는 것: 숨긴 44(오너) · 관측치 값 변경 · evidence_map 쓰기 · 다른 저장소 · evidenceLevel(12월) · .env · 삭제.
+
+손님에게 달라지는 것: 추세선에 「조사 설계 변경」이 보여 오해 0 · 아침 첫 손님도 오늘 숫자 · 관측소 두 출처가 실제로 감시됨. LLM 의존: 0.
