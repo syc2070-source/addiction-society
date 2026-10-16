@@ -4,6 +4,7 @@ import type { QueryRunner, Repository } from 'typeorm';
 import { FixSourceMonitorUrls1788600000000 } from '../migrations/1788600000000-FixSourceMonitorUrls';
 import {
   EUDA_STATBULLETIN_URL,
+  KOCCA_GAME_BOARD,
   KOCCA_GAME_URL,
   SOURCE_URL_FIXES_R6,
   updatedCount,
@@ -68,11 +69,16 @@ describe('SOC-R6 ■1 source monitor URL fixes', () => {
     const ids = SOURCE_URL_FIXES_R6.map((f) => f.id);
     expect(ids).toEqual(['kocca_game', 'euda_statbulletin']);
     expect(ids).not.toContain('euda_edr');
-    expect(new Set([KOCCA_GAME_URL, EUDA_STATBULLETIN_URL, EDR_URL]).size).toBe(3);
+    expect(new Set([KOCCA_GAME_URL, EUDA_STATBULLETIN_URL, EDR_URL]).size).toBe(
+      3,
+    );
     for (const f of SOURCE_URL_FIXES_R6) expect(f.to).not.toBe(f.from);
 
     // seed 도 같은 주소를 쓴다(새 DB · seed_diff 0)
-    const seedSrc = readFileSync(join(__dirname, 'seed', 'sources.seed.ts'), 'utf8');
+    const seedSrc = readFileSync(
+      join(__dirname, 'seed', 'sources.seed.ts'),
+      'utf8',
+    );
     expect(seedSrc).not.toContain("'https://welcon.kocca.kr/'");
     expect(seedSrc.split(EDR_URL).length - 1).toBe(1); // euda_edr 하나만
 
@@ -90,15 +96,18 @@ describe('SOC-R6 ■1 source monitor URL fixes', () => {
       expect(u.q).toContain('content_hash = NULL');
       expect(u.q).not.toMatch(/observations|indicators/);
     }
-    const detail = JSON.parse(inserts[0].p[1] as string);
+    const detail = JSON.parse(inserts[0].p[1] as string) as Record<
+      string,
+      unknown
+    >;
     expect(inserts[0].q).toContain("'source_updated'");
     expect(detail).toMatchObject({
       from: 'https://welcon.kocca.kr/',
       to: KOCCA_GAME_URL,
-      reason: expect.any(String),
     });
+    expect(typeof detail.reason).toBe('string');
     expect(JSON.parse(updates[0].p[3] as string)).toEqual({
-      board: expect.objectContaining({ row: 'table tbody tr' }),
+      board: KOCCA_GAME_BOARD,
     });
     expect(updates[1].p).toHaveLength(3); // statbulletin: access_detail 그대로
 
@@ -181,7 +190,10 @@ describe('SOC-R6 ■1 source monitor URL fixes', () => {
     expect(isDailyDue(after, '2026-12-01')).toBe(true);
     // statbulletin(예정 2027-06-01)도 같은 규칙
     expect(
-      isDailyDue({ lastCheckedAt: null, nextExpectedAt: '2027-06-01' }, '2026-11-16'),
+      isDailyDue(
+        { lastCheckedAt: null, nextExpectedAt: '2027-06-01' },
+        '2026-11-16',
+      ),
     ).toBe(true);
   });
 });
