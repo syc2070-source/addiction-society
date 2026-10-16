@@ -18,6 +18,11 @@ import { AppDataSource } from '../../data-source';
 import { Source } from '../entities/source.entity';
 import { SeedInsertOnly } from '../../common/seed-insert-only';
 import { printJobCounts } from '../../common/job-counts';
+import {
+  EUDA_STATBULLETIN_URL,
+  KOCCA_GAME_BOARD,
+  KOCCA_GAME_URL,
+} from '../source-url-fixes';
 
 const M_ALL = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; // 월간 소스용 1~12월
 
@@ -67,7 +72,8 @@ const SOURCES: Row[] = [
     expectedMonth: [6],
     accessMethod: 'csv',
     reliability: 1,
-    url: 'https://www.euda.europa.eu/publications/european-drug-report/2026_en',
+    // SOC-R6 ■1: euda_edr 과 같은 EDR 주소였다 — 통계공보 고유 주소로.
+    url: EUDA_STATBULLETIN_URL,
     titleKo: '유럽마약보고서 통계공보',
     titleEn: 'EU Drug Report Statistical Bulletin',
     accessDetail: {
@@ -475,7 +481,11 @@ const SOURCES: Row[] = [
     expectedMonth: [12],
     accessMethod: 'pdf',
     reliability: 2,
-    url: 'https://welcon.kocca.kr/',
+    // SOC-R6 ■1: welcon.kocca.kr 은 JS 이동만 주는 「콘텐츠수출마케팅플랫폼」이라 감시가
+    // 빈 본문 해시만 보았다. 실태조사가 실제로 올라오는 연구보고서 게시판(B0000147)을
+    // 「게임이용자 실태조사」로 검색한 목록 첫 행(제목+등록일)으로 본다.
+    url: KOCCA_GAME_URL,
+    accessDetail: { board: KOCCA_GAME_BOARD },
     titleKo: '게임이용자 실태조사',
     titleEn: 'Game User Survey',
     lastPublishedAt: '2025-12-18',

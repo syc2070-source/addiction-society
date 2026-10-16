@@ -51,7 +51,8 @@
       "manual": "수동 확인 필요",
       "broadcast": "방송",
       "blocked": "차단",
-      "rescheduled": "예정일 이월"
+      "rescheduled": "예정일 이월",
+      "source_updated": "감시 주소 변경"
     }
   },
   "indicatorsPage": {

@@ -38,7 +38,9 @@ export interface TimelineRow {
 // blocked: AS-FIX-1(감사 문제 #8)에서 추가. 정부 사이트 다수가 봇을 403으로
 //   막는데 그 사실이 화면에서 가려져 있었다. "확인을 시도했으나 막혔다"는
 //   관측소 운영 실태의 핵심 정보다.
-const SIGNIFICANT = [
+// source_updated: SOC-R6 ■1. 감시 주소(감시 설정)를 고친 사건 — 무엇을 보고 있는지가
+//   바뀐 것이므로 연대기에 남긴다(detail = {from,to,reason}).
+export const SIGNIFICANT = [
   'published',
   'changed',
   'stale',
@@ -46,6 +48,7 @@ const SIGNIFICANT = [
   'manual',
   'rescheduled',
   'blocked',
+  'source_updated',
 ];
 
 @Injectable()

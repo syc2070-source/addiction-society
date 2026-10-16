@@ -51,7 +51,8 @@
       "manual": "Needs manual check",
       "broadcast": "Broadcast",
       "blocked": "Blocked",
-      "rescheduled": "Rescheduled"
+      "rescheduled": "Rescheduled",
+      "source_updated": "Monitor URL changed"
     }
   },
   "indicatorsPage": {
