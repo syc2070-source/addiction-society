@@ -1,0 +1,100 @@
+경보 0 (P0·P1 없음) — R6 미측 셋 실측 닫음(04:00 9/9 ok · 홈 ko·en 오늘 숫자 · 09:00 첫 읽기 2 checked, Render 에서 EUDA 차단 없음) · 00:05 KST 자정 홈 재굽기 추가(job_runs lastRefresh · 문지기 lastRun 또는 lastRefresh) · eslint-config-next 맞춤 안 함(package.json 정확 고정이라 npm update 로는 불가 · 맞춰도 high 5 그대로) · 10~11월 예정 출처 표 · jest 151/151 · 배포 bd287c8
+
+SOC-R7 보고 — 2026-10-17(토) · 실행자 Claude · 가지 claude/soc-r7 → main ff · 오너 액션 0
+ - 지시서: docs/reports/202610/SOC-R7_instruction.txt (push ⓐ cfaec12)
+ - 읽기 근거: https://addiction-society-api.onrender.com/api/health/nightly · /api/sources · /api/sources/calendar · /api/sources/calendar/missed · /api/timeline?all=1 · /api/indicators · /api/observations · /api/policy/documents · https://www.addictionsociety.net / · /en (API·공개 HTML 만, DB 직접 접속 0)
+
+커밋
+| cfaec12 | ⓐ docs 지시서 [skip ci][skip render] |
+| bd287c8 | ⓑ ■1 feat(nightly) 자정 홈 재굽기 · lastRefresh · 문지기 넓힘 |
+| (이 파일) | ⓒ docs 보고서 [skip ci][skip render] |
+
+■0 실측 표 (09:13~09:20 KST 읽기)
+| # | 항목 | 예상 | 실측 | 판정 |
+|---|---|---|---|---|
+| 1 | 10-17 04:00 nightly | 9/9 ok | runId c8963aae · 19:00:00.013Z ~ 19:01:29.985Z(04:00~04:01:30 KST) · status ok · 단계 9 모두 ok | ✓ |
+| 2 | refresh:home 단계 | ok · counts 0 | ok · 7초 · counts 0/0/0/0 (단계는 revalidated=false 이거나 GET 하나라도 실패면 exit 1 → ok = POST 200 + GET / · /en 200) | ✓ |
+| 3 | collect:indicators | ins 0 · skip 109 | ins 0 · upd 0 · skip 109 · diff 0 | ✓ |
+| 4 | 합계 꼴(R5 와 같은 꼴) | ins 0 · diff 0 | ins 0 · upd 48(collect:research updatedAt) · skip 260 · diff 1 | △ 아래 5 |
+| 5 | seed_diff | 0 | seed:documents diff 1 (다른 단계 0) | △ 예상 밖 · 수리 안 함(아래) |
+| 6 | 관측치 | 98 · 값 변경 0 | 98 · fetchedAt 최댓값 2026-10-15T19:00:04Z(오늘 0행) · revisions 있는 행 0 · 값 지문 e5c302f30c5d(id·value·low·high·fetchedAt·note) | ✓ |
+| 7 | breakYears | 4 | 4 지표(kcgp 3 = 2020·2022 · kocca 2023) · 나머지 7 null | ✓ |
+| 8 | last7Days · monitor | 실패 0 | runs 4 · failedRuns 0 · skipped 0 · sources 24 · stale 0 · unreachable 0 | ✓ |
+| 9 | 홈 ko 오늘의 숫자 | dayNumber(2026-10-17)=20743 · %11=8 → spo_drug_offenders_total | 「마약류 사범 단속 인원 23,403 명 2025」 · 「날마다 11개 중 하나」 · Age 777(09:00 KST 에 그림) | ✓ |
+| 10 | 홈 en 오늘의 숫자 | 같은 지표 | 「Drug offenders apprehended (total) 23,403」 · 「one of 11」 · Age 7042(07:15 KST 에 다시 그림 — 그 앞 판은 04:01 refresh 가 그린 것) | ✓ |
+| 11 | en 첫 요청 | 오늘 숫자 | 직접 첫 요청은 못 봄(정직 표기). 판정 근거: refresh:home ok = 04:01:23 revalidatePath 수락 + 곧바로 GET / · /en 200(데우기가 「첫 요청」을 가져감) → 그 뒤 손님 요청은 04:01 이후 그린 판. 07:15 재생성 판도 오늘 숫자 | ✓(기록 근거) |
+| 12 | 09:00 첫 읽기 kocca_game | board-latest checked · pub 2025-12-18 | ev 280 checked {method board-latest} 00:00:15Z · lastCheckedAt 00:00:14Z · hash 8b907cab · lastPublishedAt 2025-12-18 · fail 0 | ✓ |
+| 13 | 09:00 첫 읽기 euda_statbulletin | hash checked · Render 차단 없음 | ev 275 checked {method hash} 00:00:01.873Z · hash 020aee0a · fail 0 (403 이면 blocked 사건이 남는 코드 — 없음) | ✓ Render 는 막히지 않음 |
+| 14 | 다른 출처 첫 읽기 | 0 | 오늘 읽힌 나머지 4 = 예정일 규칙 대상(mohw_addiction_center manual · spo_drug_monthly · drugfree_stats · hri_gshr) — 10-16 과 같은 넷 · 나머지 18 lastCheckedAt 그대로 | ✓ |
+| 15 | source_updated | 2 그대로 | 30일 요약 source_updated 2 (ev 273·274, 10-16 04:51Z) | ✓ |
+
+ 5번 seed:documents diff 1 — 원인과 판단
+  - seed:documents 는 출처마다 대표 문서 1행을 「넣기만」 하고, 있는 행은 다른 값을 seed_diff 로그로만 남긴다(common/seed-insert-only).
+  - R6 가 kocca_game · euda_statbulletin 의 감시 URL 을 고쳤지만 대표 문서 행(공개 /api/policy/documents)은 옛 주소 그대로:
+    doc 18 kocca_game sourceUrl https://welcon.kocca.kr/ · doc 12 euda_statbulletin …/publications/european-drug-report/2026_en
+  - 두 행이 다른데 diff 가 1 인 것: URL 검증(HEAD→GET)에 실패한 후보는 비교 없이 「보류」로 건너뛴다. 실행자 PC 에서 kocca 새 주소 200 · EUDA stats2026_en 403(Cloudflare) → 04:00 에는 EUDA 쪽이 보류, diff 1 = kocca sourceUrl 로 추정. 단계 출력 원문은 job_runs 에 없어(공개 끝점은 수만) 확정은 못 함.
+  - 수리 안 함: 고치려면 documents 기존 행 변경(seed 기존 행 변경 = 이 판 하지 않는 것). 손님 화면에서는 정책 문서 목록의 「게임이용자 실태조사」 링크가 R6 에서 무관하다고 확인한 welcon 첫 화면으로 간다 → 다음 판 후보(관리자 PUT 또는 사건 남기는 migration).
+  - 앞으로 매일 diff 1(또는 2)이 남는다 — 「diff 0」 재확인 줄은 이 둘을 빼고 읽어야 한다.
+
+■1 자정 홈 재굽기 (bd287c8)
+ - backend/src/scheduler/daily-jobs.scheduler.ts: @Cron('5 0 * * *', Asia/Seoul) handleMidnight → MIDNIGHT_STEPS = [refresh:home](DAILY_STEPS 마지막 단계 그대로 재사용). DB 쓰기 0 · counts 0. 04:00 아홉 단계·cron 그대로
+ - runAll(steps, runner, kind) — kind 'refresh' 면 job_runs 표식 refresh:start · refresh:end(밤 회차 run:start · run:end 와 섞이지 않음). 실패 알림 머리 「자정 홈 재굽기 실패」. 이전 회차가 도는 중이면 로그만(건너뜀 'run' 행은 밤 7일 수에 들어가므로 남기지 않음). DAILY_JOBS_ENABLED=false 면 같이 꺼짐
+ - job-runs.ts: summarizeNightly 에 lastRefresh {runId, startedAt, finishedAt, status ok|fail|running} · lastRun · last7Days 는 04:00 run:start/run:end 만 셈(그대로)
+ - 사이트 /api/revalidate/home: 문지기를 frontend-next/src/lib/recentRun.ts 로 — lastRun 또는 lastRefresh 가 1시간 안에 시작했으면 revalidatePath('/[locale]','page'), 아니면 409 {reason 'no scheduled run in the last hour'} · 비밀값 0(읽는 env 는 기존 NEXT_PUBLIC_API_URL 뿐). route.ts 에는 처리기만(Next 의 라우트 파일 export 규칙)
+ - 순서 보장: refresh:start 행을 먼저 쓰고 그다음 단계가 POST → 사이트가 읽는 lastRefresh(끝 행 전이면 running)가 이미 보임
+ - 스키마 0 · migration 0
+ 시험
+  - backend midnight-refresh.spec.ts 6: ① 00:05 cron 문구 · MIDNIGHT_STEPS = refresh:home 하나 · DAILY_STEPS 9 그대로 · 04:00 cron 그대로 ② handleMidnight → refresh:start · refresh:home · refresh:end, run:start/end 0, counts 0, 알림 0 ③ 409(exit 1) → refresh:end fail + 「자정 홈 재굽기 실패 1/1」 ④ lastRefresh 따로 · lastRun·7일 수는 04:00 ⑤ 끝 행 없으면 running · 없으면 null ⑥ 사이트 문지기 = recentRun(lastRun·lastRefresh) · 409 · 다른 env 0
+  - frontend recentRun.test.mts 2: 04:00 밤 회차 · 00:05 재굽기(lastRun 은 20시간 전) 둘 다 열림 / 둘 다 1시간 넘음 · 기록 없음 · 날짜 깨짐 · null → 닫힘(409)
+ 첫 실측 = 10-18 00:05 → 다음 판 첫머리
+
+■2 eslint-config-next 판
+ - 있음: eslint-config-next 16.4.0 · 16.4.1 · 16.4.2
+ - 맞추지 않음: frontend-next/package.json 이 "eslint-config-next": "16.2.10" 정확 고정 → npm update eslint-config-next = 「up to date」(lockfile·package.json 변경 0 · 실행함). 16.4.2 로 가려면 package.json 한 줄(고정 값)을 바꿔야 해서 「package.json 변경 0」 규율 밖
+ - 맞춰도 audit 는 그대로: @next/eslint-plugin-next@16.4.2 도 fast-glob 3.3.1 고정 → micromatch 4.0.8 → braces 3.0.3 같은 사슬
+ | | crit/high/mod/low = 총 |
+ | 전 | 0 / 5 / 0 / 0 = 5 (eslint-config-next · @next/eslint-plugin-next · fast-glob · micromatch · braces · 고침 제안 = 14.2.35 메이저 내리기) |
+ | 후 | 같음(변경 0) |
+ - 다음 판 제안: 판 맞춤이 필요하면 package.json 고정 값 16.2.10 → 16.4.2 한 줄을 허용하는 지시로(lint 규칙이 next 와 같은 판이 되는 이득뿐 · 보안 이득 0)
+
+■3 10월·11월 예정 출처 (읽기 전용 · 수리 0)
+| 출처 | 예정(next_expected_at) | 마지막 읽기 | 마지막 발간 | 상태 | 지난 예정 줄 |
+| mohw_addiction_center 중독관리통합지원센터 운영현황 | 2026-10(10-01 저장 · 월 단위라 10-31 까지 「지남」 아님) | 10-17 00:00:12Z(manual · 사건 manual cooldown) | null | active · fail 0 | 없음 — 11-01 부터 「사람 확인(manual)」 꼬리로 나올 차례 |
+| hri_gshr 세계 해악감소 현황 | 2026-11-01 | 10-17 00:00:09Z (last-modified) | 2025-12-03 | active · fail 0 | 없음 |
+| spo_drug_monthly 마약류 월간동향 | 2026-11-01 | 10-17 00:00:03Z (board-latest checked) | 2026-09-30 | active · fail 0 | 없음 |
+| drugfree_stats 마약류 통계 | 2026-11-01 | 10-17 00:00:06Z (board-latest checked) | 2026-03-09 | active · fail 0 | 2026-09 → 10 rolled · 「발표 없음」 / 2026-08 → 09 rolled · 「발표 없음」 |
+ 꼬리표 판정: drugfree 두 줄 「발표 없음」(not_published) 맞음 — 예정 달이 끝난 뒤 읽기 성공(checked)이 있고 3월 뒤 발간을 못 봄. unreadable·unchecked 아님(fail 0 · 10-17 읽음)
+ 눈에 띈 것(수리 0 · 다음 판 후보)
+  ① drugfree 10월 예정이 「지난 예정」에 남지 않고 사라짐: 10-01 rescheduled 09 → 10 뒤, 매일 seed:sources 가 next 를 비우고 backfill:next 가 「마지막 발간 이후 · 오늘 이후」 첫 달(= 11-01)로 다시 채움 → 10월이 끝나기 전에 11월로 넘어가 rescheduled 사건 없이 10월 예정이 빠진다(lastPublishedAt 있는 월간 출처 공통 · 없는 출처는 이번 달 포함 규칙). 11-01 에 「2026-10 · 발표 없음」 줄이 안 생길 것으로 예상
+  ② hri_gshr 는 Last-Modified 가 거의 매일 바뀌어 changed 사건이 10월에만 6번(10-03 · 06 · 11 · 15 · 16 · 17 · 그중 cooldown 4) — missed 계산은 changed 를 「발간 확인」으로 쳐서, 11월 예정이 지나도 「지난 예정」 줄이 생기지 않을 수 있다(거짓 확인). EUDA EDR 과 같은 「검증자 흔들림」 꼴
+
+■4 시험·배포
+| 항목 | 결과 |
+| backend jest 범위(src/scheduler) | 4 묶음 · 25/25 |
+| backend jest 전량 | 21 묶음 · 151/151 (R6 145 + 6) |
+| frontend npm test | 6/6 (todayNumber 2 · seriesBreaks 2 · recentRun 2) |
+| tsc backend · frontend | 0 · 0 |
+| nest build · next build | ok · ok (/api/revalidate/home ƒ 그대로) |
+| lint(바뀐 파일) | backend 0(prettier 2건 고친 뒤) · frontend 0 |
+| 리뷰 | 찾기 1회(diff 자체 검토) — P0/P1 0 · 수리 0 |
+| main ff · push ⓑ | 83e7b3c..bd287c8 |
+| Render | /api/health commit bd287c8 · startedAt 02:53:11Z(11:53 KST · push 뒤 약 3분) · /api/health/nightly 에 lastRefresh 칸 생김(null — 첫 00:05 전) · lastRun c8963aae 9 단계 그대로 · last7Days runs 4 · failed 0 |
+| Vercel | POST /api/revalidate/home → 409 {"reason":"no scheduled run in the last hour"}(새 문지기 문구 = 새 배포) · / · /en · /indicators · /timeline · /calendar 모두 200 |
+
+정직 표기
+ - 「명령 하나씩 · &&·; 0」: 첫머리 명령 2개에서 어겼다 — ls 두 개를 ; 로(읽기), git checkout -b 앞에 cd && (가지 만들기). 그 뒤로는 git -C · --prefix 로 하나씩. 결과 영향 없음
+ - frontend-next/package.json 은 바뀌었다: ■2 가 아니라 ■1 시험 등록(npm test 스크립트에 recentRun.test.mts 덧붙임 · 의존·판 변경 0). R6 의 seriesBreaks 등록과 같은 꼴
+ - 홈 「첫 요청」은 직접 보지 못했다(읽은 시각 09:13 KST) — refresh:home 단계 ok 와 캐시 Age 로 판정
+ - 5번 diff 1 이 kocca 쪽이라는 것은 추정(공개 기록에 단계 출력 원문 없음)
+ - en 홈 「오늘의 숫자」의 단위 「명」·출처 「대검찰청」이 한국어로 나온다(이 판 전부터 · 손대지 않음)
+
+손님에게 달라지는 것: 자정(00:05 KST) 넘어 첫 방문자도 그날의 「오늘의 숫자」 — 첫 실측은 10-18 00:05 뒤. 나머지 화면 변경 0
+LLM 의존: 줄어드는 곳 0 · 남는 곳 0
+
+다음 판 첫머리 (재확인 줄)
+ 1. 10-18 00:05 KST: /api/health/nightly lastRefresh status ok · 15:05Z 께 시작 · lastRun 은 10-18 04:00 회차(00:05 회차가 lastRun 을 가리지 않음) · last7Days runs 는 밤 회차만
+ 2. 10-18 00:05 뒤 홈 ko·en = unodc_global_drug_users(20744 % 11 = 9)
+ 3. 10-18 04:00 nightly: 9/9 ok · collect:indicators ins 0 · skip 109 · seed:documents diff 1(또는 2 · 위 5번 사유) 외 diff 0
+ 4. 10-18 09:00 감시: kocca_game · euda_statbulletin 다시 끼지 않음(next 2026-12-01 · 2027-06-01) · 예정일 규칙 대상 4 만
+ 5. 관측치 98 · 값 지문 e5c302f30c5d 그대로 · breakYears 4
+ 6. 후보: 대표 문서 2행 옛 주소(5번) · drugfree 10월 예정 사라짐(■3 ①) · hri 거짓 확인(■3 ②) · eslint-config-next 고정 값
