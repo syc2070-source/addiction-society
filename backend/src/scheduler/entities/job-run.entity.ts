@@ -12,6 +12,7 @@ import type { JobCounts } from '../../common/job-counts';
  *  - step '<npm 스크립트 이름>' — 단계마다 하나(status ok|fail, counts)
  *  - step 'run:end' — 끝(status = 단계가 모두 ok 면 ok, 아니면 fail · counts 합)
  *  - step 'run' status skipped — 이전 회차가 도는 중이거나 꺼져 있어 건너뜀
+ * 00:05 자정 홈 재굽기(SOC-R7)는 'refresh:start' · 'refresh:home' · 'refresh:end' 로 따로 남는다.
  * 넣기만 한다(행을 고치지 않음). error 는 표에만 두고 공개 끝점에는 내보내지 않는다.
  */
 @Entity('job_runs')

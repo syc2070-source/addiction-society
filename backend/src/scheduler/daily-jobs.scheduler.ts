@@ -13,7 +13,14 @@ import {
 } from '../common/job-counts';
 import { SourcesNotifier } from '../sources/discord.notifier';
 import { JobRun } from './entities/job-run.entity';
-import { JobRunRecorder, RUN_END, RUN_SKIPPED, RUN_START } from './job-runs';
+import {
+  JobRunRecorder,
+  REFRESH_END,
+  REFRESH_START,
+  RUN_END,
+  RUN_SKIPPED,
+  RUN_START,
+} from './job-runs';
 
 /**
  * 매일 예약 (SOC-R1 ■4) — 배포 때 돌던 데이터 쓰기를 여기로 옮겼다.
@@ -57,6 +64,22 @@ export const DAILY_STEPS: readonly DailyStep[] = [
   // 마지막: 홈 ko·en on-demand 재굽기 + 데우기 — 아침 첫 손님도 오늘 숫자 (SOC-R6 ■3).
   { name: 'refresh:home', entry: 'scheduler/refresh-home' },
 ];
+
+/**
+ * 00:05 KST 자정 홈 재굽기 (SOC-R7 ■1) — 「오늘의 숫자」는 KST 자정에 바뀌는데 홈은
+ * 04:00 에만 다시 구워져 0~4시 첫 손님이 어제 숫자를 받았다. 같은 refresh:home 을
+ * 한 번 더 돌린다(DB 쓰기 0 · counts 0). 04:00 아홉 단계는 그대로.
+ */
+export const MIDNIGHT_STEPS: readonly DailyStep[] = [
+  DAILY_STEPS[DAILY_STEPS.length - 1],
+];
+
+/** 회차 종류별 job_runs 시작·끝 표식과 알림 이름. */
+const RUN_KINDS = {
+  nightly: { start: RUN_START, end: RUN_END, label: '매일 예약' },
+  refresh: { start: REFRESH_START, end: REFRESH_END, label: '자정 홈 재굽기' },
+} as const;
+export type RunKind = keyof typeof RUN_KINDS;
 
 export interface StepResult {
   name: string;
@@ -142,13 +165,34 @@ export class DailyJobsScheduler {
     }
   }
 
+  /**
+   * 매일 00:05 KST — 자정 홈 재굽기(SOC-R7 ■1). 같은 refresh:home 단계를 refresh 회차로
+   * job_runs 에 남긴다(/api/health/nightly lastRefresh · lastRun 은 04:00 그대로).
+   */
+  @Cron('5 0 * * *', { name: 'midnightHomeRefresh', timeZone: 'Asia/Seoul' })
+  async handleMidnight(): Promise<void> {
+    if (process.env.DAILY_JOBS_ENABLED === 'false') {
+      this.logger.warn('[midnight] DAILY_JOBS_ENABLED=false — 건너뜀');
+      return;
+    }
+    try {
+      await this.runAll(MIDNIGHT_STEPS, undefined, 'refresh');
+    } catch (e: unknown) {
+      this.logger.error(`[midnight] 최상위 예외(무시): ${String(e)}`);
+    }
+  }
+
   async runAll(
     steps: readonly DailyStep[] = DAILY_STEPS,
     runner: (s: DailyStep) => Promise<StepResult> = (s) => this.runStep(s),
+    kind: RunKind = 'nightly',
   ): Promise<StepResult[]> {
+    const marks = RUN_KINDS[kind];
     if (this.running) {
       this.logger.warn('[daily] 이전 실행이 아직 도는 중 — 이번 회차 건너뜀');
-      await this.recordSkipped('이전 회차가 아직 도는 중');
+      // 건너뜀 행('run')은 밤 회차의 7일 수에 들어간다 — 자정 재굽기는 로그만.
+      if (kind === 'nightly')
+        await this.recordSkipped('이전 회차가 아직 도는 중');
       return [];
     }
     this.running = true;
@@ -160,7 +204,7 @@ export class DailyJobsScheduler {
         runId,
         startedAt: runStarted,
         finishedAt: null,
-        step: RUN_START,
+        step: marks.start,
         status: 'ok',
         counts: null,
         error: null,
@@ -201,7 +245,7 @@ export class DailyJobsScheduler {
       runId,
       startedAt: runStarted,
       finishedAt: new Date(),
-      step: RUN_END,
+      step: marks.end,
       status: failed.length > 0 ? 'fail' : 'ok',
       counts: sumJobCounts(results.map((r) => r.counts ?? null)),
       error: failed.length > 0 ? failed.map((f) => f.name).join(', ') : null,
@@ -209,7 +253,7 @@ export class DailyJobsScheduler {
     if (failed.length > 0) {
       await this.notifier.notifyText(
         [
-          `⚠️ 중독사회 매일 예약 실패 ${failed.length}/${results.length}`,
+          `⚠️ 중독사회 ${marks.label} 실패 ${failed.length}/${results.length}`,
           ...failed.map(
             (f) => `- ${f.name} (exit ${f.code}): ${f.tail.slice(-300)}`,
           ),
