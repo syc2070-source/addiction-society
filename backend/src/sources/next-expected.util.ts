@@ -119,3 +119,30 @@ export function computeNextExpected(
 
   return pick == null ? null : fmt(pick);
 }
+
+/**
+ * 04:00 backfill:next 가 한 출처에 할 일 (SOC-R8 ■2).
+ *
+ * 전에는 매일 전 출처를 computeNextExpected(오늘 이후 첫 달)로 다시 계산해, 발간 이력이
+ * 있는 월간 출처의 「이번 달」 예정이 그 달 2~3일에 사건 없이 다음 달로 넘어갔다
+ * (drugfree_stats 2026-10 → 11, 10-03 · R7 ■3 ①). 그러면 달이 끝나도 「지난 예정」
+ * 줄이 서지 않는다. 이제:
+ *  - 비어 있으면 채운다(새 행 · 이월 아님)
+ *  - 그 달이 끝나기 전(isExpectedOverdue 아님)엔 건드리지 않는다
+ *  - 달이 끝났으면 다음 예정으로 넘기고 rescheduled 를 남긴다(rolled)
+ * 발간을 잡았을 때의 재계산은 09:00 감시(checkOne)가 그 자리에서 한다.
+ * null = 쓰지 않음.
+ */
+export function backfillPlan(
+  src: NextInput & Pick<Source, 'nextExpectedAt'>,
+  today: Date = new Date(),
+): { to: string | null; rolled: boolean } | null {
+  const from = src.nextExpectedAt ?? null;
+  if (from == null) {
+    const to = computeNextExpected(src, today);
+    return to == null ? null : { to, rolled: false };
+  }
+  if (!isExpectedOverdue(from, today)) return null;
+  const to = computeNextExpected(src, today);
+  return to === from ? null : { to, rolled: true };
+}

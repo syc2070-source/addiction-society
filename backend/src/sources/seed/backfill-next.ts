@@ -3,8 +3,10 @@
  *
  * 실행: npm run backfill:next  (매일 04:00 KST 예약이 seed:sources 바로 뒤에 호출 — SOC-R1)
  *
- * 전 소스의 next_expected_at을 computeNextExpected로 다시 계산한다. 계산은
- * 결정적이므로 몇 번을 돌려도 같은 값이 나온다(멱등).
+ * SOC-R8 ■2: 다시 계산하지 않는다 — next-expected.util backfillPlan. 비어 있으면 채우고,
+ * 예정 달이 끝나기 전엔 건드리지 않고, 끝났으면 rescheduled 와 함께 다음 예정으로.
+ * (전에는 매일 전 소스를 computeNextExpected 로 덮어 이번 달 예정이 달 초에 사건 없이
+ * 다음 달로 넘어갔다.) 멱등은 그대로.
  *
  * AS-M3-FIX-DATE 변경점:
  *  - 값이 실제로 바뀌는 행만 UPDATE 한다(불필요한 쓰기 제거).
@@ -21,7 +23,7 @@ import 'reflect-metadata';
 import { AppDataSource } from '../../data-source';
 import { Source } from '../entities/source.entity';
 import { SourceEvent } from '../entities/source-event.entity';
-import { computeNextExpected, isExpectedOverdue } from '../next-expected.util';
+import { backfillPlan, isExpectedOverdue } from '../next-expected.util';
 import { printJobCounts } from '../../common/job-counts';
 import { overdueAction } from '../missed-releases';
 
@@ -44,7 +46,8 @@ async function run() {
 
   for (const s of sources) {
     const from = s.nextExpectedAt ?? null;
-    const next = computeNextExpected(s, today);
+    const plan = backfillPlan(s, today);
+    const next = plan ? plan.to : from;
     if (from && isExpectedOverdue(from, today)) {
       overdue.push({ id: s.id, from, to: next });
       if (overdueAction(s) === 'check' || !next) needsCheck.push(s.id);
@@ -58,14 +61,14 @@ async function run() {
       byCadence[s.cadence].nulled++;
     }
 
-    if (next === from) continue; // 변화 없음 → 쓰지 않는다
+    if (!plan) continue; // 변화 없음 · 달 안 → 쓰지 않는다
 
     await repo.update(s.id, { nextExpectedAt: next });
     changes.push({ id: s.id, from, to: next });
 
     // 지난 예정일을 넘긴 경우만 이벤트로 남긴다.
     // (null → 최초 채움은 '이월'이 아니라 초기 백필이므로 제외)
-    if (isExpectedOverdue(from, today)) {
+    if (plan.rolled) {
       await eventRepo.save(
         eventRepo.create({
           sourceId: s.id,
