@@ -65,10 +65,13 @@ export type MonitorState =
  */
 export const RELEASE_CHANGE_METHODS = ['hash', 'board-latest'];
 
-export function confirmsRelease(e: Pick<EventLike, 'eventType' | 'detail'>): boolean {
+export function confirmsRelease(
+  e: Pick<EventLike, 'eventType' | 'detail'>,
+): boolean {
   if (e.eventType === 'published') return true;
   if (e.eventType !== 'changed') return false;
-  return RELEASE_CHANGE_METHODS.includes(String(e.detail?.method ?? ''));
+  const method = e.detail?.method;
+  return typeof method === 'string' && RELEASE_CHANGE_METHODS.includes(method);
 }
 
 /** 감시 결과 사건 — 마지막 것이 읽기 성공인지 실패인지 */

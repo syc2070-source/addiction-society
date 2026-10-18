@@ -3,7 +3,10 @@ import { join } from 'path';
 import type { QueryRunner, Repository } from 'typeorm';
 import { HriHashMonitor1788700000002 } from '../migrations/1788700000002-HriHashMonitor';
 import { SourcesScheduler } from './sources.scheduler';
-import type { RecordEventInput, SourceEventsService } from './source-events.service';
+import type {
+  RecordEventInput,
+  SourceEventsService,
+} from './source-events.service';
 import type { SourcesNotifier } from './discord.notifier';
 import type { Source } from './entities/source.entity';
 import { confirmsRelease, missedReleases } from './missed-releases';
@@ -15,14 +18,17 @@ function scheduler() {
   const patches: Partial<Source>[] = [];
   const repo = {
     update: (_id: string, p: Partial<Source>) => (
-      patches.push(p), Promise.resolve({ affected: 1 })
+      patches.push(p),
+      Promise.resolve({ affected: 1 })
     ),
   } as unknown as Repository<Source>;
   const recorded: RecordEventInput[] = [];
   const events = {
     record: (e: RecordEventInput) => (recorded.push(e), Promise.resolve()),
   } as unknown as SourceEventsService;
-  const notifier = { notify: () => Promise.resolve() } as unknown as SourcesNotifier;
+  const notifier = {
+    notify: () => Promise.resolve(),
+  } as unknown as SourcesNotifier;
   const sched = new SourcesScheduler(repo, notifier, events);
   const calls: string[] = [];
   const s = sched as unknown as {
@@ -37,10 +43,14 @@ function scheduler() {
       ok: true,
       headers: {
         get: (h: string) =>
-          h === 'last-modified' ? `Fri, 1${calls.length} Oct 2026 09:54:59 GMT` : null,
+          h === 'last-modified'
+            ? `Fri, 1${calls.length} Oct 2026 09:54:59 GMT`
+            : null,
       },
       text: () =>
-        Promise.resolve('<html><body><h1>Global State of Harm Reduction</h1></body></html>'),
+        Promise.resolve(
+          '<html><body><h1>Global State of Harm Reduction</h1></body></html>',
+        ),
     })
   );
   return { sched, calls, patches, recorded };
@@ -70,7 +80,9 @@ describe('SOC-R8 ■3 hri_gshr hash monitor', () => {
     const { sched, calls, patches, recorded } = scheduler();
     const first = await sched.monitorSources([hri()]);
     expect(calls).toEqual(['GET']);
-    expect(first).toEqual([{ id: 'hri_gshr', status: 'unchanged', method: 'hash' }]);
+    expect(first).toEqual([
+      { id: 'hri_gshr', status: 'unchanged', method: 'hash' },
+    ]);
     const hash = patches[0].contentHash;
     expect(hash).toMatch(/^[0-9a-f]{64}$/);
     expect(patches[0].lastModified).toBeUndefined();
@@ -107,7 +119,9 @@ describe('SOC-R8 ■3 hri_gshr hash monitor', () => {
     };
     const first = await run(1);
     expect(first).toHaveLength(2);
-    expect(first[0].q).toContain("WHERE id = $1 AND (access_detail IS NULL OR access_detail->>'detect' IS NULL)");
+    expect(first[0].q).toContain(
+      "WHERE id = $1 AND (access_detail IS NULL OR access_detail->>'detect' IS NULL)",
+    );
     expect(first[0].q).toContain('last_modified = NULL');
     expect(first[0].q).toContain('content_hash = NULL');
     expect(first[0].q).not.toContain('last_checked_at');
@@ -121,9 +135,14 @@ describe('SOC-R8 ■3 hri_gshr hash monitor', () => {
     });
     expect(await run(0)).toHaveLength(1); // 이미 바꿈 → 사건 0
 
-    const seed = readFileSync(join(__dirname, 'seed', 'sources.seed.ts'), 'utf8');
-    const row = seed.slice(seed.indexOf("id: 'hri_gshr'"), seed.indexOf("id: 'hri_gshr'") + 600);
-    expect(row).toContain("accessDetail: { detect: 'hash' }");
+    const seed = readFileSync(
+      join(__dirname, 'seed', 'sources.seed.ts'),
+      'utf8',
+    );
+    const at = seed.indexOf("id: 'hri_gshr'");
+    expect(seed.slice(at, at + 600)).toContain(
+      "accessDetail: { detect: 'hash' }",
+    );
   });
 
   it('a Last-Modified/ETag change no longer confirms a release; hash, board and published still do', () => {
@@ -154,12 +173,18 @@ describe('SOC-R8 ■3 hri_gshr hash monitor', () => {
       detectedAt: '2026-12-01T00:00:05Z',
       detail: { method: 'hash' },
     };
-    const lmChange = { ...ev('changed', 'last-modified'), detectedAt: '2026-12-02T00:00:00Z' };
+    const lmChange = {
+      ...ev('changed', 'last-modified'),
+      detectedAt: '2026-12-02T00:00:00Z',
+    };
     const today = new Date('2026-12-02T03:00:00Z');
     expect(missedReleases([src], [read, roll, lmChange], today)).toEqual([
       expect.objectContaining({ expected: '2026-11', next: '2027-11' }),
     ]);
-    const hashChange = { ...ev('changed', 'hash'), detectedAt: '2026-12-02T00:00:00Z' };
+    const hashChange = {
+      ...ev('changed', 'hash'),
+      detectedAt: '2026-12-02T00:00:00Z',
+    };
     expect(missedReleases([src], [read, roll, hashChange], today)).toEqual([]);
   });
 });

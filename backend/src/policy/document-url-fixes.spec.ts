@@ -102,7 +102,15 @@ describe('SOC-R8 ■1 representative document URLs', () => {
     for (const lang of ['ko', 'en']) {
       const msg = JSON.parse(
         readFileSync(
-          join(__dirname, '..', '..', '..', 'frontend-next', 'messages', `${lang}.json`),
+          join(
+            __dirname,
+            '..',
+            '..',
+            '..',
+            'frontend-next',
+            'messages',
+            `${lang}.json`,
+          ),
           'utf8',
         ),
       ) as { timelinePage: { event: Record<string, string> } };

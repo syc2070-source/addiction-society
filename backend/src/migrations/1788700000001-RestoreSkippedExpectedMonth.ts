@@ -11,9 +11,7 @@ import { updatedCount } from '../sources/source-url-fixes';
  * drugfree_stats · spo_drug_monthly next_expected_at 2026-11-01 → 2026-10-01, 아직 11-01 이고
  * 10월 이후 발간이 없을 때만(멱등). 되돌린 행마다 rescheduled{reason:'restore'}.
  */
-export class RestoreSkippedExpectedMonth1788700000001
-  implements MigrationInterface
-{
+export class RestoreSkippedExpectedMonth1788700000001 implements MigrationInterface {
   name = 'RestoreSkippedExpectedMonth1788700000001';
 
   public async up(queryRunner: QueryRunner): Promise<void> {

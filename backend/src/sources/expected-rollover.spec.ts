@@ -57,7 +57,10 @@ describe('SOC-R8 ■2 roll-over rule', () => {
       rolled: true,
     });
     expect(
-      backfillPlan({ ...drugfree, nextExpectedAt: null }, kst('2026-10-18T04:00:00')),
+      backfillPlan(
+        { ...drugfree, nextExpectedAt: null },
+        kst('2026-10-18T04:00:00'),
+      ),
     ).toEqual({ to: '2026-11-01', rolled: false });
     // 주기 없음(irregular) · 빈 값 → 지어내지 않음
     expect(
@@ -116,7 +119,7 @@ describe('SOC-R8 ■2 roll-over rule', () => {
       join(__dirname, 'seed', 'sources.seed.ts'),
       'utf8',
     );
-    expect(src).toContain("{ ...row, nextExpectedAt: null }");
+    expect(src).toContain('{ ...row, nextExpectedAt: null }');
     expect(src).toContain("['nextExpectedAt']");
     const saves: unknown[] = [];
     const repo = {
