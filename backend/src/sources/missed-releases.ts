@@ -14,7 +14,7 @@ import { computeNextExpected, isExpectedOverdue } from './next-expected.util';
  *    09:00 감시 크론이 next_expected_at 을 새로 계산하고 source_events 에 rescheduled 를 남김)
  *  - 주기 없음 → 「확인 필요」(다음 예정을 지어내지 않는다 · null)
  * 홈 「이번 달 발표 예정」은 이번 달 이후만, 지난 것은 달력 페이지의 이 줄에만 보인다.
- * 발간이 확인되면(published/changed 사건) 이 줄에서 빠진다.
+ * 발간이 확인되면(published · 해시/게시판 changed 사건 — confirmsRelease) 이 줄에서 빠진다.
  */
 export type OverdueAction = 'roll' | 'check';
 
@@ -56,6 +56,20 @@ export type MonitorState =
   | 'manual'
   | 'unchecked'
   | 'not_published';
+
+/**
+ * changed 사건 중 「발간 확인」으로 치는 감지 방식 (SOC-R8 ■3).
+ * 본문 해시·게시판 최신글만 — ETag·Last-Modified 는 발간과 무관하게 흔들리는
+ * 출처가 있어(hri_gshr 10월 changed 6) 바뀌었다는 것만으로 발간을 말하지 않는다.
+ * published(발간일을 잡음)는 방식과 무관하게 확인.
+ */
+export const RELEASE_CHANGE_METHODS = ['hash', 'board-latest'];
+
+export function confirmsRelease(e: Pick<EventLike, 'eventType' | 'detail'>): boolean {
+  if (e.eventType === 'published') return true;
+  if (e.eventType !== 'changed') return false;
+  return RELEASE_CHANGE_METHODS.includes(String(e.detail?.method ?? ''));
+}
 
 /** 감시 결과 사건 — 마지막 것이 읽기 성공인지 실패인지 */
 export const READ_OK_EVENTS = ['checked', 'changed', 'published'];
@@ -123,10 +137,10 @@ export function missedReleases(
     url: s.url,
   });
 
-  // 발간이 확인된 시각(소스별 마지막 published/changed).
+  // 발간이 확인된 시각(소스별 마지막 published · 해시/게시판 changed — confirmsRelease).
   const confirmedAt = new Map<string, number>();
   for (const e of events) {
-    if (e.eventType !== 'published' && e.eventType !== 'changed') continue;
+    if (!confirmsRelease(e)) continue;
     const t = new Date(e.detectedAt).getTime();
     if (t > (confirmedAt.get(e.sourceId) ?? 0)) confirmedAt.set(e.sourceId, t);
   }

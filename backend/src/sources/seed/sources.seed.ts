@@ -207,6 +207,8 @@ const SOURCES: Row[] = [
     cadence: 'annual',
     expectedMonth: [11],
     accessMethod: 'pdf',
+    // Last-Modified 가 발간과 무관하게 1~3일마다 바뀜(10월 changed 6) → 본문 해시로 (SOC-R8 ■3)
+    accessDetail: { detect: 'hash' },
     reliability: 2,
     url: 'https://hri.global/flagship-research/the-global-state-of-harm-reduction/',
     titleKo: '세계 해악감소 현황',

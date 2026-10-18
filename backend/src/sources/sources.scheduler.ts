@@ -568,6 +568,8 @@ export class SourcesScheduler {
    *  3) GET → 정규화(스크립트/주석/hidden input 제거 등) 본문 SHA-256 해시 비교
    * HEAD가 403/405면 곧바로 GET으로 폴백하고 stale로 판정하지 않는다.
    * 최초 확인(기존 값 null)은 기준값만 저장하고 '변경'으로 보지 않는다(초기 오탐 방지).
+   * accessDetail.detect === 'hash' 면 1)·2)를 건너뛰고 3) 본문 해시만(SOC-R8 ■3 —
+   * 발간과 무관하게 Last-Modified 가 흔들리는 출처: hri_gshr).
    */
   private async detectChange(s: Source): Promise<{
     changed: boolean;
@@ -581,10 +583,12 @@ export class SourcesScheduler {
     }
 
     let head: PageResponse | null = null;
-    try {
-      head = await this.fetchPage(s, 'HEAD');
-    } catch {
-      head = null; // HEAD 예외 → GET 폴백 시도
+    if (s.accessDetail?.detect !== 'hash') {
+      try {
+        head = await this.fetchPage(s, 'HEAD');
+      } catch {
+        head = null; // HEAD 예외 → GET 폴백 시도
+      }
     }
 
     if (head) {
