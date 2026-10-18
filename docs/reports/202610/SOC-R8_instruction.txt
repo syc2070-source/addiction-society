@@ -1,0 +1,50 @@
+SOC-R8 지시서 — 데스크탑 Claude Code · D:\addiction-society 새 세션 · 가지 claude/soc-r8 · main 33ef25e
+
+■ 위치판 (10-18 일)
+
+제품: 중독사회 = 「분야 중독」의 근거·지표·연대기 창. Phase = 관측소 정직성 다지기(SOC-0~R7 끝) → 12월 Statory 「맞다」 카드 내보내기 문.
+끝난 것: R7 PASS(10-17) = 00:05 홈 재굽기 · lastRefresh · R6 미측 셋 닫음 · 10~11월 예정 출처 표.
+진행 중: 10-18 00:05 첫 재굽기 · 04:00 · 09:00 회차 — 미측.
+지금 Claude 가 하는 것: 이 판 = 셋 실측 · 대표 문서 주소 둘 · 이월 규칙 · hri 감시 해시 · en 홈 단위.
+오너 몫(이 판 아님): 숨긴 44 검수 · 「제거」.
+
+목표 세 문장: ① 자정 재굽기가 첫날 맞게 돌았고 밤·아침 회차가 그대로인지 확인한다. ② 손님이 보는 두 결함 — 정책 문서 목록의 옛 링크(welcon 첫 화면), 영어 홈의 한국어 단위·출처 — 를 고친다. ③ 달력의 두 거짓 — 10월 예정이 사건 없이 사라지는 이월, Last-Modified 흔들림을 발간으로 읽는 hri — 를 닫는다.
+
+손님에게 달라지는 것: 「게임이용자 실태조사」 링크가 보고서 게시판으로 감 · 영어 홈 오늘의 숫자가 단위·출처까지 영어 · 11-01 에 drugfree 「2026-10 · 발표 없음」 줄이 섬 · hri 가 발간 없이 「확인」으로 보이지 않음.
+LLM 의존: 0/0.
+
+오너에게 묻지 말고 끝까지 계속 진행한다. 오너 액션 0.
+
+■0 첫머리 〔마디 ①〕
+
+첫 명령 = 이 지시서를 docs/reports/202610/SOC-R8_instruction.txt 로 저장 · 가지 claude/soc-r8 · 커밋 ⓐ [skip ci][skip render] · push.
+실측 표(공개 API·HTML 만): 10-18 00:05 lastRefresh(runId · status ok · 시작 15:05Z 께) · lastRun 은 04:00 회차인지 · 홈 ko/en 오늘의 숫자 = unodc_global_drug_users(20744 % 11 = 9) · 04:00 9/9(collect:indicators ins 0 skip 109 · seed:documents diff 1~2 = doc 18·12 사유) · 09:00 감시 = kocca_game·euda_statbulletin 재끼지 않음(next 2026-12-01 · 2027-06-01) · 예정일 대상 4 · 관측치 98 · 값 지문 e5c302f30c5d · breakYears 4. 어긋나면 그것부터(P1).
+
+■1 대표 문서 주소 둘 〔마디 ②〕
+
+migration FixSourceDocumentUrls(멱등 · 두 행만 UPDATE): doc 18 kocca_game sourceUrl → R6 가 정한 kocca.kr 연구보고서 게시판 주소 · doc 12 euda_statbulletin → /data/stats2026_en(R6 감시 URL 과 같게) · 사건 기록(document_updated 또는 기존 source_updated 꼴 · 연대기 노출) · seed 정의도 같이 고쳐 seed:documents diff 0 · EUDA URL 검증 403 은 실행자 PC Cloudflare 탓이니 검증은 Render 쪽 결과(04:00 단계 로그)로 적음.
+시험 3+ · 10-19 월 04:00 diff 0 = 다음 판 확인.
+
+■2 이월 규칙 〔마디 ③〕
+
+실측(전): R7 이 본 길 그대로 — 매일 seed:sources 가 기존 행 next_expected_at 을 비우고 backfill:next 가 「마지막 발간 이후 · 오늘 이후」 첫 달로 채워 달 안에 다음 달로 넘어감. 코드 자리·조건을 표로.
+수리: ⓐ seed:sources 는 기존 행의 next_expected_at 을 건드리지 않음(넣기만 규율과 같음) ⓑ backfill:next 는 비어 있을 때만 채우고 「그 달이 끝나기 전엔」 앞으로 밀지 않음 ⓒ 달이 끝나면(다음 달 1일 회차) 발간 없음 → rescheduled + 「발표 없음」 줄 쓴 뒤 다음 예정으로 ⓓ drugfree 의 2026-10 예정을 사건과 함께 복원(지금 11-01 로 밀린 것 · 기존 행 값 변경은 이 규칙 수리의 일부로 migration/사건 기록).
+시험 5+(월 안 불변 · 1일 이월 · 발표 없음 줄 · seed 무접촉 · drugfree 꼴) · 첫 실전 = 11-01 일 04:00(다음 판).
+
+■3 hri_gshr 감시 〔마디 ③〕
+
+감시 방식 Last-Modified → 본문 해시(euda 와 같은 꼴 · migration 또는 설정 · source_updated 사건) · 10월 changed 6 가 발간 확인으로 센 것은 missed 계산에서 「hash 방식 출처만 확인으로」 또는 사건 꼬리표로 가름 · 시험 3+.
+
+■4 en 홈 단위·출처 〔마디 ②〕
+
+「오늘의 숫자」 en 에서 단위(「명」→persons 등)·출처(「대검찰청」→Supreme Prosecutors' Office 등) 영어 — 지표 정본에 en 칸이 있으면 쓰고 없으면 더함(11 지표 전부 ko/en 대조표 · 값 변경 0) · /indicators en 도 같이.
+
+■5 닫기 〔마디 ①〕
+
+eslint-config-next 판 맞춤 = 둠(CTO 결정 10-17 · 기록만).
+게이트: 백엔드 jest 전량(151+) · 프런트 test · tsc 둘 · build 둘 · 바뀐 파일 lint.
+리뷰: 찾기 ≤2 + 수리 반박 ≤1 · P0/P1 만 수리.
+push 3j: ⓑ 코드 머리(표식 0 · 직전 git log -1) → Render(preDeploy migration 자동) health commit · Vercel 주요 쪽 200 → ⓒ docs/reports/202610/SOC-R8_<MMDD>.txt [skip ci][skip render].
+보고서 = 한 줄 경보 · ■0 표 · 전/후 · 정직 표기 · 남은 것 · 다음 판 첫머리 재확인 줄(10-19 04:00 diff 0 · 11-01 이월 · hri 사건) · 「손님에게 달라지는 것」·「LLM 의존」.
+
+■ 규율: 열쇠 값 0 · .env* 0 · production DB 직접 접속 0(migration 은 배포가 돌림) · 스키마 = TypeORM migration 덧붙임만 · seed 기존 행 변경은 이 판의 ■1·■2 migration 두 자리만 · 설치 0 · Edit/Write 만 · 명령 하나씩 · git add 파일별 · rebase/force 0 · npm audit fix 0 · 자동 기능 제거 0 · 「미측」≠0 · 새 시험 같은 커밋 등재 · 날짜 요일(18 일 · 19 월 · 11-01 일).
