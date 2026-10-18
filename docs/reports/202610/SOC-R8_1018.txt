@@ -1,0 +1,121 @@
+경보 0 (P0·P1 없음) — ■0 전부 예상대로(00:05 첫 재굽기 ok · 04:00 9/9 · 09:00 재끼지 않음 · 홈 ko·en = unodc 331) · 대표 문서 링크 둘 고침(document_updated 사건) · 이월 규칙 수리(달 안에 밀지 않음 · drugfree·spo 10월 예정 되돌림) · hri 본문 해시 감시 + Last-Modified 변경은 발간 확인 아님 · en 단위·출처 영어 · jest 162/162 · 배포 cc36929
+
+SOC-R8 보고 — 2026-10-18(일) · 실행자 Claude · 가지 claude/soc-r8 → main ff · 오너 액션 0
+ - 지시서: docs/reports/202610/SOC-R8_instruction.txt (push ⓐ bc77e82)
+ - 읽기 근거: https://addiction-society-api.onrender.com/api/health/nightly · /api/sources · /api/observations · /api/indicators · /api/timeline?all=1 · /api/policy/documents · https://www.addictionsociety.net / · /en (API·공개 HTML 만, DB 직접 접속 0)
+
+커밋
+| bc77e82 | ⓐ docs 지시서 [skip ci][skip render] |
+| 5254430 | ■1 fix(documents) 대표 문서 링크 둘 · migration 1788700000000 · document_updated |
+| af53cb8 | ■2 fix(calendar) 이월 규칙 backfillPlan · migration 1788700000001 되돌리기 |
+| 172d6a4 | ■3 fix(monitor) hri 본문 해시 · migration 1788700000002 · confirmsRelease |
+| 6d7ba6a | ■4 fix(i18n) en 단위·출처 lib/enLabels |
+| cc36929 | ■5 chore(lint) — ⓑ 코드 머리(표식 0) |
+| (이 파일) | ⓒ docs 보고서 [skip ci][skip render] |
+
+■0 실측 표 (14:02~14:05 KST 읽기)
+| # | 항목 | 예상 | 실측 | 판정 |
+|---|---|---|---|---|
+| 1 | 10-18 00:05 lastRefresh | ok · 15:05Z 께 | runId 834cef3f · 2026-10-17T15:05:00.011Z ~ 15:05:06.668Z · status ok | ✓ |
+| 2 | lastRun 은 04:00 회차 | 00:05 가 가리지 않음 | runId 671ad5be · 19:00:00.007Z ~ 19:01:36.901Z · ok · 9 단계 · last7Days runs 5(밤 회차만) · failed 0 · skipped 0 | ✓ |
+| 3 | 04:00 단계 | 9/9 · collect:indicators ins 0 skip 109 | 9/9 ok · collect:indicators 0/0/109/0 · refresh:home ok 9초 · counts 0 | ✓ |
+| 4 | seed:documents diff | 1~2(doc 18·12) | diff 1 · skipped 30 (그 밖 단계 diff 0 · 합계 ins 0 · upd 48 · skip 260 · diff 1) | ✓ 예상대로 → ■1 |
+| 5 | 홈 ko | unodc_global_drug_users(20744 % 11 = 9) | 「세계 약물 사용자 수 (15~64세 · 지난 1년) 331 백만 명 2024 · 출처 유엔마약범죄사무소」 | ✓ |
+| 6 | 홈 en | 같은 지표 · 첫 요청부터 | 「People who used drugs in the past year, worldwide (aged 15–64) 331 백만 명 2024 · Source UNODC」 · 응답 Date 2026-10-17 15:05:06 GMT(= 00:05:06 KST, 자정 재굽기의 데우기 GET 이 그린 판) | ✓ 숫자 · 단위 한국어 → ■4 |
+| 7 | 09:00 감시 kocca_game · euda_statbulletin | 다시 끼지 않음 | lastCheckedAt 10-17T00:00:14Z · 10-17T00:00:00Z 그대로 · 10-18 사건 없음 | ✓ |
+| 8 | 예정일 대상 | 4 | 10-18 읽힘 = hri_gshr(checked last-modified) · spo_drug_monthly(checked) · drugfree_stats(checked) · mohw_addiction_center(manual cooldown) — 4 | ✓ |
+| 9 | 관측치 · 값 지문 · breakYears | 98 · e5c302f30c5d · 4 | 98 · e5c302f30c5d · 4 · revisions 0 | ✓ |
+| 10 | monitor | stale 0 | sources 24 · stale 0 · unreachable 0 | ✓ |
+
+■1 대표 문서 주소 둘 (5254430)
+ - backend/src/policy/document-url-fixes.ts + migration 1788700000000-FixSourceDocumentUrls: documents.source_url 을 「source_id 가 맞고 아직 옛 주소」일 때만 UPDATE … RETURNING id(멱등) · 바뀐 행마다 source_events document_updated{documentId, field 'sourceUrl', from, to, reason, by 'SOC-R8'}
+   | 대표 문서 | 전 | 후 |
+   | doc 18 kocca_game | https://welcon.kocca.kr/ | kocca.kr 연구보고서 게시판 B0000147 「게임이용자 실태조사」 검색 목록(= R6 감시 URL) |
+   | doc 12 euda_statbulletin | …/publications/european-drug-report/2026_en (EDR) | https://www.euda.europa.eu/data/stats2026_en (= R6 감시 URL) |
+ - 사건 이름: 새 document_updated(event_type varchar(20) 안 · 16자) — source_updated 는 「감시 주소 변경」이라 손님이 누르는 문서 링크와 다른 일. SIGNIFICANT 에 더해 연대기 기본 노출 · 이름표 ko 「문서 링크 변경」 / en 「Document link changed」. 읽기·발간 확인 사건이 아님(missed 계산 무관)
+ - seed 정의: 고칠 것 없음 — seed:documents 는 대표 문서 sourceUrl 을 출처 행 url(s.url)로 만든다. 출처 url 은 R6 에서 이미 새 주소 → 문서 행이 맞춰지면 diff 0
+ - EUDA URL 검증: 실행자 PC 는 stats2026_en 403(Cloudflare · R7 실측). seed:documents 는 검증 실패 후보를 비교 없이 「보류」로 건너뛰므로 EUDA 쪽은 diff 에 안 잡힐 수 있다. 확인은 10-19 04:00 seed:documents diff(Render) — 단계 출력 원문은 공개 기록에 없어 「diff 0」 로만 판정
+ - 시험 3 (policy/document-url-fixes.spec.ts): ① 두 행만 · source_id+옛 주소 조건 · 사건 detail · 다시 돌리면 0 · R6 from/to 와 같음 ② seed 가 s.url 을 쓴다 · 고치기 전 sourceUrl diff 1 → 후 0 ③ 연대기 노출 · ko/en 이름표 · 읽기/발간 사건 아님(missed 「확인 전」 그대로)
+
+■2 이월 규칙 (af53cb8)
+ 실측(전) — 지시서·R7 보고와 다른 점 하나
+ | 자리 | 조건 | 실제로 하는 일 |
+ | seed:sources (sources.seed.ts 540~549) | 기존 행 | insertOnly(…, { ...row, nextExpectedAt: null }, …, ['nextExpectedAt']) — 없는 행만 넣고 next 는 비교에서도 뺀다. 기존 행의 next_expected_at 을 비우지 않는다(R7 보고의 「seed:sources 가 next 를 비우고」는 틀린 서술) |
+ | backfill:next (04:00 · backfill-next.ts 45~63) | 모든 행 · 매일 | computeNextExpected(s, today) 로 다시 계산해 다르면 UPDATE. 사건은 from 이 「지남」일 때만 |
+ | computeNextExpected (next-expected.util 116~118) | 발간 이력 있음 | 후보 중 c > lastPublished && c >= 오늘(UTC 날) — 10-02 UTC 부터 10-01 이 빠져 11-01 |
+ | → 결과 | 월간 · 발간 이력 있음 | 10-03 04:00 KST(UTC 10-02) 회차에 10-01 → 11-01 · from(10-01) 은 「지남」 아님 → 사건 없음 · 11-01 에 「2026-10」 줄이 서지 않음 |
+ | reconcileExpected (09:00 · sources.scheduler 270~312) | next < 이번 달 1일(UTC) | 감시 뒤에 이월 + rescheduled{reason overdue} — 이 길은 맞음 |
+ 수리
+ - ⓐ seed:sources: 이미 무접촉 — 코드 변경 0, 시험으로 못 박음
+ - ⓑ next-expected.util backfillPlan: 비어 있으면 채움(사건 없음) · 「지남」 아니면 null(쓰지 않음) · 지났으면 다음 예정 + rolled. backfill-next.ts 가 이것만 따른다(computeNextExpected 직접 덮기 제거)
+ - ⓒ 달이 끝난 뒤: 월 판정은 UTC → 11-01 04:00 KST(10-31 UTC) backfill 은 아직 10월로 보고 두고, 11-01 09:00 KST(00:00 UTC) 감시가 먼저 읽고(checked) reconcileExpected 가 rescheduled{overdue} 로 11-01 로 넘김 → missed 줄 「2026-10 → 2026-11 · 발표 없음」(읽기 성공이 달 끝 뒤에 있음)
+ - ⓓ migration 1788700000001-RestoreSkippedExpectedMonth: next_expected_at 2026-11-01 → 2026-10-01, 「아직 11-01 이고 10-01 이후 발간 없음」일 때만(멱등) · 행마다 rescheduled{from 2026-11-01, to 2026-10-01, reason 'restore', evidence, by 'SOC-R8'}(missed 계산은 reason overdue 만 줄로 셈 → 이 사건은 줄 아님)
+   | 출처 | 근거 | 전 → 후 |
+   | drugfree_stats | 10-01 rescheduled 09 → 10 (ev 195) 뒤 사건 없이 11-01 | 2026-11-01 → 2026-10-01 |
+   | spo_drug_monthly | 10-01 published(09-30 발간 · newExpectedAt 2026-10-01 · ev 193) 뒤 사건 없이 11-01 | 2026-11-01 → 2026-10-01 |
+   spo 는 지시서에 없음 — 같은 결함으로 같은 날 밀린 행이라 함께 되돌림(정직 표기)
+ - 시험 5 (sources/expected-rollover.spec.ts): ① 달 안 불변(10-03 · 10-18 · 10-31 · 11-01 04:00 KST) · 옛 계산은 11-01 을 냈음 · backfill 이 backfillPlan 만 씀 ② 11-01 09:00 이월 rolled · 빈 값 채움(사건 없음) · irregular 는 지어내지 않음 ③ 11-01 읽기 → 이월 → 「2026-10 · not_published」 줄 · restore 사건은 줄 아님 ④ seed:sources 기존 행 무접촉(save 0 · diff 0) ⑤ 되돌리기 두 행 · 조건 · 사건 · 재실행 0 · 되돌린 뒤 10-19 backfill 은 그대로
+ - 첫 실전 = 11-01(일) 09:00 → 다음 판
+
+■3 hri_gshr 감시 (172d6a4)
+ - 실측(10-18 14:0x KST · 감시 UA · 4초 간격 3회): HEAD 200 · ETag 없음 · Last-Modified 「Fri, 16 Oct 2026 09:54:59 GMT」 · GET 200 79,059바이트 · 정규화 해시 e1e8f84844… 3회 같음. 10월 changed(last-modified) 6 = 10-03 · 06 · 11 · 15 · 16 · 17
+ - accessDetail.detect = 'hash' → detectChange 가 HEAD(ETag·Last-Modified)를 건너뛰고 GET 정규화 본문 해시만(euda 와 같은 꼴). 다른 출처는 그대로
+ - migration 1788700000002-HriHashMonitor: access_detail 에 detect 'hash' 를 「아직 detect 없을 때만」 더함 · last_modified · etag · content_hash 비움(첫 읽기 = 기준선 · changed 아님) · lastCheckedAt 그대로(예정 11-01 이라 매일 대상) · source_updated{field 'accessDetail.detect', from 'last-modified', to 'hash', reason, reset, by 'SOC-R8'}
+ - seed:sources hri 행에도 accessDetail { detect: 'hash' } → migration 뒤 seed_diff 0
+ - missed 계산: confirmsRelease — published 는 늘 확인 · changed 는 detail.method 가 hash · board-latest 일 때만 확인(ETag·Last-Modified 변경은 「바뀜」 사건으로는 남지만 발간 확인 아님)
+ - 시험 3 (sources/hri-hash-monitor.spec.ts): ① detect hash → GET 한 번 · 첫 읽기 기준선 · 같은 본문이면 Last-Modified 가 바뀌어도 unchanged · detect 없는 출처는 HEAD ② migration 조건·비움·사건·재실행 0 · seed 같은 설정 ③ confirmsRelease 표 · 12-01 이월 뒤 last-modified changed 가 있어도 「2026-11」 줄 남음 · hash changed 면 빠짐
+ - 정직 표기: 하루 단위로 본문 해시가 흔들리는지는 아직 못 쟀다(3회는 몇 분 안). 흔들리면 hash changed 가 「발간 확인」으로 읽힌다 — 10-19 · 10-20 09:00 hri 사건으로 확인
+
+■4 en 단위·출처 (6d7ba6a)
+ - 지표 정본(DB indicators.unit · sources.org)에는 en 칸이 없다. 칸을 더하고 채우면 기존 지표·출처 행 변경 → 이 판 규율(seed 기존 행 변경은 ■1·■2 migration 두 자리만) 밖. 그래서 en 정본을 frontend-next/src/lib/enLabels.ts 표로 두고 en 화면에서만 바꿔 보인다(DB 값 변경 0 · 지시서 「없으면 더함」을 DB 가 아니라 화면 표로 한 것 — 정직 표기)
+ - 단위: 명 → persons · 백만 명 → million people · %·L 그대로
+ - 출처: org 가 한글인 출처 7(mohw · spo · drugfree · kcgp_youth · kcgp_rehab · ncmh · ngcc)만 영어 공식 이름 · 그 밖은 org(이미 영어 약칭) · 표에 없는 한글은 원래 값(지어내지 않음)
+ - 쓰는 곳: 홈 오늘의 숫자 단위·출처 · 홈 지표 카드 단위 · 홈 활동·연대기 줄 출처 · /indicators 목록 단위 · /indicators/[code] 머리·분해표·관측치표 단위 · /timeline · /calendar · /sources 출처(지시서는 홈·/indicators — 같은 함수라 함께, 범위 넘음 표기)
+ 11 지표 ko/en 대조표 (값 변경 0)
+ | 지표 | 단위 ko → en | 출처 ko(orgKo) → en |
+ | who_alcohol_per_capita_kr | L → L | 세계보건기구 → WHO |
+ | spo_drug_offenders_total | 명 → persons | 대검찰청 → Supreme Prosecutors' Office |
+ | knhanes_high_risk_drinking_rate | % → % | 질병관리청 → KDCA |
+ | knhanes_current_smoking_rate | % → % | 질병관리청 → KDCA |
+ | unodc_global_drug_users | 백만 명 → million people | 유엔마약범죄사무소 → UNODC |
+ | kcgp_youth_gambling_problem_group_rate | % → % | 한국도박문제예방치유원 → Korea Center on Gambling Problems |
+ | kcgp_youth_gambling_problem_rate | % → % | 〃 |
+ | kcgp_youth_gambling_atrisk_rate | % → % | 〃 |
+ | kcgp_youth_v2 | % → % | 〃 |
+ | kocca_game_usage_rate | % → % | 한국콘텐츠진흥원 → KOCCA |
+ | nia_smartphone_overdependence_rate | % → % | 한국지능정보사회진흥원 → NIA |
+ - 시험 2 (src/lib/enLabels.test.mts · npm test 등록): ① 11 지표 단위 en 에 한글 0 · ko 그대로 ② seed 의 한글 org 출처 = ORG_EN 열쇠와 정확히 같음 · 모든 출처 en 에 한글 0 · spo 「Supreme Prosecutors' Office」 · 표에 없는 id 는 원래 값
+ - 남은 것: 지표 이름(nameEn 있음)·정의(definitionKo 만)·관측치 note 는 en 에서도 한국어 — 이 판 범위 밖
+
+■5 닫기
+ - eslint-config-next 판 맞춤 = 둠(CTO 결정 10-17 · 기록만)
+| 게이트 | 결과 |
+| backend jest 전량 | 24 묶음 · 162/162 (R7 151 + 11: ■1 3 · ■2 5 · ■3 3) |
+| frontend npm test | 8/8 (todayNumber 2 · seriesBreaks 2 · recentRun 2 · enLabels 2) |
+| tsc backend · frontend | 0 · 0 |
+| nest build · next build | ok · ok (35 정적 쪽) |
+| lint(바뀐 파일) | 이 판이 쓴 줄 0 (prettier 정리 뒤) · 같은 파일 안 기존 오류는 그대로 둠: sources.scheduler.ts any 9 · source-events.service.ts:175 단언 1 · next-expected.util.ts 14·92 줄 prettier(CRLF) — 이 판 전부터 |
+| 리뷰 | 찾기 1회(세 migration 의 조건·멱등 · document_updated/restore 사건이 missed 계산에 끼지 않는지 · UTC 월 판정과 11-01 순서) — P0/P1 0 · 수리 0 |
+| main ff · push ⓑ | 33ef25e..cc36929 (직전 git log -1 = cc36929 chore(lint) · 표식 0) |
+| Render | /api/health commit cc36929 · startedAt 05:18:44Z(14:18 KST) |
+| 운영 migration 결과 | 세 개 모두 05:18:08Z(14:18 KST) 적용 · 사건 285 kocca_game document_updated · 286 euda_statbulletin document_updated · 287 drugfree_stats rescheduled{restore} · 288 spo_drug_monthly rescheduled{restore} · 289 hri_gshr source_updated{accessDetail.detect last-modified → hash} / 공개 API: doc 18 = kocca.kr B0000147 주소 · doc 12 = stats2026_en · doc 14 euda_edr 그대로 · drugfree·spo next 2026-10-01 · hri accessDetail {"detect":"hash"} · lastModified·etag·contentHash null · lastCheckedAt 10-18T00:00:00Z 그대로 / 30일 요약 document_updated 2 · source_updated 3 · rescheduled 3 / missed 줄 그대로 2(drugfree 2026-09 · 2026-08 · not_published) — 되돌림 사건은 줄 아님 ✓ |
+| Vercel | /en 홈 「331 million people … Source UNODC」 · /en/indicators/unodc_global_drug_users 단위 million people(남은 「백만 명」 2 = 정의문 definitionKo 본문) · /en/timeline 에 「Document link changed」 이름표 보임(ISR 캐시라 새 사건 둘이 모두 실렸는지는 캐시 갱신 뒤) · / · /en · /indicators · /en/indicators · /timeline · /en/timeline · /calendar · /en/calendar · /sources · /en/sources · /policy 모두 200 |
+
+정직 표기
+ - R7 보고 ■3 ① 의 「seed:sources 가 next 를 비우고」는 틀렸다 — 실제로 미는 것은 backfill:next 의 매일 재계산(위 표). 지시서 ■2 ⓐ 는 이미 그런 상태라 코드 변경 없이 시험만
+ - spo_drug_monthly 10월 예정도 되돌렸다(지시서는 drugfree 만) — 같은 결함 · 같은 날 · 같은 증거 꼴
+ - ■4 en 정본은 DB 칸이 아니라 화면 표(lib/enLabels) — 기존 행 변경 규율 때문
+ - ■4 를 /timeline · /calendar · /sources 출처 이름까지 넓힘(같은 함수)
+ - frontend-next/package.json: npm test 스크립트에 enLabels.test.mts 등록(의존·판 변경 0)
+ - hri 본문 해시의 날 사이 안정성 미측 · EUDA 문서 URL 검증은 Render 결과로만(실행자 PC 403)
+ - 「명령 하나씩」: 이 판은 && · ; 0
+
+손님에게 달라지는 것: 정책 문서 목록 「게임이용자 실태조사」 링크 → kocca.kr 보고서 게시판 · 「유럽마약보고서 통계공보」 → 통계공보 쪽 · 영어 홈 오늘의 숫자가 단위·출처까지 영어(예: 23,403 persons · Supreme Prosecutors' Office) · /en 지표·연대기·달력·출처 쪽 출처 이름 영어 · 달력 「이번 달 발표 예정」에 drugfree·spo 가 10월로 다시 보임 · 11-01 에 drugfree 「2026-10 · 발표 없음」 줄 예정 · hri 가 Last-Modified 흔들림만으로 「확인」되지 않음 · 연대기에 「문서 링크 변경」 2 · 「예정일 이월」(되돌림) 2 · 「감시 주소 변경」 1
+LLM 의존: 줄어드는 곳 0 · 남는 곳 0
+
+다음 판 첫머리 (재확인 줄)
+ 1. 10-19(월) 04:00: 9/9 ok · seed:documents diff 0(대표 문서 둘 고친 뒤 · seed:sources 도 hri accessDetail 같아 diff 0) · backfill:next updated 0(달 안 불변 — drugfree·spo 10-01 그대로)
+ 2. 10-19(월) 09:00: hri_gshr 첫 기준선 = checked{method hash}(changed 아님) · 10-20 도 checked 면 날 사이 해시 안정
+ 3. 10-19 00:05 lastRefresh ok · 홈 = who_alcohol_per_capita_kr(20745 % 11 = 10) · en 단위 L · 출처 WHO
+ 4. 11-01(일) 09:00: drugfree · spo 감시(checked) → reconcileExpected rescheduled{overdue} 2026-10 → 2026-11 → /api/sources/calendar/missed 에 「2026-10 · 발표 없음(not_published)」 두 줄(10월 중 발간을 잡으면 그 출처는 빠짐) · 04:00 backfill 은 아직 손대지 않음(UTC 10-31)
+ 5. 관측치 98 · 값 지문 e5c302f30c5d · breakYears 4
