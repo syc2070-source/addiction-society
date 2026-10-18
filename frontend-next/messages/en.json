@@ -52,7 +52,8 @@
       "broadcast": "Broadcast",
       "blocked": "Blocked",
       "rescheduled": "Rescheduled",
-      "source_updated": "Monitor URL changed"
+      "source_updated": "Monitor URL changed",
+      "document_updated": "Document link changed"
     }
   },
   "indicatorsPage": {

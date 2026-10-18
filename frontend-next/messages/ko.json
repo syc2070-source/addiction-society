@@ -52,7 +52,8 @@
       "broadcast": "방송",
       "blocked": "차단",
       "rescheduled": "예정일 이월",
-      "source_updated": "감시 주소 변경"
+      "source_updated": "감시 주소 변경",
+      "document_updated": "문서 링크 변경"
     }
   },
   "indicatorsPage": {

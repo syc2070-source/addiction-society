@@ -40,6 +40,8 @@ export interface TimelineRow {
 //   관측소 운영 실태의 핵심 정보다.
 // source_updated: SOC-R6 ■1. 감시 주소(감시 설정)를 고친 사건 — 무엇을 보고 있는지가
 //   바뀐 것이므로 연대기에 남긴다(detail = {from,to,reason}).
+// document_updated: SOC-R8 ■1. 출처 대표 문서의 링크를 고친 사건(detail = {documentId,
+//   field,from,to,reason}) — 손님이 누르는 링크가 바뀌었으므로 연대기에 남긴다.
 export const SIGNIFICANT = [
   'published',
   'changed',
@@ -49,6 +51,7 @@ export const SIGNIFICANT = [
   'rescheduled',
   'blocked',
   'source_updated',
+  'document_updated',
 ];
 
 @Injectable()
