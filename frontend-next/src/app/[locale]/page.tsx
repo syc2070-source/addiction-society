@@ -25,6 +25,7 @@ import {
 } from '@/lib/evidenceMap';
 import { MINISTRY_MAP } from '@/data/ministry-map';
 import { pickTodaysNumber } from '@/lib/todayNumber';
+import { orgLabel, unitLabel } from '@/lib/enLabels';
 import { seriesBreakYears, splitAtBreaks } from '@/lib/seriesBreaks';
 import styles from './page.module.css';
 
@@ -263,7 +264,7 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
     l === 'en' && i.nameEn ? i.nameEn : i.nameKo;
   const sourceTitle = (s: Source) =>
     l === 'en' && s.titleEn ? s.titleEn : s.titleKo;
-  const sourceOrg = (s: Source) => (l === 'en' ? s.org || s.orgKo : s.orgKo);
+  const sourceOrg = (s: Source) => orgLabel(s, l);
 
   const rich = {
     hl: (chunks: React.ReactNode) => (
@@ -327,7 +328,7 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
                 : todayLatest.value}
               {today.indicator.unit ? (
                 <span className={styles.featuredUnit}>
-                  {today.indicator.unit}
+                  {unitLabel(today.indicator.unit, l)}
                 </span>
               ) : null}
             </div>
@@ -670,7 +671,9 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
                 <div className={styles.featuredValue}>
                   {obs.value}
                   {indicator.unit ? (
-                    <span className={styles.featuredUnit}>{indicator.unit}</span>
+                    <span className={styles.featuredUnit}>
+                      {unitLabel(indicator.unit, l)}
+                    </span>
                   ) : null}
                 </div>
                 <div className={styles.featuredMeta}>
@@ -708,7 +711,7 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
                   {e.detectedAt.slice(0, 10)}
                 </span>
                 <span className={styles.activityOrg}>
-                  {l === 'en' ? e.org || e.orgKo : e.orgKo || e.org}
+                  {orgLabel({ id: e.sourceId, org: e.org, orgKo: e.orgKo }, l)}
                 </span>
                 <span className={styles.activityEvent}>
                   {tTimeline(`event.${e.eventType}`)}

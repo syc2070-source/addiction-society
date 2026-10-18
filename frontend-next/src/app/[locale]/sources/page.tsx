@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { AppLocale } from "@/i18n/routing";
 import { fetchSources, type Source } from "@/lib/api";
+import { orgLabel } from "@/lib/enLabels";
 
 /**
  * 소스 지도 (/sources) — 기존 SourceList.tsx 기능 동등 이식.
@@ -138,7 +139,7 @@ export default async function SourcesPage({
               >
                 <div className="list-item-meta">
                   <span className="tag tag-org">
-                    {l === "en" ? s.org : s.orgKo || s.org}
+                    {orgLabel(s, l)}
                   </span>
                   {s.domain && (
                     <span className="tag">{t(`domain.${s.domain}`)}</span>

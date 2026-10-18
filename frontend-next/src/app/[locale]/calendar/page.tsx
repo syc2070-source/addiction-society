@@ -7,6 +7,7 @@ import {
   fetchSources,
   type Source,
 } from "@/lib/api";
+import { orgLabel } from "@/lib/enLabels";
 
 /**
  * 발표 캘린더 (/calendar) — 기존 SourceCalendar.tsx 이식.
@@ -104,7 +105,7 @@ export default async function CalendarPage({
                   <div key={s.id} className="list-item">
                     <div className="list-item-meta">
                       <span className="tag tag-org">
-                        {l === "en" ? s.org : s.orgKo || s.org}
+                        {orgLabel(s, l)}
                       </span>
                       <span className="tag">{ts(`scope.${s.scope}`)}</span>
                       {isStar(s) && (
@@ -140,7 +141,7 @@ export default async function CalendarPage({
                   >
                     <div className="list-item-meta">
                       <span className="tag tag-org">
-                        {l === "en" ? m.org : m.orgKo || m.org}
+                        {orgLabel({ id: m.sourceId, org: m.org, orgKo: m.orgKo }, l)}
                       </span>
                       {/* SOC-R4: 「읽지 못함」(감시 실패)과 「발표 없음」(읽었는데 없음)을 가른다 */}
                       {m.monitor ? (
@@ -183,7 +184,7 @@ export default async function CalendarPage({
                   <div key={s.id} className="list-item">
                     <div className="list-item-meta">
                       <span className="tag tag-org">
-                        {l === "en" ? s.org : s.orgKo || s.org}
+                        {orgLabel(s, l)}
                       </span>
                       <span className="tag">{ts(`scope.${s.scope}`)}</span>
                       <span className="tag">

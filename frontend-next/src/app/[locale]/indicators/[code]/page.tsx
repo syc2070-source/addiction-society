@@ -4,6 +4,7 @@ import type { AppLocale } from '@/i18n/routing';
 import { Link } from '@/i18n/navigation';
 import { fetchIndicator, type Observation } from '@/lib/api';
 import { seriesBreakYears, splitAtBreaks } from '@/lib/seriesBreaks';
+import { unitLabel } from '@/lib/enLabels';
 
 /** 지표 상세 (/indicators/{code}) — 정의·읽는 법 + 추이(시계열 차트) + 분해 + 원본 딥링크(원칙3). */
 
@@ -164,7 +165,7 @@ export default async function IndicatorDetailPage({
           <>
             <div className="page-kicker" style={{ marginTop: 'var(--space-2)' }}>
               {indicator.domain}
-              {indicator.unit ? ` · ${indicator.unit}` : ''}
+              {indicator.unit ? ` · ${unitLabel(indicator.unit, l)}` : ''}
             </div>
             <h1 className="page-title">
               {l === 'en' && indicator.nameEn
@@ -243,7 +244,9 @@ export default async function IndicatorDetailPage({
                             <td>{o.period}</td>
                             <td>
                               {o.value}
-                              {indicator.unit ? ` ${indicator.unit}` : ''}
+                              {indicator.unit
+                                ? ` ${unitLabel(indicator.unit, l)}`
+                                : ''}
                             </td>
                           </tr>
                         )),
@@ -280,7 +283,9 @@ export default async function IndicatorDetailPage({
                           <td>{qualLabel(o.qualifier ?? 'total')}</td>
                           <td>
                             {o.value}
-                            {indicator.unit ? ` ${indicator.unit}` : ''}
+                            {indicator.unit
+                              ? ` ${unitLabel(indicator.unit, l)}`
+                              : ''}
                             {o.valueLow && o.valueHigh
                               ? ` (${o.valueLow}–${o.valueHigh})`
                               : ''}

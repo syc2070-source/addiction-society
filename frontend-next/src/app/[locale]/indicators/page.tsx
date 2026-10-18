@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import type { AppLocale } from '@/i18n/routing';
 import { Link } from '@/i18n/navigation';
 import { fetchIndicators } from '@/lib/api';
+import { unitLabel } from '@/lib/enLabels';
 
 /** 지표 목록 (/indicators) — 블루프린트 제2장: "숫자는 무엇인가". 지표당 1페이지(SEO). */
 
@@ -52,7 +53,7 @@ export default async function IndicatorsPage({
             >
               <div className="list-item-meta">
                 <span className="tag tag-org">{ind.domain}</span>
-                {ind.unit && <span className="tag">{ind.unit}</span>}
+                {ind.unit && <span className="tag">{unitLabel(ind.unit, l)}</span>}
                 {typeof ind.observationCount === 'number' && (
                   <span>{t('obsCount', { count: ind.observationCount })}</span>
                 )}
