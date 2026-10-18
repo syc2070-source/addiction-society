@@ -4,7 +4,7 @@
   "topic": "youth-gambling",
   "title": "청소년 도박",
   "title_en": "Youth gambling",
-  "generated_at": "2026-10-13T22:20:50.808Z",
+  "generated_at": "2026-10-18T00:11:31.073Z",
   "source": "addiction bibliography (Europe PMC) — metadata and abstracts only",
   "query": {
     "all_of_groups": [
@@ -69,7 +69,7 @@
     }
   },
   "values": {
-    "studies": 739,
+    "studies": 740,
     "by_year": {
       "2002": 5,
       "2003": 7,
@@ -95,20 +95,36 @@
       "2023": 41,
       "2024": 34,
       "2025": 39,
-      "2026": 44
+      "2026": 45
     },
     "trend": {
-      "last_five_years": 213,
+      "last_five_years": 214,
       "five_years_before": 236,
       "latest_year": 2026
     },
     "journal_countries_top": [
       [
+        "AU",
+        2
+      ],
+      [
+        "CA",
+        2
+      ],
+      [
         "GB",
         1
       ],
       [
-        "AU",
+        "IN",
+        1
+      ],
+      [
+        "ES",
+        1
+      ],
+      [
+        "US",
         1
       ]
     ],
@@ -119,9 +135,9 @@
       "cohort": 65,
       "qualitative": 48,
       "rct": 25,
+      "meta-analysis": 18,
       "experiment": 18,
       "systematic-review": 17,
-      "meta-analysis": 17,
       "case-control": 1
     },
     "instruments_top": [
@@ -175,6 +191,20 @@
         "cited": 702
       },
       {
+        "title": "Impulsivity predicts problem gambling in low SES adolescent males.",
+        "doi": "10.1046/j.1360-0443.1999.94456511.x",
+        "year": 1999,
+        "journal": "Addiction (Abingdon, England)",
+        "cited": 132
+      },
+      {
+        "title": "The D2/3 dopamine receptor in pathological gambling: a positron emission tomography study with [11C]-(+)-propyl-hexahydro-naphtho-oxazin and [11C]raclopride.",
+        "doi": "10.1111/add.12066",
+        "year": 2013,
+        "journal": "Addiction (Abingdon, England)",
+        "cited": 116
+      },
+      {
         "title": "Investigating risk factors for Internet gaming disorder: a comparison of patients with addictive gaming, pathological gamblers and healthy controls regarding the big five personality traits.",
         "doi": "10.1159/000355832",
         "year": 2014,
@@ -189,11 +219,18 @@
         "cited": 430
       },
       {
-        "title": "The D2/3 dopamine receptor in pathological gambling: a positron emission tomography study with [11C]-(+)-propyl-hexahydro-naphtho-oxazin and [11C]raclopride.",
-        "doi": "10.1111/add.12066",
-        "year": 2013,
-        "journal": "Addiction (Abingdon, England)",
-        "cited": 116
+        "title": "A neurocognitive comparison of cognitive flexibility and response inhibition in gamblers with varying degrees of clinical severity.",
+        "doi": "10.1017/s0033291711000316",
+        "year": 2011,
+        "journal": "Psychological medicine",
+        "cited": 77
+      },
+      {
+        "title": "Psychological therapies for pathological and problem gambling.",
+        "doi": "10.1002/14651858.cd008937.pub2",
+        "year": 2012,
+        "journal": "The Cochrane database of systematic reviews",
+        "cited": 320
       },
       {
         "title": "Prevalence of Adolescent Problem Gambling: A Systematic Review of Recent Research.",
@@ -203,20 +240,6 @@
         "cited": 477
       },
       {
-        "title": "Psychological therapies for pathological and problem gambling.",
-        "doi": "10.1002/14651858.cd008937.pub2",
-        "year": 2012,
-        "journal": "The Cochrane database of systematic reviews",
-        "cited": 158
-      },
-      {
-        "title": "Impulsivity predicts problem gambling in low SES adolescent males.",
-        "doi": "10.1046/j.1360-0443.1999.94456511.x",
-        "year": 1999,
-        "journal": "Addiction (Abingdon, England)",
-        "cited": 132
-      },
-      {
         "title": "The natural history of problem gambling from age 18 to 29.",
         "doi": "10.1037/0021-843x.112.2.263",
         "year": 2003,
@@ -224,18 +247,11 @@
         "cited": 115
       },
       {
-        "title": "The prevalence of problem gambling among U.S. adolescents and young adults: results from a national survey.",
-        "doi": "10.1007/s10899-007-9086-0",
-        "year": 2008,
-        "journal": "Journal of gambling studies",
-        "cited": 123
-      },
-      {
-        "title": "Pathological gambling and alcohol dependence: neural disturbances in reward and loss avoidance processing.",
-        "doi": "10.1111/adb.12144",
-        "year": 2015,
-        "journal": "Addiction biology",
-        "cited": 55
+        "title": "Neuroendocrine response to casino gambling in problem gamblers.",
+        "doi": "10.1016/j.psyneuen.2004.03.005",
+        "year": 2004,
+        "journal": "Psychoneuroendocrinology",
+        "cited": 88
       }
     ],
     "core_basis": "in-bibliography citations (reviews x3)",
@@ -261,7 +277,7 @@
         "doi": "10.1002/14651858.cd008937.pub2",
         "year": 2012,
         "journal": "The Cochrane database of systematic reviews",
-        "cited": 158,
+        "cited": 320,
         "kind": "narrative"
       },
       {
@@ -269,7 +285,7 @@
         "doi": "10.1515/ijamh.2010.22.1.3",
         "year": 2010,
         "journal": "International journal of adolescent medicine and health",
-        "cited": 144,
+        "cited": 262,
         "kind": "narrative"
       },
       {
@@ -277,18 +293,18 @@
         "doi": "10.1016/j.jadohealth.2010.05.003",
         "year": 2010,
         "journal": "The Journal of adolescent health : official publication of the Society for Adolescent Medicine",
-        "cited": 122,
+        "cited": 262,
         "kind": "narrative"
       }
     ],
     "evidence_levels": {
-      "fulltext": 10,
-      "abstract": 0,
-      "indirect": 0,
-      "bib_only": 729
+      "fulltext": 35,
+      "abstract": 5,
+      "indirect": 67,
+      "bib_only": 633
     },
     "open_access": 257,
-    "open_access_share": 0.348,
+    "open_access_share": 0.347,
     "full_text_held": 87
   },
   "honesty": [
@@ -302,7 +318,7 @@
       "en": "Youth gambling"
     },
     "source": "addiction bibliography (Europe PMC) — metadata and abstracts only",
-    "total": 739,
+    "total": 740,
     "counts_by_year": [
       {
         "year": 2002,
@@ -402,16 +418,32 @@
       },
       {
         "year": 2026,
-        "n": 44
+        "n": 45
       }
     ],
     "countries": [
+      {
+        "name": "AU",
+        "n": 2
+      },
+      {
+        "name": "CA",
+        "n": 2
+      },
       {
         "name": "GB",
         "n": 1
       },
       {
-        "name": "AU",
+        "name": "IN",
+        "n": 1
+      },
+      {
+        "name": "ES",
+        "n": 1
+      },
+      {
+        "name": "US",
         "n": 1
       }
     ],
@@ -441,15 +473,15 @@
         "n": 25
       },
       {
+        "name": "meta-analysis",
+        "n": 18
+      },
+      {
         "name": "experiment",
         "n": 18
       },
       {
         "name": "systematic-review",
-        "n": 17
-      },
-      {
-        "name": "meta-analysis",
         "n": 17
       },
       {
@@ -507,6 +539,18 @@
         "url": "https://doi.org/10.4088/jcp.v66n0504"
       },
       {
+        "title": "Impulsivity predicts problem gambling in low SES adolescent males.",
+        "year": 1999,
+        "doi": "10.1046/j.1360-0443.1999.94456511.x",
+        "url": "https://doi.org/10.1046/j.1360-0443.1999.94456511.x"
+      },
+      {
+        "title": "The D2/3 dopamine receptor in pathological gambling: a positron emission tomography study with [11C]-(+)-propyl-hexahydro-naphtho-oxazin and [11C]raclopride.",
+        "year": 2013,
+        "doi": "10.1111/add.12066",
+        "url": "https://doi.org/10.1111/add.12066"
+      },
+      {
         "title": "Investigating risk factors for Internet gaming disorder: a comparison of patients with addictive gaming, pathological gamblers and healthy controls regarding the big five personality traits.",
         "year": 2014,
         "doi": "10.1159/000355832",
@@ -519,16 +563,10 @@
         "url": "https://doi.org/10.1016/j.cpr.2016.10.008"
       },
       {
-        "title": "The D2/3 dopamine receptor in pathological gambling: a positron emission tomography study with [11C]-(+)-propyl-hexahydro-naphtho-oxazin and [11C]raclopride.",
-        "year": 2013,
-        "doi": "10.1111/add.12066",
-        "url": "https://doi.org/10.1111/add.12066"
-      },
-      {
-        "title": "Prevalence of Adolescent Problem Gambling: A Systematic Review of Recent Research.",
-        "year": 2017,
-        "doi": "10.1007/s10899-016-9627-5",
-        "url": "https://doi.org/10.1007/s10899-016-9627-5"
+        "title": "A neurocognitive comparison of cognitive flexibility and response inhibition in gamblers with varying degrees of clinical severity.",
+        "year": 2011,
+        "doi": "10.1017/s0033291711000316",
+        "url": "https://doi.org/10.1017/s0033291711000316"
       },
       {
         "title": "Psychological therapies for pathological and problem gambling.",
@@ -537,10 +575,10 @@
         "url": "https://doi.org/10.1002/14651858.cd008937.pub2"
       },
       {
-        "title": "Impulsivity predicts problem gambling in low SES adolescent males.",
-        "year": 1999,
-        "doi": "10.1046/j.1360-0443.1999.94456511.x",
-        "url": "https://doi.org/10.1046/j.1360-0443.1999.94456511.x"
+        "title": "Prevalence of Adolescent Problem Gambling: A Systematic Review of Recent Research.",
+        "year": 2017,
+        "doi": "10.1007/s10899-016-9627-5",
+        "url": "https://doi.org/10.1007/s10899-016-9627-5"
       },
       {
         "title": "The natural history of problem gambling from age 18 to 29.",
@@ -549,16 +587,10 @@
         "url": "https://doi.org/10.1037/0021-843x.112.2.263"
       },
       {
-        "title": "The prevalence of problem gambling among U.S. adolescents and young adults: results from a national survey.",
-        "year": 2008,
-        "doi": "10.1007/s10899-007-9086-0",
-        "url": "https://doi.org/10.1007/s10899-007-9086-0"
-      },
-      {
-        "title": "Pathological gambling and alcohol dependence: neural disturbances in reward and loss avoidance processing.",
-        "year": 2015,
-        "doi": "10.1111/adb.12144",
-        "url": "https://doi.org/10.1111/adb.12144"
+        "title": "Neuroendocrine response to casino gambling in problem gamblers.",
+        "year": 2004,
+        "doi": "10.1016/j.psyneuen.2004.03.005",
+        "url": "https://doi.org/10.1016/j.psyneuen.2004.03.005"
       }
     ],
     "reviews": [
@@ -599,17 +631,17 @@
       }
     ],
     "evidence_levels": {
-      "fulltext": 10,
-      "abstract": 0,
-      "indirect": 0,
-      "bib_only": 729
+      "fulltext": 35,
+      "abstract": 5,
+      "indirect": 67,
+      "bib_only": 633
     },
     "oa_ratio": {
       "with_fulltext": 257,
-      "total": 739
+      "total": 740
     },
     "gaps": {
-      "no_fulltext": 652,
+      "no_fulltext": 653,
       "owner_hands": 1
     }
   }

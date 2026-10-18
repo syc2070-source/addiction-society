@@ -4,7 +4,7 @@
   "topic": "alcohol-recovery",
   "title": "알코올 회복",
   "title_en": "Alcohol recovery",
-  "generated_at": "2026-10-13T22:20:41.379Z",
+  "generated_at": "2026-10-18T00:11:20.242Z",
   "source": "addiction bibliography (Europe PMC) — metadata and abstracts only",
   "query": {
     "all_of_groups": [
@@ -65,7 +65,7 @@
     }
   },
   "values": {
-    "studies": 7483,
+    "studies": 7493,
     "by_year": {
       "2002": 81,
       "2003": 127,
@@ -91,55 +91,55 @@
       "2023": 375,
       "2024": 388,
       "2025": 497,
-      "2026": 453
+      "2026": 463
     },
     "trend": {
-      "last_five_years": 2162,
+      "last_five_years": 2172,
       "five_years_before": 1704,
       "latest_year": 2026
     },
     "journal_countries_top": [
       [
         "US",
-        32
+        135
       ],
       [
         "DE",
-        3
+        15
       ],
       [
-        "NL",
-        1
-      ],
-      [
-        "IN",
-        1
+        "AU",
+        9
       ],
       [
         "GB",
-        1
+        9
       ],
       [
-        "DK",
-        1
+        "IT",
+        9
       ],
       [
-        "NZ",
-        1
+        "ES",
+        7
       ],
       [
-        "FR",
-        1
+        "NL",
+        6
+      ],
+      [
+        "CA",
+        6
       ]
     ],
     "designs": {
-      "other": 3971,
-      "rct": 943,
-      "cohort": 868,
+      "other": 3976,
+      "rct": 945,
+      "cohort": 869,
       "qualitative": 468,
-      "survey": 448,
+      "survey": 449,
       "experiment": 371,
-      "cross-sectional": 183,
+      "cross-sectional": 184,
       "meta-analysis": 113,
       "systematic-review": 103,
       "case-control": 15
@@ -147,27 +147,31 @@
     "instruments_top": [
       [
         "AUDIT",
-        114
+        115
       ],
       [
         "ASI",
+        67
+      ],
+      [
+        "OCDS",
         53
       ],
       [
         "PACS",
-        47
-      ],
-      [
-        "OCDS",
-        41
-      ],
-      [
-        "TLFB",
-        38
+        48
       ],
       [
         "BDI",
-        35
+        47
+      ],
+      [
+        "TLFB",
+        41
+      ],
+      [
+        "CIWA-Ar",
+        26
       ],
       [
         "DSM-5 criteria",
@@ -178,22 +182,11 @@
         20
       ],
       [
-        "CIWA-Ar",
-        20
-      ],
-      [
         "AUDIT-C",
         19
       ]
     ],
     "core_papers": [
-      {
-        "title": "Naltrexone and coping skills therapy for alcohol dependence. A controlled study.",
-        "doi": "10.1001/archpsyc.1992.01820110045007",
-        "year": 1992,
-        "journal": "Archives of general psychiatry",
-        "cited": 873
-      },
       {
         "title": "Naltrexone in the treatment of alcohol dependence.",
         "doi": "10.1001/archpsyc.1992.01820110040006",
@@ -202,18 +195,11 @@
         "cited": 1069
       },
       {
-        "title": "Efficacy and tolerability of long-acting injectable naltrexone for alcohol dependence: a randomized controlled trial.",
-        "doi": "10.1001/jama.293.13.1617",
-        "year": 2005,
-        "journal": "JAMA",
-        "cited": 433
-      },
-      {
-        "title": "Gabapentin treatment for alcohol dependence: a randomized clinical trial.",
-        "doi": "10.1001/jamainternmed.2013.11950",
-        "year": 2014,
-        "journal": "JAMA internal medicine",
-        "cited": 235
+        "title": "Naltrexone and coping skills therapy for alcohol dependence. A controlled study.",
+        "doi": "10.1001/archpsyc.1992.01820110045007",
+        "year": 1992,
+        "journal": "Archives of general psychiatry",
+        "cited": 873
       },
       {
         "title": "Drug dependence, a chronic medical illness: implications for treatment, insurance, and outcomes evaluation.",
@@ -223,25 +209,11 @@
         "cited": 2611
       },
       {
-        "title": "Disulfiram treatment of alcoholism. A Veterans Administration cooperative study.",
-        "doi": "10.1001/jama.1986.03380110055026",
-        "year": 1986,
-        "journal": "JAMA",
-        "cited": 378
-      },
-      {
-        "title": "Topiramate for treating alcohol dependence: a randomized controlled trial.",
-        "doi": "10.1001/jama.298.14.1641",
-        "year": 2007,
-        "journal": "JAMA",
-        "cited": 374
-      },
-      {
-        "title": "Advances in the science and treatment of alcohol use disorder.",
-        "doi": "10.1126/sciadv.aax4043",
-        "year": 2019,
-        "journal": "Science advances",
-        "cited": 593
+        "title": "Anticraving medications for relapse prevention: a possible new class of psychoactive medications.",
+        "doi": "10.1176/appi.ajp.162.8.1423",
+        "year": 2005,
+        "journal": "The American journal of psychiatry",
+        "cited": 403
       },
       {
         "title": "Toward a model of drug relapse: an assessment of the validity of the reinstatement procedure.",
@@ -251,11 +223,39 @@
         "cited": 620
       },
       {
-        "title": "Anticraving medications for relapse prevention: a possible new class of psychoactive medications.",
-        "doi": "10.1176/appi.ajp.162.8.1423",
+        "title": "A functional polymorphism of the mu-opioid receptor gene is associated with naltrexone response in alcohol-dependent patients.",
+        "doi": "10.1038/sj.npp.1300219",
+        "year": 2003,
+        "journal": "Neuropsychopharmacology : official publication of the American College of Neuropsychopharmacology",
+        "cited": 408
+      },
+      {
+        "title": "Gabapentin treatment for alcohol dependence: a randomized clinical trial.",
+        "doi": "10.1001/jamainternmed.2013.11950",
+        "year": 2014,
+        "journal": "JAMA internal medicine",
+        "cited": 235
+      },
+      {
+        "title": "Psychological stress, drug-related cues and cocaine craving.",
+        "doi": "10.1007/s002130000499",
+        "year": 2000,
+        "journal": "Psychopharmacology",
+        "cited": 367
+      },
+      {
+        "title": "Cue-induced activation of the striatum and medial prefrontal cortex is associated with subsequent relapse in abstinent alcoholics.",
+        "doi": "10.1007/s00213-004-1828-4",
+        "year": 2004,
+        "journal": "Psychopharmacology",
+        "cited": 460
+      },
+      {
+        "title": "Efficacy and tolerability of long-acting injectable naltrexone for alcohol dependence: a randomized controlled trial.",
+        "doi": "10.1001/jama.293.13.1617",
         "year": 2005,
-        "journal": "The American journal of psychiatry",
-        "cited": 403
+        "journal": "JAMA",
+        "cited": 433
       }
     ],
     "core_basis": "in-bibliography citations (reviews x3)",
@@ -277,6 +277,14 @@
         "kind": "systematic"
       },
       {
+        "title": "Substance use disorders in patients with posttraumatic stress disorder: a review of the literature.",
+        "doi": "10.1176/appi.ajp.158.8.1184",
+        "year": 2001,
+        "journal": "The American journal of psychiatry",
+        "cited": 1041,
+        "kind": "narrative"
+      },
+      {
         "title": "Relapse prevention for alcohol and drug problems: that was Zen, this is Tao.",
         "doi": "10.1037/0003-066x.59.4.224",
         "year": 2004,
@@ -285,31 +293,23 @@
         "kind": "narrative"
       },
       {
-        "title": "Ecological momentary assessment (EMA) in studies of substance use.",
-        "doi": "10.1037/a0017074",
-        "year": 2009,
-        "journal": "Psychological assessment",
-        "cited": 761,
-        "kind": "narrative"
-      },
-      {
-        "title": "Toward a model of drug relapse: an assessment of the validity of the reinstatement procedure.",
-        "doi": "10.1007/s00213-006-0529-6",
-        "year": 2006,
-        "journal": "Psychopharmacology",
-        "cited": 620,
+        "title": "The relationship between anxiety disorders and alcohol use disorders: a review of major perspectives and findings.",
+        "doi": "10.1016/s0272-7358(99)00027-6",
+        "year": 2000,
+        "journal": "Clinical psychology review",
+        "cited": 781,
         "kind": "narrative"
       }
     ],
     "evidence_levels": {
-      "fulltext": 12,
-      "abstract": 0,
-      "indirect": 0,
-      "bib_only": 7471
+      "fulltext": 340,
+      "abstract": 110,
+      "indirect": 611,
+      "bib_only": 6432
     },
     "open_access": 1707,
     "open_access_share": 0.228,
-    "full_text_held": 16
+    "full_text_held": 577
   },
   "honesty": [
     "every value is counted from the bibliography; none is estimated",
@@ -322,7 +322,7 @@
       "en": "Alcohol recovery"
     },
     "source": "addiction bibliography (Europe PMC) — metadata and abstracts only",
-    "total": 7483,
+    "total": 7493,
     "counts_by_year": [
       {
         "year": 2002,
@@ -422,55 +422,55 @@
       },
       {
         "year": 2026,
-        "n": 453
+        "n": 463
       }
     ],
     "countries": [
       {
         "name": "US",
-        "n": 32
+        "n": 135
       },
       {
         "name": "DE",
-        "n": 3
+        "n": 15
       },
       {
-        "name": "NL",
-        "n": 1
-      },
-      {
-        "name": "IN",
-        "n": 1
+        "name": "AU",
+        "n": 9
       },
       {
         "name": "GB",
-        "n": 1
+        "n": 9
       },
       {
-        "name": "DK",
-        "n": 1
+        "name": "IT",
+        "n": 9
       },
       {
-        "name": "NZ",
-        "n": 1
+        "name": "ES",
+        "n": 7
       },
       {
-        "name": "FR",
-        "n": 1
+        "name": "NL",
+        "n": 6
+      },
+      {
+        "name": "CA",
+        "n": 6
       }
     ],
     "designs": [
       {
         "name": "other",
-        "n": 3971
+        "n": 3976
       },
       {
         "name": "rct",
-        "n": 943
+        "n": 945
       },
       {
         "name": "cohort",
-        "n": 868
+        "n": 869
       },
       {
         "name": "qualitative",
@@ -478,7 +478,7 @@
       },
       {
         "name": "survey",
-        "n": 448
+        "n": 449
       },
       {
         "name": "experiment",
@@ -486,7 +486,7 @@
       },
       {
         "name": "cross-sectional",
-        "n": 183
+        "n": 184
       },
       {
         "name": "meta-analysis",
@@ -504,27 +504,31 @@
     "instruments": [
       {
         "name": "AUDIT",
-        "n": 114
+        "n": 115
       },
       {
         "name": "ASI",
+        "n": 67
+      },
+      {
+        "name": "OCDS",
         "n": 53
       },
       {
         "name": "PACS",
-        "n": 47
-      },
-      {
-        "name": "OCDS",
-        "n": 41
-      },
-      {
-        "name": "TLFB",
-        "n": 38
+        "n": 48
       },
       {
         "name": "BDI",
-        "n": 35
+        "n": 47
+      },
+      {
+        "name": "TLFB",
+        "n": 41
+      },
+      {
+        "name": "CIWA-Ar",
+        "n": 26
       },
       {
         "name": "DSM-5 criteria",
@@ -535,21 +539,11 @@
         "n": 20
       },
       {
-        "name": "CIWA-Ar",
-        "n": 20
-      },
-      {
         "name": "AUDIT-C",
         "n": 19
       }
     ],
     "core_papers": [
-      {
-        "title": "Naltrexone and coping skills therapy for alcohol dependence. A controlled study.",
-        "year": 1992,
-        "doi": "10.1001/archpsyc.1992.01820110045007",
-        "url": "https://doi.org/10.1001/archpsyc.1992.01820110045007"
-      },
       {
         "title": "Naltrexone in the treatment of alcohol dependence.",
         "year": 1992,
@@ -557,16 +551,10 @@
         "url": "https://doi.org/10.1001/archpsyc.1992.01820110040006"
       },
       {
-        "title": "Efficacy and tolerability of long-acting injectable naltrexone for alcohol dependence: a randomized controlled trial.",
-        "year": 2005,
-        "doi": "10.1001/jama.293.13.1617",
-        "url": "https://doi.org/10.1001/jama.293.13.1617"
-      },
-      {
-        "title": "Gabapentin treatment for alcohol dependence: a randomized clinical trial.",
-        "year": 2014,
-        "doi": "10.1001/jamainternmed.2013.11950",
-        "url": "https://doi.org/10.1001/jamainternmed.2013.11950"
+        "title": "Naltrexone and coping skills therapy for alcohol dependence. A controlled study.",
+        "year": 1992,
+        "doi": "10.1001/archpsyc.1992.01820110045007",
+        "url": "https://doi.org/10.1001/archpsyc.1992.01820110045007"
       },
       {
         "title": "Drug dependence, a chronic medical illness: implications for treatment, insurance, and outcomes evaluation.",
@@ -575,22 +563,10 @@
         "url": "https://doi.org/10.1001/jama.284.13.1689"
       },
       {
-        "title": "Disulfiram treatment of alcoholism. A Veterans Administration cooperative study.",
-        "year": 1986,
-        "doi": "10.1001/jama.1986.03380110055026",
-        "url": "https://doi.org/10.1001/jama.1986.03380110055026"
-      },
-      {
-        "title": "Topiramate for treating alcohol dependence: a randomized controlled trial.",
-        "year": 2007,
-        "doi": "10.1001/jama.298.14.1641",
-        "url": "https://doi.org/10.1001/jama.298.14.1641"
-      },
-      {
-        "title": "Advances in the science and treatment of alcohol use disorder.",
-        "year": 2019,
-        "doi": "10.1126/sciadv.aax4043",
-        "url": "https://doi.org/10.1126/sciadv.aax4043"
+        "title": "Anticraving medications for relapse prevention: a possible new class of psychoactive medications.",
+        "year": 2005,
+        "doi": "10.1176/appi.ajp.162.8.1423",
+        "url": "https://doi.org/10.1176/appi.ajp.162.8.1423"
       },
       {
         "title": "Toward a model of drug relapse: an assessment of the validity of the reinstatement procedure.",
@@ -599,10 +575,34 @@
         "url": "https://doi.org/10.1007/s00213-006-0529-6"
       },
       {
-        "title": "Anticraving medications for relapse prevention: a possible new class of psychoactive medications.",
+        "title": "A functional polymorphism of the mu-opioid receptor gene is associated with naltrexone response in alcohol-dependent patients.",
+        "year": 2003,
+        "doi": "10.1038/sj.npp.1300219",
+        "url": "https://doi.org/10.1038/sj.npp.1300219"
+      },
+      {
+        "title": "Gabapentin treatment for alcohol dependence: a randomized clinical trial.",
+        "year": 2014,
+        "doi": "10.1001/jamainternmed.2013.11950",
+        "url": "https://doi.org/10.1001/jamainternmed.2013.11950"
+      },
+      {
+        "title": "Psychological stress, drug-related cues and cocaine craving.",
+        "year": 2000,
+        "doi": "10.1007/s002130000499",
+        "url": "https://doi.org/10.1007/s002130000499"
+      },
+      {
+        "title": "Cue-induced activation of the striatum and medial prefrontal cortex is associated with subsequent relapse in abstinent alcoholics.",
+        "year": 2004,
+        "doi": "10.1007/s00213-004-1828-4",
+        "url": "https://doi.org/10.1007/s00213-004-1828-4"
+      },
+      {
+        "title": "Efficacy and tolerability of long-acting injectable naltrexone for alcohol dependence: a randomized controlled trial.",
         "year": 2005,
-        "doi": "10.1176/appi.ajp.162.8.1423",
-        "url": "https://doi.org/10.1176/appi.ajp.162.8.1423"
+        "doi": "10.1001/jama.293.13.1617",
+        "url": "https://doi.org/10.1001/jama.293.13.1617"
       }
     ],
     "reviews": [
@@ -621,6 +621,13 @@
         "kind": "systematic"
       },
       {
+        "title": "Substance use disorders in patients with posttraumatic stress disorder: a review of the literature.",
+        "year": 2001,
+        "doi": "10.1176/appi.ajp.158.8.1184",
+        "url": "https://doi.org/10.1176/appi.ajp.158.8.1184",
+        "kind": "narrative"
+      },
+      {
         "title": "Relapse prevention for alcohol and drug problems: that was Zen, this is Tao.",
         "year": 2004,
         "doi": "10.1037/0003-066x.59.4.224",
@@ -628,33 +635,26 @@
         "kind": "narrative"
       },
       {
-        "title": "Ecological momentary assessment (EMA) in studies of substance use.",
-        "year": 2009,
-        "doi": "10.1037/a0017074",
-        "url": "https://doi.org/10.1037/a0017074",
-        "kind": "narrative"
-      },
-      {
-        "title": "Toward a model of drug relapse: an assessment of the validity of the reinstatement procedure.",
-        "year": 2006,
-        "doi": "10.1007/s00213-006-0529-6",
-        "url": "https://doi.org/10.1007/s00213-006-0529-6",
+        "title": "The relationship between anxiety disorders and alcohol use disorders: a review of major perspectives and findings.",
+        "year": 2000,
+        "doi": "10.1016/s0272-7358(99)00027-6",
+        "url": "https://doi.org/10.1016/s0272-7358(99)00027-6",
         "kind": "narrative"
       }
     ],
     "evidence_levels": {
-      "fulltext": 12,
-      "abstract": 0,
-      "indirect": 0,
-      "bib_only": 7471
+      "fulltext": 340,
+      "abstract": 110,
+      "indirect": 611,
+      "bib_only": 6432
     },
     "oa_ratio": {
       "with_fulltext": 1707,
-      "total": 7483
+      "total": 7493
     },
     "gaps": {
-      "no_fulltext": 7467,
-      "owner_hands": 9
+      "no_fulltext": 6916,
+      "owner_hands": 18
     }
   }
 }
