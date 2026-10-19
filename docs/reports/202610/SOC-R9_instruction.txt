@@ -1,0 +1,24 @@
+SOC-R9 지시서 (CTO 2026-10-19 월 09:40)
+
+〔위치판〕 중독사회 = 분야 「중독」의 근거·지표·연대기 창(두뇌 = Statory). SOC-0~R8 PASS(main cc36929 · jest 162): 검수 창 · 04:00 9단계 + 00:05 홈 재굽기 · 지표 11(관측치 98+) · break_years 점선 · 감시 URL 수정 · doc 18·12 링크 · 이월 = 달 끝난 뒤(backfill 수리 · drugfree+spo 10-01 복원) · hri 본문 해시 · en 단위·출처 lib/enLabels. 남은 것 = 지표 정의문 en 에 한국어 · hri 해시 날 사이 안정 · 연대기 방송 줄에 실제 들어오는지 · 11월 1주 ECO-LINK1 계약(세 사이트 공통) · 12월 「맞다」 카드 내보내기 문 자리. 숨긴 44 검수 = 오너(판 밖). 지금 = SOC-R9. 오너에게 묻지 말고 끝까지 계속 진행하라.
+
+〔목표 세 문장〕 ① 영어 화면에 한국어가 한 글자도 없다(지표 정의문까지). ② hri 같은 「날마다 바뀌는 글자」 때문에 발간 사건이 잘못 쌓이지 않는다. ③ 11월 1주 ECO-LINK1 이 바로 짤 수 있게 세 저장소의 현재 필드를 대조한 계약 초안을 낸다(코드 0).
+손님에게 달라지는 것: 영어 손님이 지표 뜻을 영어로 읽음 · 연대기에 가짜 「발간」 0. LLM 의존: 0(이 판 LLM 호출 0).
+
+■0 시작·실측 〔전부〕
+- 첫 명령 = 지시서를 docs/reports/202610/SOC-R9_instruction.txt 로 저장 · 가지 claude/soc-r9(main cc36929).
+- 실측 표: 10-19 04:00 회차(ok 9/9 · seed diff 0 · backfill 0 · inserted · 기존 행 변경 0) · 홈 ko/en 오늘의 숫자(who_alcohol 예측 적중?) · 09:00 hri 본문 해시 기준선 · 연대기 방송 줄(broadcast_items) 행 수와 공급 경로(중독뉴스 kind=broadcast 가 실제로 들어오는지 · 0 이면 까닭) · en 화면 전 페이지 한글 스캔(출처 고유명 제외) 목록 · Vercel 주요 쪽 200 · health nightly.
+
+■1 지표 정의문 en 〔영어〕
+- 지표 11 의 정의·해석·설계 변경 꼬리 영어 = lib/enLabels 확장(DB 0 · 화면 표) · ■0 한글 스캔 목록 전부 영어로 · 게이트 = en 빌드 산출 HTML 한글 0(출처 고유명 허용 목록만 예외) 자동 검사(시험 등재).
+
+■2 hri 해시 안정 〔감시〕
+- 10월 changed 사건을 되짚어 분류(진짜 발간 / 날짜·조회수 글자만) · 규칙 = 해시 바뀜 ∧ 본문 길이 차 <1% ∧ 바뀐 토막이 날짜·숫자 글자만 → 「발간 아님」(사건 0 · 감시 로그만) · 그 밖은 지금처럼 changed · 잘못 쌓인 사건은 삭제 0 · 「발간 아님」 표식만 · 시험 = 토막 셋.
+
+■3 ECO-LINK1 계약 초안 〔11월〕
+- docs/ECO_LINK1_CONTRACT_DRAFT.md(코드 0 · 읽기 전용 대조): ① 분야 id = FIELD_TAXONOMY 「중독」 + 하위 유형(행동중독: 도박·게임·쇼핑·일·스마트폰·음식·AI / 물질: 알코올·약물·니코틴 · 오너 10-17) ② 출처 등급 넷(논문 > 보고서 > 방송·강연 > 기사) ③ 승인 상태 대응표(중독사회 approved/pending/hidden · 중독뉴스 published/archive/rejected · Statory 카드 complete/total·reviewed) ④ slug 규칙 ⑤ 세 저장소 현재 필드 대조표(중독사회 research·indicators·documents·broadcast_items 실측 · 중독뉴스 articles 는 D:\addicted-news 읽기만 · Statory 는 CARD_V4_FIELDS 문서 기준) ⑥ 12월 「맞다」 카드 읽기 전용 import 자리(받는 꼴만) · 빈칸·충돌은 「CTO 결정 필요」 표로.
+
+■4 게이트·push 〔끝〕
+- jest · 프런트 test · tsc · 두 build · 리뷰 찾기 ≤2 + 반박 ≤1 · P0/P1 만 · migration 0(이 판 스키마 변경 없음 · 필요해지면 덧붙임 migration 만 제안) · push 3j(ⓐ [skip ci][skip render] → ⓑ 코드 머리 → ⓒ 보고서 [skip render]) · Render health commit 확인 · 보고서 docs/reports/202610/SOC-R9_<MMDD>.txt 첫 줄 SHA · 「손님에게 달라지는 것」·「LLM 의존」 · 확인 줄 = 10-20 화 04:00 diff 0 · 09:00 hri 「발간 아님」 첫 작동 · 11-01 일 「발표 없음」 둘.
+
+하지 않는 것: seed 기존 행 변경 0 · 사건 삭제 0 · 숨긴 44 결정 0(오너) · 내보내기 문 구현 0(초안만) · Render 설정 화면 0 · .env* 0 · 열쇠 값 0 · npm audit fix 손 실행 0 · 명령 하나씩 · Edit/Write 만.
