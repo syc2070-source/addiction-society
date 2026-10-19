@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --test src/lib/todayNumber.test.mts src/lib/seriesBreaks.test.mts src/lib/recentRun.test.mts src/lib/enLabels.test.mts"
+    "test": "node --test src/lib/todayNumber.test.mts src/lib/seriesBreaks.test.mts src/lib/recentRun.test.mts src/lib/enLabels.test.mts src/lib/enText.test.mts src/lib/enHangulGate.test.mts",
+    "test:en": "node --test --test-name-pattern=built src/lib/enHangulGate.test.mts"
   },
   "dependencies": {
     "next": "16.4.2",

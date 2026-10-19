@@ -3,7 +3,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import type { AppLocale } from '@/i18n/routing';
 import { Link } from '@/i18n/navigation';
 import { fetchIndicators } from '@/lib/api';
-import { unitLabel } from '@/lib/enLabels';
+import { definitionLabel, unitLabel } from '@/lib/enLabels';
 
 /** 지표 목록 (/indicators) — 블루프린트 제2장: "숫자는 무엇인가". 지표당 1페이지(SEO). */
 
@@ -61,10 +61,10 @@ export default async function IndicatorsPage({
               <h3 className="list-item-title">
                 {l === 'en' && ind.nameEn ? ind.nameEn : ind.nameKo}
               </h3>
-              {ind.definitionKo && (
+              {definitionLabel(ind, l) && (
                 <p className="list-item-desc">
-                  {ind.definitionKo.slice(0, 140)}
-                  {ind.definitionKo.length > 140 ? '…' : ''}
+                  {definitionLabel(ind, l).slice(0, 140)}
+                  {definitionLabel(ind, l).length > 140 ? '…' : ''}
                 </p>
               )}
             </Link>

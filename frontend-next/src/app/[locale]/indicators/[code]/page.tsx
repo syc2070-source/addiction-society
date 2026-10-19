@@ -4,7 +4,13 @@ import type { AppLocale } from '@/i18n/routing';
 import { Link } from '@/i18n/navigation';
 import { fetchIndicator, type Observation } from '@/lib/api';
 import { seriesBreakYears, splitAtBreaks } from '@/lib/seriesBreaks';
-import { unitLabel } from '@/lib/enLabels';
+import {
+  definitionLabel,
+  groupLabel,
+  methodNoteLabel,
+  observationNoteLabel,
+  unitLabel,
+} from '@/lib/enLabels';
 
 /** 지표 상세 (/indicators/{code}) — 정의·읽는 법 + 추이(시계열 차트) + 분해 + 원본 딥링크(원칙3). */
 
@@ -128,7 +134,7 @@ export default async function IndicatorDetailPage({
 
   // 분해: qualifier별로 묶기 ('group=남학생' → '남학생')
   const qualLabel = (q: string) =>
-    q === 'total' ? t('qualTotal') : q.replace(/^group=/, '');
+    q === 'total' ? t('qualTotal') : groupLabel(q.replace(/^group=/, ''), l);
   const groups = new Map<string, Observation[]>();
   for (const o of decomposed) {
     const key = o.qualifier ?? 'total';
@@ -176,10 +182,12 @@ export default async function IndicatorDetailPage({
             {/* 정의 + 이 지표 읽는 법 */}
             <section className="report-section">
               <h2>{t('definition')}</h2>
-              <p>{indicator.definitionKo}</p>
+              <p>{definitionLabel(indicator, l)}</p>
               <h3 className="read-guide-title">{t('readGuide')}</h3>
-              {indicator.methodNote ? (
-                <p className="list-item-meta">{indicator.methodNote}</p>
+              {methodNoteLabel(indicator, l) ? (
+                <p className="list-item-meta">
+                  {methodNoteLabel(indicator, l)}
+                </p>
               ) : null}
               {!hasTrend && (
                 <p className="status-note">{t('trendPending')}</p>
@@ -212,10 +220,11 @@ export default async function IndicatorDetailPage({
                 {seriesBreak && (
                   <ul className="series-notes">
                     {totalSeries
-                      .filter((o) => o.note)
+                      .filter((o) => observationNoteLabel(indicator.code, o, l))
                       .map((o) => (
                         <li key={o.id}>
-                          <b>{o.period}</b> {o.note}
+                          <b>{o.period}</b>{' '}
+                          {observationNoteLabel(indicator.code, o, l)}
                         </li>
                       ))}
                   </ul>
@@ -290,7 +299,9 @@ export default async function IndicatorDetailPage({
                               ? ` (${o.valueLow}–${o.valueHigh})`
                               : ''}
                           </td>
-                          <td className="cell-note">{o.note ?? ''}</td>
+                          <td className="cell-note">
+                            {observationNoteLabel(indicator.code, o, l)}
+                          </td>
                           <td>
                             <a
                               href={o.sourceUrl}

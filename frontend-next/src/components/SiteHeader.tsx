@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { getTranslations } from 'next-intl/server';
+import { getLocale, getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import LocaleSwitch from './LocaleSwitch';
 
@@ -8,6 +8,7 @@ import LocaleSwitch from './LocaleSwitch';
  */
 export default async function SiteHeader() {
   const t = await getTranslations('nav');
+  const locale = await getLocale();
 
   return (
     <header className="site-header">
@@ -16,7 +17,7 @@ export default async function SiteHeader() {
         <Link href="/" className="site-logo">
           <Image
             src="/logo-dark-ink.png"
-            alt="중독사회 addiction society"
+            alt={locale === 'en' ? 'addiction society' : '중독사회 addiction society'}
             width={97}
             height={40}
             priority

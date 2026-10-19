@@ -2,6 +2,11 @@ import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { fetchPolicyDocuments } from '@/lib/api';
 import ListPagination from '@/components/ListPagination';
+import {
+  countryLabel,
+  documentTitleLabel,
+  englishOrEmpty,
+} from '@/lib/enLabels';
 
 /** 정책문서 목록 (/policy) — 카드 + 검색 수준 이식 (관리자 기능 제외) */
 
@@ -29,6 +34,10 @@ export default async function PolicyPage({
   const tc = await getTranslations('common');
   const result = await fetchPolicyDocuments({ page, search });
   const totalPages = result ? Math.ceil(result.total / result.limit) : 0;
+  const docDesc = (d: { summary?: string | null; description?: string | null }) =>
+    locale === 'en'
+      ? englishOrEmpty(d.description, locale)
+      : d.summary || d.description || '';
 
   return (
     <main className="page-container">
@@ -63,14 +72,19 @@ export default async function PolicyPage({
             {result.data.map((d) => (
               <div key={d.id} className="list-item">
                 <div className="list-item-meta">
-                  {d.country && <span className="tag tag-org">{d.country}</span>}
+                  {d.country && (
+                    <span className="tag tag-org">
+                      {countryLabel(d.country, locale)}
+                    </span>
+                  )}
                   {d.year && <span className="tag">{d.year}</span>}
                 </div>
-                <h3 className="list-item-title">{d.title}</h3>
-                {(d.summary || d.description) && (
-                  <p className="list-item-desc">
-                    {(d.summary || d.description || '').slice(0, 140)}…
-                  </p>
+                <h3 className="list-item-title">
+                  {documentTitleLabel(d, locale)}
+                </h3>
+                {/* SOC-R9: en 제목이 summary(출처 영어 제목)라 en 은 설명만 — 한국어뿐이면 숨김 */}
+                {docDesc(d) && (
+                  <p className="list-item-desc">{docDesc(d).slice(0, 140)}…</p>
                 )}
                 {d.sourceUrl && (
                   <a

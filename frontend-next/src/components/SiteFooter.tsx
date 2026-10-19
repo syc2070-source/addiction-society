@@ -1,10 +1,11 @@
 import Image from 'next/image';
-import { getTranslations } from 'next-intl/server';
+import { getLocale, getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 
 /** 공용 푸터 — 발행처 표기 + 생태계 상호 링크 (블루프린트 제6장) */
 export default async function SiteFooter() {
   const t = await getTranslations('footer');
+  const locale = await getLocale();
 
   return (
     <footer className="site-footer">
@@ -13,7 +14,7 @@ export default async function SiteFooter() {
         <span className="footer-brand">
           <Image
             src="/logo-dark-ink.png"
-            alt="중독사회 addiction society"
+            alt={locale === 'en' ? 'addiction society' : '중독사회 addiction society'}
             width={68}
             height={28}
           />

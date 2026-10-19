@@ -4,6 +4,11 @@ import type { AppLocale } from '@/i18n/routing';
 import { Link } from '@/i18n/navigation';
 import { fetchReport, type ReportSection } from '@/lib/api';
 import PoweredByStatory from '@/components/PoweredByStatory';
+import {
+  englishOrEmpty,
+  labSummaryLabel,
+  reportTitleLabel,
+} from '@/lib/enLabels';
 
 /** 분석실 상세 — sections_json(텍스트 섹션) 단순 렌더 */
 
@@ -15,11 +20,7 @@ export async function generateMetadata({
   const { locale, id } = await params;
   const result = await fetchReport(id);
   if (result?.item) {
-    const title =
-      locale === 'en' && result.item.title_en
-        ? result.item.title_en
-        : result.item.title_ko;
-    return { title };
+    return { title: reportTitleLabel(result.item, locale) };
   }
   const t = await getTranslations({ locale, namespace: 'labPage' });
   return { title: t('title') };
@@ -38,11 +39,14 @@ export default async function LabDetailPage({
   const report = result?.item ?? null;
 
   const sectionTitle = (s: ReportSection) =>
-    l === 'en' && s.title_en ? s.title_en : s.title;
+    l === 'en' && s.title_en ? s.title_en : englishOrEmpty(s.title, l);
+  // SOC-R9: en 은 영어 본문만(한국어뿐인 칸은 비움)
   const sectionText = (s: ReportSection) => {
     const c = s.content;
     if (!c) return null;
-    return l === 'en' ? c.text_en || c.text_ko : c.text_ko || c.text_en;
+    return l === 'en'
+      ? englishOrEmpty(c.text_en, l) || null
+      : c.text_ko || c.text_en;
   };
 
   return (
@@ -62,15 +66,15 @@ export default async function LabDetailPage({
               {t('kicker')}
             </div>
             <h1 className="page-title">
-              {l === 'en' && report.title_en ? report.title_en : report.title_ko}
+              {reportTitleLabel(report, l)}
             </h1>
             {report.published_at && (
               <p className="list-item-meta">
                 <span className="tag">{report.published_at.slice(0, 10)}</span>
               </p>
             )}
-            {report.summary_ko && (
-              <p className="page-desc">{report.summary_ko}</p>
+            {labSummaryLabel(report, l) && (
+              <p className="page-desc">{labSummaryLabel(report, l)}</p>
             )}
 
             {(report.sections_json ?? []).map((s, i) => {
@@ -84,9 +88,9 @@ export default async function LabDetailPage({
               );
             })}
 
-            {report.conclusion_ko && (
+            {englishOrEmpty(report.conclusion_ko, l) && (
               <section className="report-section">
-                <p>{report.conclusion_ko}</p>
+                <p>{englishOrEmpty(report.conclusion_ko, l)}</p>
               </section>
             )}
           </>

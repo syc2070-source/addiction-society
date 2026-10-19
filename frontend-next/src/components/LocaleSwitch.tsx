@@ -15,7 +15,8 @@ export default function LocaleSwitch() {
         locale="ko"
         className={locale === 'ko' ? 'active' : undefined}
       >
-        한국어
+        {/* SOC-R9: 영어 화면은 한글 0 — en 에서는 영어 이름 */}
+        {locale === 'en' ? 'Korean' : '한국어'}
       </Link>
       <span aria-hidden>·</span>
       <Link

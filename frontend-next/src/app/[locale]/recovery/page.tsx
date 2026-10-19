@@ -2,6 +2,12 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { fetchRecoveryResources } from "@/lib/api";
 import ListPagination from "@/components/ListPagination";
+import {
+  cityLabel,
+  recoveryAddressLabel,
+  recoveryDescLabel,
+  recoveryNameLabel,
+} from "@/lib/enLabels";
 
 /** 회복자원 목록 (/recovery) — 카드 + 검색 수준 이식 */
 
@@ -61,7 +67,11 @@ export default async function RecoveryPage({
             {result.data.map((r) => (
               <div key={r.id} className="list-item">
                 <div className="list-item-meta">
-                  {r.city && <span className="tag tag-org">{r.city}</span>}
+                  {r.city && (
+                    <span className="tag tag-org">
+                      {cityLabel(r.city, locale)}
+                    </span>
+                  )}
                   {r.type && <span className="tag">{r.type}</span>}
                   {r.isVerified && (
                     <span className="tag tag-accent">
@@ -69,14 +79,18 @@ export default async function RecoveryPage({
                     </span>
                   )}
                 </div>
-                <h3 className="list-item-title">{r.name}</h3>
-                {r.description && (
+                <h3 className="list-item-title">
+                  {recoveryNameLabel(r.name, locale)}
+                </h3>
+                {recoveryDescLabel(r.description, locale) && (
                   <p className="list-item-desc">
-                    {r.description.slice(0, 120)}
+                    {recoveryDescLabel(r.description, locale).slice(0, 120)}
                   </p>
                 )}
                 <div className="meta-col">
-                  {r.address && <span>{r.address}</span>}
+                  {r.address && (
+                    <span>{recoveryAddressLabel(r.address, locale)}</span>
+                  )}
                   {r.phone && <span>☎ {r.phone}</span>}
                 </div>
                 {r.website && (

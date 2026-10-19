@@ -4,6 +4,7 @@ import type { AppLocale } from '@/i18n/routing';
 import { Link } from '@/i18n/navigation';
 import { fetchReports, type Report } from '@/lib/api';
 import PoweredByStatory from '@/components/PoweredByStatory';
+import { labSummaryLabel, reportTitleLabel } from '@/lib/enLabels';
 
 /**
  * 분석실 (/lab) — statory 프록시(GET /api/reports) 결과물의 전시장.
@@ -29,8 +30,7 @@ export default async function LabPage({ params }: PageProps<'/[locale]/lab'>) {
   const tc = await getTranslations('common');
   const result = await fetchReports();
 
-  const title = (r: Report) =>
-    l === 'en' && r.title_en ? r.title_en : r.title_ko;
+  const title = (r: Report) => reportTitleLabel(r, l);
 
   return (
     <main className="page-container">
@@ -63,8 +63,8 @@ export default async function LabPage({ params }: PageProps<'/[locale]/lab'>) {
                 )}
               </div>
               <h3 className="list-item-title">{title(r)}</h3>
-              {r.summary_ko && (
-                <p className="list-item-desc">{r.summary_ko}</p>
+              {labSummaryLabel(r, l) && (
+                <p className="list-item-desc">{labSummaryLabel(r, l)}</p>
               )}
             </Link>
           ))}
