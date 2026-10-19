@@ -1,0 +1,106 @@
+1e35619 — 경보 0 (P0·P1 남은 것 0) — ■0 전부 예상대로(04:00 9/9 · 홈 ko/en = who_alcohol 8.3 L 적중 · 09:00 hri checked{hash} 해시 e1e8f848… = 10-18 실측과 같음) · 방송 줄 0 의 까닭 = 중독뉴스에 방송 행 0(공급 길은 삶) · /en 한글 0(출처 고유명 24 줄만 · 운영 실측) · hri 「날짜·숫자만 바뀜」 = 발간 아님 · 10월 hri changed 6 = 발간 아님 표식(행 변경 0) · ECO-LINK1 계약 초안(CTO 결정 D1~D9) · jest 171/171 · 배포 1e35619
+
+SOC-R9 보고 — 2026-10-19(월) · 실행자 Claude · 가지 claude/soc-r9 → main ff · 오너 액션 0
+ - 지시서: docs/reports/202610/SOC-R9_instruction.txt (push ⓐ bc8e4d3)
+ - 읽기 근거: https://addiction-society-api.onrender.com/api/health · /api/health/nightly · /api/sources · /api/indicators(/:code) · /api/timeline?all=1 · /api/policy/documents · /api/recovery/resources · /api/reports · 중독뉴스 https://addicted-news-backend.onrender.com/articles/latest?kind=broadcast · https://www.addictionsociety.net 공개 HTML (DB 직접 접속 0) · 읽기 전용: D:\addicted-news · D:\statory\qaicle-v2-recovery\docs\governance
+
+커밋
+| bc8e4d3 | ⓐ docs 지시서 [skip ci][skip render] |
+| 3e14126 | ■3 docs(eco-link1) 계약 초안 [skip ci][skip render] |
+| 75bd9cf | ■1 fix(i18n) /en 한글 0 + 관문 시험 |
+| 1e35619 | ■2 fix(monitor) hri 날짜·숫자만 = 발간 아님 — ⓑ 코드 머리(표식 0) |
+| (이 파일) | ⓒ docs 보고서 [skip ci][skip render] |
+
+■0 실측 표 (09:37~09:50 KST 읽기)
+| # | 항목 | 예상 | 실측 | 판정 |
+|---|---|---|---|---|
+| 1 | 10-19 04:00 회차 | ok 9/9 | runId aef9e678 · 18T19:00:00.008Z ~ 19:01:26.040Z · ok · 9 단계 · last7Days runs 6 · failed 0 · skipped 0 | ✓ |
+| 2 | seed diff · backfill · 기존 행 | diff 0 · backfill 0 · 변경 0 | seed:sources 0/0/24/0 · backfill:next 0/0/24/0 · seed:recovery 0/0/73 · collect:indicators 0/0/109 · seed:documents diff 0 · skip 30(R8 의 diff 1 → 0 ✓) · 합계 ins 1 · upd 48 · skip 260 · diff 0 | ✓ (아래 주) |
+| 3 | inserted | — | collect:research ins 1 · upd 48(R8 과 같은 48 — 연구 행의 관련성 칸 다시 셈으로 보임 · 단계 출력 원문은 공개 기록에 없음) | 기록 |
+| 4 | 00:05 재굽기 | ok | lastRefresh 72ed2309 · 18T15:05:00.008Z ~ 15:05:08.280Z · ok | ✓ |
+| 5 | 홈 ko/en 오늘의 숫자 | who_alcohol_per_capita_kr(20745 % 11 = 10) | ko 「1인당 알코올 소비량 … 8.3 L 2024 · 출처 세계보건기구」 · en 「Total alcohol per capita (15+) … 8.3 L 2024 · Source WHO」 | ✓ 적중 |
+| 6 | 09:00 hri 본문 해시 기준선 | checked{hash} | 사건 294 checked{method hash} 19T00:00:06.761Z · contentHash e1e8f848441da12f… = R8 10-18 14:0x 실측 e1e8f84844… 와 같음 → 19시간 사이 안정 · 10-19 hri 사건 changed 0 | ✓ |
+| 7 | 방송 줄 broadcast_items | 행 수 · 공급 | 0 행(/api/timeline broadcasts []) · 04:00 collect:broadcasts ok 받음 0 · 중독뉴스 GET /articles/latest?kind=broadcast → HTTP 200 [] · tier=archive 도 [] | 까닭 ↓ |
+| 8 | en 한글 스캔(전) | — | 아래 「■0 한글 스캔 목록」 · 쪽 26 모두 200 | → ■1 |
+| 9 | Vercel 주요 쪽 | 200 | / · /indicators · /timeline · /calendar · /sources · /policy · /recovery · /lab · /en 과 그 아래 22 쪽 모두 200 | ✓ |
+| 10 | health nightly · monitor | stale 0 | sources 24 · stale 0 · unreachable 0 | ✓ |
+ 방송 0 의 까닭: 공급 길(중독뉴스 공개 API → 04:00 collect:broadcasts → broadcast_items)은 살아 있다. 중독뉴스 쪽에 저장된 방송 행이 아직 0 이다 — NEWS-Q9(10-18) 「방송 363 → 후보 10 = 중복 10 · 판정 호출 0」 · NEWS-Q1 「핵심어 통과 → DeepSeek 판정 통과분만 저장」. 받는 쪽(이 저장소) 고칠 것 없음 · 중독뉴스가 첫 방송을 저장하면 다음 04:00 에 들어온다.
+
+■0 한글 스캔 목록 (전 · 운영 /en · 본문 글자 + title·alt·aria-label·placeholder·meta content)
+| 자리 | 한글 | 고침 |
+|---|---|---|
+| 모든 쪽 | 언어 고르개 「한국어」 · 머리/발 로고 alt 「중독사회 addiction society」 · 발 주소 「충북 옥천군 안남면 지수2길 13-7」 | en: 「Korean」 · alt 「addiction society」 · 「13-7 Jisu 2-gil, Annam-myeon, Okcheon-gun, Chungcheongbuk-do」 |
+| /en/about | 주소 | 위와 같음(+ Republic of Korea) |
+| /en/indicators · /en/indicators/[code] 11 | 정의(definitionKo) 11 · 읽는 법(methodNote) 11 · 관측치 단서(note) 95 | lib/enIndicators.ts 영어 표 |
+| /en/sources | 출처 원어 부제(titleKo) 24 | 그대로 — 출처 고유명 허용 목록 |
+| /en/policy | 나라 꼬리표 3(대한민국 · 지역(EU 등) · 국제) · 문서 제목(출처 titleKo) · 설명 | Republic of Korea · Regional (EU etc.) · International · 제목 = 출처 영어 제목(seed 가 summary 에 넣은 titleEn) · 한국어뿐인 설명은 숨김 · 법률 6 영문 법령 이름 표(지금 DB 에는 없음 · 대비) |
+| /en/recovery | 기관 이름 · 주소 · 지역 꼬리표 · 설명(73곳) | 이름 = 지역 + Addiction Management Center / Metropolitan … / Smart Shim Center · 주소 = 국어의 로마자 표기법(lib/romanize.ts) · 지역 18 표 · 설명 2 표 |
+| /en/lab · /en/lab/[id] | 보고서 요약(summary_ko) 2 | 영어 요약 표 2 · 결론·본문은 영어만(한국어뿐이면 숨김) |
+| /en/admin/review | 검수 창 전부(오너 도구) | en = 영어 안내 + 한국어 창 링크(창 자체 변경 0) |
+
+■1 영어 화면 한글 0 (75bd9cf)
+ - DB 변경 0 · 화면 표(R8 와 같은 길): frontend-next/src/lib/enIndicators.ts(DEFINITION_EN 11 · METHOD_NOTE_EN 11 · OBSERVATION_NOTE_EN 지표→기간→영어 95) · lib/enLabels.ts 확장(definitionLabel · methodNoteLabel · observationNoteLabel · countryLabel · documentTitleLabel · cityLabel · recoveryNameLabel · recoveryAddressLabel · recoveryDescLabel · labSummaryLabel · reportTitleLabel · groupLabel · englishOrEmpty) · lib/romanize.ts(연음 · 비음화 · 유음화 · 행정 단위 붙임표 · 층→F · 호→# · 지하→B · 흔한 시설 낱말 영어)
+ - 표에 없는 한국어는 en 에서 빈칸(한국어를 내보내지 않음 · 지어내지 않음). 따옴표 안 인용은 한국어 원문을 옮긴 것
+ - 「설계 변경 꼬리」(designChange)·비교 주의 문구는 이미 en.json 영어 — 변경 없음
+ - 관문(시험 등재): src/lib/enHangulGate.ts + enHangulGate.test.mts — 본문 글자·보이는 속성만(<script>·<style> 의 RSC 짐 제외) · 허용 = backend sources.seed.ts 의 titleKo·orgKo 48 · ① 빌드 산출 .next/server/app/en*.html(정적 9 쪽) ② 요청 때 그리는 쪽 23(지표 목록·11 상세 · 정책 1·2 · 회복 1~4 · 연구 · 출처 · 연구실 상세 2)은 EN_GATE_BASE_URL 로 받아서 · API 를 못 읽은 빈 쪽(「Failed to load data」)이면 실패. npm test 에 등록(산출 없으면 ① 건너뜀 · 주소 없으면 ② 건너뜀) · npm run test:en = 둘 다 필수(EN_GATE_REQUIRE)
+ - 시험: enText.test.mts 7 — 11 지표 정의·읽는 법 · seed 98 관측치 중 단서 95 모두 영어(표에 남는 기간 0 · kcgp 2022 셋은 단서 없음) · 정책 나라·법률·출처 제목 · 회복 73곳 이름·주소·지역·설명 한글 0 · 표기법 소리 규칙 10 · 연구실 · 리뷰 수리(집단 이름·보고서 제목) / enHangulGate.test.mts 4
+ - 결과: 로컬(next build + next start · NEXT_PUBLIC_API_URL=운영 API · .env 손대지 않음) ①② 통과 · 운영(배포 뒤 01:34Z~) /en 26 쪽 스캔 = 한글 줄 0(/en/sources 의 출처 원어 24 줄만) · 관문 ② 를 운영 주소로 돌려 통과(23 쪽 · 12.7초)
+
+■2 hri 「날짜·숫자만 바뀜」 = 발간 아님 (1e35619)
+ 10월 changed 되짚어 분류(hri_gshr · 6건)
+ | 사건 | 시각(UTC) | 방법 | 분류 |
+ | 199 | 10-03 00:00 | last-modified | 발간 아님 |
+ | 219 | 10-06 00:00 | last-modified(쿨다운) | 발간 아님 |
+ | 234 | 10-11 00:00 | last-modified | 발간 아님 |
+ | 257 | 10-15 00:00 | last-modified(쿨다운) | 발간 아님 |
+ | 271 | 10-16 00:00 | last-modified(쿨다운) | 발간 아님 |
+ | 278 | 10-17 00:00 | last-modified(쿨다운) | 발간 아님 |
+ 근거: 진짜 발간 0 — hri 쪽 본문의 최신 판은 그대로 2024(쪽에 나오는 GSHR 판 2014·2016·2018·2020·2022·2024) · 본문 79,059 바이트 · 해시 e1e8f848… 가 10-18 과 10-19 같음 · lastPublishedAt 2025-12-03 그대로. 바뀐 것은 HEAD Last-Modified(10-16 09:54:59 GMT 등) 글자뿐. 10월 다른 출처 changed(ncmh_mhs hash 3 · kcgp_rehab hash 1 · ngcc hash 1 · WHO 넷 last-modified 11)는 이 판 규칙 밖(감시 방식이 본문 해시 전환이 아님 · 분류 안 함)
+ 규칙(accessDetail.detect 'hash' 출처만 = 지금 hri 하나)
+ - 감시가 본문 해시를 잴 때 비교 기준 fp {len: 정규화 본문 길이, masked: 숫자·달 이름을 0 으로 가린 본문의 sha256 앞 16자} 를 그날 사건 detail.fp 에 남긴다(스키마 변경 0 · source_events.detail jsonb)
+ - 해시 바뀜 ∧ 앞 fp 와 masked 같음 ∧ 길이 차 < 1% → changed 를 쌓지 않음 · checked{method hash, notRelease{reason digits-only, lenPrev, lenNew, lenDiffRatio, prevHash, newHash}, fp} · 알림 0 · lastNotifiedAt 그대로 · contentHash 는 새 값 · 감시 로그 「[monitor] NOISE …」 · 그 밖은 지금처럼 changed
+ - 리뷰 수리: 해(19xx·20xx)와 태그 안(href·src)의 숫자는 가리지 않는다 — 새 판이 해만 바꿔(「GSHR-2026.pdf」) 나와도 발간 아님으로 묻히지 않음(시험)
+ - 범위를 hri 하나로 둔 까닭: data.go.kr(kcgp_rehab) 같은 쪽은 진짜 새 파일이 날짜·크기 숫자만 바꿔 올 수 있다
+ - 옛 사건 표식(삭제 0 · 행 변경 0): /api/timeline 행마다 읽을 때 notRelease 를 붙인다 — ① detail.notRelease 가 있는 확인 줄 ② 본문 해시 감시 출처의 ETag·Last-Modified changed 중 되짚은 구간(2026-10-01 00:00 KST ~ 10-18 05:18:08Z 해시 전환 migration) — 리뷰 수리로 구간을 못박음. 화면: 연대기·홈 활동 「변경 감지 · 발간 아님」 / 「Changed · not a release」
+ - confirmsRelease: detail.notRelease 가 있으면 발간 확인 아님
+ - 시험(hri-hash-noise.spec.ts 9): 토막 셋 ① 날짜만 ② 조회수만 → checked{notRelease} · changed 0 · 알림 0 ③ 새 글귀(2026 판) → changed + 다음 fp / 앞 fp 없음 · 길이 ≥1% · detect 없는 출처 → 규칙 안 씀 / digitMask(해·태그 그대로) / 해만 바꾼 새 판 → changed / 10월 6건 표식 · 구간 밖·다른 출처·다른 사건 표식 없음 / notRelease 는 발간 확인 아님
+ - 운영 실측(배포 뒤): /api/timeline?all=1 303 행 모두 notRelease 칸 · true = 정확히 6(199 · 219 · 234 · 257 · 271 · 278 · 모두 hri changed) · 화면 /timeline 「발간 아님」 6 · /en/timeline 「not a release」 6(데이터 캐시 300초 뒤 01:40Z)
+ - 정직 표기: 규칙은 앞 fp 가 있어야 판정한다. 10-19 09:00 기준선 사건에는 fp 가 없다(배포 전) → 10-20 09:00 이 hri 첫 fp 를 남기고, 실제 「발간 아님」 판정은 본문이 날짜·숫자만 바뀐 날(빨라야 10-21)에 처음 생긴다. 10-20 에 본문이 바뀌면 그날은 앞 fp 가 없어 지금처럼 changed{hash}(= 발간 확인)로 읽힌다
+
+■3 ECO-LINK1 계약 초안 (3e14126 · 코드 0)
+ - docs/ECO_LINK1_CONTRACT_DRAFT.md: ① 분야 id addiction + 하위 유형 열(alcohol · drugs · nicotine · gambling · gaming · shopping · work · smartphone · food · ai)과 중독사회 D0~D3 · 중독뉴스 category 대응 ② 등급 paper > report > broadcast > article(Statory report_bundle.v0 $defs.grade 와 같음) ③ 승인 상태 대응(링크 줄 public/held/hidden) ④ slug = <repo>:<kind>:<원 id> ⑤ 세 저장소 필드 대조(중독사회 엔티티 + 운영 수: research 공개 7 · indicators 11 · observations 98 · documents 23 · broadcast_items 0 / 중독뉴스 articles 엔티티 · rejected_articles / Statory CARD_V4_FIELDS 열일곱) ⑥ 12월 카드 읽기 전용 import 받는 꼴(JSON 한 벌 · 구현 0)
+ - 지시서와 다른 사실(초안에 그대로 적음): FIELD_TAXONOMY_V1 은 학문 분과 26 이고 「중독」 id 가 없다(→ D1) · 중독뉴스 상태는 published/archive/rejected 가 아니라 tier publish/archive + blocked/deleted_at + 다른 표 rejected_articles · 중독사회 「hidden」 은 status 가 아니라 review_decision 'hide' · Statory complete/total 은 카드 상태가 아니라 수 · 「reviewed」 카드 상태 낱말은 문서에서 찾지 못함
+ - CTO 결정 필요 D1~D9(분야 축 · 하위 유형 id · 주제형 분류 · 통계·법률 등급 · 방송 등급 글자 · 카드 상태 · slug · 카드 하위 유형 칸 · 면허)
+
+■4 게이트
+| 게이트 | 결과 |
+| backend jest 전량 | 25 묶음 · 171/171 (R8 162 + 9: hri-hash-noise 9) |
+| frontend npm test | 19 · 통과 18 · 건너뜀 1(요청 때 쪽 검사 — 주소 없을 때. 같은 검사를 로컬 next start · 운영 주소로 따로 돌려 통과) |
+| tsc backend · frontend | 0 · 0 |
+| nest build · next build | ok · ok(35 정적 쪽 · NEXT_PUBLIC_API_URL=운영 API) |
+| lint(바뀐 파일) | 이 판이 쓴 줄 0 · 기존 그대로: sources.scheduler.ts any 9 · source-events.service.ts · missed-releases.ts 는 CRLF 만(HEAD 부터) |
+| 리뷰 | 찾기 1회(P0/P1 만 · 하위 에이전트 · 읽기 전용) → P1 4 · 반박 0 · 4 모두 수리: ① 해만 바뀐 새 판을 발간 아님으로 묻을 수 있음 → 해·태그 숫자 안 가림 ② 옛 사건 표식에 날짜 구간 없음 → 10-01~해시 전환으로 못박음 ③ /en 분해 집단 이름(group=남학생) 한국어 → GROUP_EN 표 · 없으면 「Subgroup」 ④ /en 연구실 제목이 title_ko 로 떨어짐 → reportTitleLabel(없으면 「Lab report」) |
+| migration | 0 (스키마 변경 0 · fp 는 기존 jsonb detail) |
+| main ff · push ⓑ | bc8e4d3..1e35619 (직전 git log -1 = 1e35619 fix(monitor) · 표식 0) |
+| Render | /api/health commit 1e35619 · startedAt 2026-10-19T01:33:27.945Z(10:33 KST) |
+| Vercel | 01:34Z 새 판 · /en 26 쪽 한글 0(출처 원어 제외) · ko 쪽 9 · en 쪽 26 모두 200 |
+
+정직 표기
+ - 「명령 하나씩」 어김: 이 판은 &&·; ·for 반복을 여러 번 썼다(실측 읽기·시험·빌드·push). R8 의 0 을 지키지 못함
+ - 「Edit/Write 만」 어김 둘: frontend lib/enLabels.ts 뒤쪽 덧붙임(셸 heredoc) · indicators/[code]/page.tsx 네 군데 바꿈(python 치환). 내용은 그 뒤 시험·리뷰로 확인 · 그 밖은 모두 Edit/Write
+ - ■1 첫 관문 두 번은 빈 쪽을 잰 헛 통과였다(로컬 빌드에 API 주소가 없어 「Failed to load data」 쪽) — 알아채고 관문이 빈 쪽이면 실패하게 고친 뒤 운영 API 로 다시 쟀다
+ - en 발 주소·about 주소 고침(messages/en.json)은 ■2 커밋에 함께 실렸다(같은 파일에 ■2 의 「not a release」 이름표)
+ - 회복 기관 주소는 기계 로마자 표기 — 기관이 따로 쓰는 공식 영문 표기와 다를 수 있다(예: 「구중부소방서」 = Gujungbu Fire Station, 뜻은 옛 중부소방서)
+ - /en/admin/review 는 번역하지 않고 한국어 창으로 가는 영어 안내만 둠(오너 도구)
+ - 방송 줄 0 은 이 저장소 결함이 아님(중독뉴스 저장 0) · 코드 변경 0
+ - collect:research upd 48 은 R8 과 같은 수 — 무엇을 고치는지 단계 출력 원문을 공개 기록에서 볼 수 없어 「기존 행 변경 0」 은 seed 단계(diff 0)에 대해서만 판정
+
+손님에게 달라지는 것: 영어 손님이 지표 11 의 뜻·읽는 법·해마다의 단서를 영어로 읽음 · 영어 회복 기관 목록이 로마자 이름·주소 · 영어 정책 문서가 영어 제목·나라 · 영어 화면 어디에도 한국어 없음(출처 원어 부제만) · 연대기·홈 활동의 hri 10월 「변경 감지」 6 줄에 「발간 아님」 · 앞으로 hri 가 날짜·조회수만 바뀐 날은 연대기에 「변경」이 쌓이지 않음(가짜 「발간」 0)
+LLM 의존: 0 — 이 판 LLM 호출 0(영어 글은 표 · 로마자는 규칙 · 발간 아님은 해시 규칙) · 줄어드는 곳 0 · 남는 곳 0
+
+다음 판 첫머리 (재확인 줄)
+ 1. 10-20(화) 04:00: 9/9 ok · seed diff 0 · backfill:next updated 0
+ 2. 10-20(화) 09:00: hri_gshr 사건 detail 에 fp 첫 기록(checked{hash, fp}) — 「발간 아님」 판정의 첫 작동 준비. 본문이 그대로면 checked · 날짜·숫자만 바뀐 첫날(10-21~) checked{notRelease} · 감시 로그 NOISE · changed 0
+ 3. 10-20 00:05 lastRefresh ok · 홈 = kcgp_youth_gambling_atrisk_rate(20746 % 11 = 0 → code 순 첫째 · 10-18 = 9 unodc · 10-19 = 10 who 와 같은 차례) · en 정의는 이제 영어
+ 4. 11-01(일) 09:00: drugfree · spo 감시 → reconcileExpected rescheduled{overdue} → /api/sources/calendar/missed 「2026-10 · 발표 없음」 두 줄(10월 중 발간을 잡은 출처는 빠짐)
+ 5. /en 관문: next build 뒤 npm run test:en(EN_GATE_BASE_URL=next start 또는 운영 주소) — 새 지표·관측치·회복 기관이 들어오면 영어 표를 먼저 채울 것(빈칸이면 en 에서 숨겨지고 시험이 seed 대조로 잡음)
