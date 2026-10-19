@@ -9,6 +9,12 @@ import { Source } from './entities/source.entity';
 import { SourcesNotifier } from './discord.notifier';
 import { SourceEventsService } from './source-events.service';
 import { computeNextExpected, monthStartOf } from './next-expected.util';
+import {
+  type HashFingerprint,
+  fingerprint,
+  judgeHashChange,
+  watchesBodyHash,
+} from './hash-noise';
 
 const UA = 'AddictionSociety-Observatory/1.0 (+https://addictionsociety.net)';
 const TIMEOUT_MS = 30_000;
@@ -365,6 +371,18 @@ export class SourcesScheduler {
         return { id: s.id, status: 'blocked', method: det.method };
       }
 
+      // SOC-R9 ■2: 본문 해시 감시 출처에서 날짜·숫자 글자만 바뀌었으면(길이 차 <1%)
+      // 발간 아님 — changed 를 쌓지 않고 확인 줄에 표식 + 감시 로그만. 해시는 새 값으로 둔다.
+      const notRelease =
+        det.changed && det.method === 'hash' && det.fp
+          ? judgeHashChange(await this.events.lastFingerprint(s.id), det.fp, {
+              prevHash: s.contentHash ?? null,
+              newHash: String(det.update.contentHash),
+            })
+          : null;
+      const changed = det.changed && !notRelease;
+      const fpDetail = det.fp ? { fp: det.fp } : {};
+
       // 발간을 새로 잡았으면 그 자리에서 예정일을 재계산한다.
       // 감지 방식(게시판·해시·ETag)과 무관하게 한 곳에서 처리해,
       // 새 감지기를 추가해도 예정일이 늙지 않게 한다.
@@ -394,7 +412,7 @@ export class SourcesScheduler {
         );
       }
 
-      if (det.changed) {
+      if (changed) {
         const { prevHash, newHash } = this.hashPair(s, det);
         const newPub = update.lastPublishedAt ?? null;
         // 발간일이 새로 잡히면 '발간(published)', 아니면 '변경(changed)'
@@ -423,6 +441,7 @@ export class SourcesScheduler {
                 }
               : {}),
             ...(cooldown ? { cooldown: true } : {}),
+            ...fpDetail,
           },
           notified: !cooldown,
         });
@@ -442,9 +461,16 @@ export class SourcesScheduler {
         detail: {
           method: det.method,
           ...(recoveredFrom ? { recoveredFrom } : {}),
+          ...(notRelease ? { notRelease } : {}),
+          ...fpDetail,
         },
         notified: false,
       });
+      if (notRelease) {
+        this.logger.log(
+          `[monitor] NOISE   ${s.id} (hash) — 날짜·숫자만 바뀜 · 길이 차 ${(notRelease.lenDiffRatio * 100).toFixed(2)}% → 발간 아님(changed 0)`,
+        );
+      }
       this.logger.log(`[monitor] OK      ${s.id} (${det.method})`);
       return { id: s.id, status: 'unchanged', method: det.method };
     } catch (e: any) {
@@ -576,6 +602,7 @@ export class SourcesScheduler {
     method: string;
     update: Partial<Source>;
     blocked?: boolean;
+    fp?: HashFingerprint;
   }> {
     const board = s.accessDetail?.board as BoardSelectors | undefined;
     if (board?.row && board?.title && board?.date) {
@@ -625,6 +652,12 @@ export class SourcesScheduler {
     const body = normalizeForHash(await get.text());
     const hash = createHash('sha256').update(body).digest('hex');
     const changed = s.contentHash != null && s.contentHash !== hash;
-    return { changed, method: 'hash', update: { contentHash: hash } };
+    return {
+      changed,
+      method: 'hash',
+      update: { contentHash: hash },
+      // SOC-R9 ■2: 본문 해시 감시 출처만 비교 기준(길이 + 숫자 가린 해시)을 남긴다
+      ...(watchesBodyHash(s.accessDetail) ? { fp: fingerprint(body) } : {}),
+    };
   }
 }

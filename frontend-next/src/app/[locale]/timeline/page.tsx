@@ -103,6 +103,7 @@ export default async function TimelinePage({
               <span className="timeline-date">{fmt(e.detectedAt)}</span>
               <span className={`timeline-badge badge-${e.eventType}`}>
                 {t(`event.${e.eventType}`)}
+                {e.notRelease ? ` · ${t('notRelease')}` : ''}
               </span>
               <span className="timeline-body">
                 <span className="timeline-org">

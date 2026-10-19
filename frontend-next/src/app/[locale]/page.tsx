@@ -715,6 +715,7 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
                 </span>
                 <span className={styles.activityEvent}>
                   {tTimeline(`event.${e.eventType}`)}
+                  {e.notRelease ? ` · ${tTimeline('notRelease')}` : ''}
                 </span>
               </li>
             ))}

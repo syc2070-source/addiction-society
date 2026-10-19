@@ -2,6 +2,11 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SourceEvent } from './entities/source-event.entity';
+import {
+  type HashFingerprint,
+  isNotRelease,
+  readFingerprint,
+} from './hash-noise';
 
 /** record()에 넘기는 이벤트 입력(부분). detectedAt/notified 기본값 있음. */
 export interface RecordEventInput {
@@ -30,6 +35,8 @@ export interface TimelineRow {
   newPublishedAt: string | null;
   notified: boolean;
   detail: Record<string, unknown> | null;
+  /** SOC-R9 ■2: 「발간 아님」 표식(읽을 때 계산 · 행 변경 0) */
+  notRelease: boolean;
 }
 
 // 타임라인 기본 노출(의미 있는 사건). 'checked'(변화 없음 확인)는 all=true일 때만.
@@ -83,6 +90,29 @@ export class SourceEventsService {
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
       this.logger.warn(`[event] 기록 실패(무시) ${input.sourceId}: ${msg}`);
+    }
+  }
+
+  /**
+   * 본문 해시 비교 기준(detail.fp)을 남긴 가장 최근 사건의 fp (SOC-R9 ■2).
+   * 없거나 읽기 실패면 null — 그러면 규칙을 쓰지 않고 지금처럼 changed.
+   */
+  async lastFingerprint(sourceId: string): Promise<HashFingerprint | null> {
+    try {
+      const row = await this.repo
+        .createQueryBuilder('e')
+        .select('e.detail', 'detail')
+        .where('e.source_id = :sourceId', { sourceId })
+        .andWhere(`e.detail -> 'fp' IS NOT NULL`)
+        .orderBy('e.detected_at', 'DESC')
+        .addOrderBy('e.id', 'DESC')
+        .limit(1)
+        .getRawOne<{ detail: unknown }>();
+      return readFingerprint(row?.detail);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      this.logger.warn(`[event] fp 읽기 실패(무시) ${sourceId}: ${msg}`);
+      return null;
     }
   }
 
@@ -160,6 +190,7 @@ export class SourceEventsService {
         'e.new_published_at AS "newPublishedAt"',
         'e.notified AS notified',
         'e.detail AS detail',
+        's.access_detail AS "accessDetail"',
       ])
       .orderBy('e.detected_at', 'DESC')
       .addOrderBy('e.id', 'DESC')
@@ -172,7 +203,13 @@ export class SourceEventsService {
       qb.andWhere('e.source_id = :src', { src: query.source });
     }
 
-    const data = (await qb.getRawMany()) as TimelineRow[];
+    const raw = await qb.getRawMany<
+      Omit<TimelineRow, 'notRelease'> & { accessDetail: unknown }
+    >();
+    const data: TimelineRow[] = raw.map(({ accessDetail, ...row }) => ({
+      ...row,
+      notRelease: isNotRelease(row, accessDetail),
+    }));
     return { data, total: data.length };
   }
 }

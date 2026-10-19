@@ -54,7 +54,8 @@
       "rescheduled": "예정일 이월",
       "source_updated": "감시 주소 변경",
       "document_updated": "문서 링크 변경"
-    }
+    },
+    "notRelease": "발간 아님"
   },
   "indicatorsPage": {
     "kicker": "Indicators",

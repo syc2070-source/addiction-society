@@ -276,6 +276,8 @@ export interface TimelineEvent {
   newPublishedAt: string | null;
   notified: boolean;
   detail: Record<string, unknown> | null;
+  /** SOC-R9 ■2: 날짜·숫자 글자만 바뀐 것 등 「발간 아님」 표식(옛 API 는 없음) */
+  notRelease?: boolean;
 }
 
 /** 활동 요약 — 사건이 없어도 "돌고 있다"를 말하기 위한 값 (AS-FIX-1) */

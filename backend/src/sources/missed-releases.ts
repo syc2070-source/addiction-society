@@ -70,6 +70,7 @@ export function confirmsRelease(
 ): boolean {
   if (e.eventType === 'published') return true;
   if (e.eventType !== 'changed') return false;
+  if (e.detail?.notRelease) return false; // SOC-R9 ■2 「발간 아님」
   const method = e.detail?.method;
   return typeof method === 'string' && RELEASE_CHANGE_METHODS.includes(method);
 }

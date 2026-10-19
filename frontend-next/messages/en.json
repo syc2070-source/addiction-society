@@ -22,7 +22,7 @@
     "tagline": "A data observatory reading addiction as a structural signal of society",
     "ecosystem": "Also see",
     "addictionNews": "Addiction News",
-    "publisher": "Rapha Addiction Research Institute · 충북 옥천군 안남면 지수2길 13-7",
+    "publisher": "Rapha Addiction Research Institute · 13-7 Jisu 2-gil, Annam-myeon, Okcheon-gun, Chungcheongbuk-do",
     "about": "About"
   },
   "aboutPage": {
@@ -30,7 +30,7 @@
     "title": "About",
     "orgName": "Rapha Addiction Research Institute",
     "addressLabel": "Address",
-    "address": "충북 옥천군 안남면 지수2길 13-7",
+    "address": "13-7 Jisu 2-gil, Annam-myeon, Okcheon-gun, Chungcheongbuk-do, Republic of Korea",
     "placeholder": "Detailed introduction coming soon."
   },
   "timelinePage": {
@@ -54,7 +54,8 @@
       "rescheduled": "Rescheduled",
       "source_updated": "Monitor URL changed",
       "document_updated": "Document link changed"
-    }
+    },
+    "notRelease": "not a release"
   },
   "indicatorsPage": {
     "kicker": "Indicators",
