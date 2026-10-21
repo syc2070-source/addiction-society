@@ -1,5 +1,8 @@
 # ECO-LINK1 계약 초안 — 중독사회 · 중독뉴스 · Statory (SOC-R9 ■3)
 
+> **2026-10-21 · v1 이 섰다 → `docs/ECO_LINK1_CONTRACT_V1.md`.** 받는 문(§6)의 정본은 v1 §6 이다(이 초안의 §6 꼴은 옛 꼴).
+> 이 초안은 D1~D9 를 처음 적은 곳이라 지우지 않고 남긴다(본문 변경 0).
+
 > 상태: **초안**(2026-10-19 · SOC-R9 · 코드 0). 11월 1주 ECO-LINK1 이 이 문서로 바로 짠다.
 > 읽은 것(읽기 전용 대조): 중독사회 `backend/src/**/entities/*.ts` + 운영 공개 API(10-19 09:40 KST) ·
 > 중독뉴스 `D:\addicted-news\backend\src\articles\*.entity.ts` · `backend/data/field_profiles/addiction.json` ·
