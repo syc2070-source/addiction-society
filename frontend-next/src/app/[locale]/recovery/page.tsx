@@ -6,6 +6,7 @@ import {
   cityLabel,
   recoveryAddressLabel,
   recoveryDescLabel,
+  recoveryKindLabel,
   recoveryNameLabel,
 } from "@/lib/enLabels";
 
@@ -35,6 +36,9 @@ export default async function RecoveryPage({
   const tc = await getTranslations("common");
   const result = await fetchRecoveryResources({ page, search });
   const totalPages = result ? Math.ceil(result.total / result.limit) : 0;
+  // SOC-R10 ■2: type 원문(counseling) 대신 홈과 같은 말
+  const th = await getTranslations("home.recoveryType");
+  const typeLabel = (type: string) => (th.has(type) ? th(type) : type);
 
   return (
     <main className="page-container">
@@ -72,7 +76,7 @@ export default async function RecoveryPage({
                       {cityLabel(r.city, locale)}
                     </span>
                   )}
-                  {r.type && <span className="tag">{r.type}</span>}
+                  {r.type && <span className="tag">{typeLabel(r.type)}</span>}
                   {r.isVerified && (
                     <span className="tag tag-accent">
                       {t("verified")}
@@ -82,9 +86,17 @@ export default async function RecoveryPage({
                 <h3 className="list-item-title">
                   {recoveryNameLabel(r.name, locale)}
                 </h3>
+                {recoveryKindLabel(r.name, locale) && (
+                  <p className="list-item-meta">
+                    {recoveryKindLabel(r.name, locale)}
+                  </p>
+                )}
                 {recoveryDescLabel(r.description, locale) && (
                   <p className="list-item-desc">
-                    {recoveryDescLabel(r.description, locale).slice(0, 120)}
+                    {/* en 영어 설명은 120 자에서 낱말 중간이 잘려 전부 보인다(SOC-R10) */}
+                    {locale === "en"
+                      ? recoveryDescLabel(r.description, locale)
+                      : recoveryDescLabel(r.description, locale).slice(0, 120)}
                   </p>
                 )}
                 <div className="meta-col">

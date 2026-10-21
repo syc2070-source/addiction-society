@@ -7,6 +7,9 @@ import {
   GROUP_EN,
   LAB_SUMMARY_EN,
   LAW_TITLE_EN,
+  RECOVERY_KIND_EN,
+  broadcastTitleLabel,
+  broadcasterLabel,
   cityLabel,
   countryLabel,
   definitionLabel,
@@ -16,6 +19,7 @@ import {
   observationNoteLabel,
   recoveryAddressLabel,
   recoveryDescLabel,
+  recoveryKindLabel,
   recoveryNameLabel,
   reportTitleLabel,
 } from './enLabels.ts';
@@ -188,6 +192,42 @@ test('all 73 recovery centers: name, address, city and description have no Hangu
     'Seoul Jung-gu Cheonggyecheon-ro 14 (Mugyo-dong 77) National Information Society Agency B1F',
   );
   assert.equal(cityLabel('경기북부', 'en'), 'Gyeonggi North');
+});
+
+test('SOC-R10 ■2: every recovery center gets an English kind meaning (3 kinds, 57/6/10)', () => {
+  const rows = (
+    JSON.parse(readFileSync(backend('recovery/seed/recovery-directory.data.json'), 'utf8')) as {
+      resources: { name: string; type: string }[];
+    }
+  ).resources;
+  const byKind = new Map<string, number>();
+  for (const r of rows) {
+    const kind = recoveryKindLabel(r.name, 'en');
+    assert.ok(kind, r.name);
+    assert.doesNotMatch(kind, HANGUL, r.name);
+    assert.equal(recoveryKindLabel(r.name, 'ko'), '');
+    byKind.set(kind, (byKind.get(kind) ?? 0) + 1);
+  }
+  assert.deepEqual([...byKind.values()].sort((a, b) => a - b), [6, 10, 57]);
+  assert.equal(byKind.size, RECOVERY_KIND_EN.length);
+  assert.deepEqual([...new Set(rows.map((r) => r.type))], ['counseling']);
+  // 광역 은 일반 센터보다 먼저 맞춘다
+  assert.match(recoveryKindLabel('강원광역중독관리통합지원센터', 'en'), /^Metropolitan/);
+  assert.match(recoveryKindLabel('강남구중독관리통합지원센터', 'en'), /^Community/);
+  assert.match(recoveryKindLabel('경기남부스마트쉼센터', 'en'), /^Smart Rest Center/);
+  assert.equal(recoveryKindLabel('처음 보는 기관', 'en'), '');
+});
+
+test('SOC-R10: broadcast line on /en — first broadcast (10-21) title and broadcaster', () => {
+  const title =
+    '설마 하며 열었더니 "말도 안 돼.." 진짜 심각하다는 대한민국 마약 근황 | KBS 더 보다 20251207 방송';
+  assert.equal(broadcastTitleLabel(title, 'en'), 'Korean-language programme');
+  assert.equal(broadcastTitleLabel(title, 'ko'), title);
+  assert.equal(broadcastTitleLabel('Drug Crisis in Korea', 'en'), 'Drug Crisis in Korea');
+  assert.equal(broadcasterLabel('KBS 다큐인사이트', 'en'), 'KBS');
+  assert.equal(broadcasterLabel('KBS 다큐인사이트', 'ko'), 'KBS 다큐인사이트');
+  assert.equal(broadcasterLabel('연합뉴스TV', 'en'), '');
+  assert.equal(broadcasterLabel(null, 'en'), '');
 });
 
 test('romanization follows the 2000 Revised Romanization sound rules', () => {

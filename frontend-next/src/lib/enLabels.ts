@@ -180,6 +180,32 @@ const CENTER_KIND_EN: [string, string][] = [
   ['스마트쉼센터', 'Smart Shim Center'],
 ];
 
+/**
+ * 기관 유형 뜻 (SOC-R10 ■2) — 73 곳의 type 은 모두 counseling 이라 이름 끝으로 가른다
+ * (10-21 실측: 중독관리통합지원센터 57 · 광역 6 · 스마트쉼센터 10). 이름은 로마자 그대로 두고
+ * en 에서만 이 뜻을 붙인다(「Shim」 같은 로마자만 남는 자리를 없앰).
+ */
+export const RECOVERY_KIND_EN: [string, string][] = [
+  [
+    '광역중독관리통합지원센터',
+    'Metropolitan addiction center — coordinates the local centers of its province (Ministry of Health and Welfare)',
+  ],
+  [
+    '중독관리통합지원센터',
+    'Community addiction center — counseling and rehabilitation for alcohol, drugs, gambling and internet (Ministry of Health and Welfare)',
+  ],
+  [
+    '스마트쉼센터',
+    'Smart Rest Center ("shim" = rest) — internet and smartphone overdependence (National Information Society Agency)',
+  ],
+];
+
+/** en: 기관 유형 뜻 · ko: 빈칸(이름에 이미 한국어 유형이 있음) */
+export function recoveryKindLabel(name: string, locale: string): string {
+  if (locale !== 'en') return '';
+  return RECOVERY_KIND_EN.find(([ko]) => name.endsWith(ko))?.[1] ?? '';
+}
+
 export function cityLabel(city: string | null | undefined, locale: string) {
   if (!city) return '';
   if (locale !== 'en') return city;
@@ -279,6 +305,30 @@ export function reportTitleLabel(
 ): string {
   if (locale !== 'en') return r.title_ko;
   return englishOnly(r.title_en) || englishOnly(r.title_ko) || 'Lab report';
+}
+
+// ── 연대기 「방송」 줄 (SOC-R10 ■2 — 10-21 04:00 첫 방송 1 건이 /en 에 한국어로 보임) ──
+
+/** 방송사 — en: 한글 없는 이름 → 한글 낱말을 뺀 라틴 부분(「KBS 다큐인사이트」 → KBS) → 빈칸 */
+export function broadcasterLabel(
+  name: string | null | undefined,
+  locale: string,
+): string {
+  if (!name) return '';
+  if (locale !== 'en') return name;
+  return (
+    englishOnly(name) ||
+    name
+      .split(/\s+/)
+      .filter((w) => w && !HANGUL.test(w))
+      .join(' ')
+  );
+}
+
+/** 방송 제목 — en: 한글 없는 제목 → 「Korean-language programme」(원문 제목은 지어내지 않음) */
+export function broadcastTitleLabel(title: string, locale: string): string {
+  if (locale !== 'en') return title;
+  return englishOnly(title) || 'Korean-language programme';
 }
 
 /** en 에서 한국어만 있는 글(결론 등)은 빈칸 */

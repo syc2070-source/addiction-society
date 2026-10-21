@@ -95,6 +95,9 @@ function dynamicPaths(): string[] {
     'b1000001-0001-4001-8001-000000000001',
   ];
   return [
+    // SOC-R10: 밤 예약이 새 행(방송 등)을 넣는 쪽 — 빌드 뒤 ISR 로 바뀌므로 요청 때도 본다
+    '/en',
+    '/en/timeline',
     '/en/indicators',
     ...codes.map((c) => `/en/indicators/${c}`),
     '/en/policy',
