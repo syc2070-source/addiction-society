@@ -1,0 +1,112 @@
+9f815b7 — 경보 0 (P0·P1 남은 것 0) — 10-21 04:00 9/9 ok diff 0 · hri fp 10-20·21 기록(len 64601 · masked ca51ee14…) 본문 그대로 = checked 둘 · 「발간 아님」 판정 0 · 오판 0 → 맞게 돌았음 · 10월 6건 표식 그대로 · 회복자원 73 기관 유형 영어 뜻(셋 · 57/6/10) · 첫 방송 1 건(10-21 04:00)이 /en/timeline 에 한국어로 새던 것 수리 · /en 한글 0(운영 27 경로) · ECO-LINK1 계약 v1 · jest 171/171 · Render 그대로 1e35619(backend 변경 0 · rootDir backend) · Vercel 9f815b7 · migration 0
+
+SOC-R10 보고 · 2026-10-21(수) · 실행 = 데스크탑 Claude Code Opus · D:\addiction-society · 가지 claude/soc-r10 → main FF
+커밋: 6c062f2 ⓐ 지시서 [skip ci][skip render] → 885aa3b ■3 계약 v1 [skip ci][skip render] → 9f815b7 ■2 코드 머리 → (이 보고) [skip ci][skip render]
+
+━━ 손님에게 달라지는 것 ━━
+· 영어 손님이 회복자원 73 곳 카드마다 기관 유형의 뜻을 읽는다 — 「Smart Shim Center」처럼 로마자만 남던 자리에
+  「Smart Rest Center ("shim" = rest) — internet and smartphone overdependence (National Information Society Agency)」.
+  기관 이름은 로마자 그대로. 유형 꼬리표도 원문 「counseling」 대신 「Counseling centers」(ko 「상담기관」).
+  영어 설명이 120 자에서 낱말 중간이 잘리던 것(「…Center d」)이 끝까지 보인다.
+· 영어 연대기의 「Broadcasts」 줄에 한국어 제목이 나오지 않는다(10-21 04:00 첫 방송 행) — 방송사 「KBS」 + 「Korean-language programme」
+  · 원문 링크 그대로. 한국어 화면은 그대로.
+· 발간이 아닌 페이지 변경은 사건으로 뜨지 않는다(hri · 10-20·21 본문 그대로 → 사건 0).
+· 세 저장소가 한 계약 문서(docs/ECO_LINK1_CONTRACT_V1.md)를 본다.
+
+━━ LLM 의존 ━━ 0 (이 판 LLM 호출 0 · 로마자·영어 뜻은 표 · 계약은 문서)
+
+━━ ■0 회차 실측 (10-21 09:10 KST 뒤 다시 읽음 · 00:10:11Z) ━━
+| # | 무엇 | 값 | 근거 | 판정 |
+|---|---|---|---|---|
+| 1 | 10-21 04:00 회차 | ok 9/9 | runId e124d6f0 · 20T19:00:00.011Z ~ 19:01:41.394Z · 단계 9 모두 ok · totals diff 0 · skipped 260 · updated 49(collect:research 재평가) · inserted 1(collect:broadcasts) | ✓ |
+| 2 | 〃 seed diff · backfill | diff 0 · backfill:next updated 0 · backfill:relevance 0 | 단계표 | ✓ |
+| 3 | 10-20 04:00 회차 | 실패 0 (단계표 미측) | /api/health/nightly 는 마지막 회차만 단계표를 준다 · last7Days runs 7 · failedRuns 0 · skipped 0 → 10-20 회차도 ok. 단계별 diff·backfill 은 **미측**(DB 직접 읽기 = .env 0 규칙으로 하지 않음) | △ |
+| 4 | 방송 줄 | 1 행(첫 행) | broadcasts[0] id 1 · KBS 다큐인사이트 · publishedAt 2026-10-19 · grade '방송' · fetchedAt 20T19:01:34Z — 중독뉴스 NEWS-Q11 방송 관문(10-20 15:08) 뒤 첫 공급 | ✓(새 일) |
+| 5 | 홈 오늘의 숫자 10-21 | ko·en = kcgp_youth_gambling_problem_group_rate 0.9 % (2022) | 운영 / · /en 실측 · 같은 지표 · 영어 단서 「Survey design changed (2020 · 2022)」 | ✓ |
+| 6 | 홈 오늘의 숫자 10-20 | 미측 | 10-20 에 읽지 않음(예상 kcgp_youth_gambling_atrisk_rate — code 차례로 10-21 의 앞 칸이라 어긋남 없음) | 미측 |
+| 7 | en 한글 0 게이트 | 운영 통과 | EN_GATE_BASE_URL=운영 · 요청 때 27 경로(/en · /en/timeline 더함) 0 줄 · 빌드 산출물 0 줄 · **수리 전 빌드는 /en/timeline 2 줄로 실패**(아래 ■2) | ✓ |
+| 8 | 09:00 출처 읽기 10-20 | 4 (mohw manual · spo checked · hri checked · drugfree checked) | timeline all=true 00:00Z 줄 | ✓ |
+| 9 | 09:00 출처 읽기 10-21 | 4 (사건 308 hri · 309 spo · 310 drugfree · 311 mohw) | 같은 곳 · monitor sources 24 · stale 0 · unreachable 0 | ✓ |
+|   | (지시서 「출처 읽기 9」) | 이틀 다 4 | 10-19 은 9 였다(who·ncmh·lancet 등 cooldown 회차). 감시 주기가 출처마다 달라 날마다 수가 다르다 — 고장 아님 | 기록 |
+| 10 | hri 결과 | checked 둘 · 「발간 아님」 0 · 사건 생성 0(의미 있는 사건) | 305(20T00:00:03Z) · 308(21T00:00:00Z) 모두 checked{method hash, fp{len 64601, masked ca51ee14b2836b73}} · contentHash e1e8f848… 그대로(10-18 부터 나흘) | ✓ |
+| 11 | 10월 6건 표식 | 그대로 6 | notRelease = 199 · 219 · 234 · 257 · 271 · 278 · 행 변경 0 | ✓ |
+| 12 | 11-01 「발표 없음」 자리 | 준비됨 | spo_drug_monthly · drugfree_stats nextExpectedAt 2026-10-01 · 10월 발간 0 → 11-01 09:00 reconcile 이 「2026-10 · 발표 없음」 두 줄. 지금 missed = drugfree 2026-08 · 2026-09 두 줄 | ✓ |
+| 13 | 배포 | Vercel 9f815b7 · Render 1e35619 | Render health commit 1e35619 · startedAt 19T01:33:27Z — render.yaml rootDir backend · 1e35619..9f815b7 의 backend 차 0 줄 → 새 배포 없음이 맞다. 운영 /en/timeline 「Korean-language programme」 · /en/recovery 유형 뜻 실측 | ✓ |
+
+━━ ■1 hri 규칙 첫 실전 판정 ━━
+| 날 | 사건 | 해시 | fp | 판정 | 진짜 발간? | 맞나 |
+|---|---|---|---|---|---|---|
+| 10-19 | 294 checked{hash} | e1e8f848… | 없음(배포 전) | — | 아님 | ✓ |
+| 10-20 | 305 checked{hash, fp} | e1e8f848… 그대로 | 첫 기록 len 64601 · masked ca51ee14… | 바뀜 없음 → checked | 아님 | ✓ |
+| 10-21 | 308 checked{hash, fp} | e1e8f848… 그대로 | 같음 | 바뀜 없음 → checked | 아님 | ✓ |
+「발간 아님」으로 가른 것 0 · 진짜 발간 0 · 오판 0 → **맞게 돌았음.** 규칙(길이 차 <1% · 날짜·숫자 가림 해시 같음)은 아직 한 번도 「바뀜」을 받지 않았다 —
+본문이 나흘째 그대로라 판정이 설 일이 없었다. 설정값 조정 0 · 사건 삭제 0. 첫 판정은 hri 본문이 처음 바뀌는 날(11월 발간 전후)에 선다.
+
+━━ ■2 회복자원 en ━━
+· 실측 n: type 칸은 1 종(counseling 73 · API byType 같음) — 유형은 이름 끝으로 가른다: 중독관리통합지원센터 57 · 광역중독관리통합지원센터 6 · 스마트쉼센터 10 = **셋**.
+· lib/enLabels.ts: RECOVERY_KIND_EN(셋 · 광역을 먼저 맞춤) · recoveryKindLabel(name, locale) — en 만 뜻 · ko 빈칸(이름에 이미 한국어 유형).
+· recovery/page.tsx: 이름 아래 유형 뜻 한 줄 · 꼬리표 type → home.recoveryType 말(ko 「상담기관」 · en 「Counseling centers」) · en 설명 자르기 없음.
+· 게이트가 잡은 덤: 10-21 04:00 첫 방송 행이 /en/timeline 에 「KBS 다큐인사이트」·한국어 제목 두 줄로 샜다(빌드 게이트 실패). broadcasterLabel(한글 낱말 빼고 라틴 부분 · 없으면 빈칸) ·
+  broadcastTitleLabel(한글 없는 제목 → 그대로 · 아니면 「Korean-language programme」 · 제목을 지어 번역하지 않음). 요청 때 게이트 경로에 /en · /en/timeline 더함(밤 예약이 새 행을 넣는 쪽).
+· 시험: enText +2(유형 73 모두 뜻 · 57/6/10 · 한글 0 · ko 빈칸 · 첫 방송 제목·방송사) → frontend npm test 21 = pass 20 · skipped 1(요청 때 게이트 — 따로 돌림 4/4).
+· png: docs/reports/202610/img/SOC-R10_en_recovery.png(/en/recovery?page=3 · 지역 센터 · 스마트쉼 · 꼬리표가 한 화면).
+· 남은 P2: 로마자 이름 가운데 영어 낱말 아닌 건물 이름(「Rohaseu Building」 = 로하스 · 「Goeha」) — 고유명이라 그대로.
+
+━━ ■3 ECO-LINK1 계약 v1 ━━
+· docs/ECO_LINK1_CONTRACT_V1.md(코드 0 · migration 0): §0 D1~D9 대조 · §1 하위 주제 10 영문 id + 별칭(별칭 거절 · 빈 배열 = 분야 전체 · topic=recovery 하나) ·
+  §2 등급 링크 줄 다섯 / 카드 넷 + kind 어휘(법률 = report ∧ kind=law) · §3 상태 대응 · card_state 기본(≥80 ∧ 허용 넷 → public) · hidden 사람만 · 관문 둘 ·
+  숨김 상속(전부 당기기에서 빠지면 upstream=withdrawn · 행 삭제 0 · 우리 hide 는 새 판에 이어짐 · keep 은 안 이어짐) · §4 slug · §5 license 값 여섯 · 화면 규칙 ·
+  §6 받는 문 필드 정의(Statory 나가는 열쇠 그대로 · 봉투 검사 · 줄 거절 사유 · 받는 표 제안 · 손님 화면 = upstream public ∧ keep) · §7 중독뉴스 export v0 대조 ·
+  §8 Statory v1 어긋남 12 · §9 CTO 판정 C1~C6.
+· ECO_LINK1_CONTRACT_DRAFT.md: 머리에 「v1 이 섰다 · §6 정본은 v1 §6」 두 줄만(본문 변경 0 · Statory ADDENDUM §6 이 이 경로를 가리키므로 지우지 않음).
+· 읽은 것: Statory origin/main 7a3f682(TOPIC_TAXONOMY_V1 · CARD_V4_FIELDS_ADDENDUM_ECO1 · EVIDENCE_EXPORT_V1 · ASK-49 지시서 CTO 답 여덟) · 중독뉴스 origin/main d72f88b(EXPORT_V0 · export.service.ts) ·
+  운영 중독뉴스 /api/export/articles = 404(기본 꺼짐) → 응답 실물 미측 · 문서·코드 꼴로 대조.
+
+어긋남 표(요약 · 전문 = 계약 v1 §8):
+| # | 자리 | 어긋남 | 고칠 쪽 |
+|---|---|---|---|
+| 1 | Statory ADDENDUM §6 경로 | DRAFT §6 을 가리킴 · 받는 문 정본은 V1 §6 | Statory(ASK-50) — 경로를 V1 로 |
+| 2 | 면허 철자 | 지시서 「licence」 · CTO 답 ③ / Statory 문서 `license` · Statory 코드 대부분 `licence` | v1 = `license`(지시서와 다르게 함) |
+| 3 | 내보내기 면허 값 | Statory 스크립트가 면허 칸을 읽지 않아 지금 늘 「모름」 | Statory 구현 판 |
+| 4 | 허용 면허 목록 | Statory 정책 넷 vs field_taxonomy.json 셋 | Statory |
+| 5 | 중독 유형 열쇠 | 카드 `subtype[]` · 나가는 열쇠 `addiction_type` | 받는 문이 바꿔 읽음 |
+| 6 | `kind` 낱말 | report_bundle 의 kind = 리뷰 종류 | 링크 줄 안에서만 대상 종류 |
+| 7 | 중독뉴스 export v0 | grade·subtype id·state·slug 칸 없음 · category 한국어 | 받는 쪽이 kind 따로 당기기 · 대응표 · (제안) v0 에 sourceType · subtype[] 더하기 |
+| 8 | sources.kind | 등급이 아니라 주제 낱말 | v1 읽기 policy→report · 그 밖 statistic(C6) |
+
+━━ ■4 게이트 ━━
+· backend jest 25 suites 171/171 · tsc 0 · nest build ok (backend 코드 변경 0)
+· frontend npm test 21(pass 20 · skipped 1) · tsc 0 · next build ok(NEXT_PUBLIC_API_URL=운영 · 명령줄만 · .env 0) · eslint 바뀐 파일 3 0
+· en 한글 0 게이트: 로컬 4/4 · 운영 요청 때 27 경로 통과
+· main FF: 0b4e08a → 6c062f2 → 885aa3b → 9f815b7 → (보고)
+· migration 0 · seed 변경 0 · 사건 삭제 0 · 행 변경 0
+· 리뷰: 따로 리뷰 에이전트를 돌리지 않았다(지시서 ■4 목록에 없음) — 손으로 본 것: ko 화면 차(꼬리표 하나) · 유형 맞추기 차례(광역 먼저 · 시험) · 방송 라틴 부분이 빈 이름(「연합뉴스TV」 → 빈칸 · 시험).
+
+━━ 지시서와 다르게 한 것 ━━
+1. ■2 범위 밖 수리 하나 — /en/timeline 방송 줄(첫 방송 행이 한국어로 샘). 「en 한글 0 게이트 통과」가 ■2 조건이라 고치지 않으면 게이트가 서지 않았다.
+2. ko 화면 한 자리 바뀜 — 회복자원 꼬리표 「counseling」(영어 원문) → 「상담기관」(홈과 같은 말).
+3. 면허 철자 — 지시서 「licence」 대신 CTO 답 ③ 의 `license`(계약 v1 §5 · C1).
+4. 「배포 뒤 health commit 대조」 — Render 는 backend 변경이 없어 다시 배포하지 않았다(1e35619 그대로 · 맞는 상태). 대조는 Vercel 운영 화면으로 했다.
+5. 09:00 읽기 — 09:10 전에 한 번 읽고 ■2·■3 을 한 뒤 09:10 뒤(00:10:11Z) 다시 읽어 표를 그 값으로 적었다(두 번 같음).
+6. 명령 이어 붙이기 — 이번 판도 측정·빌드 명령을 && 로 이어 돌린 자리가 있다(지시서에 「명령 하나씩」 줄은 없으나 앞 판 규칙 기록으로 적음). 파일 고치기는 Edit/Write 만.
+
+━━ 건너뜀 · 사유 ━━
+· 10-20 04:00 단계별 값 — API 가 마지막 회차만 준다 · DB 직접 읽기는 .env 0 규칙으로 안 함 → 미측(실패 0 만 확인).
+· 10-20 홈 오늘의 숫자 — 그날 읽지 않음 → 미측.
+· 중독뉴스 export v0 응답 실물 — 운영 404(열쇠 env 없음 · 오너 11월) → 문서·코드 꼴로만 대조.
+· 받는 문 코드 · migration — 지시서대로 11월 1주 실행 판.
+
+━━ 확인 (다음 판) ━━
+1. 10-22(목) 04:00: 9/9 ok · seed diff 0 · backfill:next 0 · collect:broadcasts 넣음 0~n(새 방송이 오면 /en/timeline 은 「Korean-language programme」 · 한글 0 게이트로 확인)
+2. 10-22 09:00: hri checked{hash, fp} — 본문 그대로면 사건 0 · 날짜·숫자만 바뀌면 checked{notRelease} 첫 판정
+3. 10-22 홈 오늘의 숫자 = code 차례 다음 칸(kcgp_youth_gambling_problem_group_rate 다음)
+4. 11-01(일) 09:00: spo · drugfree 「2026-10 · 발표 없음」 두 줄 · hri 발간 달(expectedMonth 11) 감시
+
+━━ CTO 판정 필요 ━━
+C1 면허 철자 `license`(CTO 답 ③) vs 지시서 「licence」 — v1 은 `license`.
+C2 중독뉴스 category 하나 대 여럿(알코올·약물 · 게임·디지털) → v1 은 빈 배열(분야 전체). 중독뉴스 export v0 에 sourceType · subtype[] 를 더할지(NEWS 판).
+C3 받은 카드의 새 판이 우리 keep 을 이어받나 — v1 은 안 이어받음(다시 봄) · hide 는 이어받음.
+C4 몸 전체가 깨진 회차에서 숨김 상속을 돌리나 — v1 은 돌리지 않음.
+C5 Statory 내보내기 면허가 지금 늘 「모름」 — 그대로 받아 제목+링크만 둘지, 고쳐진 뒤 받을지(v1 = 그대로 받음 · 발견 문장 노출 0).
+C6 출처(sources)의 등급 — kind 가 주제 낱말이라 policy→report · 그 밖→statistic 으로 읽음. 출처별 등급 칸(덧붙임 migration)이 필요한지.
+C7 Statory ADDENDUM §6 경로를 V1 로 바꾸는 것 — ASK-50 에서 할지.
