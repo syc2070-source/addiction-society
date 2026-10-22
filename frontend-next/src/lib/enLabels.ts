@@ -314,17 +314,17 @@ export function reportTitleLabel(
 // ── 연대기 「방송」 줄 (SOC-R10 ■2 — 10-21 04:00 첫 방송 1 건이 /en 에 한국어로 보임 · SOC-R11 ■3 이름 표) ──
 
 /**
- * 중독뉴스 내보내기의 영어 이름 칸(NEWS-Q12 ■4 · 칸 이름은 그쪽이 정한 대로) — 자리만.
- * 연대기 응답에 이 값이 실려 오면 BROADCAST_NAMES_EN 표보다 먼저 읽는다.
+ * 중독뉴스 내보내기의 영어 이름 칸 `sourceEn`(NEWS-Q12 ■4 · 칸 이름은 그쪽이 정한 대로 · 10-22 그쪽 작업본 실측:
+ * 값 = 채널 설정 program_en · 방송사가 앞에 붙음 「MBC PD Notebook」) — 자리만. 연대기 응답에 실려 오면 표보다 먼저 읽는다.
+ * 단 함께 쓰는 채널(표의 channel)은 그 편의 프로그램을 넘겨짚지 않게 표의 채널 이름이 이긴다.
  */
 export interface BroadcastExportedEn {
-  broadcasterEn?: string | null;
-  programEn?: string | null;
+  sourceEn?: string | null;
 }
 
 /**
- * 방송사 — en: 내보내기 영어 이름 → 표(SOC-R11) → 한글 없는 이름 → 한글 낱말을 뺀 라틴 부분
- * (「KBS 다큐인사이트」 → KBS) → 빈칸
+ * 방송사 — en: 표(SOC-R11) → 한글 없는 이름 → 한글 낱말을 뺀 라틴 부분(「KBS 다큐인사이트」 → KBS)
+ * → 내보내기 sourceEn 의 첫 낱말 → 빈칸
  */
 export function broadcasterLabel(
   name: string | null | undefined,
@@ -334,19 +334,32 @@ export function broadcasterLabel(
   if (!name) return '';
   if (locale !== 'en') return name;
   return (
-    englishOnly(exported?.broadcasterEn) ||
     BROADCAST_NAMES_EN[name.trim()]?.broadcaster ||
     englishOnly(name) ||
     name
       .split(/\s+/)
       .filter((w) => w && !HANGUL.test(w))
-      .join(' ')
+      .join(' ') ||
+    englishOnly(exported?.sourceEn).split(/\s+/)[0] ||
+    ''
   );
 }
 
 /** 함께 쓰는 채널이면 채널 이름(그 편의 프로그램을 넘겨짚지 않음) · 아니면 프로그램 이름 */
 function shownProgram(n: BroadcastNameEn | undefined): string {
   return n ? (n.channel ?? n.program) : '';
+}
+
+/** sourceEn 「MBC PD Notebook」 → 방송사 칸과 겹치는 앞 낱말을 뺀 「PD Notebook」(「Newstapa」 처럼 같으면 그대로) */
+function exportedProgram(
+  sourceEn: string | null | undefined,
+  broadcasterEn: string,
+): string {
+  const en = englishOnly(sourceEn).trim();
+  if (!en || !broadcasterEn || en === broadcasterEn) return en;
+  return en.startsWith(`${broadcasterEn} `)
+    ? en.slice(broadcasterEn.length + 1)
+    : en;
 }
 
 /**
@@ -360,9 +373,14 @@ export function broadcastTitleLabel(
   exported?: BroadcastExportedEn,
 ): string {
   if (locale !== 'en') return title;
+  const row = broadcaster ? BROADCAST_NAMES_EN[broadcaster.trim()] : undefined;
   const program =
-    englishOnly(exported?.programEn) ||
-    (broadcaster ? shownProgram(BROADCAST_NAMES_EN[broadcaster.trim()]) : '');
+    row?.channel ||
+    exportedProgram(
+      exported?.sourceEn,
+      broadcasterLabel(broadcaster, locale, exported),
+    ) ||
+    shownProgram(row);
   return (
     englishOnly(title) ||
     (program ? `${program} (Korean)` : 'Korean-language programme')

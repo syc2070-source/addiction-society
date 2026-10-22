@@ -297,9 +297,8 @@ export interface BroadcastItem {
   broadcaster: string | null;
   publishedAt: string | null;
   grade: string;
-  /** 중독뉴스 내보내기 영어 이름 칸이 실려 오면(SOC-R11 ■3 자리만 · 아직 없음) */
-  broadcasterEn?: string | null;
-  programEn?: string | null;
+  /** 중독뉴스 내보내기 영어 이름 칸 sourceEn 이 실려 오면(SOC-R11 ■3 자리만 · 아직 없음) */
+  sourceEn?: string | null;
 }
 
 export function fetchTimeline(params: { limit?: number; all?: boolean } = {}) {

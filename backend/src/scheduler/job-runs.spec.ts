@@ -218,7 +218,12 @@ describe('GET /api/health/nightly 꼴', () => {
         finishedAt: r0('04:00:04'),
         counts: { inserted: 0, updated: 0, skipped: 24, diff: 0 },
       }),
-      row({ runId: 'r9', step: 'run', status: 'skipped', startedAt: r0('03:00:00') }),
+      row({
+        runId: 'r9',
+        step: 'run',
+        status: 'skipped',
+        startedAt: r0('03:00:00'),
+      }),
       // 자정 재굽기 회차는 밤 회차 목록에 들지 않는다
       row({ runId: 'rf', step: 'refresh:start', startedAt: t('00:05:00') }),
       row({ runId: 'rf', step: 'refresh:end', startedAt: t('00:05:00') }),
@@ -236,6 +241,22 @@ describe('GET /api/health/nightly 꼴', () => {
     expect(s.runs[1].totals?.skipped).toBe(24);
     expect(s.runs[0]).toEqual(s.lastRun);
     expect(JSON.stringify(s.runs)).not.toContain('ECONNREFUSED');
+  });
+
+  it('SOC-R11 review: a run with no run:end before a newer run reads unfinished, the newest still running', () => {
+    const d = (day: string) => new Date(`2026-10-${day}T04:00:00+09:00`);
+    const s = summarizeNightly(
+      [row({ runId: 'new', startedAt: d('14') })],
+      [
+        row({ runId: 'new', startedAt: d('14') }),
+        row({ runId: 'dead', startedAt: d('12') }),
+      ],
+    );
+    expect(s.runs.map((r) => [r.runId, r.status])).toEqual([
+      ['new', 'running'],
+      ['dead', 'unfinished'],
+    ]);
+    expect(s.lastRun?.status).toBe('running');
   });
 
   it('carries no error text or personal fields', () => {

@@ -67,7 +67,7 @@ export interface NightlyRun {
   runId: string;
   startedAt: string;
   finishedAt: string | null;
-  /** ok | fail | running(끝 행 없음) | skipped(건너뛴 회차 · 단계 없음) */
+  /** ok | fail | running(끝 행 없음) | unfinished(끝 행 없이 뒤 회차가 섬 · runs[] 만) | skipped(건너뛴 회차 · 단계 없음) */
   status: string;
   steps: NightlyStep[];
   totals: JobCounts | null;
@@ -156,7 +156,11 @@ function windowRuns(windowRows: JobRun[]): NightlyRun[] {
       });
     }
   }
-  return runs.sort((a, b) => +new Date(b.startedAt) - +new Date(a.startedAt));
+  runs.sort((a, b) => +new Date(b.startedAt) - +new Date(a.startedAt));
+  // 끝 행이 없는 회차가 맨 앞(가장 새 것)이 아니면 도는 중이 아니라 끊긴 것 — 7일 내내 running 으로 남지 않게
+  return runs.map((r, i) =>
+    i > 0 && r.status === 'running' ? { ...r, status: 'unfinished' } : r,
+  );
 }
 
 export function summarizeNightly(

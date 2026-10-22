@@ -262,12 +262,25 @@ test('SOC-R11: broadcaster and programme English names — table of 9 channels, 
   // 표에 없으면 그전 그대로(빈칸 · 「Korean-language programme」)
   assert.equal(broadcasterLabel('연합뉴스TV', 'en'), '');
   assert.equal(broadcastTitleLabel(title, 'en', '연합뉴스TV'), 'Korean-language programme');
-  // 내보내기 칸이 실려 오면 표보다 먼저
-  const exported = { broadcasterEn: 'Munhwa Broadcasting', programEn: 'PD Note' };
-  assert.equal(broadcasterLabel('MBC PD수첩', 'en', exported), 'Munhwa Broadcasting');
-  assert.equal(broadcastTitleLabel(title, 'en', 'MBC PD수첩', exported), 'PD Note (Korean)');
-  // 한글이 섞인 내보내기 값은 쓰지 않는다
-  assert.equal(broadcasterLabel('MBC PD수첩', 'en', { broadcasterEn: '문화방송' }), 'MBC');
+  // 내보내기 sourceEn(NEWS-Q12 · 방송사가 앞에 붙은 값)이 실려 오면 표보다 먼저 — 겹치는 방송사는 뺀다
+  assert.equal(
+    broadcastTitleLabel(title, 'en', 'MBC PD수첩', { sourceEn: 'MBC PD Note' }),
+    'PD Note (Korean)',
+  );
+  assert.equal(broadcastTitleLabel(title, 'en', '뉴스타파', { sourceEn: 'Newstapa' }), 'Newstapa (Korean)');
+  // 함께 쓰는 채널은 내보내기 값이 와도 채널 이름(리뷰 찾기 1 · 「KBS 더 보다」 편을 Docu Insight 로 부르지 않음)
+  assert.equal(
+    broadcastTitleLabel(title, 'en', 'KBS 다큐인사이트', { sourceEn: 'KBS Docu Insight' }),
+    'KBS Documentary channel (Korean)',
+  );
+  // 표에 없고 라틴도 없는 방송사 → sourceEn 의 첫 낱말 · 한글이 섞인 값은 쓰지 않는다
+  assert.equal(broadcasterLabel('새방송', 'en', { sourceEn: 'Saebangsong Weekly' }), 'Saebangsong');
+  assert.equal(
+    broadcastTitleLabel(title, 'en', '새방송', { sourceEn: 'Saebangsong Weekly' }),
+    'Weekly (Korean)',
+  );
+  assert.equal(broadcasterLabel('MBC PD수첩', 'en', { sourceEn: '문화방송' }), 'MBC');
+  assert.equal(broadcastTitleLabel(title, 'en', '연합뉴스TV', { sourceEn: '연합뉴스TV' }), 'Korean-language programme');
 });
 
 test('romanization follows the 2000 Revised Romanization sound rules', () => {
