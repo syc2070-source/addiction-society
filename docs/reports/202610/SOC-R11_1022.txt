@@ -1,0 +1,121 @@
+dab9775 — 경보 0 (P0·P1 남은 것 0) — 10-22 04:00 9/9 ok diff 0 · collect:broadcasts 넣음 19(중독뉴스 10-21 12:00 공급 · 연대기 방송 20 행) · /en/timeline 한글 0(운영) · 홈 kcgp_youth_gambling_problem_rate 4.8 %(ko=en) · hri 09:00 checked(본문 그대로 · 닷새째 e1e8f848) · 10월 6건 표식 그대로 · 11-01 자리 준비됨 · 계약 v1.1 철자 licence + license_use · nightly runs[] 7일(「미측」 0 · 10-20 회차 9/9 diff 0 실측) · 방송사·프로그램 영어 이름 표 9 · 리뷰 찾기 2 고침 + 반박 1 · jest 173/173 · migration 0 · 사건 삭제 0
+
+SOC-R11 보고 · 2026-10-22(목) · 실행 = 데스크탑 Claude Code Opus · D:\addiction-society · 가지 claude/soc-r11 → main FF
+커밋: 3473fa7 ⓐ 지시서 [skip ci][skip render] → 750b150 ■1 계약 v1.1 [skip ci][skip render] → 42e8379 ■2·■3 코드 → dab9775 ■4 리뷰 고침 → (이 보고) [skip ci][skip render]
+
+━━ 손님에게 달라지는 것 ━━
+· 영어 손님이 연대기 「Broadcasts」 줄에서 프로그램 이름을 읽는다 — 「Korean-language programme」 20 줄이
+  「MBC · PD Notebook (Korean)」 · 「KBS · In-Depth 60 Minutes (Korean)」 · 「SBS · Unanswered Questions (Korean)」 ·
+  「MBC · Straight (Korean)」 로. 제목은 번역하지 않는다(원문 링크 그대로).
+  여러 프로그램이 함께 쓰는 채널 넷은 프로그램을 넘겨짚지 않고 채널 이름(「KBS · KBS Documentary channel (Korean)」 —
+  10-22 실측: 「KBS 다큐인사이트」로 온 두 편이 실제로는 「KBS 더 보다」 · 「KBS 취재파일」).
+  화면: docs/reports/202610/img/SOC-R11_en_timeline_broadcasts.png(로컬 빌드 · 운영 API · 20 줄).
+· 아침 회차 표에 「미측」이 없어진다 — /api/health/nightly 가 7일 회차 전부를 단계표와 함께 준다(runs[]).
+· 한국어 화면 변경 0.
+
+━━ LLM 의존 ━━ 0 (영어 이름은 표 · 회차 이력은 job_runs 읽기)
+
+━━ ■0 회차 실측 (10-22 09:31~09:50 KST · 09:10 뒤) ━━
+| # | 무엇 | 값 | 근거 | 판정 |
+|---|---|---|---|---|
+| 1 | 10-22 04:00 회차 | ok 9/9 | runId 9aef92a2 · 21T19:00:00.009Z ~ 19:01:28.044Z · totals diff 0 · skipped 261 · updated 49(collect:research 재평가) · inserted 19 | ✓ |
+| 2 | 〃 seed diff · backfill | diff 0 · backfill:next 0 · backfill:relevance 0 | 단계표 | ✓ |
+| 3 | collect:broadcasts | 넣음 19 · 건너뜀 1(10-21 의 KBS 1 행 · 링크 중복) | 중독뉴스 /articles/latest?kind=broadcast 20 행 = MBC PD수첩 7 · KBS 추적60분 7 · SBS 그것이 알고 싶다 3 · KBS 다큐인사이트 2 · MBC 스트레이트 1 | ✓ |
+| 4 | 연대기 방송 줄 | 20 행(id 1·3~21 · id 2 는 ON CONFLICT 로 번호만 씀 · 행 0) | /api/timeline?all=true broadcasts · 방송일 2026-02-26 ~ 10-19 | ✓ |
+| 5 | /en/timeline 한글 0 | 통과 | 로컬 빌드(운영 API) 요청 때 27 경로 · 빌드 산출물 0 줄 · 운영은 아래 ■4 | ✓ |
+| 6 | 홈 오늘의 숫자 10-22 | ko·en = kcgp_youth_gambling_problem_rate 4.8 % (2022) | 운영 / · /en · code 차례로 10-21(…_group_rate 0.9 %)의 다음 칸 · 영어 단서 「Survey design changed (2020 · 2022)」 | ✓ |
+| 7 | 09:00 출처 읽기 10-22 | 4 (312 spo checked · 313 drugfree checked · 314 hri checked · 315 mohw manual) | timeline all=true 22T00:00Z 줄 | ✓ |
+| 8 | hri 결과 | checked{hash, fp} · 「발간 아님」 0 · 사건 0 | 314 fp{len 64601, masked ca51ee14b2836b73} = 305·308 과 같음 · contentHash e1e8f848… 그대로(10-18 부터 닷새) | ✓ |
+| 9 | 10월 6건 표식 | 그대로 6 | notRelease = 199 · 219 · 234 · 257 · 271 · 278 · 행 변경 0 | ✓ |
+| 10 | 11-01 「발표 없음」 자리 | 준비됨 | spo_drug_monthly · drugfree_stats nextExpectedAt 2026-10-01 · 10월 발간 0 → 11-01 09:00 reconcile 이 「2026-10 · 발표 없음」 두 줄 · hri nextExpectedAt 2026-11-01 | ✓ |
+| 11 | 10-20 04:00 회차(R10 「미측」) | ok 9/9 · diff 0 · backfill 0 · 방송 0 | ■2 배포 뒤 runs[] 로 실측(runId 967d18f8) — R10 미측 줄 닫힘 | ✓(닫힘) |
+
+━━ ■2 nightly 이력 7일 ━━
+· GET /api/health/nightly 에 runs[] — 7일 밤 회차 전부(새 것이 앞) · 회차마다 runId · 시작·끝 · status · steps[](단계 · status · 초 · counts) · totals.
+  건너뛴 회차 = status skipped 한 줄 · 자정 재굽기(refresh:*)는 들지 않음 · lastRun · last7Days · lastRefresh 꼴 그대로(더하기만).
+· job_runs 표 읽기만 — 7일 창 질의가 finishedAt · counts 를 더 고른다 · error 칸은 고르지 않는다(몸에 「error」 글자 0 · 실측).
+· migration 0 · 표·행 변경 0.
+· 운영 실측(Render 42e8379 · 09:49 KST) — 7 회차:
+| 회차(KST 04:00) | runId | status | 단계 | diff | backfill:next | 방송 넣음 |
+|---|---|---|---|---|---|---|
+| 10-22 | 9aef92a2 | ok | 9 | 0 | 0 | 19 |
+| 10-21 | e124d6f0 | ok | 9 | 0 | 0 | 1 |
+| 10-20 | 967d18f8 | ok | 9 | 0 | 0 | 0 |
+| 10-19 | aef9e678 | ok | 9 | 0 | 0 | 0 |
+| 10-18 | 671ad5be | ok | 9 | 1(seed:documents) | 0 | 0 |
+| 10-17 | c8963aae | ok | 9 | 1(seed:documents) | 0 | 0 |
+| 10-16 | edd722f1 | ok | 8(refresh:home 단계 생기기 전) | 0 | 0 | 0 |
+  (10-17·18 의 seed:documents diff 1 — 이 판에서 까닭은 보지 않음 · 10-19 부터 0)
+
+━━ ■3 방송사·프로그램 영어 이름 표 9 ━━
+· 설정 파일 frontend-next/src/lib/broadcastNamesEn.ts — 중독뉴스 채널 9(addicted-news backend/data/broadcast_youtube_rss.json 의 program)을 열쇠로.
+| 중독뉴스 program | outlet_id | 방송사 | 프로그램(en 제목 자리) | 근거 basis |
+|---|---|---|---|---|
+| MBC PD수첩 | mbc_pd_note | MBC | PD Notebook | known |
+| MBC 스트레이트 | mbc_straight | MBC | Straight | channel(handle @mbc-straight) |
+| SBS 그것이 알고 싶다 | sbs_truth | SBS | Unanswered Questions | known |
+| SBS 스페셜 | sbs_special | SBS | SBS DALI channel(함께 쓰는 채널 · 프로그램 이름 SBS Special) | meaning |
+| KBS 추적60분 | kbs_60min | KBS | In-Depth 60 Minutes | known |
+| KBS 시사기획 창 | kbs_sisa_chang | KBS | KBS Current Affairs channel(함께 · Current Affairs Window) | meaning |
+| KBS 다큐인사이트 | kbs_docu_insight | KBS | KBS Documentary channel(함께 · Docu Insight) | meaning |
+| EBS 다큐프라임 | ebs_docuprime | EBS | EBS Documentary channel(함께 · Docuprime) | meaning |
+| 뉴스타파 | newstapa | Newstapa(라틴 없는 방송사 → 표) | Newstapa | channel(채널 이름 「뉴스타파 Newstapa」) |
+· basis = 공식이라고 넘겨짚지 않는 표시: channel = 중독뉴스 설정의 채널 이름·handle 에 그 라틴 이름 · known = 널리 쓰이는 영어 이름(방송사 누리집 대조 미측) · meaning = 뜻·소리 옮김.
+· en 제목 = 「<프로그램 영어 이름> (Korean)」 · 제목 번역 0 · 표에 없는 방송 = 그전 그대로(라틴 부분 · 「Korean-language programme」 · 「연합뉴스TV」 → 방송사 빈칸).
+· 내보내기 자리만: 연대기 줄에 sourceEn(중독뉴스 NEWS-Q12 ■4 의 칸 이름 · 10-22 그쪽 작업본 실측 · 값 = program_en 「MBC PD Notebook」 꼴)이
+  실려 오면 표보다 먼저 읽는다 — 겹치는 방송사 앞 낱말은 빼고, 함께 쓰는 채널 넷은 표의 채널 이름이 이긴다.
+  지금은 연대기 응답에 그 칸이 없다(broadcast_items 에 칸 없음 · 담으려면 덧붙임 migration = 다음 판 · 이 판 0).
+  그쪽 program_en 아홉은 이 표의 「방송사 + 프로그램」과 글자까지 같다(대조 9/9).
+
+━━ ■1 계약 v1.1 (docs/ECO_LINK1_CONTRACT_V1.md · 코드 0) ━━
+· §5 철자 licence(값 여섯 그대로) · 이 문서의 낱말 = licence · 미국 철자 license 는 Statory 나가는 열쇠를 가리킬 때만.
+· 나가는 열쇠는 Statory 가 정한 대로 읽음: license(낱말 하나 · 값 여섯) + license_use(corpus · index_only · ASK-51 ⓑ) — 받는 쪽은 적어 두기만 ·
+  화면 규칙은 license 값으로(어긋나면 값이 이김 · 좁은 쪽).
+· §6-2: license 줄에 「옛 객체 {value, use}(ASK-51 전)가 오면 value·use 로 읽음 · 거절 0」 · license_use 줄 새로 · §3-2 · §7 · D9 의 철자 맞춤.
+· §8 표 다시 읽음(Statory origin/main c7429a4 · 10-22): 닫힘 1 경로 · 2 철자 · 3 면허 값 · 4 허용 목록 · 11 D1~D9 경로(ASK-50 ■1 · 덧 1) ·
+  새 줄 13 「license 꼴」 = Statory ASK-51 ■1 대기(그쪽 main 의 내보내기는 아직 license: { value, use } · 실측).
+· §9 C1(철자) · C5(늘 「모름」) 닫힘.
+
+━━ ■4 리뷰 · 게이트 ━━
+· 리뷰(R10 에 리뷰 줄을 빠뜨린 것 정정 — R10 은 화면을 바꿨는데 「리뷰 에이전트 안 돌림」으로 적고 찾기·반박을 남기지 않았다.
+  이 판은 화면 변경이 있어 따로 리뷰를 돌렸다: 42e8379 의 diff · 읽기 전용 리뷰 에이전트 1 + 손으로 본 것):
+  찾기 1(고침 · dab9775) 내보내기 영어 이름이 표보다 먼저라 함께 쓰는 채널에서 「KBS 더 보다」 편을 「KBS Docu Insight」로 부를 뻔했다
+    → 칸 이름을 그쪽 sourceEn 으로 · 함께 쓰는 채널은 표의 채널 이름이 이김 · 겹치는 방송사 낱말 뺌 · 시험.
+  찾기 2(고침 · dab9775) 끝 행 없이 끊긴 회차가 runs[] 에 7일 내내 running 으로 남음 → 가장 새 회차가 아니면 unfinished · 시험.
+  (손으로 본 것 · 42e8379 앞에서 고침) 처음 표는 이름마다 official:true 를 달았다 — 대조하지 않은 주장 → basis 로 바꿈 ·
+    함께 쓰는 채널 넷을 프로그램 이름으로 부르던 것 → 채널 이름(위 ■3).
+  반박 1 end 행이 7일 경계를 걸쳐 회차를 반쪽으로 만든다 — 아니다: run:end 행의 startedAt 은 회차 시작 시각이라 시작·끝 행은 늘 같은 쪽에 선다 ·
+    시작 행이 창 밖인 회차의 단계 행은 묶음째 빠진다(반쪽 회차 0) · error 는 질의가 고르지 않아 몸에 닿지 않는다.
+  반박(손) 같은 링크 글이 여러 줄(「PD Notebook (Korean)」 7) — 날짜가 옆에 있고 제목 번역 0 이 지시서라 그대로.
+· backend jest 25 suites 173/173(+2) · tsc 0 · eslint·prettier 바뀐 파일 0
+· frontend npm test 22(pass 21 · skipped 1) · tsc 0 · next build ok(NEXT_PUBLIC_API_URL=운영 · 명령줄만 · .env 0) · eslint 바뀐 파일 0
+· en 한글 0 게이트: 로컬 빌드 산출물 + 요청 때 27 경로 통과(두 번 · 고친 뒤 산출물 다시) · 운영(Vercel) 요청 때 27 경로 통과(09:5x KST)
+· migration 0 · seed 변경 0 · 사건 삭제 0 · 행 변경 0
+· 배포: Render 42e8379(09:49 KST) → dab9775(health commit dab9775 · startedAt 22T00:53:13Z · runs[] 7 회차 모두 ok) ·
+  Vercel 운영 /en/timeline = 「KBS Documentary channel (Korean)」 · 「Straight (Korean)」 … (Korean) 20 줄 실측 — dab9775 의 앞단 변경은 자리(sourceEn)뿐이라 화면으로 42e8379 와 구별 안 됨
+
+━━ 지시서와 다르게 한 것 ━━
+1. ■3 「프로그램 영어 이름 + (Korean)」 — 함께 쓰는 채널 넷(SBS 스페셜 · KBS 시사기획 창 · KBS 다큐인사이트 · EBS 다큐프라임)은 프로그램 이름 대신
+   채널 이름을 보인다. 10-22 실측 두 행이 다른 프로그램이라 프로그램 이름은 틀린 말이 된다(보이는 주장이 줄어드는 쪽).
+2. ■3 내보내기 「자리만」 — 칸 이름을 넘겨짚지 않고 중독뉴스 작업본(아직 push 전)의 sourceEn 을 읽었다. 연대기 응답에 싣는 일(migration)은 안 함.
+3. ■1 면허 — 낱말 철자는 licence, 나가는 열쇠 이름은 Statory 대로 license · license_use(지시서 「나가는 열쇠 이름은 그쪽이 정한 대로」를 따름 ·
+   열쇠를 licence 로 바꾸지 않음). ASK-51 ■1 이 아직 main 에 없어 옛 객체 꼴도 넘어가는 동안 받는다고 적었다(거절하지 않는 쪽).
+4. ■4 리뷰 찾기 2 를 고치느라 코드 커밋이 하나 더(dab9775 · 백엔드 변경 → Render 한 번 더 배포).
+5. 명령 이어 붙이기 — 측정·빌드 명령을 && 로 이어 돌린 자리가 있다. 파일 고치기는 Write/Edit 와 python 바꾸기 스크립트(정확한 문자열 맞춤 · 실패하면 멈춤)를 함께 썼다.
+
+━━ 건너뜀 · 사유 ━━
+· 방송사 누리집으로 영어 이름 대조(basis known 셋) — 이 판 웹 확인 안 함 → 미측(basis 로 표시).
+· 연대기 응답의 sourceEn 칸 — broadcast_items 에 칸이 없어 migration 필요 · 지시서 migration 0 → 자리만.
+· 운영 중독뉴스 export 응답 실물 — 여전히 404(기본 꺼짐) · sourceEn 은 그쪽 작업본 코드로만 확인.
+
+━━ 확인 (다음 판) ━━
+1. 10-23(금) 04:00: 9/9 ok · runs[] 8번째 회차가 7일 창에서 빠지고 새 회차가 앞 · collect:broadcasts 넣음 0~n(중독뉴스 NEWS-Q12 묶기 뒤 본편만일 수 있음)
+2. 10-23 09:00: hri checked · 본문 그대로면 사건 0
+3. Statory ASK-51 ■1 이 main 에 서면 계약 §8-13 닫힘(license 낱말 + license_use)
+4. 중독뉴스 NEWS-Q12 ■4 push 뒤 export 의 sourceEn 실물 대조(표 9 와 글자 같음 확인)
+5. 11-01(일) 09:00: spo · drugfree 「2026-10 · 발표 없음」 두 줄 · hri 발간 달 감시
+
+━━ CTO 판정 필요 ━━
+C1 함께 쓰는 채널 넷의 en 이름 — 지금 채널 이름. 중독뉴스가 편마다 프로그램을 가려 실으면 그것을 쓸지(그쪽 칸이 필요).
+C2 broadcast_items 에 sourceEn 칸(덧붙임 migration) — 중독뉴스 내보내기가 켜지면 담을지, 지금 표로 충분한지.
+C3 basis known 셋(PD Notebook · Unanswered Questions · In-Depth 60 Minutes)의 이름을 방송사 누리집으로 대조할지.
