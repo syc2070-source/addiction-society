@@ -19,6 +19,10 @@ import {
   METHOD_NOTE_EN,
   OBSERVATION_NOTE_EN,
 } from './enIndicators.ts';
+import {
+  BROADCAST_NAMES_EN,
+  type BroadcastNameEn,
+} from './broadcastNamesEn.ts';
 import { romanizeAddress } from './romanize.ts';
 
 const HANGUL = /[가-힣ㄱ-ㆎ]/;
@@ -307,16 +311,31 @@ export function reportTitleLabel(
   return englishOnly(r.title_en) || englishOnly(r.title_ko) || 'Lab report';
 }
 
-// ── 연대기 「방송」 줄 (SOC-R10 ■2 — 10-21 04:00 첫 방송 1 건이 /en 에 한국어로 보임) ──
+// ── 연대기 「방송」 줄 (SOC-R10 ■2 — 10-21 04:00 첫 방송 1 건이 /en 에 한국어로 보임 · SOC-R11 ■3 이름 표) ──
 
-/** 방송사 — en: 한글 없는 이름 → 한글 낱말을 뺀 라틴 부분(「KBS 다큐인사이트」 → KBS) → 빈칸 */
+/**
+ * 중독뉴스 내보내기의 영어 이름 칸(NEWS-Q12 ■4 · 칸 이름은 그쪽이 정한 대로) — 자리만.
+ * 연대기 응답에 이 값이 실려 오면 BROADCAST_NAMES_EN 표보다 먼저 읽는다.
+ */
+export interface BroadcastExportedEn {
+  broadcasterEn?: string | null;
+  programEn?: string | null;
+}
+
+/**
+ * 방송사 — en: 내보내기 영어 이름 → 표(SOC-R11) → 한글 없는 이름 → 한글 낱말을 뺀 라틴 부분
+ * (「KBS 다큐인사이트」 → KBS) → 빈칸
+ */
 export function broadcasterLabel(
   name: string | null | undefined,
   locale: string,
+  exported?: BroadcastExportedEn,
 ): string {
   if (!name) return '';
   if (locale !== 'en') return name;
   return (
+    englishOnly(exported?.broadcasterEn) ||
+    BROADCAST_NAMES_EN[name.trim()]?.broadcaster ||
     englishOnly(name) ||
     name
       .split(/\s+/)
@@ -325,10 +344,29 @@ export function broadcasterLabel(
   );
 }
 
-/** 방송 제목 — en: 한글 없는 제목 → 「Korean-language programme」(원문 제목은 지어내지 않음) */
-export function broadcastTitleLabel(title: string, locale: string): string {
+/** 함께 쓰는 채널이면 채널 이름(그 편의 프로그램을 넘겨짚지 않음) · 아니면 프로그램 이름 */
+function shownProgram(n: BroadcastNameEn | undefined): string {
+  return n ? (n.channel ?? n.program) : '';
+}
+
+/**
+ * 방송 제목 — en: 한글 없는 제목 → 「프로그램 영어 이름 (Korean)」(내보내기 칸 → 표)
+ * → 「Korean-language programme」. 제목은 번역하지 않는다(원문 제목은 지어내지 않음).
+ */
+export function broadcastTitleLabel(
+  title: string,
+  locale: string,
+  broadcaster?: string | null,
+  exported?: BroadcastExportedEn,
+): string {
   if (locale !== 'en') return title;
-  return englishOnly(title) || 'Korean-language programme';
+  const program =
+    englishOnly(exported?.programEn) ||
+    (broadcaster ? shownProgram(BROADCAST_NAMES_EN[broadcaster.trim()]) : '');
+  return (
+    englishOnly(title) ||
+    (program ? `${program} (Korean)` : 'Korean-language programme')
+  );
 }
 
 /** en 에서 한국어만 있는 글(결론 등)은 빈칸 */

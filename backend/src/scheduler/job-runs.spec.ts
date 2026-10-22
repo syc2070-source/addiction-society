@@ -199,6 +199,45 @@ describe('GET /api/health/nightly 꼴', () => {
     expect(s.last7Days).toEqual({ runs: 2, failedRuns: 1, skipped: 1 });
   });
 
+  it('SOC-R11: runs[] keeps every run of the 7 days with its step table, newest first', () => {
+    const r0 = (s: string) => new Date(`2026-10-13T${s}+09:00`);
+    const s = summarizeNightly(lastRun, [
+      ...lastRun,
+      row({ runId: 'r0', startedAt: r0('04:00:00') }),
+      row({
+        runId: 'r0',
+        step: 'seed:sources',
+        startedAt: r0('04:00:01'),
+        finishedAt: r0('04:00:03'),
+        counts: { inserted: 0, updated: 0, skipped: 24, diff: 0 },
+      }),
+      row({
+        runId: 'r0',
+        step: RUN_END,
+        startedAt: r0('04:00:00'),
+        finishedAt: r0('04:00:04'),
+        counts: { inserted: 0, updated: 0, skipped: 24, diff: 0 },
+      }),
+      row({ runId: 'r9', step: 'run', status: 'skipped', startedAt: r0('03:00:00') }),
+      // 자정 재굽기 회차는 밤 회차 목록에 들지 않는다
+      row({ runId: 'rf', step: 'refresh:start', startedAt: t('00:05:00') }),
+      row({ runId: 'rf', step: 'refresh:end', startedAt: t('00:05:00') }),
+    ]);
+    expect(s.runs.map((r) => [r.runId, r.status, r.steps.length])).toEqual([
+      ['r1', 'fail', 2],
+      ['r0', 'ok', 1],
+      ['r9', 'skipped', 0],
+    ]);
+    expect(s.runs[1].steps[0]).toMatchObject({
+      step: 'seed:sources',
+      seconds: 2,
+      counts: { diff: 0, skipped: 24 },
+    });
+    expect(s.runs[1].totals?.skipped).toBe(24);
+    expect(s.runs[0]).toEqual(s.lastRun);
+    expect(JSON.stringify(s.runs)).not.toContain('ECONNREFUSED');
+  });
+
   it('carries no error text or personal fields', () => {
     const body = JSON.stringify(summarizeNightly(lastRun, lastRun));
     expect(body).not.toContain('error');

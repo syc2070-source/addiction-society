@@ -63,18 +63,25 @@ export interface NightlyStep {
   counts: JobCounts | null;
 }
 
+export interface NightlyRun {
+  runId: string;
+  startedAt: string;
+  finishedAt: string | null;
+  /** ok | fail | running(끝 행 없음) | skipped(건너뛴 회차 · 단계 없음) */
+  status: string;
+  steps: NightlyStep[];
+  totals: JobCounts | null;
+}
+
 export interface NightlySummary {
   schedule: string;
-  lastRun: {
-    runId: string;
-    startedAt: string;
-    finishedAt: string | null;
-    /** ok | fail | running(끝 행 없음) */
-    status: string;
-    steps: NightlyStep[];
-    totals: JobCounts | null;
-  } | null;
+  lastRun: NightlyRun | null;
   last7Days: { runs: number; failedRuns: number; skipped: number };
+  /**
+   * 최근 7일 밤 회차 전부(SOC-R11 ■2) — 새 회차가 앞. 마지막 회차만 단계표가 있어
+   * 그 앞 회차가 「미측」이 되던 것을 없앤다. 자정 재굽기 회차는 들지 않는다.
+   */
+  runs: NightlyRun[];
   /** 마지막 00:05 자정 홈 재굽기(SOC-R7 ■1) — 없으면 null. */
   lastRefresh: {
     runId: string;
@@ -88,16 +95,12 @@ export interface NightlySummary {
 const iso = (d: Date | string | null) =>
   d == null ? null : new Date(d).toISOString();
 
-export function summarizeNightly(
-  lastRunRows: JobRun[],
-  windowRows: JobRun[],
-  lastRefreshRows: JobRun[] = [],
-): NightlySummary {
-  const refreshStart = lastRefreshRows.find((r) => r.step === REFRESH_START);
-  const refreshEnd = lastRefreshRows.find((r) => r.step === REFRESH_END);
-  const start = lastRunRows.find((r) => r.step === RUN_START);
-  const end = lastRunRows.find((r) => r.step === RUN_END);
-  const steps = lastRunRows
+/** 한 밤 회차의 행 → 시작·끝·단계표(시작 행이 없으면 null). */
+function toRun(rows: JobRun[]): NightlyRun | null {
+  const start = rows.find((r) => r.step === RUN_START);
+  if (!start) return null;
+  const end = rows.find((r) => r.step === RUN_END);
+  const steps = rows
     .filter((r) => r.step !== RUN_START && r.step !== RUN_END)
     .sort((a, b) => +new Date(a.startedAt) - +new Date(b.startedAt))
     .map(
@@ -115,17 +118,57 @@ export function summarizeNightly(
       }),
     );
   return {
+    runId: start.runId,
+    startedAt: iso(start.startedAt) as string,
+    finishedAt: iso(end?.finishedAt ?? null),
+    status: end ? end.status : 'running',
+    steps,
+    totals: end?.counts ?? null,
+  };
+}
+
+/** 7일 창의 행 → 밤 회차 목록(새 것이 앞). 건너뛴 회차는 status skipped 한 줄. */
+function windowRuns(windowRows: JobRun[]): NightlyRun[] {
+  const byRun = new Map<string, JobRun[]>();
+  for (const r of windowRows) {
+    const list = byRun.get(r.runId) ?? [];
+    list.push(r);
+    byRun.set(r.runId, list);
+  }
+  const runs: NightlyRun[] = [];
+  for (const rows of byRun.values()) {
+    const run = toRun(rows);
+    if (run) {
+      runs.push(run);
+      continue;
+    }
+    const skip = rows.find(
+      (r) => r.step === RUN_SKIPPED && r.status === 'skipped',
+    );
+    if (skip) {
+      runs.push({
+        runId: skip.runId,
+        startedAt: iso(skip.startedAt) as string,
+        finishedAt: iso(skip.finishedAt),
+        status: 'skipped',
+        steps: [],
+        totals: null,
+      });
+    }
+  }
+  return runs.sort((a, b) => +new Date(b.startedAt) - +new Date(a.startedAt));
+}
+
+export function summarizeNightly(
+  lastRunRows: JobRun[],
+  windowRows: JobRun[],
+  lastRefreshRows: JobRun[] = [],
+): NightlySummary {
+  const refreshStart = lastRefreshRows.find((r) => r.step === REFRESH_START);
+  const refreshEnd = lastRefreshRows.find((r) => r.step === REFRESH_END);
+  return {
     schedule: '매일 04:00 KST',
-    lastRun: start
-      ? {
-          runId: start.runId,
-          startedAt: iso(start.startedAt) as string,
-          finishedAt: iso(end?.finishedAt ?? null),
-          status: end ? end.status : 'running',
-          steps,
-          totals: end?.counts ?? null,
-        }
-      : null,
+    lastRun: toRun(lastRunRows),
     last7Days: {
       runs: windowRows.filter((r) => r.step === RUN_START).length,
       failedRuns: windowRows.filter(
@@ -135,6 +178,7 @@ export function summarizeNightly(
         (r) => r.step === RUN_SKIPPED && r.status === 'skipped',
       ).length,
     },
+    runs: windowRuns(windowRows),
     lastRefresh: refreshStart
       ? {
           runId: refreshStart.runId,
@@ -158,7 +202,7 @@ async function latestRunRows(
   return latest ? repo.find({ where: { runId: latest.runId } }) : [];
 }
 
-/** DB 에서 마지막 회차 행 + 최근 7일 시작·끝 행 + 마지막 자정 재굽기를 읽어 요약. */
+/** DB 에서 마지막 회차 행 + 최근 7일 행(단계표 포함 · 읽기만) + 마지막 자정 재굽기를 읽어 요약. */
 export async function nightlySummary(
   repo: Repository<JobRun>,
   now: Date = new Date(),
@@ -168,7 +212,15 @@ export async function nightlySummary(
   const since = new Date(now.getTime() - 7 * 24 * 3600 * 1000);
   const windowRows = await repo.find({
     where: { startedAt: MoreThanOrEqual(since) },
-    select: { step: true, status: true, runId: true, startedAt: true },
+    // runs[] 단계표까지 — error(출력 원문)는 읽지 않는다
+    select: {
+      step: true,
+      status: true,
+      runId: true,
+      startedAt: true,
+      finishedAt: true,
+      counts: true,
+    },
   });
   return summarizeNightly(lastRunRows, windowRows, lastRefreshRows);
 }

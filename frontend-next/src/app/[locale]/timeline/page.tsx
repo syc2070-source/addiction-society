@@ -74,9 +74,9 @@ export default async function TimelinePage({
                 </span>
                 <span className="timeline-badge">{t('event.broadcast')}</span>
                 <span className="timeline-body">
-                  {broadcasterLabel(b.broadcaster, l) && (
+                  {broadcasterLabel(b.broadcaster, l, b) && (
                     <span className="timeline-org">
-                      {broadcasterLabel(b.broadcaster, l)}
+                      {broadcasterLabel(b.broadcaster, l, b)}
                     </span>
                   )}
                   <a
@@ -85,7 +85,7 @@ export default async function TimelinePage({
                     rel="noopener noreferrer"
                     className="timeline-source"
                   >
-                    {broadcastTitleLabel(b.title, l)}
+                    {broadcastTitleLabel(b.title, l, b.broadcaster, b)}
                   </a>
                 </span>
               </li>
