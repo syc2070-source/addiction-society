@@ -1,6 +1,6 @@
 # ECO-LINK1 계약 v1 — 중독사회 · 중독뉴스 · Statory (SOC-R10 ■3)
 
-> 상태: **v1 · 2026-10-21 · 코드 0 · migration 0.** 받는 문 구현은 **11월 1주 실행 판**이다 — 이 문서가 그 판의 정본이다.
+> 상태: **v1 · 2026-10-21 · 코드 0 · migration 0.** · **v1.1 · 2026-10-22(SOC-R11 ■1)**: 면허 철자 `licence` · 나가는 열쇠 `license` + `license_use`(Statory ASK-51 ⓑ) · §8 표 갱신. 받는 문 구현은 **11월 1주 실행 판**이다 — 이 문서가 그 판의 정본이다.
 > 앞 판: `docs/ECO_LINK1_CONTRACT_DRAFT.md`(SOC-R9 · 10-19 · D1~D9 를 처음 적은 곳 — 지우지 않고 남긴다).
 >
 > 받은 결정(이 문서가 옮긴 것 · 지어 넣은 결정 0):
@@ -27,7 +27,7 @@
 | D6 | 카드 한 장의 상태 | Statory 가 `card_state`(`public`·`held`·`hidden`)를 더한다 · 기본 = 점수 ≥80 ∧ 면허 허용 → `public` · 그 밖 `held` · `hidden` = 사람만 | §3 |
 | D7 | slug | **`<repo>:<kind>:<원 id>`** · 원 id 는 바꾸지 않는다 | §4 |
 | D8 | 카드의 하위 유형 | Statory 올리는 문에 `subtype[]`(+`topics[]` · `topic`) · 분류는 데스크탑 · 서버는 사전 id 인지만 잰다 | §1 · §6 |
-| D9 | 면허 | 철자 **`license`** · 뜻 = **원문의** 면허 · 값 여섯 · **카드만 필수**(중독사회·중독뉴스 줄은 선택) | §5 |
+| D9 | 면허 | 철자 **`licence`**(v1.1 · 나가는 열쇠 이름은 Statory 가 정한 `license` · `license_use` 그대로) · 뜻 = **원문의** 면허 · 값 여섯 · **카드만 필수**(중독사회·중독뉴스 줄은 선택) | §5 |
 
 ## 1. 분야 · 하위 주제 · 가로 주제
 
@@ -105,7 +105,7 @@
 
 ### 3-2. Statory 카드 — 기본값 · `hidden` · 관문 둘
 
-- **기본값**(새 줄을 담을 때 한 번): `completeness ≥ 80 ∧ license ∈ {cc-by, cc-by-sa, cc0, kogl-1}` → `public` · 그 밖 전부 → `held`.
+- **기본값**(새 줄을 담을 때 한 번): `completeness ≥ 80 ∧ licence ∈ {cc-by, cc-by-sa, cc0, kogl-1}` → `public` · 그 밖 전부 → `held`.
   점수 공급자 = 데스크탑 `card_completeness.py` · 서버 계산 0(CTO 답 ④).
 - **`hidden` = 사람만** — 기계(올리는 문)가 보내면 `card_state_human_only` 로 거절. 사람이 바꾸는 자리 = Statory 관리자 화면 `card_state` 칸(11월).
 - **내보내기 관문 둘**(CTO 답 ⑥): **① Statory `card_state='public'`**(∧ 판정 거름 `verdict='ok'` 는 Statory v1 이 그대로 둠) →
@@ -140,12 +140,18 @@
 - 원 id 는 바꾸지 않는다(기존 행 변경 0). 새로 짓는 값은 분야·하위·가로 주제 id 뿐이고 꼴은 `^[a-z][a-z0-9-]*$`(Statory id 규칙과 같다).
 - slug 는 **열쇠이지 주소가 아니다** — 화면 주소는 `url` 칸.
 
-## 5. 면허 `license`
+## 5. 면허 `licence`
 
-- **철자 `license`**(CTO 답 ③ · Statory v1 문서 · 내보내기 열쇠 `license` 와 같다). 앞 판의 `licence` 는 이 판에서 버린다.
+- **철자 `licence`**(v1.1 · SOC-R11 ■1 · Statory 코드·문서의 철자와 같다 — 표 칸 `paper_cards.licence` · `licencePolicy.ts` ·
+  ADDENDUM §8). v1(10-21)은 `license` 로 적었다 — 이 판에서 되돌렸다. **이 문서의 낱말은 `licence`** 이고,
+  미국 철자 `license` 는 **이름이 그것인 자리**(Statory 내보내기의 나가는 열쇠)를 가리킬 때만 쓴다.
+- **나가는 열쇠 이름은 Statory 가 정한 대로 읽는다** — `license`(낱말 하나 · 값 여섯) + `license_use`(쓰임 · Statory ASK-51 ⓑ).
+  이름을 바꿔 받지 않는다(§6 머리 · 두 표가 따로 자라지 않게).
 - **뜻 = 출처 원문의 면허** — 카드 글(소화한 문장)의 면허가 아니다.
 - **값 여섯(소문자)**: `cc-by` · `cc-by-sa` · `cc0` · `kogl-1` · `index-only` · `unknown`.
   - 허용 넷 = `cc-by` · `cc-by-sa` · `cc0` · `kogl-1` · `index-only` = 면허를 알지만 원문을 쓸 수 없음 · `unknown` = 모름.
+- **쓰임 `license_use`**(Statory 가 붙임 · 값 둘): `corpus`(허용 넷) · `index_only`(그 밖). **받는 쪽은 적어 두기만** 하고
+  화면 규칙은 `license` 값으로 가른다(쓰임과 값이 어긋나면 값이 이긴다 — 좁은 쪽).
 - **필수 = Statory 카드 줄만**(D9). 중독사회·중독뉴스 링크 줄은 선택 — 없으면 칸을 싣지 않는다(빈 글로 채우지 않는다).
 - **중독사회 화면 규칙**(받은 카드): 허용 넷 → 제목 + 소화한 발견(`key_findings`) + 원문 링크 · `index-only`·`unknown`·값 집합 밖 → **제목 + 원문 링크만**.
 
@@ -189,7 +195,8 @@ Statory `CARD_V4_FIELDS_ADDENDUM_ECO1.md` §6 이 **이 절을 경로로 가리�
 | `limitations` | 글 | — | — | — |
 | `related_indicators` | — | — | **받지 않는다 — 우리가 채운다**(실려 오면 무시하고 `unreceived_keys` 에 적음) | — |
 | `statory_page_url` | URL | — | 있으면 「Statory 에서 보기」 링크(공개 근거 페이지의 정본 = Statory) | `statory_page_url_invalid` |
-| `license` | 낱말 | ✓(카드 · D9) | 값 여섯 · 없거나 밖 → **`unknown` 으로 읽고 담는다**(거절하지 않음 · 화면은 제목+링크만) | — |
+| `license` | 낱말 | ✓(카드 · D9) | **`licence`**(§5) 값 여섯 · 없거나 밖 → **`unknown` 으로 읽고 담는다**(거절하지 않음 · 화면은 제목+링크만) · 옛 꼴 객체 `{value, use}`(ASK-51 전 · 10-22 실측 Statory main c7429a4)가 오면 `value` 를 값으로 · `use` 를 `license_use` 로 읽는다(거절 0 · 넘어가는 동안만) | — |
+| `license_use` | 낱말 | — | `corpus` · `index_only` · 그 밖은 적어 두기만(`unreceived_keys` 아님 · 화면 규칙에 쓰지 않음) | — |
 | `judged_at` | ISO 시각 | — | — | — |
 | `fields_missing` | 글 배열 | — | 그대로 적음 | — |
 | `topics` · `topic` · `field_id` | (Statory §7-4 미정 · 지금 안 옴) | — | 오면 받는다(add-only) · `topics` 는 `addiction` 만 · `topic` 은 `recovery` 만 | `topic_unknown` · `cross_topic_unknown` |
@@ -234,7 +241,7 @@ Statory `CARD_V4_FIELDS_ADDENDUM_ECO1.md` §6 이 **이 절을 경로로 가리�
 | `url` | `sourceUrl` | ✓ | 그대로 |
 | `title` | `title`(외국어 기사는 한국어 번역 제목) | ✓ | 그대로(/en 화면에서는 한국어 제목을 그대로 내지 않는다 — SOC-R9 규칙) |
 | `date` | `publishedAt` · `publishedTs` | ✓ | `publishedTs` 먼저 |
-| `license` | 없음 | — (선택 칸 · D9) | 싣지 않음 |
+| `licence`(나가는 열쇠는 없음) | 없음 | — (선택 칸 · D9) | 싣지 않음 |
 | (덧) `origin_grade` | `sourceGrade` | ✓ | 그대로 |
 | (덧) 묶음 | `clusterId` | ✓ | 같은 소식 묶기 |
 | — | `source`(매체) | 링크 줄에 칸 없음 | 화면용으로만 |
@@ -251,30 +258,34 @@ Statory `CARD_V4_FIELDS_ADDENDUM_ECO1.md` §6 이 **이 절을 경로로 가리�
 
 - v0 에 더하면 받는 쪽이 넘겨짚지 않아도 되는 칸(중독뉴스 v0 의 「늘리기만」 규칙 안 · 제안만): `sourceType` · `subtype[]`(id).
 
-## 8. Statory v1 문서와 어긋나는 칸 (실측 10-21 · 고치는 것은 각 저장소 몫 · 이 판 코드 0)
+## 8. Statory v1 문서와 어긋나는 칸 (실측 10-21 · **갱신 10-22 SOC-R11** · 고치는 것은 각 저장소 몫 · 코드 0)
 
-| # | 자리 | Statory 문서 | 중독사회 v1 | 어긋남 · 어느 쪽이 고치나 |
+10-22 다시 읽은 것: Statory `origin/main` c7429a4 — ASK-50 ■1(1a031a9) · ASK-50 덧 1(6e20cc8 · cf6b96f) · ASK-51 지시서(692b4c8).
+ASK-51 의 ■1(나가는 `license` 꼴 ⓑ)은 **아직 main 에 없다**(내보내기 `build-evidence-export.mjs` 가 `license: { value, use }` 를 냄 · 10-22 실측).
+
+| # | 자리 | Statory 문서(10-22) | 중독사회 v1.1 | 상태 |
 |---|---|---|---|---|
-| 1 | 중독사회 §6 경로 | ADDENDUM §6 · CTO 답 ⑦: `docs/ECO_LINK1_CONTRACT_DRAFT.md` §6 | 받는 문 정본 = **이 파일 §6** · 앞 판 §6 은 옛 꼴(`slug`·`summary_ko`·`claims`·`numbers`·`evidence_level`·`licence`) | 경로가 낡는다 → 앞 판 머리에 「v1 §6 으로」 한 줄(이 판) · Statory 가 경로를 `ECO_LINK1_CONTRACT_V1.md` 로(ASK-50) |
-| 2 | 면허 철자 | 문서 `license` · 코드는 대부분 `licence`(ADDENDUM §8) | `license` | SOC-R10 지시서는 「licence 철자」라 적었다 → v1 은 CTO 답 ③ 을 따라 `license`(지시서와 다르게 한 것) |
-| 3 | 내보내기의 면허 값 | ADDENDUM §6 실측: 스크립트가 면허 칸을 읽지 않아 **지금 모든 줄이 「모름」** | `unknown` → 제목+링크만 | 지금 그대로면 받은 카드 전부가 발견 문장 없이 선다 — Statory 구현 판이 고칠 거리 |
-| 4 | 허용 면허 목록 | 서버 정책 넷(`kogl-1` 있음) · `field_taxonomy.json` 셋(`kogl-1` 없음) | 넷 | Statory 안의 어긋남 — 우리는 넷 |
-| 5 | 중독 유형 열쇠 이름 | 카드 칸 `subtype[]` · 나가는 열쇠 `addiction_type` | 받을 때 `addiction_type` → `subtype` | 이름이 둘 — 받는 문이 바꿔 읽음(§6-2) · 열쇠를 바꾸면 v1 이 깨진다 |
-| 6 | `kind` 낱말 | `report_bundle.v0.json` 의 `kind` = 리뷰 종류(systematic …) · 법률 `kind=law` 자리 미정(TOPIC §7-3) | 링크 줄 `kind` = 대상 종류(`law` 포함 · §2) | 같은 이름 · 다른 어휘 — 링크 줄 안에서는 하나의 뜻만 |
-| 7 | 카드 등급 | 내보내기 몸에 등급 칸 없음 · 카드 enum 넷 | 받는 쪽이 `paper` 를 붙임 | 맞음(어긋남 아님 · 기록) |
-| 8 | 카드 상태 칸 | `card_state` 는 조건으로만 · 값으로 싣지 않음 | 받은 줄 = 전부 `public` 으로 읽음 | 맞음 |
-| 9 | 새 판의 `hidden` 상속 | 미정(ADDENDUM §7-3 · 트리거 0) | 우리 `hide` 는 새 판에 이어짐 · `keep` 은 안 이어짐 | Statory 쪽 상속은 Statory 판정 — 우리 쪽은 v1 로 정함 |
-| 10 | `nicotine` 한국어 이름 | 「니코틴·담배」 | 「니코틴·담배」(앞 판 「니코틴」 → 맞춤) | 맞춤 |
-| 11 | D1~D9 원문 | 「원문 전문이 이 저장소에 없다」(TOPIC 머리) | 원문 = 이 저장소 `ECO_LINK1_CONTRACT_DRAFT.md` §7 | Statory 가 이 경로를 가리키면 닫힘 |
-| 12 | 관문 ① 의 판정 거름 | `verdict='ok'` ∧ `card_state='public'`(남김) | 같음 | 맞음 |
+| 1 | 중독사회 §6 경로 | ADDENDUM 머리·§6·§9 표 1 · TOPIC 머리가 `docs/ECO_LINK1_CONTRACT_V1.md` §6 을 가리킨다(ASK-50 덧 1) | 받는 문 정본 = 이 파일 §6 | **닫힘** |
+| 2 | 면허 철자 | 안쪽 `licence` 하나(ASK-50 ■1) · 나가는 열쇠 `license` | 낱말 `licence` · 열쇠는 그쪽 이름 그대로 `license` · `license_use` | **닫힘**(v1.1 · SOC-R11 ■1) |
+| 3 | 내보내기의 면허 값 | 생성기가 `licence` 칸을 읽고 글자 그대로(ASK-50 ■1) — 「늘 모름」 끝 | 값 여섯으로 읽음 | **닫힘**(값) |
+| 4 | 허용 면허 목록 | 정본 하나 넷 = JSON(`kogl-1` 더함) = `licence_wire` = 내보내기 규칙(ASK-50 ■1) | 넷 | **닫힘** |
+| 5 | 중독 유형 열쇠 이름 | 카드 칸 `subtype[]` · 나가는 열쇠 `addiction_type` | 받을 때 `addiction_type` → `subtype` | 그대로(받는 문이 바꿔 읽음 · 열쇠를 바꾸면 v1 이 깨진다) |
+| 6 | `kind` 낱말 | `report_bundle.v0.json` 의 `kind` = 리뷰 종류 · 법률 `kind=law` 자리 미정(TOPIC §7-3) | 링크 줄 `kind` = 대상 종류(`law` 포함 · §2) | 그대로(같은 이름 · 다른 어휘) |
+| 7 | 카드 등급 | 내보내기 몸에 등급 칸 없음 · 카드 enum 넷 | 받는 쪽이 `paper` 를 붙임 | 맞음 |
+| 8 | 카드 상태 칸 | `card_state` 는 조건으로만 | 받은 줄 = 전부 `public` 으로 읽음 | 맞음 |
+| 9 | 새 판의 `hidden` 상속 | 미정(ADDENDUM §7-3) | 우리 `hide` 는 새 판에 이어짐 · `keep` 은 안 이어짐 | 그대로(Statory 쪽은 Statory 판정) |
+| 10 | `nicotine` 한국어 이름 | 「니코틴·담배」 | 「니코틴·담배」 | 맞춤 |
+| 11 | D1~D9 원문 | ADDENDUM·TOPIC 머리가 이 저장소 `ECO_LINK1_CONTRACT_DRAFT.md` §7 을 가리킨다(ASK-50 덧 1) | 원문 = 앞 판 §7 | **닫힘** |
+| 12 | 관문 ① 의 판정 거름 | `verdict='ok'` ∧ `card_state='public'` | 같음 | 맞음 |
+| 13 | `license` 의 꼴(ASK-50 판정 6 · 새 줄) | 지금 객체 `{ value, use }` 또는 `null` · ASK-51 ■1 이 낱말 + `license_use` 로 바꾼다(ⓑ) | 낱말 + `license_use`(§5 · §6-2) · 옛 객체 꼴도 넘어가는 동안 `value`·`use` 로 읽음 | **Statory ASK-51 ■1 대기** — 그쪽 main 에 서면 닫힘(10-23 다시 읽음) |
 
 ## 9. CTO 판정 필요 (v1 이 안전한 쪽으로 읽어 둔 것)
 
 | # | 무엇 | v1 의 읽기 |
 |---|---|---|
-| C1 | 면허 철자 — 지시서 「licence」 vs CTO 답 ③ `license` | `license` |
+| C1 | ~~면허 철자~~ | **닫힘(v1.1 · SOC-R11)** — 낱말 `licence` · 나가는 열쇠 `license`·`license_use` 는 Statory 이름 그대로 |
 | C2 | 중독뉴스 category 하나 대 여럿(알코올·약물 · 게임·디지털) | `[]`(분야 전체) — 중독뉴스가 `subtype[]` 을 v0 에 더하면 그 값을 씀 |
 | C3 | 받은 카드의 새 판 — 우리 `keep` 을 이어받나 | 안 이어받음(다시 봄) · `hide` 는 이어받음 |
 | C4 | 몸 전체가 깨진 회차의 숨김 상속 | 돌리지 않음(그 회차 건너뜀) |
-| C5 | Statory 내보내기 면허 값이 지금 늘 「모름」(§8-3) — 그대로 받아 제목+링크만 둘지, 고쳐진 뒤에 받을지 | 그대로 받되 발견 문장 노출 0 |
+| C5 | ~~Statory 내보내기 면허 값이 늘 「모름」~~ | **닫힘(ASK-50 ■1 · §8-3)** — 값은 글자 그대로 온다 · 꼴은 §8-13 |
 | C6 | `sources` 의 등급 — `sources.kind` 는 주제 낱말(prevalence · policy · treatment · enforcement · market)이라 등급 칸이 아니다 | `policy` → `report` · 그 밖 → `statistic` 으로 읽음(행 변경 0 · 출처 하나하나의 등급 칸은 덧붙임 migration 후보) |
