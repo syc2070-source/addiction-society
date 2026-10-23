@@ -1,8 +1,8 @@
 /**
  * Statory 카드 봉투 받기 (SOC-R12 ■3 · 계약 v1.2 §6-1) — 순수 함수. 받는 문 구현(11월)이 이것을 쓴다.
  *
- * 봉투 꼴(Statory build-evidence-export.mjs · ASK-52 가 두 칸을 더함):
- *   { generated_at, count, items[], card_version?, missing?: [{ id, fields[] }], ...그 밖 칸(schema · skipped …) }
+ * 봉투 꼴(Statory build-evidence-export.mjs · ASK-52 가 두 칸을 더함 · 계약 v1.3 = 그 실물 꼴):
+ *   { generated_at, count, items[], card_version?, missing?: [{ id, fields }], ...그 밖 칸(schema · skipped …) }
  *  - card_version · missing 이 **없으면 옛 꼴** 그대로 받는다(form 'old' · 거절 0).
  *  - 있는데 꼴이 틀리면: card_version(빈 글 · 글 아님) · missing(배열 아님) → 봉투 전체 envelope_invalid.
  *    missing 의 줄 하나가 틀리면 그 줄만 따로 적는다(missingRejected) — 나머지 봉투는 받는다.
@@ -20,10 +20,17 @@ export type EnvelopeReject =
 export type MissingReject =
   | 'missing_entry_invalid'
   | 'missing_duplicate_id'
-  | 'missing_id_unknown';
+  | 'missing_id_unknown'
+  | 'missing_card_id_empty';
 
+/**
+ * Statory envelopeMissingOf(ASK-52 · origin/main b6faee813) 의 꼴 그대로 — `{ id: row.card_id, fields }`.
+ * fields = EXPORT_REQUIRED_KEYS(card_id · card_version · title · doi · source_url · license) 가운데 빈 것.
+ * 카드 id 자체가 빈 카드는 `id: null` + fields 에 `card_id` 로 온다 → 붙일 카드가 없어 따로 적는다
+ * (missing_card_id_empty · 그 줄은 §6-2 card_id_missing 으로 거절).
+ */
 export interface MissingEntry {
-  id: string;
+  id: string | null;
   fields: string[];
 }
 
@@ -110,12 +117,23 @@ export function readEnvelope(
       : [];
     if (
       !e ||
-      !isText(e.id) ||
       !Array.isArray(e.fields) ||
       fields.length === 0 ||
       fields.length !== e.fields.length
     ) {
       missingRejected.push({ index, reason: 'missing_entry_invalid' });
+      return;
+    }
+    if (!isText(e.id)) {
+      const rawId: unknown = e.id;
+      missingRejected.push({
+        index,
+        reason:
+          (rawId == null || (typeof rawId === 'string' && !rawId.trim())) &&
+          fields.includes('card_id')
+            ? 'missing_card_id_empty'
+            : 'missing_entry_invalid',
+      });
       return;
     }
     const id = e.id.trim();

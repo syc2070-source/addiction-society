@@ -19,10 +19,7 @@ import {
   METHOD_NOTE_EN,
   OBSERVATION_NOTE_EN,
 } from './enIndicators.ts';
-import {
-  BROADCAST_NAMES_EN,
-  type BroadcastNameEn,
-} from './broadcastNamesEn.ts';
+import { BROADCAST_NAMES_EN } from './broadcastNamesEn.ts';
 import { romanizeAddress } from './romanize.ts';
 
 const HANGUL = /[가-힣ㄱ-ㆎ]/;
@@ -314,9 +311,8 @@ export function reportTitleLabel(
 // ── 연대기 「방송」 줄 (SOC-R10 ■2 — 10-21 04:00 첫 방송 1 건이 /en 에 한국어로 보임 · SOC-R11 ■3 이름 표) ──
 
 /**
- * 중독뉴스 내보내기의 영어 이름 칸 `sourceEn`(NEWS-Q12 ■4 · 칸 이름은 그쪽이 정한 대로 · 10-22 그쪽 작업본 실측:
- * 값 = 채널 설정 program_en · 방송사가 앞에 붙음 「MBC PD Notebook」) — 자리만. 연대기 응답에 실려 오면 표보다 먼저 읽는다.
- * 단 함께 쓰는 채널(표의 channel)은 그 편의 프로그램을 넘겨짚지 않게 표의 채널 이름이 이긴다.
+ * 중독뉴스 내보내기의 영어 이름 칸 `sourceEn`(NEWS-Q12 ■4 · 값 = 채널 설정 program_en · 방송사가 앞에 붙음
+ * 「MBC PD Notebook」). 연대기 응답의 sourceEn(SOC-R12 source_en 칸)이 실려 오면 표보다 먼저 읽는다.
  */
 export interface BroadcastExportedEn {
   sourceEn?: string | null;
@@ -345,26 +341,10 @@ export function broadcasterLabel(
   );
 }
 
-/** 함께 쓰는 채널이면 채널 이름(그 편의 프로그램을 넘겨짚지 않음) · 아니면 프로그램 이름 */
-function shownProgram(n: BroadcastNameEn | undefined): string {
-  return n ? (n.channel ?? n.program) : '';
-}
-
-/** sourceEn 「MBC PD Notebook」 → 방송사 칸과 겹치는 앞 낱말을 뺀 「PD Notebook」(「Newstapa」 처럼 같으면 그대로) */
-function exportedProgram(
-  sourceEn: string | null | undefined,
-  broadcasterEn: string,
-): string {
-  const en = englishOnly(sourceEn).trim();
-  if (!en || !broadcasterEn || en === broadcasterEn) return en;
-  return en.startsWith(`${broadcasterEn} `)
-    ? en.slice(broadcasterEn.length + 1)
-    : en;
-}
-
 /**
- * 방송 제목 — en: 한글 없는 제목 → 「프로그램 영어 이름 (Korean)」(내보내기 칸 → 표)
- * → 「Korean-language programme」. 제목은 번역하지 않는다(원문 제목은 지어내지 않음).
+ * 방송 제목 — en: 한글 없는 제목 → 「정본 프로그램 영어 이름 (Korean)」(sourceEn → 표 programEn ·
+ * 둘 다 중독뉴스 program_en 글자 그대로 · SOC-R13 공유 채널 넷도 같은 규칙) → 「Korean-language programme」.
+ * 제목은 번역하지 않는다(원문 제목은 지어내지 않음).
  */
 export function broadcastTitleLabel(
   title: string,
@@ -375,12 +355,7 @@ export function broadcastTitleLabel(
   if (locale !== 'en') return title;
   const row = broadcaster ? BROADCAST_NAMES_EN[broadcaster.trim()] : undefined;
   const program =
-    row?.channel ||
-    exportedProgram(
-      exported?.sourceEn,
-      broadcasterLabel(broadcaster, locale, exported),
-    ) ||
-    shownProgram(row);
+    englishOnly(exported?.sourceEn).trim() || (row?.programEn ?? '');
   return (
     englishOnly(title) ||
     (program ? `${program} (Korean)` : 'Korean-language programme')

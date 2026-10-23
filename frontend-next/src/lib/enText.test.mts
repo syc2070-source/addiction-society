@@ -231,53 +231,62 @@ test('SOC-R10: broadcast line on /en — first broadcast (10-21) title and broad
   assert.equal(broadcasterLabel(null, 'en'), '');
 });
 
-test('SOC-R11: broadcaster and programme English names — table of 9 channels, title never translated', () => {
+test('SOC-R11 · R13: broadcaster and canon programme English names — table of 9 channels, title never translated', () => {
   const keys = Object.keys(BROADCAST_NAMES_EN);
   assert.equal(keys.length, 9);
   assert.equal(new Set(keys.map((k) => BROADCAST_NAMES_EN[k].outletId)).size, 9);
   for (const k of keys) {
     const n = BROADCAST_NAMES_EN[k];
-    assert.ok(!HANGUL.test(n.broadcaster) && !HANGUL.test(n.program), k);
+    assert.ok(!HANGUL.test(n.broadcaster) && !HANGUL.test(n.programEn), k);
     assert.equal(broadcasterLabel(k, 'en'), n.broadcaster);
-    assert.equal(broadcastTitleLabel('한국어 제목', 'en', k), `${n.channel ?? n.program} (Korean)`);
+    // 정본 program_en 글자 그대로(공유 채널 넷 포함 · SOC-R13 ■1)
+    assert.equal(broadcastTitleLabel('한국어 제목', 'en', k), `${n.programEn} (Korean)`);
     assert.equal(broadcasterLabel(k, 'ko'), k);
   }
+  // 중독뉴스 name_source(NEWS-Q13): official 은 둘뿐
+  assert.deepEqual(
+    keys.filter((k) => BROADCAST_NAMES_EN[k].nameSource === 'official').sort(),
+    ['SBS 스페셜', '뉴스타파'],
+  );
   // 10-22 04:00 회차로 들어온 방송사 다섯(운영 실측)
   const live = ['KBS 다큐인사이트', 'MBC 스트레이트', 'MBC PD수첩', 'KBS 추적60분', 'SBS 그것이 알고 싶다'];
   for (const b of live) assert.ok(BROADCAST_NAMES_EN[b], b);
   const title = '도박 청소년이 성인이 되면 | PD수첩';
-  assert.equal(broadcastTitleLabel(title, 'en', 'MBC PD수첩'), 'PD Notebook (Korean)');
+  assert.equal(broadcastTitleLabel(title, 'en', 'MBC PD수첩'), 'MBC PD Notebook (Korean)');
   assert.equal(broadcastTitleLabel(title, 'ko', 'MBC PD수첩'), title);
-  // 함께 쓰는 채널 넷은 채널 이름 — 10-22 첫 행은 「KBS 더 보다」인데 채널은 「KBS 다큐인사이트」로 옴
-  assert.equal(
-    keys.filter((k) => BROADCAST_NAMES_EN[k].channel).length,
-    4,
-  );
+  // 공유 채널 넷도 정본 이름(CTO 10-24) — 채널 이름(KBS Documentary channel 등)은 더 쓰지 않는다
   assert.equal(
     broadcastTitleLabel('대한민국 마약 근황 | KBS 더 보다 20251207 방송', 'en', 'KBS 다큐인사이트'),
-    'KBS Documentary channel (Korean)',
+    'KBS Docu Insight (Korean)',
   );
+  assert.equal(broadcastTitleLabel(title, 'en', 'SBS 스페셜'), 'SBS Special (Korean)');
+  assert.equal(broadcastTitleLabel(title, 'en', 'EBS 다큐프라임'), 'EBS Docuprime (Korean)');
+  assert.equal(broadcastTitleLabel(title, 'en', 'KBS 시사기획 창'), 'KBS Current Affairs Window (Korean)');
   // 라틴이 없는 방송사는 표로 읽는다
   assert.equal(broadcasterLabel('뉴스타파', 'en'), 'Newstapa');
   // 표에 없으면 그전 그대로(빈칸 · 「Korean-language programme」)
   assert.equal(broadcasterLabel('연합뉴스TV', 'en'), '');
   assert.equal(broadcastTitleLabel(title, 'en', '연합뉴스TV'), 'Korean-language programme');
-  // 내보내기 sourceEn(NEWS-Q12 · 방송사가 앞에 붙은 값)이 실려 오면 표보다 먼저 — 겹치는 방송사는 뺀다
+  // 연대기 응답 sourceEn(= 중독뉴스 program_en)이 실려 오면 표보다 먼저 — 글자 그대로(앞 방송사를 빼지 않음)
   assert.equal(
     broadcastTitleLabel(title, 'en', 'MBC PD수첩', { sourceEn: 'MBC PD Note' }),
-    'PD Note (Korean)',
+    'MBC PD Note (Korean)',
   );
   assert.equal(broadcastTitleLabel(title, 'en', '뉴스타파', { sourceEn: 'Newstapa' }), 'Newstapa (Korean)');
-  // 함께 쓰는 채널은 내보내기 값이 와도 채널 이름(리뷰 찾기 1 · 「KBS 더 보다」 편을 Docu Insight 로 부르지 않음)
   assert.equal(
     broadcastTitleLabel(title, 'en', 'KBS 다큐인사이트', { sourceEn: 'KBS Docu Insight' }),
-    'KBS Documentary channel (Korean)',
+    'KBS Docu Insight (Korean)',
+  );
+  // 한글이 섞인 sourceEn 은 버리고 표
+  assert.equal(
+    broadcastTitleLabel(title, 'en', 'KBS 다큐인사이트', { sourceEn: 'KBS 다큐인사이트' }),
+    'KBS Docu Insight (Korean)',
   );
   // 표에 없고 라틴도 없는 방송사 → sourceEn 의 첫 낱말 · 한글이 섞인 값은 쓰지 않는다
   assert.equal(broadcasterLabel('새방송', 'en', { sourceEn: 'Saebangsong Weekly' }), 'Saebangsong');
   assert.equal(
     broadcastTitleLabel(title, 'en', '새방송', { sourceEn: 'Saebangsong Weekly' }),
-    'Weekly (Korean)',
+    'Saebangsong Weekly (Korean)',
   );
   assert.equal(broadcasterLabel('MBC PD수첩', 'en', { sourceEn: '문화방송' }), 'MBC');
   assert.equal(broadcastTitleLabel(title, 'en', '연합뉴스TV', { sourceEn: '연합뉴스TV' }), 'Korean-language programme');

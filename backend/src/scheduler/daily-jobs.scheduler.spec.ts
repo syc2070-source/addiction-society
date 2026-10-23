@@ -74,7 +74,13 @@ describe('DailyJobsScheduler.runAll', () => {
   });
 
   it('keeps going after a failure and sends one Discord alert', async () => {
-    const notifier = { notifyText: jest.fn() };
+    // 보낸 글을 string 배열로 받는다 — mock.calls[0][0](any)을 읽지 않음(SOC-R13 ■4 · 동작 같음)
+    const sent: string[] = [];
+    const notifier = {
+      notifyText: jest.fn((text: string) => {
+        sent.push(text);
+      }),
+    };
     const s = new DailyJobsScheduler(notifier as never);
     const steps = [
       { name: 'a', entry: 'x/a' },
@@ -98,7 +104,7 @@ describe('DailyJobsScheduler.runAll', () => {
     expect(ran).toEqual(['a', 'b', 'c']);
     expect(results.filter((r) => !r.ok).map((r) => r.name)).toEqual(['b']);
     expect(notifier.notifyText).toHaveBeenCalledTimes(1);
-    expect(notifier.notifyText.mock.calls[0][0]).toContain('b (exit 1): boom');
+    expect(sent[0]).toContain('b (exit 1): boom');
   });
 
   it('a thrown runner counts as a failed step, not a crash', async () => {
@@ -142,6 +148,7 @@ describe('toBroadcastRows (연대기 「방송」)', () => {
         publishedAt: new Date('2026-10-09T10:00:00Z'),
         grade: '방송',
         sourceEn: null,
+        newsId: null,
       },
     ]);
   });

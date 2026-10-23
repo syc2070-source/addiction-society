@@ -47,4 +47,8 @@ export class BroadcastItem {
 
   @Column({ name: 'hidden_at', type: 'timestamptz', nullable: true })
   hiddenAt: Date | null;
+
+  /** 중독뉴스 articles.id(SOC-R13 ■3) — 보관 목록(id 만 실림)과 잇는 열쇠. 모르면 NULL. */
+  @Column({ name: 'news_id', type: 'integer', nullable: true })
+  newsId: number | null;
 }

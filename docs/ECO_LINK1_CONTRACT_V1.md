@@ -1,6 +1,6 @@
 # ECO-LINK1 계약 v1 — 중독사회 · 중독뉴스 · Statory (SOC-R10 ■3)
 
-> 상태: **v1 · 2026-10-21 · 코드 0 · migration 0.** · **v1.1 · 2026-10-22(SOC-R11 ■1)**: 면허 철자 `licence` · 나가는 열쇠 `license` + `license_use`(Statory ASK-51 ⓑ) · §8 표 갱신. · **v1.2 · 2026-10-23(SOC-R12 ■3)**: §6-1 봉투 `card_version` · `missing[{id, fields}]` 선택 칸(없으면 옛 꼴) · §8 의 13·14 닫힘. 받는 문 구현은 **11월 1주 실행 판**이다 — 이 문서가 그 판의 정본이다.
+> 상태: **v1 · 2026-10-21 · 코드 0 · migration 0.** · **v1.1 · 2026-10-22(SOC-R11 ■1)**: 면허 철자 `licence` · 나가는 열쇠 `license` + `license_use`(Statory ASK-51 ⓑ) · §8 표 갱신. · **v1.2 · 2026-10-23(SOC-R12 ■3)**: §6-1 봉투 `card_version` · `missing[{id, fields}]` 선택 칸(없으면 옛 꼴) · §8 의 13·14 닫힘. · **v1.3 · 2026-10-24(SOC-R13 ■2)**: §6-1 `missing` 꼴을 Statory ASK-52 실물(main b6faee813 `envelopeMissingOf`) `{ id, fields }` 로 — `fields` = 필수 여섯 가운데 빈 것 · `id: null`(카드 id 가 빈 카드) 줄은 `missing_card_id_empty` · §8 의 15. 받는 문 구현은 **11월 1주 실행 판**이다 — 이 문서가 그 판의 정본이다.
 > 앞 판: `docs/ECO_LINK1_CONTRACT_DRAFT.md`(SOC-R9 · 10-19 · D1~D9 를 처음 적은 곳 — 지우지 않고 남긴다).
 >
 > 받은 결정(이 문서가 옮긴 것 · 지어 넣은 결정 0):
@@ -173,7 +173,7 @@ Statory `CARD_V4_FIELDS_ADDENDUM_ECO1.md` §6 이 **이 절을 경로로 가리�
 | `count` | 정수 | 있으면 `= items.length` | 몸 전체 `envelope_count_mismatch` |
 | `items` | 배열 | 줄마다 6-2 | 몸 전체 `envelope_invalid`(배열 아님) · 줄마다 |
 | `card_version` | 글(예 `v4`) | **선택** — 없으면 옛 꼴 · 있으면 빈 글이 아닌 글 | 몸 전체 `envelope_invalid`(빈 글 · 글 아님) |
-| `missing` | `[{ id, fields[] }]` | **선택** — 카드마다 「§6-2 필수 칸 가운데 빈 것」(빈 칸 없는 카드는 오지 않음) · `id` = 그 봉투 `items` 의 `card_id` | 배열 아님 → 몸 전체 `envelope_invalid` · 줄 하나가 틀리면 **그 줄만** 따로 적음: `missing_entry_invalid`(id·fields 꼴 · 빈 fields) · `missing_duplicate_id` · `missing_id_unknown`(봉투에 없는 카드) |
+| `missing` | `[{ id, fields }]` — `id` 글(또는 `null`) · `fields` 글 배열 | **선택** — 카드마다 「§6-2 필수 ✓ 여섯(`card_id` · `card_version` · `title` · `doi` · `source_url` · `license`) 가운데 빈 것」(빈 칸 없는 카드는 오지 않음 · 모두 차면 `[]`) · `id` = 그 봉투 `items` 의 `card_id` · 카드 id 자체가 빈 카드는 `id: null` + `fields` 에 `card_id`(v1.3 · Statory ASK-52 `envelopeMissingOf` 실물) · `license` 는 「못 채움」일 때 빈 칸(나가는 낱말 `unknown` 은 채운 값이 아님) | 배열 아님 → 몸 전체 `envelope_invalid` · 줄 하나가 틀리면 **그 줄만** 따로 적음: `missing_entry_invalid`(fields 꼴 · 빈 fields · id 꼴) · `missing_card_id_empty`(`id: null` + `card_id` 빈 칸 — 붙일 카드가 없음 · 그 줄은 §6-2 `card_id_missing`) · `missing_duplicate_id` · `missing_id_unknown`(봉투에 없는 카드) |
 
 - 받은 `missing` 은 카드에 붙여 둔다(받는 표 §6-3 이 서면 그대로 담음). 「정보 부족」 같은 화면 표시는 지금 중독사회에 **없다** — 만들지 않는다(SOC-R12).
 - 밤 단계(`import:cards` · 11월)의 `[job_counts]` 에 `card_version` · `missing`(카드 수)을 싣는다(`envelopeJobCounts`).
@@ -283,7 +283,8 @@ ASK-51 의 ■1(나가는 `license` 꼴 ⓑ)은 **아직 main 에 없다**(내�
 | 11 | D1~D9 원문 | ADDENDUM·TOPIC 머리가 이 저장소 `ECO_LINK1_CONTRACT_DRAFT.md` §7 을 가리킨다(ASK-50 덧 1) | 원문 = 앞 판 §7 | **닫힘** |
 | 12 | 관문 ① 의 판정 거름 | `verdict='ok'` ∧ `card_state='public'` | 같음 | 맞음 |
 | 13 | `license` 의 꼴(ASK-50 판정 6 · 새 줄) | ASK-51 ■1(1.6.48)이 낱말 + `license_use` 로 바꿈 — `licenseWireOf`(10-23 Statory main d837e95 실측) | 낱말 + `license_use`(§5 · §6-2) · 옛 객체 꼴도 넘어가는 동안 `value`·`use` 로 읽음 | **닫힘**(SOC-R12 · 10-23) |
-| 14 | 봉투의 `card_version` · `missing[]`(새 줄 · SOC-R12) | 10-23 main 의 봉투에는 둘 다 없음(줄마다 `card_version` · `fields_missing` 만) · ASK-52 ■1 이 봉투 맨 위에 더함(`missing` = `[{id, fields}]`) | §6-1 v1.2 — 둘 다 선택 · 없으면 옛 꼴 · 꼴 검사 `readEnvelope` | **닫힘(받는 쪽)** — Statory 쪽은 ASK-52 push 뒤 실물 대조(다음 판) |
+| 14 | 봉투의 `card_version` · `missing[]`(새 줄 · SOC-R12) | 10-23 main 의 봉투에는 둘 다 없음(줄마다 `card_version` · `fields_missing` 만) · ASK-52 ■1 이 봉투 맨 위에 더함(`missing` = `[{id, fields}]`) | §6-1 v1.2 — 둘 다 선택 · 없으면 옛 꼴 · 꼴 검사 `readEnvelope` | **닫힘(받는 쪽)** — Statory 쪽은 ASK-52 push 뒤 실물 대조(다음 판) → **닫힘(양쪽 · SOC-R13 · 10-24)** §8 의 15 |
+| 15 | `missing` 줄의 실물 꼴(새 줄 · SOC-R13 ■2) | ASK-52 ■1(판 1.6.49 · main b6faee813 · 10-23) `envelopeMissingOf` = `{ id: row.card_id, fields }` · `EXPORT_REQUIRED_KEYS` 여섯 · `EXPORT_CARD_VERSION = 'v4'` · 봉투 맨 끝 두 칸 | §6-1 v1.3 — 같은 꼴 · `id: null` 줄은 `missing_card_id_empty`(시험 card-envelope.spec 「real ASK-52 envelope」) | **닫힘**(SOC-R13 · 10-24 · 실물 봉투 파일은 Statory 저장소에 없음 — 생성기 코드로 대조) |
 
 ## 9. CTO 판정 필요 (v1 이 안전한 쪽으로 읽어 둔 것)
 

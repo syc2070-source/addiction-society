@@ -100,6 +100,47 @@ describe('Statory 카드 봉투 받기 (SOC-R12 ■3)', () => {
     ]);
   });
 
+  it('SOC-R13 ■2: the real ASK-52 envelope (Statory main b6faee813 buildExport) — missing [{id, fields}] of the six required keys', () => {
+    // buildExport 끝 두 칸 그대로: card_version = EXPORT_CARD_VERSION · missing = items.map(envelopeMissingOf).filter(Boolean)
+    const real = {
+      schema: 'EVIDENCE_EXPORT_V1',
+      generated_at: '2026-10-24T03:00:00.000Z',
+      source_table: 'paper_cards',
+      verdict: 'ok',
+      count: 3,
+      skipped: { doi_missing: 1 },
+      fields_missing_counts: { license: 1, region: 3 },
+      items: [
+        { card_id: 'a1', card_version: 'v4', title: 'A', license: 'cc-by' },
+        { card_id: 'a2', card_version: 'v4', title: 'B', license: 'unknown' },
+        { card_id: null, card_version: null, title: 'C', license: 'cc-by' },
+      ],
+      card_version: 'v4',
+      missing: [
+        { id: 'a2', fields: ['license'] },
+        { id: null, fields: ['card_id', 'card_version'] },
+      ],
+    };
+    const r = readEnvelope(real);
+    expect(r).toMatchObject({ ok: true, form: 'v1', cardVersion: 'v4' });
+    expect([...r.missingByCard]).toEqual([['a2', ['license']]]);
+    // 카드 id 가 빈 카드 — 꼴 틀림이 아니라 붙일 카드가 없음(그 줄은 §6-2 card_id_missing)
+    expect(r.missingRejected).toEqual([
+      { index: 1, reason: 'missing_card_id_empty' },
+    ]);
+    expect(envelopeJobCounts(r).missing).toBe(1);
+    // 빈 글 id 도 같은 까닭(리뷰 찾기 4)
+    expect(
+      readEnvelope({ ...real, missing: [{ id: ' ', fields: ['card_id'] }] })
+        .missingRejected,
+    ).toEqual([{ index: 0, reason: 'missing_card_id_empty' }]);
+    // id 가 null 이어도 card_id 가 빈 칸으로 적히지 않았으면 그냥 꼴 틀림
+    expect(
+      readEnvelope({ ...real, missing: [{ id: null, fields: ['title'] }] })
+        .missingRejected,
+    ).toEqual([{ index: 0, reason: 'missing_entry_invalid' }]);
+  });
+
   it('nightly job_counts carry card_version and the missing count, and totals stay the four numbers', () => {
     const c = envelopeJobCounts(readEnvelope(v1Body()), { inserted: 2 });
     expect(c).toEqual({
