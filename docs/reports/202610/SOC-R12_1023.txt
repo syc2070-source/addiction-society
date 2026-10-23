@@ -1,0 +1,141 @@
+0cf4ced — 경보 0 (P0·P1 남은 것 0) — 10-22·10-23 04:00 9/9 diff 0 · hri 10-22·23 checked(본문 그대로 · 엿새째) · 연대기 방송 20 행 중 중독뉴스가 10-23 에 보관한 11 편 = 목록에서 빠진 11 행(정확히 일치) → 연대기에서 내리는 규칙(행 지움 0 · 첫 적용 10-24 04:00) · broadcast_items.source_en 칸 + 정본 program_en 9/9 · Statory 봉투 card_version · missing[] 받는 검사 · 계약 v1.2 §8 13·14 닫힘 · hri 실제 크기 발간 fixture · 리뷰 찾기 2 고침 + 반박 1 · jest 187/187 · migration 1(덧붙임) · 사건·행 삭제 0
+
+SOC-R12 보고 · 2026-10-23(금) · 실행 = 데스크탑 Claude Code Opus · D:\addiction-society · 가지 claude/soc-r12 → main
+커밋: c791e8d ⓐ 지시서(SOC-R12_1023.md) [skip ci][skip render] → 0cf4ced ⓑ 코드 → (이 보고) ⓒ [skip ci][skip render]
+
+━━ 손님에게 달라지는 것 ━━
+· 연대기 방송 줄에서 예고 · 클립이 빠지고 본편만 남는다 — 중독뉴스가 보관으로 옮긴 11 편(예고 · 티저 · 10분 컷 · 관련 클립)이
+  10-24 04:00 회차부터 연대기에서 내려간다(20 행 → 9 행). 행은 지우지 않는다 — 중독뉴스가 다시 실으면 다시 보인다.
+  (배포만으로는 내려가지 않는다: 내리기는 밤 단계 collect:broadcasts 가 중독뉴스 목록을 읽을 때 한다 · 오늘 밤 전까지 20 행 그대로)
+· 영어 화면의 방송 이름이 중독뉴스 정본(program_en)과 같은 글자로 DB 에 저장된다(source_en). 화면 글자는 그대로
+  (「MBC · PD Notebook (Korean)」 — 정본 「MBC PD Notebook」에서 방송사를 떼어 보임 · 함께 쓰는 채널 넷은 채널 이름 · 아래 다르게 한 것 1).
+· Statory 카드 봉투의 빈 칸(card_version · missing[])을 받는 검사가 섰다 — 받는 문(11월)이 이것을 쓴다. 손님 화면 변경은 아직 0.
+
+━━ LLM 의존 ━━ 0 (내리기 = 목록 대조 · 영어 이름 = 정본 표 · 봉투 = 꼴 검사)
+
+━━ ■0 실측 (10-23 17:08~17:12 KST) ━━
+· 빈 RAM 15.1 GB(17:08) · jest 전량은 17:18·17:20 두 번(17:25 전) — 영상 올리기 창(17:25~17:50) 밖.
+| # | 무엇 | 값 | 근거 | 판정 |
+|---|---|---|---|---|
+| 1 | 10-23 04:00 회차 | ok 9/9 · diff 0 · backfill:next 0 | runs[0] runId 38069718 · 22T19:00:00.008Z · collect:broadcasts 넣음 0 · 건너뜀 20 | ✓ |
+| 2 | 10-22 04:00 회차 | ok 9/9 · diff 0 · backfill:next 0 | runs[1] 9aef92a2 · collect:broadcasts 넣음 19 | ✓ |
+| 3 | 7일 | runs 7 · failedRuns 0 · skipped 0 | last7Days | ✓ |
+| 4 | 09:00 hri 10-22 · 10-23 | checked 둘 · 「발간 아님」 0 · 사건 0 | 314 · 318 fp{len 64601, masked ca51ee14b2836b73} 그대로(10-18 부터 엿새 본문 같음) | ✓ |
+| 5 | 연대기 방송 행 | 20 | /api/timeline?all=true broadcasts(id 1·3~21) | ✓ |
+
+━━ ■1 원천 보관 잇기 ━━
+실측(17:1x KST): 중독뉴스 GET /articles/latest?kind=broadcast 지금 9 편(5805 · 5873 · 5876 · 5882 · 5885 · 5888 · 5889 · 5892 · 5895).
+보관 11 편을 GET /articles/<id> 로 하나씩 읽어 링크를 맞춤 — 연대기 20 행과 대조:
+| 연대기 id | 중독뉴스 id | 방송사 | 제목 앞 | 목록에 |
+|---|---|---|---|---|
+| 4 | 5880 | MBC 스트레이트 | [예고] 납 공장 '비타민 주사'의 비밀 | 없음 → 내림 |
+| 8 · 7 · 6 · 5 | 5868 · 5869 · 5870 · 5871 | MBC PD수첩 | 08-13 관련 클립 넷 | 없음 → 내림 |
+| 9 | 5872 | MBC PD수첩 | [PD수첩 10분 컷] | 없음 → 내림 |
+| 11 | 5874 | MBC PD수첩 | [PD수첩 1518회 예고] | 없음 → 내림 |
+| 15 · 17 | 5883 · 5884 | SBS 그것이 알고 싶다 | 스파이 전쟁 예고 · 티저 | 없음 → 내림 |
+| 19 · 21 | 5893 · 5896 | KBS 추적60분 | [금요일밤10시] 예고 둘 | 없음 → 내림 |
+| 1 · 3 · 10 · 12 · 13 · 14 · 16 · 18 · 20 | (목록 9) | — | 본편 | 있음 → 그대로 |
+→ 지시서의 11 편 = 목록에서 빠진 11 행 · 빠짐도 남음도 0(11/11 · 9/9).
+· 규칙(broadcast.util archiveDecision · collect:broadcasts 가 밤마다): 목록에 없는 행 → hidden_reason='source_archived' · hidden_at · 행 지움 0 ·
+  다시 실리면 두 칸을 비워 다시 보임 · 연대기 API 는 hidden_reason IS NULL 만 싣는다.
+· 안전 장치: 목록이 비었으면(원천 고장) · 응답 줄 수가 한도 50 이상이면(잘렸을 수 있음) 내리지 않음(held 기록) · 사람이 다른 까닭으로 내린 행은 건드리지 않음.
+· 수: [job_counts] updated = 영어 이름 맞춤 + 내림 + 다시 보임(10-24 04:00 예상 updated ≥ 11 · 로그 줄에 「내림(source_archived) 11건」).
+· 보관 상태 칸: 중독뉴스 /articles/<id> 응답에 tier(보관) 칸이 없다 → 지시서대로 「읽는 목록에서 빠짐」을 기준으로 함(ECO 「hidden 잇기」와 같은 꼴).
+· 시험 broadcast-archive.spec — 10-23 실측 표(11 내림 · 9 남음) · 다시 실림 · 빈/꽉 찬 목록 · 다른 까닭 숨김 · 연대기 API 거름 · (리뷰) 거른 뒤 49 · 보낸 줄 50.
+
+━━ ■2 source_en ━━
+· migration 1788800000000-BroadcastSourceEnAndHidden(덧붙임만): broadcast_items.source_en · hidden_reason · hidden_at 모두 nullable ·
+  기존 행 source_en 은 비어 있을 때만 정본 표로 채움(방송사 이름 맞춤 · 20 행 모두 표에 있음) · down = 칸 셋 지움(행 그대로).
+· 채움 순서: 중독뉴스가 주는 sourceEn(export 가 열리면 · 한글 섞이면 안 씀) → backend/src/sources/broadcast-names.ts(정본 사본) → null.
+  collect:broadcasts 는 넣을 때 채우고, 있던 행은 비었거나 다를 때만 맞춤(IS DISTINCT FROM).
+· 대조 표(중독뉴스 backend/data/broadcast_youtube_rss.json program_en · 읽기만):
+| program | 중독뉴스 program_en (origin/main 17d84d3 · 작업본 같음) | 중독사회 정본 사본 | 앞단 표(방송사+프로그램) | 같음 |
+|---|---|---|---|---|
+| MBC PD수첩 | MBC PD Notebook | MBC PD Notebook | MBC + PD Notebook | ✓ |
+| MBC 스트레이트 | MBC Straight | MBC Straight | MBC + Straight | ✓ |
+| SBS 그것이 알고 싶다 | SBS Unanswered Questions | 같음 | SBS + Unanswered Questions | ✓ |
+| SBS 스페셜 | SBS Special | 같음 | SBS + SBS Special(방송사를 품음) | ✓ |
+| KBS 추적60분 | KBS In-Depth 60 Minutes | 같음 | KBS + In-Depth 60 Minutes | ✓ |
+| KBS 시사기획 창 | KBS Current Affairs Window | 같음 | KBS + Current Affairs Window | ✓ |
+| KBS 다큐인사이트 | KBS Docu Insight | 같음 | KBS + Docu Insight | ✓ |
+| EBS 다큐프라임 | EBS Docuprime | 같음 | EBS + Docuprime | ✓ |
+| 뉴스타파 | Newstapa | 같음 | Newstapa | ✓ |
+  9/9 같음 → 「다르면 중독뉴스 값으로 맞춘다」 맞출 것 0. 시험(broadcast-archive.spec)이 정본 사본 = 앞단 표를 잰다(처음 돌렸을 때 SBS 스페셜 「SBS SBS Special」로
+  어긋남을 잡음 → 방송사를 품은 이름 규칙으로 시험을 고침 · 값 변경 0).
+· 판 끝 다시 대조(17:2x KST): 중독뉴스 origin/main 그대로 17d84d3(NEWS-Q13 지시서만 · 이름 변경 push 전) · 작업본도 같음 → 다름 0.
+  NEWS-Q13 이 공식 이름으로 바꾸면 다음 판에서 broadcast-names.ts 를 그 값으로(collect:broadcasts 가 다른 행을 맞춤).
+
+━━ ■3 봉투 받기 ━━
+· 실측: Statory origin/main(d837e95) build-evidence-export.mjs 의 봉투 = { schema, generated_at, source_table, verdict, count, skipped, fields,
+  fields_missing_counts, license_rule, items } — 맨 위 card_version · missing 없음(줄마다 card_version · fields_missing 만). ASK-52 지시서(253deef)가
+  맨 위 card_version(v4 · 상수 한 곳) + missing[{id, fields}](빈 칸 있는 카드만)을 더한다.
+· 받는 쪽: backend/src/evidence/card-envelope.ts readEnvelope(받는 문 11월이 쓸 순수 함수) —
+  두 칸 있음 → 읽고 missing 을 카드(card_id)에 붙임 · 두 칸 없음 → 옛 꼴 그대로(form 'old' · 거절 0) ·
+  꼴 틀림: card_version 빈 글·글 아님·[\w.-]{1,40} 밖 / missing 배열 아님 → 봉투 전체 envelope_invalid ·
+  missing 줄 하나 틀림 → 그 줄만 missing_entry_invalid · missing_duplicate_id · missing_id_unknown 로 적음.
+· nightly job_counts: missing(카드 수) · card_version 칸을 더함 — 봉투가 그 칸을 보냈을 때만(리뷰 찾기 2) · 합계(sumJobCounts)에는 들지 않음 ·
+  다른 단계의 줄 꼴은 그대로. 밤 단계(import:cards)는 아직 없다 → 지금 nightly 몸에 실리는 것 0(11월 받는 문과 함께).
+· 「정보 부족」 같은 표시: 중독사회 앞단·뒷단에 없음(실측 grep 0) → 만들지 않음 · 보고만(아래 CTO 판정 C2).
+· 계약 docs/ECO_LINK1_CONTRACT_V1.md v1.2: §6-1 표(card_version · missing 선택 · 거절 낱말) · §8 의 13(ASK-51 license 꼴 — Statory main 에 섬) 닫힘 ·
+  새 줄 14(봉투 두 칸) 받는 쪽 닫힘 — Statory 쪽 실물 대조는 ASK-52 push 뒤.
+· 시험 card-envelope.spec — 두 칸 있음 · 없음 · 잘못된 꼴(봉투 전체 7 · 줄 6) · job_counts 왕복 · 옛 꼴 missing 안 실음.
+
+━━ ■4 11-01 ━━
+· 11월 1일 전후 예정 출처(/api/sources · 달력 nextExpectedAt):
+| 출처 | 주기 | 예정 | 마지막 발간 | 11-01 09:00 에 생길 것(코드 읽기 · missed-releases) |
+|---|---|---|---|---|
+| spo_drug_monthly | 월 | 2026-10 | 2026-09-30 | 10월 발간 없으면 「2026-10 · 발표 없음」 + 다음 2026-11 |
+| drugfree_stats | 월 | 2026-10 | 2026-03-09 | 같음(「2026-10 · 발표 없음」) |
+| mohw_addiction_center | 해 · 10월 | 2026-10 | — | 「2026-10 · 사람 확인」(manual 출처 · 감시가 읽지 않음) + 다음 2027-10 |
+| hri_gshr | 해 · 11월 | 2026-11 | 2025-12-03 | 11월 한 달 감시(09:00 본문 해시) · 11-30 까지는 지남 아님 |
+  정정: R10·R11 은 11-01 줄을 「둘(spo · drugfree)」로 적었다 — mohw(해 · 10월 예정) 가 셋째 줄로 선다(꼬리표 「사람 확인」).
+· hri fixture 시험 1(hri-hash-noise.spec · SOC-R12 ■4): 실제 크기(정규화 64,601 자) 본문에 새 판 머리글 한 줄 → 길이 차 < 1%(길이로는 못 가름) ·
+  가린 해시 다름 → changed · 「발간 아님」 표식 없음 · 발간 확인(confirmsRelease) · 알림 1. (앞 판 토막 3 은 4천 자 본문이라 길이 차로 가려졌다 — 실제 크기에서
+  가린 해시만으로 서는지는 이번에 처음 잼.)
+
+━━ 게이트 ━━
+· backend jest 27 suites 187/187(+14 · 17:20) · nest build(pretest) 0 · eslint 바뀐 파일 11 0(daily-jobs.scheduler.spec.ts:101 의 no-unsafe-member-access 1 은 옛 줄 · 이 판 손 안 댐)
+· migration 시험: 칸 셋 ADD COLUMN IF NOT EXISTS · 채움 9 줄 모두 「IS NULL 일 때만」 · DELETE 0 · down 은 DROP COLUMN 만
+· frontend npm test 22(pass 21 · skipped 1) · next build 한 번(NEXT_PUBLIC_API_URL=운영 · 명령줄 env · .env 0) · /en 새는 꼴 0(빌드 산출물 게이트 통과)
+· E2E 0 · 사건 삭제 0 · 행 삭제 0 · seed 변경 0
+· 리뷰(읽기 전용 리뷰 에이전트 1 · 지시서 「찾기 2 + 반박 1」):
+  찾기 1(연대기 잇기 · 고침) 꽉 찬 목록 판정을 거른 뒤 줄 수로 쟀다 — 중독뉴스가 50 줄을 보냈는데 제목 없음·링크 겹침 하나로 49 가 되면
+    잘린 목록에서 50 줄 밖의 옛 편을 모두 내림 → 응답 줄 수 그대로(feedSize)로 · 시험.
+  찾기 2(봉투 · 고침) 옛 꼴·거절된 봉투에서도 job_counts missing 0 을 실어 공개 nightly 에 「빈 칸 카드 0」으로 보일 뻔(재지 않은 것을 0 으로) →
+    봉투가 보낸 칸만 실음 · card_version 은 공개 몸에 실리므로 [\w.-]{1,40} 꼴만 받음 · 시험.
+  반박 1 꽉 찬·빈 목록에서도 「다시 보임」은 돈다 — 고장처럼 보이나 맞다: 목록에 링크가 있다는 것은 다시 실렸다는 직접 증거이고, 안전 장치는 「내리기」만 막으면 된다.
+
+━━ 배포 ━━
+· Render: health commit 0cf4ced · startedAt 23T08:24:35Z(17:24 KST) — 앞으로 당겨 읽기(파이썬 한 명령 · 30초 간격 · 배경 작업 아님).
+  migration 실측: 운영 /api/timeline broadcasts 20 행 모두 sourceEn = 정본(MBC PD Notebook 7 · KBS In-Depth 60 Minutes 7 · SBS Unanswered Questions 3 ·
+  KBS Docu Insight 2 · MBC Straight 1) · hiddenReason 있는 행 0(내리기는 오늘 밤) · nightly runs 7 그대로.
+· Vercel: 앞단 바뀜 = api.ts 의 주석 한 줄(형 이름 그대로) — 화면 변경 0. 운영 /en 요청 때 27 경로 한글 0 통과(배포 뒤 · sourceEn 이 실린 응답으로).
+
+━━ 지시서와 다르게 한 것 ━━
+1. ■2 「영어 화면의 방송 이름이 중독뉴스와 같은 공식 표기」 — DB 값(source_en)은 정본과 글자까지 같다. 화면은 앞 판 그대로
+   방송사 칸 「MBC」 + 제목 자리 「PD Notebook (Korean)」(정본에서 방송사를 떼어 둘로 보임)이고, 함께 쓰는 채널 넷(SBS 스페셜 · KBS 시사기획 창 ·
+   KBS 다큐인사이트 · EBS 다큐프라임)은 정본 이름 대신 채널 이름을 그대로 보인다 — 실제로 다른 프로그램 편이 그 채널로 온다(R11 실측 · R11 CTO 판정 C1 대기).
+   보이는 주장이 줄어드는 쪽.
+2. ■1 내리기의 첫 적용은 배포 때가 아니라 10-24 04:00 밤 회차 — 운영 DB 에 직접 쓰는 길(.env · 열쇠)은 규칙상 0.
+3. ■3 「nightly job_counts 에 card_version · missing 수」 — 칸과 계산은 섰지만 Statory 카드를 당기는 밤 단계가 아직 없어 지금 실리는 줄은 0(11월 받는 문 판).
+4. 명령 하나씩 · Edit/Write 만 — 측정 스크립트는 scratchpad 의 파이썬 파일(Write)로 만들어 한 명령씩 돌렸다. prettier 고침은 --write 대신 Edit 로 손으로 맞춤.
+5. 지시서 저장 이름 — 지시서대로 SOC-R12_1023.md(앞 판들은 _instruction.txt).
+6. 이 판 도중 들어온 「LT14 덧 23」 지시문은 오너가 곧바로 취소 — 손대지 않음(다른 저장소 · 실행 0).
+
+━━ 건너뜀 · 사유 ━━
+· 운영 DB 에서 11 행을 지금 내리기 — 운영 접속 열쇠(.env) 0 규칙 → 밤 회차가 함(10-24 04:00).
+· 중독뉴스 export 실물(sourceEn) — 여전히 꺼짐(404) · NEWS-Q13 push 전 → 채움 순서의 첫 자리는 비어 있고 정본 표가 채움.
+· Statory ASK-52 봉투 실물 — push 전 → 꼴은 지시서 · 코드로만.
+
+━━ 확인 (다음 판 첫머리 · 10-24 04:00) ━━
+1. 10-24 04:00: 9/9 ok · collect:broadcasts updated ≥ 11(내림 11) · 로그 「내림(source_archived) 11건」 · 연대기 방송 20 → 9 행 · /en 한글 0
+2. 운영 broadcasts[].sourceEn 이 정본 글자(배포 직후 migration 채움 · 20 행)
+3. 10-24 09:00 hri checked · 본문 그대로면 사건 0
+4. NEWS-Q13 push 뒤 program_en 다시 대조(다르면 broadcast-names.ts 맞춤) · ASK-52 push 뒤 봉투 실물로 readEnvelope 대조
+5. 11-01(일) 09:00: spo · drugfree 「2026-10 · 발표 없음」 · mohw 「2026-10 · 사람 확인」 · hri 11월 감시
+
+━━ CTO 판정 필요 ━━
+C1 함께 쓰는 채널 넷의 영어 이름 — 지금 화면은 채널 이름(R11 C1 그대로). 중독뉴스 정본(KBS Docu Insight 등)으로 바꾸면 다른 프로그램 편(KBS 더 보다 · KBS 취재파일)도
+   그 이름으로 불린다. 정본 그대로 보일지, 채널 이름을 둘지.
+C2 Statory 카드의 빈 칸(missing) 표시 — 중독사회에 「정보 부족」 같은 표시가 없다. 받는 문(11월)에서 카드에 빈 칸 목록을 보일지(새 화면 요소), 담기만 할지.
+C3 목록에서 빠진 방송을 내리는 기준 — 지금은 「읽는 목록에서 빠짐」 하나(보관·숨김·지움 구분 없음). 중독뉴스가 보관 여부 칸(tier)을 공개 응답에 실을지.
