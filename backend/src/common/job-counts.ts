@@ -11,11 +11,15 @@ export interface JobCounts {
   updated: number;
   skipped: number;
   diff: number;
+  /** Statory 카드 봉투(SOC-R12 ■3) — 받은 봉투의 missing[] 카드 수. 그 단계만 싣는다 · 합계에 들지 않음. */
+  missing?: number;
+  /** Statory 카드 봉투의 card_version(예: v4) · 옛 꼴이면 싣지 않음. */
+  card_version?: string;
 }
 
 export const JOB_COUNTS_TAG = '[job_counts]';
 
-const KEYS: (keyof JobCounts)[] = ['inserted', 'updated', 'skipped', 'diff'];
+const KEYS = ['inserted', 'updated', 'skipped', 'diff'] as const;
 
 function toCount(v: unknown): number {
   const n = Number(v);
@@ -23,12 +27,18 @@ function toCount(v: unknown): number {
 }
 
 export function jobCounts(c: Partial<JobCounts> = {}): JobCounts {
-  return {
+  const out: JobCounts = {
     inserted: toCount(c.inserted),
     updated: toCount(c.updated),
     skipped: toCount(c.skipped),
     diff: toCount(c.diff),
   };
+  // 봉투 단계만 싣는 두 칸 — 있을 때만 · 꼴이 맞을 때만(글 40자까지)
+  if (c.missing !== undefined) out.missing = toCount(c.missing);
+  if (typeof c.card_version === 'string' && c.card_version.trim()) {
+    out.card_version = c.card_version.trim().slice(0, 40);
+  }
+  return out;
 }
 
 export function jobCountsLine(c: Partial<JobCounts>): string {

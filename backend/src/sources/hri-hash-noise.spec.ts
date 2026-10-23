@@ -203,6 +203,39 @@ describe('SOC-R9 ■2 hash noise — three fragments', () => {
   });
 });
 
+describe('SOC-R12 ■4 — 11-01 hri release fixture (real page size)', () => {
+  /**
+   * 운영 hri 본문 = 정규화 64,601 자(fp len · 10-20~23 실측). 이 크기에서 새 판 머리글 한 줄은
+   * 길이 차 1% 미만이라 길이로는 못 가른다 — 가린 본문 해시(글자 바뀜)만으로 changed 가 서야 한다.
+   */
+  const big = (updated: string, extra = '') => {
+    const base = page(updated, '1,234', extra);
+    const pad = 'x'.repeat(Math.max(0, 64601 - normalizeForHash(base).length));
+    return base.replace('</body>', `<p>${pad}</p></body>`);
+  };
+
+  it('a new edition heading on a 64,601-char page is a release (changed + alert), not noise', async () => {
+    const before = big('16 October 2026');
+    const after = big(
+      '3 November 2026',
+      '<h2>The Global State of Harm Reduction 2026 is out now</h2>',
+    );
+    const a = fingerprint(normalizeForHash(before));
+    const b = fingerprint(normalizeForHash(after));
+    expect(Math.abs(a.len - 64601)).toBeLessThan(50);
+    expect(Math.abs(b.len - a.len) / a.len).toBeLessThan(0.01); // 길이로는 못 가름
+    expect(b.masked).not.toBe(a.masked);
+
+    const { day, recorded, notified } = scheduler([before, after]);
+    await day();
+    expect(await day()).toMatchObject({ status: 'changed', method: 'hash' });
+    expect(recorded.map((r) => r.eventType)).toEqual(['checked', 'changed']);
+    expect(recorded[1].detail?.notRelease).toBeUndefined();
+    expect(confirmsRelease(recorded[1] as never)).toBe(true);
+    expect(notified).toEqual(['change']);
+  });
+});
+
 describe('SOC-R9 ■2 marking old events (no row change)', () => {
   const hriDetail = { detect: 'hash' };
   // 10월 hri changed 6건(10-03 · 06 · 11 · 15 · 16 · 17) 꼴

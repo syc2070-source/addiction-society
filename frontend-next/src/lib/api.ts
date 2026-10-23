@@ -297,7 +297,7 @@ export interface BroadcastItem {
   broadcaster: string | null;
   publishedAt: string | null;
   grade: string;
-  /** 중독뉴스 내보내기 영어 이름 칸 sourceEn 이 실려 오면(SOC-R11 ■3 자리만 · 아직 없음) */
+  /** 방송 영어 이름 — broadcast_items.source_en(SOC-R12 ■2 · 중독뉴스 program_en 정본) */
   sourceEn?: string | null;
 }
 

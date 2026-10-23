@@ -141,6 +141,7 @@ describe('toBroadcastRows (연대기 「방송」)', () => {
         broadcaster: 'KBS',
         publishedAt: new Date('2026-10-09T10:00:00Z'),
         grade: '방송',
+        sourceEn: null,
       },
     ]);
   });

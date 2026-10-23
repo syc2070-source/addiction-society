@@ -1,6 +1,6 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { SourceEventsService } from './source-events.service';
 import { BroadcastItem } from './entities/broadcast-item.entity';
 
@@ -44,6 +44,8 @@ export class TimelineController {
       this.events.activitySummary(30),
       this.broadcasts
         .find({
+          // SOC-R12 ■1: 중독뉴스가 내린 편(hidden_reason)은 싣지 않는다 — 행은 남음
+          where: { hiddenReason: IsNull() },
           order: {
             publishedAt: { direction: 'DESC', nulls: 'LAST' },
             id: 'DESC',

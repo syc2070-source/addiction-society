@@ -1,6 +1,6 @@
 # ECO-LINK1 계약 v1 — 중독사회 · 중독뉴스 · Statory (SOC-R10 ■3)
 
-> 상태: **v1 · 2026-10-21 · 코드 0 · migration 0.** · **v1.1 · 2026-10-22(SOC-R11 ■1)**: 면허 철자 `licence` · 나가는 열쇠 `license` + `license_use`(Statory ASK-51 ⓑ) · §8 표 갱신. 받는 문 구현은 **11월 1주 실행 판**이다 — 이 문서가 그 판의 정본이다.
+> 상태: **v1 · 2026-10-21 · 코드 0 · migration 0.** · **v1.1 · 2026-10-22(SOC-R11 ■1)**: 면허 철자 `licence` · 나가는 열쇠 `license` + `license_use`(Statory ASK-51 ⓑ) · §8 표 갱신. · **v1.2 · 2026-10-23(SOC-R12 ■3)**: §6-1 봉투 `card_version` · `missing[{id, fields}]` 선택 칸(없으면 옛 꼴) · §8 의 13·14 닫힘. 받는 문 구현은 **11월 1주 실행 판**이다 — 이 문서가 그 판의 정본이다.
 > 앞 판: `docs/ECO_LINK1_CONTRACT_DRAFT.md`(SOC-R9 · 10-19 · D1~D9 를 처음 적은 곳 — 지우지 않고 남긴다).
 >
 > 받은 결정(이 문서가 옮긴 것 · 지어 넣은 결정 0):
@@ -162,16 +162,21 @@ Statory `CARD_V4_FIELDS_ADDENDUM_ECO1.md` §6 이 **이 절을 경로로 가리�
 
 ### 6-1. 몸(봉투)
 
-`{ generated_at, card_version, count, items[], missing[] }`
+`{ generated_at, count, items[], card_version?, missing?[] }` (+ Statory 의 그 밖 칸 `schema` · `skipped` · `fields_missing_counts` … 는 적어 두기만)
+
+**v1.2(SOC-R12 ■3 · 10-23)** — Statory ASK-52 가 봉투 맨 위에 `card_version` · `missing[]` 를 더한다. 두 칸이 **없으면 옛 꼴**
+그대로 받는다(거절 0). 받는 쪽 검사 = `backend/src/evidence/card-envelope.ts`(`readEnvelope` · 시험 card-envelope.spec).
 
 | 열쇠 | 꼴 | 검사 | 거절 |
 |---|---|---|---|
-| `generated_at` | ISO 시각 | 있어야 함 · 앞 당기기보다 늦어야 함(같거나 이르면 그 회차를 건너뜀 · 바꾸지 않음) | 몸 전체 `envelope_stale` |
-| `card_version` | 글 | 있어야 함 | 몸 전체 `envelope_invalid` |
-| `count` | 정수 | `= items.length` | 몸 전체 `envelope_count_mismatch` |
-| `items` | 배열 | 줄마다 6-2 | 줄마다 |
-| `missing` | 글 배열 | 그대로 적어 둔다(「없다」와 「빈 값」을 가르는 자리) | — |
+| `generated_at` | ISO 시각 | 있어야 함 · 앞 당기기보다 늦어야 함(같거나 이르면 그 회차를 건너뜀 · 바꾸지 않음) | 몸 전체 `envelope_invalid`(없음·시각 아님) · `envelope_stale`(늦지 않음) |
+| `count` | 정수 | 있으면 `= items.length` | 몸 전체 `envelope_count_mismatch` |
+| `items` | 배열 | 줄마다 6-2 | 몸 전체 `envelope_invalid`(배열 아님) · 줄마다 |
+| `card_version` | 글(예 `v4`) | **선택** — 없으면 옛 꼴 · 있으면 빈 글이 아닌 글 | 몸 전체 `envelope_invalid`(빈 글 · 글 아님) |
+| `missing` | `[{ id, fields[] }]` | **선택** — 카드마다 「§6-2 필수 칸 가운데 빈 것」(빈 칸 없는 카드는 오지 않음) · `id` = 그 봉투 `items` 의 `card_id` | 배열 아님 → 몸 전체 `envelope_invalid` · 줄 하나가 틀리면 **그 줄만** 따로 적음: `missing_entry_invalid`(id·fields 꼴 · 빈 fields) · `missing_duplicate_id` · `missing_id_unknown`(봉투에 없는 카드) |
 
+- 받은 `missing` 은 카드에 붙여 둔다(받는 표 §6-3 이 서면 그대로 담음). 「정보 부족」 같은 화면 표시는 지금 중독사회에 **없다** — 만들지 않는다(SOC-R12).
+- 밤 단계(`import:cards` · 11월)의 `[job_counts]` 에 `card_version` · `missing`(카드 수)을 싣는다(`envelopeJobCounts`).
 - **몸 전체 거절이면 숨김 상속(§3-3 의 2)을 돌리지 않는다** — 깨진 회차 하나로 받은 카드가 통째로 내려가지 않게.
 
 ### 6-2. 줄(카드 하나)
@@ -277,7 +282,8 @@ ASK-51 의 ■1(나가는 `license` 꼴 ⓑ)은 **아직 main 에 없다**(내�
 | 10 | `nicotine` 한국어 이름 | 「니코틴·담배」 | 「니코틴·담배」 | 맞춤 |
 | 11 | D1~D9 원문 | ADDENDUM·TOPIC 머리가 이 저장소 `ECO_LINK1_CONTRACT_DRAFT.md` §7 을 가리킨다(ASK-50 덧 1) | 원문 = 앞 판 §7 | **닫힘** |
 | 12 | 관문 ① 의 판정 거름 | `verdict='ok'` ∧ `card_state='public'` | 같음 | 맞음 |
-| 13 | `license` 의 꼴(ASK-50 판정 6 · 새 줄) | 지금 객체 `{ value, use }` 또는 `null` · ASK-51 ■1 이 낱말 + `license_use` 로 바꾼다(ⓑ) | 낱말 + `license_use`(§5 · §6-2) · 옛 객체 꼴도 넘어가는 동안 `value`·`use` 로 읽음 | **Statory ASK-51 ■1 대기** — 그쪽 main 에 서면 닫힘(10-23 다시 읽음) |
+| 13 | `license` 의 꼴(ASK-50 판정 6 · 새 줄) | ASK-51 ■1(1.6.48)이 낱말 + `license_use` 로 바꿈 — `licenseWireOf`(10-23 Statory main d837e95 실측) | 낱말 + `license_use`(§5 · §6-2) · 옛 객체 꼴도 넘어가는 동안 `value`·`use` 로 읽음 | **닫힘**(SOC-R12 · 10-23) |
+| 14 | 봉투의 `card_version` · `missing[]`(새 줄 · SOC-R12) | 10-23 main 의 봉투에는 둘 다 없음(줄마다 `card_version` · `fields_missing` 만) · ASK-52 ■1 이 봉투 맨 위에 더함(`missing` = `[{id, fields}]`) | §6-1 v1.2 — 둘 다 선택 · 없으면 옛 꼴 · 꼴 검사 `readEnvelope` | **닫힘(받는 쪽)** — Statory 쪽은 ASK-52 push 뒤 실물 대조(다음 판) |
 
 ## 9. CTO 판정 필요 (v1 이 안전한 쪽으로 읽어 둔 것)
 
