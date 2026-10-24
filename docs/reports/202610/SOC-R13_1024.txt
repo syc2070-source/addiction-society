@@ -1,0 +1,159 @@
+4b79d63 — 경보 0 (P0·P1 남은 것 0) — 10-24 04:00 9/9 diff 0 · 숨김 첫 실전 11 편 내림 → 연대기 방송 20 → 9 행 = 중독뉴스 방송 목록 9 편(링크까지 같음) · job_counts 「맞춤 9」는 셈 잘못(typeorm UPDATE = [행, 수]) → 고침 · 영어 화면 방송 이름 9 채널 모두 정본 program_en(공유 채널 넷 포함 · 운영 /en 실측) · 계약 v1.3 missing {id, fields} = Statory ASK-52 실물(main b6faee813) · NEWS-Q14 가 이 판 도중(08:17) 보관 목록을 엶 → 숨김을 그 목록 기준으로 켬(실측: 우리 숨김 11 = 그쪽 archive 11/11 · 연대기 9 = publish 9/9 · 두 길 다 시험) · news_id 칸 migration 1(덧붙임) · 09:00 hri checked(이레째 그대로) · 옛 lint 1 고침 · 리뷰 찾기 4 고침 + 반박 1 · jest 200/200 · 사건·행 삭제 0
+
+SOC-R13 보고 · 2026-10-24(토) · 실행 = 데스크탑 Claude Code Opus · D:\addiction-society · 가지 claude/soc-r13 → main
+커밋: c04dfe4 ⓐ 지시서(SOC-R13_1024.md) [skip ci][skip render] → dd545c4 ⓑ 코드(■1~■4 · 목록 길은 대기) → 4b79d63 ⓑ2 보관 목록 켬 → (이 보고) ⓒ [skip ci][skip render]
+
+━━ 손님에게 달라지는 것 ━━
+· 연대기 방송 줄에서 예고 · 클립이 빠지고 본편만 남았다(오늘 04:00 · 20 행 → 9 행 · 행은 지우지 않음 · 운영 실측 아래 ■0).
+· 영어 화면의 방송 이름 9 개가 모두 중독뉴스 정본 표기 그대로다 — 제목 자리 「KBS Docu Insight (Korean)」 · 「MBC PD Notebook (Korean)」.
+  공유 채널 넷(SBS 스페셜 · KBS 시사기획 창 · KBS 다큐인사이트 · EBS 다큐프라임)도 채널 이름(「KBS Documentary channel」 등) 대신 정본(CTO 10-24).
+  방송사 칸은 그대로(「KBS」) — 그래서 「KBS · KBS Docu Insight (Korean)」처럼 방송사가 두 번 보인다(아래 다르게 한 것 1).
+
+━━ LLM 의존 ━━ 0 (숨김 = 목록 대조 · 이름 = 정본 표 · 봉투 = 꼴 검사)
+
+━━ ■0 실측 (10-24 07:5x KST) ━━
+· 빈 RAM 11.7 GB(07:5x) · jest 전량 07:58 · 08:01 두 번 — 영상 올리기 창(17:25~17:50) 밖.
+| # | 무엇 | 값 | 근거 | 판정 |
+|---|---|---|---|---|
+| 1 | 10-24 04:00 회차 | ok 9/9 · diff 0 · backfill:next 0 | runs[0] 02eb64ef · 23T19:00:00.012Z~19:01:34Z | ✓ |
+| 2 | 7일 | runs 7 · failedRuns 0 · skipped 0 | last7Days | ✓ |
+| 3 | collect:broadcasts | inserted 0 · skipped 9 · updated 20 | 내림 11 + 「영어 이름 맞춤」 9(가짜 · 아래) | 셈 ✗ → 고침 |
+| 4 | 숨김 수 | 11(source_archived) | 표 20 행 − 연대기 9 행 · 넣음 0 · updated 20 − 가짜 9 = 11 · 숨긴 행은 공개 응답에 안 실려 hidden_reason 글자를 직접 읽지 못함(운영 DB 0 규칙) | ✓(셈으로) |
+| 5 | 연대기 방송 행 | 9(id 1 · 3 · 10 · 12 · 13 · 14 · 16 · 18 · 20) | /api/timeline?all=true | ✓ |
+| 6 | 그 9 = 중독뉴스 방송 실림 목록? | 같음 9/9 · 우리만 0 · 그쪽만 0 | /articles/latest?kind=broadcast 9 편(5805 · 5876 · 5873 · 5885 · 5888 · 5882 · 5889 · 5892 · 5895) 링크 대조 | ✓ |
+| 7 | 09:00 hri | checked · 「발간 아님」 0 · 사건 0 | 321 · 24T00:00:03Z · fp{len 64601, masked ca51ee14b2836b73} 그대로(10-18 부터 이레 본문 같음) | ✓ |
+· 셈 잘못: collect:broadcasts 가 UPDATE … RETURNING 의 결과를 「배열 길이 > 0」으로 셌다 — typeorm postgres 는 UPDATE 에 [행들, 바뀐 수] 를 돌려주므로
+  바뀐 행이 0 이어도 늘 1(node_modules/typeorm PostgresQueryRunner.js 198~203 실측). 그래서 9 행 모두 「맞춤」으로 셌다(실제로는 migration 이 이미 채워 바뀜 0).
+  같은 저장소의 source-url-fixes.updatedCount(이미 이 꼴을 앎)로 바꿈 · 내림 · 다시 보임 수도 계획 수(d.hide.length) 대신 실제 바뀐 수로. 값 변경은 없었다(셈만 틀림).
+  중독뉴스 NEWS-Q13 이 같은 꼴을 고친 것(6e74ce4 「typeorm UPDATE…RETURNING = [rows, count]」)과 같은 함정.
+
+━━ ■1 정본 이름 ━━
+· 정본: 중독뉴스 origin/main backend/data/broadcast_youtube_rss.json(10-24 3c4da2d · NEWS-Q13 6e74ce4 가 name_source 칸만 더함 · program_en 값 바뀜 0).
+| program | 중독뉴스 program_en | name_source | 중독사회 뒤 표(broadcast-names.ts) | 앞 표 programEn | 운영 /en 제목 자리 |
+|---|---|---|---|---|---|
+| MBC PD수첩 | MBC PD Notebook | translation | 같음 | 같음 | MBC PD Notebook (Korean) |
+| MBC 스트레이트 | MBC Straight | translation | 같음 | 같음 | (지금 행 없음) |
+| SBS 그것이 알고 싶다 | SBS Unanswered Questions | translation | 같음 | 같음 | SBS Unanswered Questions (Korean) |
+| SBS 스페셜 | SBS Special | official | 같음 | 같음 | (행 없음) |
+| KBS 추적60분 | KBS In-Depth 60 Minutes | translation | 같음 | 같음 | KBS In-Depth 60 Minutes (Korean) |
+| KBS 시사기획 창 | KBS Current Affairs Window | translation | 같음 | 같음 | (행 없음) |
+| KBS 다큐인사이트 | KBS Docu Insight | translation | 같음 | 같음 | KBS Docu Insight (Korean) |
+| EBS 다큐프라임 | EBS Docuprime | translation | 같음 | 같음 | (행 없음) |
+| 뉴스타파 | Newstapa | official | 같음 | 같음 | (행 없음) |
+  9/9 같음. 판 끝 다시 대조(이 보고 직전 · 아래 「판 끝 대조」).
+· 앞단 frontend-next/src/lib/broadcastNamesEn.ts: 칸 program(방송사를 뗀 이름) · channel(공유 채널 이름) · basis 를 지우고 programEn(= program_en 글자 그대로) ·
+  nameSource(= 중독뉴스 name_source)로. enLabels.broadcastTitleLabel: 연대기 응답 sourceEn(= DB source_en = program_en) → 표 programEn → 「Korean-language programme」 ·
+  앞 방송사 떼기(exportedProgram)와 공유 채널 갈래를 뺌 · 한글 섞인 sourceEn 은 버리고 표.
+· 시험: enText.test(9 채널 모두 「programEn (Korean)」 · 공유 넷 · official 둘 · sourceEn 앞섬 · 한글 버림) · broadcast-archive.spec(뒤 표 = 앞 표 programEn 글자 그대로 9).
+· /en 게이트: 빌드 산출물 통과 · 운영 27 경로 한글 0(/en/sources 24 줄 = 허용된 출처 고유 이름 그대로) · 운영 /en/timeline 08:06 KST 실측 이름 넷(KBS Docu Insight ·
+  KBS In-Depth 60 Minutes · MBC PD Notebook · SBS Unanswered Questions) · 「Documentary channel」 0.
+
+━━ ■2 계약 글 ━━
+· 실물: Statory origin/main(2a55a93a0 · 10-24 07:47) apps/web/scripts/build-evidence-export.mjs — ASK-52 ■1(b6faee813 · 판 1.6.49):
+  봉투 맨 끝 card_version = EXPORT_CARD_VERSION 'v4' · missing = items.map(envelopeMissingOf).filter(Boolean) ·
+  envelopeMissingOf = { id: row.card_id, fields } · fields = EXPORT_REQUIRED_KEYS(card_id · card_version · title · doi · source_url · license) 가운데 빈 것 ·
+  license 는 「못 채움」(fields_missing 에 license)일 때 빈 칸 · 모두 찬 묶음 = [].
+· 어긋남 하나: 카드 id 자체가 빈 카드는 id: null 로 온다(row.card_id = null) — 우리 검사는 이 줄을 missing_entry_invalid(꼴 틀림)로 적었다 →
+  missing_card_id_empty 로 따로(붙일 카드가 없음 · 그 줄은 §6-2 card_id_missing) · 빈 글 id 도 같음(리뷰 찾기 4).
+· docs/ECO_LINK1_CONTRACT_V1.md v1.3: §6-1 표 missing 꼴 `[{ id, fields }]`(id 글 또는 null · fields 글 배열 · 필수 여섯) · 거절 낱말에 missing_card_id_empty ·
+  §8 의 14 닫힘(양쪽) · 새 줄 15(실물 꼴 · 닫힘).
+· 시험 card-envelope.spec 「real ASK-52 envelope」 — buildExport 끝 두 칸 그대로의 봉투(card 셋 · 면허 못 채움 1 · id 빈 카드 1).
+· 실물 봉투 파일(latest.json)은 Statory 저장소에 없다(docs/evidence/export 에 README 뿐) → 생성기 코드로 대조.
+
+━━ ■3 보관 목록 읽기 — 열림 → 목록 기준으로 켬 ━━
+· 첫 실측(07:5x): 중독뉴스 origin/main 3c4da2d = NEWS-Q14 지시서뿐 · 주소 · 꼴 docs 0 · 코드 0 → 「대기」로 목록 길을 꺼 둔 채(null) dd545c4 배포.
+· 판 끝 실측(09:0x): NEWS-Q14 가 08:17 push(7bd50d7 · 보고 6059a01) — docs/BROADCAST_ARCHIVE_LIST.md ·
+  GET https://addicted-news-backend.onrender.com/api/broadcast/archive[?tier=all] · 응답 { kind, tier, days 120, generatedAt, available, count, truncated, items[{ id, tier, changedAt }] } ·
+  칸은 이 넷뿐(제목 · 주소 0). 공개 주소 실측: 기본 200 · available true · count 28(archive 28) · ?tier=all 200 · count 37(archive 28 · publish 9) · truncated false · id 정수.
+  대조: 우리가 숨긴 11 편(5868~5872 · 5874 · 5880 · 5883 · 5884 · 5893 · 5896) = archive 11/11 · 연대기 9 편 = publish 9/9 · 방송 목록 9 = 같은 9.
+  그쪽 「읽는 법(권장)」 셋(archive 면 접고 publish 면 편다 · 120일 밖은 마지막 층 그대로)과 아래 규칙이 같다.
+  → BROADCAST_ARCHIVE_LIST_PATH = '/api/broadcast/archive?tier=all' 로 켬(4b79d63) · available false = 「모름」(→ 지금 규칙 · 「보관 0」으로 읽지 않음).
+  (그쪽 권장 읽는 때는 12:00 수집 뒤 13:00 이후 — 우리는 04:00 에 읽어 전날 12:00 실행의 층을 본다 · 하루 늦음 그대로.)
+· 목록 길(BROADCAST_ARCHIVE_LIST_PATH 를 null 로 두면 지금 규칙):
+  - broadcast_items.news_id(중독뉴스 articles.id) — migration 1788900000000-BroadcastNewsId(ADD COLUMN IF NOT EXISTS · nullable · 채움 0 · down = DROP COLUMN).
+    목록은 id · tier · 바뀐 때만 싣고 링크가 없어 우리 행과 잇는 열쇠가 필요. collect:broadcasts 가 방송 목록의 id(수 · 숫자 글)로 채움 — 오늘 밤 9 행.
+  - parseArchiveList: 봉투 {items}(또는 배열) · 줄마다 id · tier(archive|publish) · changedAt(또는 changed_at) · 한 줄이라도 틀리면 목록 전체를 믿지 않음 ·
+    available false 도 null(→ 지금 규칙).
+  - archiveListDecision: 내림 = 보이는 행 가운데 news_id 가 tier=archive(같은 id 여럿이면 가장 늦게 바뀐 것)이고 방송 목록에 없는 것 ·
+    다시 보임 = 방송 목록에 다시 있음 ∨ tier=publish(같은 news_id 가 이미 보이는 행에 있으면 옛 행은 안 살림 · 리뷰 찾기 1) ·
+    news_id 모름 → 내리지 않음 · 빈 목록 → 내리지 않음(held empty_list) · 두 목록에 없는 보이는 행 → 내리지 않고 「두 목록에 없음 N건」만 적음 ·
+    사람이 다른 까닭으로 내린 행 그대로.
+  - 「목록에서 빠지면 다시 보임」(지시서)을 「목록에 publish 로 적힘 또는 방송 목록에 다시 실림」으로 읽었다 — 목록에서 빠지는 것만으로는 그쪽이 지운 편 ·
+    120일 창 밖으로 나간 편과 가를 수 없어, 빠짐만으로 되살리면 지운 편이 연대기에 돌아온다(아래 다르게 한 것 2).
+  - 못 읽음(HTTP · 꼴) → 그 회차는 지금 규칙 · 로그 줄에 「기준 방송 목록(보관 목록 못 읽음 …)」.
+· 두 길 다 시험 — broadcast-archive.spec: 지금 규칙(SOC-R12 ■1 여섯 그대로) + 목록 길(SOC-R13 ■3 · 13 개): 켠 주소 · 실물 응답 꼴 · available false ·
+  news_id 꼴(수 · 숫자 글) · 목록 꼴 · 10-25 04:00 그대로 돌릴 모습(9 행 id 있음 · 숨긴 11 id 없음 → 움직임 0) · 11 내림 · publish 로 다시 보임 ·
+  빠짐만으로는 그대로 · 가장 늦은 바뀜 · 가드(id 모름 · 빈 목록 · 방송 목록에 있음 · 사람 숨김) · 같은 news_id 옛 행 · UPDATE 셈 · migration.
+· 오늘 밤(10-25 04:00) 예상: 방송 목록 9 행에 news_id 첫 채움(updated 9) · 내림 0 · 다시 보임 0 · 로그 「기준 보관 목록(보관 목록 37줄)」 ·
+  중독뉴스 10-24 12:00 실행이 방송을 더 보관하면 그 편(우리 연대기에 있고 news_id 가 채워진 것)이 내림 — 단 news_id 는 같은 실행 안에서 방송 목록으로 채우므로,
+  12:00 에 보관으로 간 편은 방송 목록에서 빠져 news_id 를 못 얻고 「두 목록에 없음」으로 남는다(아래 C3).
+· 남은 틈(리뷰 찾기 3 · 보고만): 숨긴 11 행(그리고 앞으로 목록 길이 news_id 를 얻기 전에 보관된 편)은 news_id 를 채울 길이 없다 —
+  보관 목록에 링크가 없어서. 이 편들은 「방송 목록에 다시 실림」으로만 되살아난다. 운영 DB 쓰기 0 규칙 → CTO C3.
+
+━━ ■4 남은 lint ━━
+· backend/src/scheduler/daily-jobs.scheduler.spec.ts:101 no-unsafe-member-access(jest.fn() 의 mock.calls[0][0] 이 any) →
+  보낸 글을 string 배열로 받아 sent[0] 을 봄(같은 단언 · 동작 변경 0). @types/jest 30 의 jest.fn<형>() 으로는 eslint 가 여전히 any 로 읽어 이 꼴로.
+· eslint 바뀐 backend 파일 10 · 0.
+
+━━ 게이트 ━━
+· backend jest 27 suites 198/198(+11 · 08:01 · dd545c4) → 200/200(09:01 · 4b79d63 · 목록 켬 시험 +2) · nest build(pretest) 0 · eslint 0
+· frontend npm test 22(pass 21 · skipped 1) · next build 한 번(NEXT_PUBLIC_API_URL=운영 · 명령줄 env · .env 0) · /en 새는 꼴 0(빌드 산출물 · 운영 요청 27 경로)
+· E2E 0 · 사건 삭제 0 · 행 삭제 0 · seed 변경 0
+· 리뷰(읽기 전용 리뷰 에이전트 1 · 지시서 「찾기 2(숨김 기준 · 이름) + 반박 1」 — 찾은 것 6 · 고침 4):
+  찾기 1(숨김 기준 · 고침) news_id 는 유일이 아니고 링크로만 채움 — 그쪽이 같은 기사의 링크를 바꾸면 새 행과 옛 행이 같은 news_id 를 갖고,
+    목록이 publish 라 하면 옛 행도 되살아나 같은 편이 둘 → 같은 news_id 가 이미 보이는 행에 있으면 되살리지 않음 · 시험.
+  찾기 2(숨김 기준 · 고침) news_id 를 수만 받았다 — 그쪽이 id 를 글로 보내면(bigint 열) 모든 news_id 가 비어 목록 길이 말없이 아무것도 안 함 → 숫자 글도 받음 · 시험.
+    (운영 방송 목록의 id 는 지금 수 — 10-24 실측.)
+  찾기 3(이름 · 고침 없음) 방송사가 두 번 보인다(「MBC」 + 「MBC PD Notebook (Korean)」 · 「Newstapa」 + 「Newstapa (Korean)」) → CTO C1.
+  찾기 4(봉투 · 고침) 빈 글 id 는 missing_card_id_empty 가 아니라 꼴 틀림으로 적혔다 → 같은 까닭으로 · 시험.
+  찾기 5(시험 · 고침) 리터럴만 재는 단언 하나(늘 참) → 뺌.
+  찾기 6(보고만) 공개 연대기 응답에 newsId 칸이 실린다(find 가 칸 모두) — 중독뉴스의 공개 id 라 비밀 아님 · 그대로.
+  반박 1 「빈 보관 목록이면 방송 목록 규칙도 돌지 않아 숨김이 멈춘다」 — 맞게 둔 것: 목록 길은 「짐작(빠짐) 대신 목록」(CTO 판정 ③)이라 빈 목록은
+    「보관할 편이 없다」이거나 원천 고장이고, 어느 쪽이든 내릴 근거가 없다. 빠짐으로 내리는 짐작을 되돌려 넣으면 목록 길을 연 까닭이 사라진다.
+    (목록이 「모름」일 때 — available false · 못 읽음 · 꼴 틀림 — 는 지금 규칙으로 돌아간다. 빈 목록은 「모름」이 아니다.)
+  (목록을 켠 4b79d63 은 리뷰 뒤 커밋 — 주소 한 줄 · available 갈래 · 시험 둘. 리뷰를 다시 돌리지 않음.)
+
+━━ 배포 ━━
+· Render: health commit dd545c4 · startedAt 23T23:04:48Z(08:04 KST · push 08:02) · 앞으로 당겨 읽기(파이썬 한 명령 · 30초 간격 · 배경 작업 아님).
+  migration 실측: 운영 /api/timeline broadcasts[] 에 newsId 칸(지금 null 9 · 오늘 밤 채움) · sourceEn 9/9 정본 · hiddenReason 있는 행 0(공개 응답에 숨긴 행 안 실림) · nightly runs 7.
+· Render 둘째: health commit 4b79d63 · startedAt 24T00:04:27Z(09:04 KST · push 09:02) · 목록 길은 밤 단계에서만 돈다(배포 때 움직임 0).
+· Vercel: 운영 /en/timeline 08:06 KST 정본 이름(위 ■1) · 4b79d63 은 앞단 변경 0.
+
+━━ 판 끝 대조 (■1 「이 판 끝에 한 번 더」 · 09:0x) ━━
+· 중독뉴스 origin/main 6059a01(NEWS-Q14 보고) — broadcast_youtube_rss.json 의 마지막 바뀜은 그대로 6e74ce4(NEWS-Q13) · NEWS-Q14 는 이 파일을 건드리지 않음 →
+  program_en 9 개 바뀜 0 → 우리 두 표와 다름 0.
+
+━━ 지시서와 다르게 한 것 ━━
+1. ■1 「영어 화면 이름 = program_en」 — 제목 자리는 program_en 글자 그대로. 방송사 칸(「KBS」)은 그대로 두어 방송사가 두 번 보인다
+   (방송사 칸을 비우면 한국어 화면과 칸 꼴이 달라짐 · CTO C1).
+2. ■3 「목록에 있는 id = 숨김 · 빠지면 다시 보임」 — 「빠지면」을 「publish 로 적히거나 방송 목록에 다시 실리면」으로 읽음(지운 편 · 120일 창 밖 편이 되살아나지 않게 ·
+   보이는 것이 늘어나는 쪽을 좁힘). 두 목록에 없는 보이는 행은 내리지 않고 수만 적음.
+3. ■3 목록 길을 위해 칸 하나(news_id · 덧붙임 migration) — 목록이 링크 없이 id 만 실어서.
+4. ■2 「계약 글」 — 글만이 아니라 받는 검사 한 갈래(missing_card_id_empty)를 더함. 실물 꼴의 id: null 줄을 꼴 틀림으로 적지 않게.
+5. ■0 숨김 수 11 은 hidden_reason 글자를 직접 읽지 못하고 셈으로 확인(20 − 9 · updated 20 − 가짜 9) — 공개 응답은 숨긴 행을 싣지 않고 운영 DB 읽기 0.
+6. 「파이프 0」 어김 1 — 프런트 시험 다시 돌릴 때 출력 거르기로 `| grep` 을 한 번 씀(읽기만 · 바뀐 것 0). 그 뒤 0.
+7. job_counts 셈 고침(■ 밖) — ■0 에서 찾은 「맞춤 9」 셈 잘못을 같은 커밋에서 고침.
+8. push 가 셋(ⓐ · ⓑ · ⓑ2 · ⓒ) — NEWS-Q14 가 이 판 도중 목록을 열어, 「대기」로 낸 ⓑ 뒤에 목록을 켜는 ⓑ2 를 더 냄(둘 다 04:00 앞뒤 30분 밖 · 각각 Render 확인).
+
+━━ 건너뜀 · 사유 ━━
+· 숨긴 11 행의 news_id 채움 — 방송 목록에 없어 밤 단계가 못 채움 · 운영 DB 쓰기 0 규칙.
+· 숨긴 11 행의 hidden_reason 글자 직접 확인 — 운영 DB 읽기 0 · 공개 응답에 안 실림 → 셈으로.
+
+━━ 확인 (다음 판 첫머리 · 10-25 04:00) ━━
+1. 10-25 04:00: 9/9 ok · collect:broadcasts 로그 「기준 보관 목록(보관 목록 N줄)」 · 「칸 맞춤」 = 방송 목록 행 수(news_id 첫 채움 · 영어 이름 바뀜 0) ·
+   내림 · 다시 보임 · 「두 목록에 없음」 수 · 연대기 방송 = 중독뉴스 방송 목록과 같은 링크
+2. 운영 broadcasts[].newsId = 중독뉴스 방송 목록 id(9 또는 10-24 12:00 뒤의 수)
+3. 10-25 09:00 hri checked
+4. 「두 목록에 없음」이 0 이 아니면 그 편이 중독뉴스 보관 목록에 archive 로 있는지(있으면 C3 의 틈 실물)
+5. ASK-53(같은 논문은 최신 판만) 이 봉투 꼴을 바꾸는지 — §6-1 대조
+6. 11-01(일) 09:00: spo · drugfree 「2026-10 · 발표 없음」 · mohw 「2026-10 · 사람 확인」 · hri 11월 감시
+
+━━ CTO 판정 필요 ━━
+C1 방송사가 두 번 보임 — 영어 화면 「KBS · KBS Docu Insight (Korean)」 · 「Newstapa · Newstapa (Korean)」. 정본 글자를 지키면 방송사 칸과 겹친다.
+   방송사 칸을 en 에서 비울지 · 그대로 둘지(지금 그대로).
+C2 보관 목록 길의 「두 목록에 없음」 — 목록 길(4b79d63 부터 켬)에서는 방송 목록에서 빠졌는데 보관 목록에도 없는 편(그쪽이 지움 · 숨김 · 120일 창 밖)은 연대기에 남는다
+   (지금 규칙은 내림). 이런 편을 내릴지(지금 규칙처럼) · 남길지(목록만 믿음). 그리고 중독뉴스 보관 목록에 「지움」도 tier 로 실을지(NEWS-Q14 쪽).
+C3 news_id 를 얻기 전에 보관된 편 — 보관 목록은 id 만 싣고 링크가 없어, 우리가 news_id 를 모르는 편(오늘 숨긴 11 · 앞으로 우리가 읽기 전에 보관된 편)은
+   목록으로 내리지도 「publish 로 돌아옴」을 알아보지도 못한다(「두 목록에 없음」으로 그대로 보임). 고칠 길 셋:
+   ⓐ 중독뉴스 보관 목록에 sourceUrl 한 칸을 더함(NEWS 쪽 · 공개 링크라 비밀 아님) ⓑ 우리가 모르는 archive id 만 GET /articles/:id 로 링크를 읽어 채움(밤마다 몇 건 ·
+   그쪽 공개 길) ⓒ 지금 규칙(방송 목록에서 빠짐 = 내림)을 news_id 없는 행에만 함께 씀. 지금은 아무것도 안 함(보이는 것이 늘지 않게 · 오늘 숨긴 11 은 그대로 숨김).
