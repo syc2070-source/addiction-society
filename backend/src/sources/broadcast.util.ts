@@ -3,7 +3,7 @@
  * 응답 꼴: GET /articles/latest?kind=broadcast → Article[]
  *   (title · source · sourceUrl · googleUrl · publishedAt ...)
  * SOC-R12: sourceEn(영어 이름) · 목록에서 빠진 편 내리기(archiveDecision).
- * SOC-R13: newsId(중독뉴스 id) · 보관 목록 길(archiveListDecision · 주소가 서기 전 = 대기).
+ * SOC-R13: newsId(중독뉴스 id) · 보관 목록 길(archiveListDecision · GET /api/broadcast/archive?tier=all).
  */
 import { BROADCAST_SOURCE_EN } from './broadcast-names';
 
@@ -86,7 +86,6 @@ export interface StoredBroadcast {
   hiddenReason: string | null;
   /** 중독뉴스 articles.id(SOC-R13) — 모르면 null(보관 목록 길에서 판정하지 않음) */
   newsId?: number | null;
-  hiddenAt?: Date | null;
 }
 
 export interface ArchiveDecision {
@@ -132,11 +131,14 @@ export function archiveDecision(
 // ── SOC-R13 ■3 중독뉴스 방송 보관 목록(NEWS-Q14 ■5) ─────────────────────────────
 
 /**
- * 보관 목록 주소(중독뉴스 기준 경로) — NEWS-Q14 가 main docs 에 주소·꼴을 적으면 그 값을 여기 적는다.
- * null = 「대기」: 지금 규칙(archiveDecision · 방송 목록에서 빠진 편 = 내림)을 그대로 쓴다.
- * 10-24 실측: 중독뉴스 origin/main 3c4da2d = NEWS-Q14 지시서뿐(주소 · 코드 0).
+ * 보관 목록 주소(중독뉴스 기준 경로) — 중독뉴스 docs/BROADCAST_ARCHIVE_LIST.md(NEWS-Q14 7bd50d7 · 10-24 08:17).
+ * tier=all = 실림(publish)도 실림 — 손으로 되돌린 편을 다시 보이는 데 쓴다.
+ * null 로 두면 「대기」: 지금 규칙(archiveDecision · 방송 목록에서 빠진 편 = 내림).
+ * 10-24 09:0x 실측: 200 · available true · count 37(archive 28 · publish 9) · truncated false · id 정수 ·
+ * 우리가 숨긴 11 = archive 11/11 · 연대기 9 = publish 9/9.
  */
-export const BROADCAST_ARCHIVE_LIST_PATH: string | null = null;
+export const BROADCAST_ARCHIVE_LIST_PATH: string | null =
+  '/api/broadcast/archive?tier=all';
 
 export interface ArchiveListEntry {
   id: number;
@@ -145,14 +147,15 @@ export interface ArchiveListEntry {
 }
 
 /**
- * 보관 목록 응답 → 줄들. 꼴(NEWS-Q14 지시서 ■5): id · tier · 바뀐 때(제목 · 내용 0). 배열 또는 { items }.
- * 칸 이름은 그쪽 docs 가 서면 맞춘다 — 지금은 id · tier · changedAt(또는 changed_at).
+ * 보관 목록 응답 → 줄들. 꼴(중독뉴스 docs/BROADCAST_ARCHIVE_LIST.md):
+ *   { kind, tier, days, generatedAt, available, count, truncated, items: [{ id, tier, changedAt }] } (배열만 와도 받음)
+ * available false(그쪽 DB 에 tier 열이 없음 · 못 닿음 → items []) 는 「보관 0」이 아니라 「모름」 → null(지금 규칙).
  * 줄 하나라도 꼴이 틀리면 목록 전체를 믿지 않는다(null → 지금 규칙) — 반쯤 읽은 목록으로 내리지 않게.
  */
 export function parseArchiveList(body: unknown): ArchiveListEntry[] | null {
-  const raw: unknown = Array.isArray(body)
-    ? body
-    : (body as { items?: unknown } | null)?.items;
+  const env = body as { items?: unknown; available?: unknown } | null;
+  if (!Array.isArray(body) && env?.available === false) return null;
+  const raw: unknown = Array.isArray(body) ? body : env?.items;
   if (!Array.isArray(raw)) return null;
   const out: ArchiveListEntry[] = [];
   for (const e of raw as Record<string, unknown>[]) {

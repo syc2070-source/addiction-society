@@ -6,8 +6,8 @@
  * ON CONFLICT DO NOTHING 으로 건너뛴다 — 넣기만, 지우기 없음.
  * SOC-R12: ① source_en 이 비었거나 정본과 다르면 맞춘다 ② 목록에서 빠진 편은
  * hidden_reason='source_archived' 로 연대기 공개에서 내리고, 다시 실리면 다시 보인다(행 지움 0).
- * SOC-R13: ③ news_id(중독뉴스 id)를 채운다 ④ 보관 목록(NEWS-Q14 ■5)이 열려 있으면(BROADCAST_ARCHIVE_LIST_PATH)
- * 그 tier 로 내린다 — 주소가 없거나 · 못 읽거나 · 꼴이 틀리면 ② 그대로(「대기」).
+ * SOC-R13: ③ news_id(중독뉴스 id)를 채운다 ④ 보관 목록(NEWS-Q14 ■5 · GET /api/broadcast/archive?tier=all)의
+ * tier 로 내린다 — 주소를 비우거나(null) · 못 읽거나 · 꼴이 틀리거나 · available false 면 ② 그대로.
  * 수: inserted = 새 행 · updated = 칸 맞춤(영어 이름 · news_id) + 내림 + 다시 보임 · skipped = 이미 있던 행.
  * 주소: env ADDICTION_NEWS_API_URL (기본 중독뉴스 운영 주소).
  */

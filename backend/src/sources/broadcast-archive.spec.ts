@@ -132,8 +132,31 @@ describe('중독뉴스 방송 보관 목록 읽기 (SOC-R13 ■3)', () => {
   ): ArchiveListEntry => ({ id: nid(id), tier, changedAt: new Date(at) });
   const feed = new Set(IN_FEED.map(u));
 
-  it('10-24: the list path is waiting (NEWS-Q14 has not published an address) — the current rule runs', () => {
-    expect(BROADCAST_ARCHIVE_LIST_PATH).toBeNull();
+  it('10-24 09:0x: NEWS-Q14 opened the list — read with tier=all (publish rows bring episodes back)', () => {
+    expect(BROADCAST_ARCHIVE_LIST_PATH).toBe('/api/broadcast/archive?tier=all');
+  });
+
+  it('the real response (docs/BROADCAST_ARCHIVE_LIST.md · measured 10-24): envelope with items; available false = unknown, not zero', () => {
+    const real = {
+      kind: 'broadcast',
+      tier: 'all',
+      days: 120,
+      generatedAt: '2026-10-24T00:00:55.064Z',
+      available: true,
+      count: 2,
+      truncated: false,
+      items: [
+        { id: 5868, tier: 'archive', changedAt: '2026-10-23T03:00:41.120Z' },
+        { id: 5873, tier: 'publish', changedAt: '2026-10-21T03:00:00.000Z' },
+      ],
+    };
+    expect(parseArchiveList(real)?.map((e) => [e.id, e.tier])).toEqual([
+      [5868, 'archive'],
+      [5873, 'publish'],
+    ]);
+    expect(
+      parseArchiveList({ ...real, available: false, count: 0, items: [] }),
+    ).toBeNull();
   });
 
   it('news_id comes from the broadcast list id (positive integers only)', () => {
@@ -181,6 +204,18 @@ describe('중독뉴스 방송 보관 목록 읽기 (SOC-R13 ■3)', () => {
       ]),
     ).toBeNull();
     expect(parseArchiveList([{ id: 'x', tier: 'archive' }])).toBeNull();
+  });
+
+  it('10-25 04:00 as it will run: 9 shown rows get news_id, the 11 hidden have none — nothing moves', () => {
+    const hidden = Object.fromEntries(
+      ARCHIVED.map((id) => [id, SOURCE_ARCHIVED]),
+    );
+    const list = [
+      ...ARCHIVED.map((id) => entry(id, 'archive')),
+      ...IN_FEED.map((id) => entry(id, 'publish')),
+    ];
+    const d = archiveListDecision(storedWithIds(hidden, IN_FEED), list, feed);
+    expect(d).toEqual({ hide: [], unhide: [], held: null, unlisted: [] });
   });
 
   it('list path: the 11 listed as archive come down; the 9 in the broadcast list stay', () => {
