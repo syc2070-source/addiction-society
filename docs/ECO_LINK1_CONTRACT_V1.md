@@ -1,6 +1,6 @@
 # ECO-LINK1 계약 v1 — 중독사회 · 중독뉴스 · Statory (SOC-R10 ■3)
 
-> 상태: **v1 · 2026-10-21 · 코드 0 · migration 0.** · **v1.1 · 2026-10-22(SOC-R11 ■1)**: 면허 철자 `licence` · 나가는 열쇠 `license` + `license_use`(Statory ASK-51 ⓑ) · §8 표 갱신. · **v1.2 · 2026-10-23(SOC-R12 ■3)**: §6-1 봉투 `card_version` · `missing[{id, fields}]` 선택 칸(없으면 옛 꼴) · §8 의 13·14 닫힘. · **v1.3 · 2026-10-24(SOC-R13 ■2)**: §6-1 `missing` 꼴을 Statory ASK-52 실물(main b6faee813 `envelopeMissingOf`) `{ id, fields }` 로 — `fields` = 필수 여섯 가운데 빈 것 · `id: null`(카드 id 가 빈 카드) 줄은 `missing_card_id_empty` · §8 의 15. 받는 문 구현은 **11월 1주 실행 판**이다 — 이 문서가 그 판의 정본이다.
+> 상태: **v1 · 2026-10-21 · 코드 0 · migration 0.** · **v1.1 · 2026-10-22(SOC-R11 ■1)**: 면허 철자 `licence` · 나가는 열쇠 `license` + `license_use`(Statory ASK-51 ⓑ) · §8 표 갱신. · **v1.2 · 2026-10-23(SOC-R12 ■3)**: §6-1 봉투 `card_version` · `missing[{id, fields}]` 선택 칸(없으면 옛 꼴) · §8 의 13·14 닫힘. · **v1.3 · 2026-10-24(SOC-R13 ■2)**: §6-1 `missing` 꼴을 Statory ASK-52 실물(main b6faee813 `envelopeMissingOf`) `{ id, fields }` 로 — `fields` = 필수 여섯 가운데 빈 것 · `id: null`(카드 id 가 빈 카드) 줄은 `missing_card_id_empty` · §8 의 15. · **v1.4 · 2026-10-24(SOC-R14 ■2)**: 줄 `paper_id`(선택 · Statory `item_id` · 판이 바뀌어도 같음) — keep/hide 와 상속의 열쇠를 `card_id`(판마다 다른 줄 id) 대신 `paper_id` 로 · 새 판은 앞 판의 **keep 도** 이어받고 표식 `keep_from_version`(「전 판 keep」) · 없으면 옛 꼴(card_id 열쇠) · §8 의 16. 받는 문 구현은 **11월 1주 실행 판**이다 — 이 문서가 그 판의 정본이다.
 > 앞 판: `docs/ECO_LINK1_CONTRACT_DRAFT.md`(SOC-R9 · 10-19 · D1~D9 를 처음 적은 곳 — 지우지 않고 남긴다).
 >
 > 받은 결정(이 문서가 옮긴 것 · 지어 넣은 결정 0):
@@ -119,8 +119,13 @@
   2. 전에 받았는데 이번 전부 당기기에 **없는** 카드 = 위에서 `held`/`hidden` 이 된 것 → 받는 표 `upstream='withdrawn'` 로 적고
      **손님 화면에서 내린다**(우리 `keep` 이 있어도 · **행 삭제 0**).
   3. 다시 오면 `upstream='public'` 으로 돌리고, 우리 결정(`keep`/`hide`)은 **그대로** 따른다(사람 결정을 기계가 덮지 않는다).
-  4. 우리 `hide` 는 같은 `card_id` 의 **새 `card_version` 에도 이어진다**(숨기는 쪽 상속 = 안전한 쪽). 우리 `keep` 은 이어지지 않는다 —
-     새 판은 `review_decision=NULL`(보류)로 서고 사람이 다시 본다.
+  4. **v1.4(SOC-R14 · CTO 10-24)**: 열쇠 = **논문**(`paper:<paper_id>` · 없으면 옛 꼴 `card:<card_id>`). 같은 열쇠의 새 판은
+     앞 판들 가운데 **사람이 마지막으로 정한 결정**을 이어받는다 — `hide` → `hide` · `keep` → `keep` + 표식 `keep_from_version`
+     (= 사람이 keep 한 판 · 화면·관리자에 「전 판 keep」 · 물려받은 keep 은 사람 결정이 아니므로 다음 판도 같은 원래 판을 가리킴) · 결정 없음 → `NULL`(보류).
+     사람이 새 판을 다시 정하면 표식을 지운다. 사람이 보류(`NULL`)로 되돌린 것도 결정이다(그 뒤 판은 보류) · 같은 때의 결정은 `hide` > 보류 > `keep`(안전한 쪽). 옛 꼴과 새 꼴은 서로 잇지 않는다(같은 논문이 옛 꼴로 먼저 왔으면 첫 paper 판은 보류).
+     구현 = `backend/src/evidence/card-decisions.ts`(`cardKeyOf` · `cardKeysOf` · `inheritDecision` · 시험 card-decisions.spec).
+     (v1.0~v1.3: `hide` 만 같은 `card_id` 의 새 판에 이어지고 `keep` 은 안 이어짐 — `card_id` 가 판마다 달라 실제로는 둘 다 끊겼다 · ASK-53 리뷰 F1.)
+     앞 판 줄이 이번 당기기에 없으면(ASK-53 = 논문마다 최신 판 한 줄) 그 줄은 2 대로 `withdrawn` — 새 판 줄이 결정을 이어받아 선다.
   5. 받은 카드에서 우리가 만든 것(근거 지도 붙임 · 지표 붙임 `related_indicators`)도 그 카드의 화면 상태를 따른다.
 - 중독뉴스 export v0 의 숨김 상속도 같은 읽기다 — `blocked`/삭제는 「없음」으로만 오므로, 받은 적 있는 `id` 가 사라지면 `withdrawn`.
 
@@ -185,6 +190,7 @@ Statory `CARD_V4_FIELDS_ADDENDUM_ECO1.md` §6 이 **이 절을 경로로 가리�
 |---|---|---|---|---|
 | `card_id` | 글 | ✓ | slug = `statory:card:<card_id>` | `card_id_missing` |
 | `card_version` | 글 | ✓ | (`card_id`, `card_version`) 이 한 줄 · 같은 쌍이 다시 오면 담지 않음(멱등) | `card_version_missing` |
+| `paper_id` | 글 또는 양의 정수 | — | **v1.4** 논문 열쇠(Statory `item_id` · ASK-54) — 있으면 keep/hide 상속의 열쇠 `paper:<paper_id>`(§3-3 의 4) · 없으면 옛 꼴(`card:<card_id>`) · 수 = 안전한 양의 정수(≤ 2^53−1) → 글로 · 숫자 글 = 0 으로 시작하지 않는 양의 정수만(`"123"` = `123` 같은 열쇠) · 숫자 꼴이 아닌 글 = 64 자까지 그대로(불투명) | `paper_id_invalid`(빈 글 · `0` · `"0"` · 음수 · `"0123"` · 소수 · 2^53 이상 · 65 자 이상 · 객체 — **줄 거절** · card_id 로 물러서지 않음) · `paper_id_duplicate`(같은 봉투에 둘 · 뒤 줄 · 다른 6-2 검사를 지난 줄끼리만 견줌) |
 | `title` | 글 | ✓ | — | `title_missing` |
 | `authors` | 글 배열 | — | — | `authors_not_array` |
 | `year` | 정수 | — | 1900~올해 | `year_invalid` |
@@ -215,13 +221,15 @@ Statory `CARD_V4_FIELDS_ADDENDUM_ECO1.md` §6 이 **이 절을 경로로 가리�
 | 칸 | 뜻 |
 |---|---|
 | `slug` · `card_id` · `card_version` | 열쇠 · 유일(`card_id`, `card_version`) |
+| `paper_key` | **v1.4** 결정 상속 열쇠 `paper:<paper_id>` 또는 `card:<card_id>`(`cardKeyOf`) · 찾기 색인(유일 아님 — 한 논문에 판 여럿) |
 | 6-2 의 칸 | 받은 값 그대로(`addiction_type` → `subtype`) |
 | `upstream` | `public`(마지막 당기기에 있었다) · `withdrawn`(없었다 · §3-3) |
-| `review_decision` · `reviewed_by` · `reviewed_at` | 관문 ② — `NULL`(보류) · `keep` · `hide` · research 의 검수 칸과 같은 낱말 |
+| `review_decision` · `reviewed_by` · `reviewed_at` | 관문 ② — `NULL`(보류) · `keep` · `hide` · research 의 검수 칸과 같은 낱말 · 물려받은 결정은 `reviewed_at` 을 비움(사람 결정이 아님) |
+| `keep_from_version` | **v1.4** 물려받은 keep 이면 사람이 keep 한 판(「전 판 keep」 표식) · 아니면 NULL |
 | `fetched_at` · `last_seen_at` | 당긴 시각 · 마지막으로 본 시각 |
 
-- **손님 화면 조건 = `upstream='public'` ∧ `review_decision='keep'`** — 관문 둘의 ② 와 숨김 상속을 한 줄로.
-- 새 줄의 기본 = `review_decision=NULL`(보류 · 안 보임) — 같은 `card_id` 의 앞 판이 `hide` 면 `hide`(§3-3 의 4).
+- **손님 화면 조건 = `upstream='public'` ∧ `review_decision='keep'`** — 관문 둘의 ② 와 숨김 상속을 한 줄로(물려받은 keep 도 선다 · 고친 판이 와도 승인된 근거가 내려가지 않음).
+- 새 줄의 기본 = 같은 `paper_key` 의 사람 마지막 결정(§3-3 의 4 · `inheritDecision`) · 없으면 `review_decision=NULL`(보류 · 안 보임).
 
 ### 6-4. 당기는 길
 
@@ -285,6 +293,7 @@ ASK-51 의 ■1(나가는 `license` 꼴 ⓑ)은 **아직 main 에 없다**(내�
 | 13 | `license` 의 꼴(ASK-50 판정 6 · 새 줄) | ASK-51 ■1(1.6.48)이 낱말 + `license_use` 로 바꿈 — `licenseWireOf`(10-23 Statory main d837e95 실측) | 낱말 + `license_use`(§5 · §6-2) · 옛 객체 꼴도 넘어가는 동안 `value`·`use` 로 읽음 | **닫힘**(SOC-R12 · 10-23) |
 | 14 | 봉투의 `card_version` · `missing[]`(새 줄 · SOC-R12) | 10-23 main 의 봉투에는 둘 다 없음(줄마다 `card_version` · `fields_missing` 만) · ASK-52 ■1 이 봉투 맨 위에 더함(`missing` = `[{id, fields}]`) | §6-1 v1.2 — 둘 다 선택 · 없으면 옛 꼴 · 꼴 검사 `readEnvelope` | **닫힘(받는 쪽)** — Statory 쪽은 ASK-52 push 뒤 실물 대조(다음 판) → **닫힘(양쪽 · SOC-R13 · 10-24)** §8 의 15 |
 | 15 | `missing` 줄의 실물 꼴(새 줄 · SOC-R13 ■2) | ASK-52 ■1(판 1.6.49 · main b6faee813 · 10-23) `envelopeMissingOf` = `{ id: row.card_id, fields }` · `EXPORT_REQUIRED_KEYS` 여섯 · `EXPORT_CARD_VERSION = 'v4'` · 봉투 맨 끝 두 칸 | §6-1 v1.3 — 같은 꼴 · `id: null` 줄은 `missing_card_id_empty`(시험 card-envelope.spec 「real ASK-52 envelope」) | **닫힘**(SOC-R13 · 10-24 · 실물 봉투 파일은 Statory 저장소에 없음 — 생성기 코드로 대조) |
+| 16 | 판을 넘는 논문 열쇠(새 줄 · SOC-R14 ■2) | ASK-53 리뷰 F1 · CTO 판정 1(10-24): 나가는 `card_id` = 판마다 다른 줄 id · 같은 논문 = `item_id` · ASK-54 가 줄에 `paper_id` 를 더함(10-24 16:1x 실측 Statory main cd3fe04 = 아직 없음) | §6-2 `paper_id`(선택) · §3-3 의 4 · §6-3 `paper_key` · `keep_from_version` — keep/hide 상속 열쇠 = 논문 | **닫힘(받는 쪽 · 검사 · 규칙 · 시험)** — Statory 쪽은 ASK-54 push 뒤 실물 대조(꼴: 글/정수) |
 
 ## 9. CTO 판정 필요 (v1 이 안전한 쪽으로 읽어 둔 것)
 
@@ -292,7 +301,7 @@ ASK-51 의 ■1(나가는 `license` 꼴 ⓑ)은 **아직 main 에 없다**(내�
 |---|---|---|
 | C1 | ~~면허 철자~~ | **닫힘(v1.1 · SOC-R11)** — 낱말 `licence` · 나가는 열쇠 `license`·`license_use` 는 Statory 이름 그대로 |
 | C2 | 중독뉴스 category 하나 대 여럿(알코올·약물 · 게임·디지털) | `[]`(분야 전체) — 중독뉴스가 `subtype[]` 을 v0 에 더하면 그 값을 씀 |
-| C3 | 받은 카드의 새 판 — 우리 `keep` 을 이어받나 | 안 이어받음(다시 봄) · `hide` 는 이어받음 |
+| C3 | ~~받은 카드의 새 판 — 우리 `keep` 을 이어받나~~ | **닫힘(v1.4 · CTO 10-24)** — 같은 `paper_id` 의 새 판은 keep · hide 모두 이어받음 · keep 은 표식 `keep_from_version` |
 | C4 | 몸 전체가 깨진 회차의 숨김 상속 | 돌리지 않음(그 회차 건너뜀) |
 | C5 | ~~Statory 내보내기 면허 값이 늘 「모름」~~ | **닫힘(ASK-50 ■1 · §8-3)** — 값은 글자 그대로 온다 · 꼴은 §8-13 |
 | C6 | `sources` 의 등급 — `sources.kind` 는 주제 낱말(prevalence · policy · treatment · enforcement · market)이라 등급 칸이 아니다 | `policy` → `report` · 그 밖 → `statistic` 으로 읽음(행 변경 0 · 출처 하나하나의 등급 칸은 덧붙임 migration 후보) |

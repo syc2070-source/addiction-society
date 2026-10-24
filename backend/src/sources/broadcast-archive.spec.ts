@@ -11,8 +11,10 @@ import {
   BROADCAST_FETCH_LIMIT,
   parseArchiveList,
   SOURCE_ARCHIVED,
+  SOURCE_DELETED,
   sourceEnOf,
   toBroadcastRows,
+  youtubeVideoId,
   type ArchiveListEntry,
   type StoredBroadcast,
 } from './broadcast.util';
@@ -127,9 +129,15 @@ describe('중독뉴스 방송 보관 목록 읽기 (SOC-R13 ■3)', () => {
     }));
   const entry = (
     id: number,
-    tier: 'archive' | 'publish',
+    tier: ArchiveListEntry['tier'],
     at = '2026-10-23T03:00:00Z',
-  ): ArchiveListEntry => ({ id: nid(id), tier, changedAt: new Date(at) });
+    videoId: string | null = null,
+  ): ArchiveListEntry => ({
+    id: nid(id),
+    tier,
+    changedAt: new Date(at),
+    videoId,
+  });
   const feed = new Set(IN_FEED.map(u));
 
   it('10-24 09:0x: NEWS-Q14 opened the list — read with tier=all (publish rows bring episodes back)', () => {
@@ -184,25 +192,28 @@ describe('중독뉴스 방송 보관 목록 읽기 (SOC-R13 ■3)', () => {
         id: 5868,
         tier: 'archive',
         changedAt: new Date('2026-10-23T03:00:00Z'),
+        videoId: null,
       },
       {
         id: 5873,
         tier: 'publish',
         changedAt: new Date('2026-10-24T03:00:00Z'),
+        videoId: null,
       },
     ]);
     expect(parseArchiveList({ items: [{ id: 1, tier: 'archive' }] })).toEqual([
-      { id: 1, tier: 'archive', changedAt: null },
+      { id: 1, tier: 'archive', changedAt: null, videoId: null },
     ]);
     expect(parseArchiveList({ items: [] })).toEqual([]);
     expect(parseArchiveList({ data: [] })).toBeNull();
     expect(parseArchiveList(null)).toBeNull();
+    // 모르는 tier 는 그 줄만 뺀다(SOC-R14 리뷰 찾기 2) · id 꼴 틀림은 목록 전체를 믿지 않음
     expect(
       parseArchiveList([
         { id: 1, tier: 'archive' },
         { id: 2, tier: 'hidden' },
-      ]),
-    ).toBeNull();
+      ])?.map((e) => e.id),
+    ).toEqual([1]);
     expect(parseArchiveList([{ id: 'x', tier: 'archive' }])).toBeNull();
   });
 
@@ -215,7 +226,183 @@ describe('중독뉴스 방송 보관 목록 읽기 (SOC-R13 ■3)', () => {
       ...IN_FEED.map((id) => entry(id, 'publish')),
     ];
     const d = archiveListDecision(storedWithIds(hidden, IN_FEED), list, feed);
-    expect(d).toEqual({ hide: [], unhide: [], held: null, unlisted: [] });
+    expect(d).toEqual({
+      hide: [],
+      hideDeleted: [],
+      unhide: [],
+      held: null,
+      unlisted: [],
+      idFill: [],
+    });
+  });
+
+  // ── SOC-R14 ■3 영상 id · 지운 편(NEWS-Q15) ──
+  const vid = (id: number) => `vid${String(id).padStart(8, '0')}`;
+  const yt = (id: number) => `https://www.youtube.com/watch?v=${vid(id)}`;
+  /** 실제 링크 꼴(영상 id 가 있는 YouTube 주소)의 행 · news_id 는 known 만 */
+  const ytRows = (
+    hidden: Record<number, string> = {},
+    known: number[] = [],
+  ): StoredBroadcast[] =>
+    ALL.map((id) => ({
+      id,
+      url: yt(id),
+      hiddenReason: hidden[id] ?? null,
+      newsId: known.includes(id) ? nid(id) : null,
+    }));
+  const ytFeed = new Set(IN_FEED.map(yt));
+
+  it('video id from our links: watch?v= · youtu.be · shorts · embed · live; anything else null', () => {
+    expect(youtubeVideoId('https://www.youtube.com/watch?v=O0iLhp_HQMY')).toBe(
+      'O0iLhp_HQMY',
+    );
+    expect(youtubeVideoId('https://youtu.be/-m2jby_aqEY?t=3')).toBe(
+      '-m2jby_aqEY',
+    );
+    expect(youtubeVideoId('https://m.youtube.com/shorts/vq2SnfXaMoA')).toBe(
+      'vq2SnfXaMoA',
+    );
+    expect(youtubeVideoId('https://www.youtube.com/embed/PRjJ-Pz7Ep8')).toBe(
+      'PRjJ-Pz7Ep8',
+    );
+    expect(youtubeVideoId('https://www.youtube.com/live/7FrJ3wuJDaY')).toBe(
+      '7FrJ3wuJDaY',
+    );
+    for (const bad of [
+      'https://www.youtube.com/watch?v=short',
+      'https://www.youtube.com/@KBS60min',
+      'https://example.com/watch?v=O0iLhp_HQMY',
+      'not a url',
+      null,
+    ]) {
+      expect(youtubeVideoId(bad)).toBeNull();
+    }
+  });
+
+  it('list form: videoId (or video_id) and tier deleted are read; a malformed video id is not used for matching', () => {
+    expect(
+      parseArchiveList({
+        items: [
+          { id: 5868, tier: 'deleted', videoId: 'O0iLhp_HQMY' },
+          { id: 5869, tier: 'archive', video_id: 'iYBho5XyWgc' },
+          { id: 5870, tier: 'archive', videoId: 'x' },
+        ],
+      })?.map((e) => [e.id, e.tier, e.videoId]),
+    ).toEqual([
+      [5868, 'deleted', 'O0iLhp_HQMY'],
+      [5869, 'archive', 'iYBho5XyWgc'],
+      [5870, 'archive', null],
+    ]);
+  });
+
+  it('waiting (no videoId, no deleted in the list yet): rows without news_id stay unmatched — the SOC-R13 behaviour', () => {
+    const list = ARCHIVED.map((id) => entry(id, 'archive'));
+    const d = archiveListDecision(ytRows(), list, ytFeed);
+    expect(d.hide).toEqual([]);
+    expect(d.unlisted.sort((a, b) => a - b)).toEqual(ARCHIVED);
+    expect(d.idFill).toEqual([]);
+  });
+
+  it('video id matches old rows without news_id: fills news_id, archive → source_archived, deleted → source_deleted', () => {
+    const list = [
+      ...ARCHIVED.map((id) =>
+        entry(id, id === 4 ? 'deleted' : 'archive', undefined, vid(id)),
+      ),
+      ...IN_FEED.map((id) => entry(id, 'publish', undefined, vid(id))),
+    ];
+    const d = archiveListDecision(ytRows(), list, ytFeed);
+    expect(d.hide.sort((a, b) => a - b)).toEqual(
+      ARCHIVED.filter((id) => id !== 4),
+    );
+    expect(d.hideDeleted).toEqual([4]);
+    expect(d.unlisted).toEqual([]);
+    expect(d.idFill).toHaveLength(20);
+    expect(d.idFill).toContainEqual({ id: 4, newsId: nid(4) });
+  });
+
+  it('the 11 already hidden (10-24) get news_id by video id; an archived row the source later deletes changes reason only', () => {
+    const hidden = Object.fromEntries(
+      ARCHIVED.map((id) => [id, SOURCE_ARCHIVED]),
+    );
+    const list = ARCHIVED.map((id) =>
+      entry(id, id === 5 ? 'deleted' : 'archive', undefined, vid(id)),
+    );
+    const d = archiveListDecision(ytRows(hidden, IN_FEED), list, ytFeed);
+    expect(d.idFill.map((f) => f.id).sort((a, b) => a - b)).toEqual(ARCHIVED);
+    expect(d.hide).toEqual([]);
+    expect(d.hideDeleted).toEqual([5]);
+    expect(d.unhide).toEqual([]);
+  });
+
+  it('publish brings back source_deleted too; owner hides untouched; an ambiguous or already-taken video id is never used', () => {
+    const d = archiveListDecision(
+      ytRows({ 4: SOURCE_DELETED, 5: 'owner_hide' }),
+      [
+        entry(4, 'publish', undefined, vid(4)),
+        entry(5, 'publish', undefined, vid(5)),
+      ],
+      ytFeed,
+    );
+    expect(d.unhide).toEqual([4]);
+    // 한 영상 id 에 목록 id 둘 → 그 영상 id 로는 맞추지 않음
+    const twin = archiveListDecision(
+      ytRows(),
+      [
+        { ...entry(4, 'archive', undefined, vid(4)) },
+        { ...entry(4, 'deleted', undefined, vid(4)), id: 9999 },
+      ],
+      ytFeed,
+    );
+    expect(twin.hide).not.toContain(4);
+    expect(twin.hideDeleted).not.toContain(4);
+    expect(twin.idFill).toEqual([]);
+    // 목록 id 가 이미 다른 행의 news_id → 영상 id 로 그 짝을 다시 쓰지 않음
+    const taken = archiveListDecision(
+      [
+        { id: 4, url: yt(4), hiddenReason: null, newsId: null },
+        { id: 99, url: yt(99), hiddenReason: null, newsId: nid(4) },
+      ],
+      [entry(4, 'archive', undefined, vid(4))],
+      new Set(),
+    );
+    expect(taken.idFill).toEqual([]);
+    expect(taken.hide).toEqual([99]);
+  });
+
+  it('review 1: two of our links to one video (watch?v= and youtu.be) never both claim the list entry', () => {
+    const d = archiveListDecision(
+      [
+        { id: 4, url: yt(4), hiddenReason: SOURCE_ARCHIVED, newsId: null },
+        {
+          id: 50,
+          url: `https://youtu.be/${vid(4)}`,
+          hiddenReason: SOURCE_ARCHIVED,
+          newsId: null,
+        },
+      ],
+      [entry(4, 'publish', undefined, vid(4))],
+      new Set(),
+    );
+    expect(d.idFill).toEqual([]);
+    expect(d.unhide).toEqual([]);
+  });
+
+  it('review 2: the feed rule (list unavailable) brings back source_deleted rows listed again', () => {
+    const d = archiveDecision(
+      stored({ 10: SOURCE_DELETED, 12: 'owner_hide' }),
+      new Set(IN_FEED.map(u)),
+    );
+    expect(d.unhide).toEqual([10]);
+  });
+
+  it('review 6: a human-hidden row does not get news_id by video id', () => {
+    const d = archiveListDecision(
+      ytRows({ 4: 'owner_hide' }),
+      [entry(4, 'archive', undefined, vid(4))],
+      ytFeed,
+    );
+    expect(d.idFill).toEqual([]);
+    expect(d.hide).toEqual([]);
   });
 
   it('list path: the 11 listed as archive come down; the 9 in the broadcast list stay', () => {

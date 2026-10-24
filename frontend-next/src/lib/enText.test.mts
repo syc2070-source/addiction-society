@@ -8,6 +8,7 @@ import {
   LAB_SUMMARY_EN,
   LAW_TITLE_EN,
   RECOVERY_KIND_EN,
+  broadcastLineLabels,
   broadcastTitleLabel,
   broadcasterLabel,
   cityLabel,
@@ -290,6 +291,45 @@ test('SOC-R11 · R13: broadcaster and canon programme English names — table of
   );
   assert.equal(broadcasterLabel('MBC PD수첩', 'en', { sourceEn: '문화방송' }), 'MBC');
   assert.equal(broadcastTitleLabel(title, 'en', '연합뉴스TV', { sourceEn: '연합뉴스TV' }), 'Korean-language programme');
+});
+
+test('SOC-R14 ■1: /en broadcast line shows the broadcaster once — the slot is empty when the canon name holds it', () => {
+  const ko = '도박 청소년이 성인이 되면 | PD수첩';
+  // 9 채널 모두 정본 이름이 방송사를 품는다 → 방송사 칸 비움 · 제목 자리 하나
+  for (const k of Object.keys(BROADCAST_NAMES_EN)) {
+    const line = broadcastLineLabels({ title: ko, broadcaster: k }, 'en');
+    assert.equal(line.org, '', k);
+    assert.equal(line.title, `${BROADCAST_NAMES_EN[k].programEn} (Korean)`);
+  }
+  assert.deepEqual(
+    broadcastLineLabels({ title: ko, broadcaster: 'KBS 다큐인사이트', sourceEn: 'KBS Docu Insight' }, 'en'),
+    { org: '', title: 'KBS Docu Insight (Korean)' },
+  );
+  // 영어 원제가 제목이면 방송사는 그대로(제목에 방송사가 없음)
+  assert.deepEqual(
+    broadcastLineLabels({ title: 'Drug Crisis in Korea', broadcaster: 'KBS 다큐인사이트' }, 'en'),
+    { org: 'KBS', title: 'Drug Crisis in Korea' },
+  );
+  // 표에 없는 방송사도 같은 규칙(방송사 칸 = sourceEn 첫 낱말 → 품음 → 비움)
+  assert.deepEqual(
+    broadcastLineLabels({ title: ko, broadcaster: '새방송', sourceEn: 'Saebangsong Weekly' }, 'en'),
+    { org: '', title: 'Saebangsong Weekly (Korean)' },
+  );
+  // 품지 않으면 그대로(「MBCX」 처럼 낱말 경계가 아니면 품은 것이 아님)
+  assert.deepEqual(
+    broadcastLineLabels({ title: ko, broadcaster: 'MBC 새프로', sourceEn: 'MBCX Talk' }, 'en'),
+    { org: 'MBC', title: 'MBCX Talk (Korean)' },
+  );
+  // 표에 없고 영어 이름도 없으면 그대로(빈 방송사 · 「Korean-language programme」)
+  assert.deepEqual(broadcastLineLabels({ title: ko, broadcaster: '연합뉴스TV' }, 'en'), {
+    org: '',
+    title: 'Korean-language programme',
+  });
+  // 한국어 화면은 그대로
+  assert.deepEqual(broadcastLineLabels({ title: ko, broadcaster: 'KBS 다큐인사이트' }, 'ko'), {
+    org: 'KBS 다큐인사이트',
+    title: ko,
+  });
 });
 
 test('romanization follows the 2000 Revised Romanization sound rules', () => {

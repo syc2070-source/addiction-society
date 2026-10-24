@@ -362,6 +362,28 @@ export function broadcastTitleLabel(
   );
 }
 
+/**
+ * 방송 줄 두 칸(방송사 · 제목)을 함께 정한다 (SOC-R14 ■1 · CTO 10-24).
+ * en: 제목 자리가 정본 프로그램 이름이고 그 이름이 방송사 이름을 품으면(「KBS Docu Insight」 ⊃ 「KBS」 ·
+ * 「Newstapa」 = 「Newstapa」) 방송사 칸을 비운다 — 같은 이름이 두 번 나오지 않게. 영어 원제가 제목이면 방송사 칸은 그대로.
+ * ko: 그대로(방송사 · 원제).
+ */
+export function broadcastLineLabels(
+  b: {
+    title: string;
+    broadcaster?: string | null;
+    sourceEn?: string | null;
+  },
+  locale: string,
+): { org: string; title: string } {
+  const org = broadcasterLabel(b.broadcaster, locale, b);
+  const title = broadcastTitleLabel(b.title, locale, b.broadcaster, b);
+  if (locale !== 'en' || !org || englishOnly(b.title)) return { org, title };
+  const program = title.replace(/ \(Korean\)$/, '');
+  const holds = program === org || program.startsWith(`${org} `);
+  return { org: holds ? '' : org, title };
+}
+
 /** en 에서 한국어만 있는 글(결론 등)은 빈칸 */
 export function englishOrEmpty(
   text: string | null | undefined,

@@ -37,6 +37,10 @@ export const BROADCAST_FETCH_LIMIT = 50;
 
 /** 연대기에서 내린 까닭 — 중독뉴스 방송 목록에서 빠짐(보관 · 숨김 · 지움 무엇이든). */
 export const SOURCE_ARCHIVED = 'source_archived';
+/** 연대기에서 내린 까닭 — 중독뉴스가 그 편을 지움(보관 목록 tier deleted · SOC-R14 ■3). */
+export const SOURCE_DELETED = 'source_deleted';
+/** 원천이 정한 숨김 — 원천이 다시 실으면 다시 보인다(사람 숨김은 아님) */
+const SOURCE_REASONS: readonly string[] = [SOURCE_ARCHIVED, SOURCE_DELETED];
 
 const HANGUL = /[가-힣ㄱ-ㆎ]/;
 
@@ -111,8 +115,14 @@ export function archiveDecision(
   feedSize: number = feedUrls.size,
   limit: number = BROADCAST_FETCH_LIMIT,
 ): ArchiveDecision {
+  // 원천 까닭 둘(보관 · 지움) 모두 — 목록 길이 못 돌 때도 지운 편이 다시 실리면 다시 보임(리뷰 찾기 2)
   const unhide = stored
-    .filter((r) => r.hiddenReason === SOURCE_ARCHIVED && feedUrls.has(r.url))
+    .filter(
+      (r) =>
+        r.hiddenReason != null &&
+        SOURCE_REASONS.includes(r.hiddenReason) &&
+        feedUrls.has(r.url),
+    )
     .map((r) => r.id);
   const held =
     feedUrls.size === 0
@@ -142,8 +152,37 @@ export const BROADCAST_ARCHIVE_LIST_PATH: string | null =
 
 export interface ArchiveListEntry {
   id: number;
-  tier: 'archive' | 'publish';
+  /** deleted = 중독뉴스가 지운 편(NEWS-Q15 ■1 · 들어오기 전엔 없음) */
+  tier: 'archive' | 'publish' | 'deleted';
   changedAt: Date | null;
+  /** YouTube 영상 id(NEWS-Q15 ■1 · 들어오기 전엔 null) — news_id 를 모르는 옛 행을 링크의 영상 id 로 맞춘다 */
+  videoId: string | null;
+}
+
+const VIDEO_ID = /^[A-Za-z0-9_-]{11}$/;
+
+/** 링크 → YouTube 영상 id(watch?v= · youtu.be/ · /shorts/ · /embed/ · /live/) · 아니면 null */
+export function youtubeVideoId(url: string | null | undefined): string | null {
+  if (!url) return null;
+  let u: URL;
+  try {
+    u = new URL(url.trim());
+  } catch {
+    return null;
+  }
+  const host = u.hostname.replace(/^(www|m|music)\./, '');
+  let id: string | null = null;
+  if (host === 'youtu.be') id = u.pathname.split('/')[1] ?? null;
+  else if (host === 'youtube.com' || host === 'youtube-nocookie.com') {
+    const [, head, tail] = u.pathname.split('/');
+    id =
+      head === 'watch'
+        ? u.searchParams.get('v')
+        : ['shorts', 'embed', 'live', 'v'].includes(head ?? '')
+          ? (tail ?? null)
+          : null;
+  }
+  return id && VIDEO_ID.test(id) ? id : null;
 }
 
 /**
@@ -161,30 +200,46 @@ export function parseArchiveList(body: unknown): ArchiveListEntry[] | null {
   for (const e of raw as Record<string, unknown>[]) {
     const id = positiveInt(e?.id);
     const tier = e?.tier;
-    if (id === null || (tier !== 'archive' && tier !== 'publish')) return null;
+    if (id === null) return null;
+    // 모르는 tier(그쪽이 낱말을 더함)는 그 줄만 쓰지 않는다 — 짝이 없는 행은 그대로(리뷰 찾기 2 · 목록 전체를 버리지 않음)
+    if (tier !== 'archive' && tier !== 'publish' && tier !== 'deleted') {
+      continue;
+    }
     const at = e.changedAt ?? e.changed_at;
     const ts = typeof at === 'string' ? new Date(at) : null;
+    const vid = e.videoId ?? e.video_id;
     out.push({
       id,
       tier,
       changedAt: ts && !Number.isNaN(ts.getTime()) ? ts : null,
+      // 꼴이 틀린 영상 id 는 맞추는 데 쓰지 않는다(우리 쪽 영상 id 도 같은 꼴만 읽음 → 엉뚱한 짝 0)
+      videoId: typeof vid === 'string' && VIDEO_ID.test(vid) ? vid : null,
     });
   }
   return out;
 }
 
 export interface ArchiveListDecision extends ArchiveDecision {
-  /** 보이는데 방송 목록에도 보관 목록에도 없는 행 — 내리지 않고 수만 적는다(지움·숨김 등 · 넘겨짚지 않음) */
+  /** 내릴 행 → source_archived(보이는 행 · 또는 source_deleted 였다가 보관으로 바뀐 행) */
+  hide: number[];
+  /** 내릴 행 → source_deleted(보이는 행 · 또는 source_archived 였다가 지워진 행) */
+  hideDeleted: number[];
+  /** 보이는데 방송 목록에도 보관 목록에도 없는 행 — 내리지 않고 수만 적는다(넘겨짚지 않음) */
   unlisted: number[];
+  /** news_id 를 모르던 행 가운데 영상 id 로 짝을 찾은 것 → news_id 채움 */
+  idFill: { id: number; newsId: number }[];
 }
 
 /**
- * 보관 목록 길(SOC-R13 ■3) — 짐작(방송 목록에서 빠짐) 대신 중독뉴스가 적은 tier 로 내린다.
- *  - 내림: 보이는 행 가운데 news_id 가 목록에 tier=archive 로 있고 지금 방송 목록(feedUrls)에 없는 것.
- *  - 다시 보임(source_archived 만): 방송 목록에 다시 있음 ∨ 보관 목록에 tier=publish(보관에서 빠져 실림으로).
- *    「보관 목록에 없음」만으로는 다시 보이지 않는다 — 그쪽이 지운 편 · 120일 창 밖으로 나간 편도 목록에 없다.
- *  - news_id 를 모르는 행: 방송 목록에 다시 있을 때만 다시 보임 · 내리지 않음.
- *  - 빈 목록: 내리지 않는다(held empty_list · 원천 고장일 수 있음) — 방송 목록에 다시 있는 편은 다시 보임.
+ * 보관 목록 길(SOC-R13 ■3 · SOC-R14 ■3) — 짐작(방송 목록에서 빠짐) 대신 중독뉴스가 적은 tier 로 내린다.
+ *  - 짝: 우리 행의 news_id → 목록 id · news_id 를 모르면 링크의 영상 id → 목록 videoId(NEWS-Q15 가 넣은 뒤 ·
+ *    한 영상 id 에 목록 id 가 둘 이상이면 그 영상 id 로는 맞추지 않음). 짝을 찾으면 news_id 를 채운다(idFill).
+ *  - 내림: 방송 목록에 없는 행 — 짝이 tier=archive → source_archived · tier=deleted → source_deleted(행 지움 0).
+ *    이미 원천 까닭으로 숨긴 행의 까닭이 바뀌면(보관 → 지움) 까닭만 바꾼다.
+ *  - 다시 보임(원천 까닭 둘만): 방송 목록에 다시 있음 ∨ 짝이 tier=publish(같은 news_id 가 이미 보이는 행에 있으면 옛 행은 안 살림).
+ *    「보관 목록에 없음」만으로는 다시 보이지 않는다(지운 편이 tier deleted 로 오기 전 · 120일 창 밖 실림).
+ *  - 짝이 없는 행: 내리지 않고 「두 목록에 없음」으로 센다.
+ *  - 빈 목록: 내리지 않는다(held empty_list) — 방송 목록에 다시 있는 편은 다시 보임.
  * 사람이 다른 까닭으로 내린 행은 건드리지 않는다(archiveDecision 과 같음).
  */
 export function archiveListDecision(
@@ -204,36 +259,83 @@ export function archiveListDecision(
       latest.set(e.id, e);
     }
   }
-  const archived = new Set<number>();
-  const published = new Set<number>();
+  const byVideo = new Map<string, ArchiveListEntry>();
+  const ambiguous = new Set<string>();
   for (const e of latest.values()) {
-    (e.tier === 'archive' ? archived : published).add(e.id);
+    if (!e.videoId) continue;
+    if (byVideo.has(e.videoId)) ambiguous.add(e.videoId);
+    else byVideo.set(e.videoId, e);
   }
-  const held = list.length === 0 ? 'empty_list' : null;
-  const listedArchive = (r: StoredBroadcast) =>
-    r.newsId != null && archived.has(r.newsId) && !feedUrls.has(r.url);
-
-  const visible = stored.filter((r) => r.hiddenReason == null);
-  const hide = held ? [] : visible.filter(listedArchive).map((r) => r.id);
-  const unlisted = visible
-    .filter((r) => !feedUrls.has(r.url) && !listedArchive(r))
-    .map((r) => r.id);
-  // 같은 news_id 가 이미 보이는 행에 있으면(그쪽이 링크를 바꿔 새 행이 생김) 옛 행은 되살리지 않는다(리뷰 찾기 1)
-  const visibleIds = new Set(
-    stored
-      .filter((r) => r.hiddenReason == null || feedUrls.has(r.url))
-      .map((r) => r.newsId)
-      .filter((x): x is number => x != null),
+  const knownIds = new Set(
+    stored.map((r) => r.newsId).filter((x): x is number => x != null),
   );
+  const videoEntry = (r: StoredBroadcast): ArchiveListEntry | undefined => {
+    const vid = youtubeVideoId(r.url);
+    if (!vid || ambiguous.has(vid)) return undefined;
+    const e = byVideo.get(vid);
+    // 그 목록 id 가 이미 다른 행의 news_id 면 짝으로 쓰지 않음(두 행이 한 편을 갖지 않게)
+    return e && !knownIds.has(e.id) ? e : undefined;
+  };
+  // 이 회차 안에서 한 목록 id 를 영상 id 로 둘 이상의 행이 잡으면(watch?v= · youtu.be 같은 영상 두 링크) 아무도 안 씀(리뷰 찾기 1)
+  const claims = new Map<number, number>();
+  for (const r of stored) {
+    if (r.newsId != null) continue;
+    const e = videoEntry(r);
+    if (e) claims.set(e.id, (claims.get(e.id) ?? 0) + 1);
+  }
+  const entryOf = (r: StoredBroadcast): ArchiveListEntry | undefined => {
+    if (r.newsId != null) return latest.get(r.newsId);
+    const e = videoEntry(r);
+    return e && claims.get(e.id) === 1 ? e : undefined;
+  };
+  const held = list.length === 0 ? 'empty_list' : null;
+
+  const hide: number[] = [];
+  const hideDeleted: number[] = [];
+  const unlisted: number[] = [];
+  const idFill: { id: number; newsId: number }[] = [];
+  const visibleIds = new Set<number>();
+  const matched = new Map<number, ArchiveListEntry | undefined>();
+  for (const r of stored) {
+    const e = entryOf(r);
+    matched.set(r.id, e);
+    // 사람이 다른 까닭으로 숨긴 행은 news_id 도 건드리지 않음(리뷰 6)
+    const humanHidden =
+      r.hiddenReason != null && !SOURCE_REASONS.includes(r.hiddenReason);
+    if (e && r.newsId == null && !humanHidden) {
+      idFill.push({ id: r.id, newsId: e.id });
+    }
+    if (e && (r.hiddenReason == null || feedUrls.has(r.url))) {
+      visibleIds.add(e.id);
+    }
+  }
+  for (const r of stored) {
+    if (feedUrls.has(r.url)) continue;
+    const e = matched.get(r.id);
+    const visible = r.hiddenReason == null;
+    const bySource =
+      r.hiddenReason != null && SOURCE_REASONS.includes(r.hiddenReason);
+    if (!visible && !bySource) continue;
+    if (!e) {
+      if (visible) unlisted.push(r.id);
+      continue;
+    }
+    if (held) continue;
+    if (e.tier === 'archive' && r.hiddenReason !== SOURCE_ARCHIVED) {
+      hide.push(r.id);
+    } else if (e.tier === 'deleted' && r.hiddenReason !== SOURCE_DELETED) {
+      hideDeleted.push(r.id);
+    }
+  }
   const unhide = stored
-    .filter(
-      (r) =>
-        r.hiddenReason === SOURCE_ARCHIVED &&
-        (feedUrls.has(r.url) ||
-          (r.newsId != null &&
-            published.has(r.newsId) &&
-            !visibleIds.has(r.newsId))),
-    )
+    .filter((r) => {
+      if (!r.hiddenReason || !SOURCE_REASONS.includes(r.hiddenReason)) {
+        return false;
+      }
+      if (feedUrls.has(r.url)) return true;
+      const e = matched.get(r.id);
+      return e?.tier === 'publish' && !visibleIds.has(e.id);
+    })
     .map((r) => r.id);
-  return { hide, unhide, held, unlisted };
+  return { hide, hideDeleted, unhide, held, unlisted, idFill };
 }

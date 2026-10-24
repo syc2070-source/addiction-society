@@ -21,6 +21,7 @@ import {
   DEFAULT_NEWS_API_URL,
   parseArchiveList,
   SOURCE_ARCHIVED,
+  SOURCE_DELETED,
   toBroadcastRows,
   type ArchiveDecision,
   type ArchiveListEntry,
@@ -130,29 +131,46 @@ async function run() {
     : null;
   const d: ArchiveDecision =
     listed ?? archiveDecision(stored, feedUrls, feedSize);
-  let hidden = 0;
+  // 원천 까닭(보관 · 지움)끼리는 까닭만 바꾼다 · 사람 숨김(그 밖 까닭)은 건드리지 않음
+  const hideAs = async (ids: number[], reason: string, other: string) =>
+    ids.length === 0
+      ? 0
+      : updatedCount(
+          await ds.query(
+            `UPDATE "broadcast_items"
+                SET "hidden_reason" = $2, "hidden_at" = COALESCE("hidden_at", now())
+              WHERE "id" = ANY($1) AND ("hidden_reason" IS NULL OR "hidden_reason" = $3)`,
+            [ids, reason, other],
+          ),
+        );
+  const hidden = await hideAs(d.hide, SOURCE_ARCHIVED, SOURCE_DELETED);
+  const deleted = listed
+    ? await hideAs(listed.hideDeleted, SOURCE_DELETED, SOURCE_ARCHIVED)
+    : 0;
   let shown = 0;
-  if (d.hide.length > 0) {
-    hidden = updatedCount(
-      await ds.query(
-        `UPDATE "broadcast_items" SET "hidden_reason" = $2, "hidden_at" = now()
-          WHERE "id" = ANY($1) AND "hidden_reason" IS NULL`,
-        [d.hide, SOURCE_ARCHIVED],
-      ),
-    );
-  }
   if (d.unhide.length > 0) {
     shown = updatedCount(
       await ds.query(
         `UPDATE "broadcast_items" SET "hidden_reason" = NULL, "hidden_at" = NULL
-          WHERE "id" = ANY($1) AND "hidden_reason" = $2`,
-        [d.unhide, SOURCE_ARCHIVED],
+          WHERE "id" = ANY($1) AND "hidden_reason" IN ($2, $3)`,
+        [d.unhide, SOURCE_ARCHIVED, SOURCE_DELETED],
+      ),
+    );
+  }
+  // 영상 id 로 짝을 찾은 옛 행의 news_id(SOC-R14 ■3) — 비어 있을 때만
+  let idFilled = 0;
+  for (const f of listed?.idFill ?? []) {
+    idFilled += updatedCount(
+      await ds.query(
+        `UPDATE "broadcast_items" SET "news_id" = $2 WHERE "id" = $1 AND "news_id" IS NULL`,
+        [f.id, f.newsId],
       ),
     );
   }
   console.log(
     `[collect:broadcasts] 받음 ${rows.length}건 · 새로 넣음 ${inserted}건 · 칸 맞춤(영어 이름·news_id) ${fixed}건 · ` +
-      `내림(source_archived) ${hidden}건 · 다시 보임 ${shown}건 · 기준 ${listed ? '보관 목록' : '방송 목록'}(${archiveList.note})` +
+      `내림(source_archived) ${hidden}건 · 내림(source_deleted) ${deleted}건 · 다시 보임 ${shown}건 · ` +
+      `영상 id 로 news_id ${idFilled}건 · 기준 ${listed ? '보관 목록' : '방송 목록'}(${archiveList.note})` +
       (listed && listed.unlisted.length > 0
         ? ` · 두 목록에 없음 ${listed.unlisted.length}건(그대로)`
         : '') +
@@ -160,7 +178,7 @@ async function run() {
   );
   printJobCounts({
     inserted,
-    updated: fixed + hidden + shown,
+    updated: fixed + hidden + deleted + shown + idFilled,
     skipped: rows.length - inserted,
   });
   await ds.destroy();

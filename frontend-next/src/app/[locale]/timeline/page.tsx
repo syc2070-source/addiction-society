@@ -2,11 +2,7 @@ import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import type { AppLocale } from '@/i18n/routing';
 import { fetchTimeline, type TimelineEvent } from '@/lib/api';
-import {
-  broadcastTitleLabel,
-  broadcasterLabel,
-  orgLabel,
-} from '@/lib/enLabels';
+import { broadcastLineLabels, orgLabel } from '@/lib/enLabels';
 
 /** 관측소 활동 연대기 (/timeline) — 감지·감시 이력(source_events)을 시간순으로.
  *  발표달력이 "언제 나올까"라면 연대기는 "언제 무엇이 일어났나"의 집적. */
@@ -67,29 +63,33 @@ export default async function TimelinePage({
         <section aria-label={t('broadcastTitle')}>
           <h2 className="group-heading">{t('broadcastTitle')}</h2>
           <ul className="timeline-list">
-            {result.broadcasts.map((b) => (
-              <li key={`b-${b.id}`} className="timeline-item">
-                <span className="timeline-date">
-                  {b.publishedAt ? fmt(b.publishedAt) : '—'}
-                </span>
-                <span className="timeline-badge">{t('event.broadcast')}</span>
-                <span className="timeline-body">
-                  {broadcasterLabel(b.broadcaster, l, b) && (
-                    <span className="timeline-org">
-                      {broadcasterLabel(b.broadcaster, l, b)}
-                    </span>
-                  )}
-                  <a
-                    href={b.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="timeline-source"
-                  >
-                    {broadcastTitleLabel(b.title, l, b.broadcaster, b)}
-                  </a>
-                </span>
-              </li>
-            ))}
+            {result.broadcasts.map((b) => {
+              // SOC-R14 ■1: en 에서 제목 자리의 프로그램 이름이 방송사를 품으면 방송사 칸을 비운다
+              const line = broadcastLineLabels(b, l);
+              return (
+                <li key={`b-${b.id}`} className="timeline-item">
+                  <span className="timeline-date">
+                    {b.publishedAt ? fmt(b.publishedAt) : '—'}
+                  </span>
+                  <span className="timeline-badge">
+                    {t('event.broadcast')}
+                  </span>
+                  <span className="timeline-body">
+                    {line.org && (
+                      <span className="timeline-org">{line.org}</span>
+                    )}
+                    <a
+                      href={b.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="timeline-source"
+                    >
+                      {line.title}
+                    </a>
+                  </span>
+                </li>
+              );
+            })}
           </ul>
         </section>
       )}
