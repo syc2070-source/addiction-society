@@ -1,0 +1,132 @@
+382d520 — 경보 0 (P0·P1 남은 것 0) — C1 이어받은 keep = 손님에겐 그대로(손님 응답에 표식·검수 칸 0) · 관리자 화면 /admin/eco 에만 「이전 판 승인(keep_from_version <판>)」 꼬리표 · C2 paper_id 를 달고 다시 온 줄 = 같은 card_id 의 옛 card 열쇠 행을 paper 열쇠로 한 번 옮겨 적음(key_moved_from · key_moved_at · 행 지움 0) · C3 = 「대기」(NEWS-Q16 ■4 아직 push 0 · 10-25 실측 days 120) — 응답이 「publish 전 기간 · truncated false」를 스스로 말하면 「목록이 정본」으로 바뀌는 코드만 세움 · ■4 받는 문(eco_inbox · import:eco · Statory 내보내기 + 중독뉴스 export v0 → 검수 대기) 세움 · 스위치 ECO_LINK1_INBOX_ENABLED 꺼짐(운영 실측: /api/evidence/received 404 · 04:00 아홉 단계 그대로) · 리뷰 찾기 11 + 반박 7 = 고침 17 · 받아들인 채 남김 1 · jest 251/251 · migration 1(새 표만) · 행 삭제 0
+
+SOC-R15 보고 · 2026-10-25(일) · 실행 = 데스크탑 Claude Code Opus · D:\addiction-society · 가지 claude/soc-r15 → main
+커밋: f73f294 ⓐ 지시서(SOC-R15_1025.md) [skip ci][skip render] → 382d520 ⓑ 코드 → (이 보고) ⓒ [skip ci][skip render]
+
+━━ 손님에게 달라지는 것 ━━
+· 지금 화면은 그대로다(운영 실측 20:07 KST: 연대기 방송 21 = 중독뉴스 방송 목록 21 · newsId 21/21 · 새 손님 응답 /api/evidence/received = 404).
+· 때가 오면 스위치 하나(Render env ECO_LINK1_INBOX_ENABLED=true + 원천 env)로 Statory 근거 카드와 중독뉴스 기사가 검수 대기로 들어오고,
+  오너가 /admin/eco 에서 「살림」한 것만 손님에게 선다. 같은 논문의 고친 판은 앞 판 승인을 이어받아 내려가지 않는다(손님에게는 표시 없음).
+
+━━ LLM 의존 ━━ 0
+
+━━ ■0 실측 (10-25 19:3x~19:4x KST) ━━
+· 빈 RAM 18.2 GB(19:3x · 전체 31.9 GB).
+| # | 무엇 | 값 | 근거 |
+|---|---|---|---|
+| 1 | 10-25 04:00 회차 | 9/9 ok · 04:00:00~04:01:28 · collect:broadcasts inserted 12 · updated 20 · skipped 9 · totals diff 0 | /api/health/nightly |
+| 2 | news_id 채움 | 연대기 방송 21 행 모두 newsId 있음(null 0) · updated 20 = 칸 맞춤 9 + 영상 id 로 news_id 11(R14 예상과 같음) | /api/timeline?all=true |
+| 3 | 새 편 | 새로 넣음 12(6214~6223 · 6229 · 6230) — 연대기 9 → 21 | 같음 |
+| 4 | 연대기 = 중독뉴스 목록 | 연대기 newsId 집합 = 방송 목록 21 id = 보관 목록 publish 21 · 링크 21/21 방송 목록에 있음 · 목록 publish 가운데 연대기에 없는 편 0 | /articles/latest?kind=broadcast · /api/broadcast/archive?tier=all |
+| 5 | 목록 기준 판정 | 보관 목록 200 · count 59(archive 38 · publish 21) · truncated false · days 120 · 칸 id·tier·changedAt·videoId | 같음 |
+| 6 | NEWS-Q16 | 중독뉴스 origin/main 머리 fff949e(NEWS-Q15 보고 · 10-24 16:29) — 그 뒤 push 0 · 데스크탑 가지 claude/news-q16 에 지시서만(■4 publish 전 기간 = 코드 아직) | git log · 읽기만 |
+| 7 | ASK-54 · ASK-56 | Statory main c807de585 에 ASK-54 ■1 — 내보내기 줄 paper_id = text(card.item_id)(글 · 빈 item_id → null) · ASK-56 = 지시서만(053b090fc · 10-25 19:29) | git show · 읽기만 |
+· 로그 「기준 보관 목록(보관 목록 N줄)」 줄 자체는 Render 로그(오너 화면)라 못 읽음 — job_counts · 공개 응답으로 대신 맞춤.
+
+━━ ■1 C1 — 이어받은 keep 은 손님에게 그대로 · 관리자에게만 꼬리표 ━━
+· 손님: guestView(eco-inbox.ts) = upstream public ∧ keep 만 · 칸 = slug · title · url · grade · kind · subtype · topic · keyFindings(면허 허용 넷일 때만 · §5) · sourceEn.
+  검수 칸 · keep_from_version · 열쇠 기록은 싣지 않는다 — 물려받은 keep 과 사람 keep 의 손님 응답이 같다(시험 「shown exactly like a human keep」).
+· 관리자: adminView.inheritedKeep = { label 「이전 판 승인」, fromVersion } · /admin/eco(한국어 · /en 은 안내만 · 한글 0) 꼬리표 「이전 판 승인 (keep_from_version v4.0)」 ·
+  「이 판 살림(다시 봄)」 = 사람 결정 → 표식 지움.
+· 사람 결정은 그 열쇠의 「사람 마지막 결정」이 되므로, 같은 열쇠에서 물려받은 값만 가진 다른 판(reviewed_at NULL)도 그 결정으로 맞춘다(리뷰 A2 · 한 트랜잭션).
+
+━━ ■2 C2 — 옛 card 열쇠 결정을 paper 열쇠로 ━━
+· planInbox: paper_id 를 가진 줄의 card_id 와 열쇠 `card:<card_id>` 가 같은 저장 행 → 열쇠 `paper:<paper_id>` 로 한 번(key_moved_from = 옛 열쇠 · key_moved_at · 이미 옮긴 행은 다시 안 옮김 · 행 지움 0).
+  옮긴 뒤 상속을 잰다 → ASK-54 전에 card 열쇠로 받아 사람이 정한 keep/hide 가 그 논문의 새 판으로 이어진다(시험: 같은 판 + 고친 새 판이 함께 와도 새 판 keep + 표식).
+· SQL 은 `WHERE key_moved_from IS NULL AND paper_key = 옛 열쇠` 로만 · 계획한 수와 다르면 그 원천 전체를 되돌림(리뷰 A3).
+· card_id 가 다른 옛 행(다른 판의 줄 id)은 짝을 알 수 없어 옮기지 않는다(넘겨짚지 않음 · 계약 v1.5 §3-3).
+
+━━ ■3 C3 — 「대기」 ━━
+· 판 시작·끝 실측 = NEWS-Q16 미push(■0 의 6) · 응답 days 120 → 지금 규칙(「두 목록에 없음 = 그대로」) 그대로.
+· 코드(broadcast.util): archiveListScope(body) — `publishAllTime: true`(또는 publish_all_time) · `publishDays: null` · `days: null` 가운데 하나 ∧ `truncated: false` ∧ available ≠ false 일 때만 canonical.
+  canonical 이면 archiveListDecision 이 보이는 행 가운데 **news_id 를 알고 그 id 가 응답 어디에도 없는**(모르는 tier 줄 포함 · archiveListIds) 행을 source_unlisted 로 내림(행 지움 0 · 다시 실리면 다시 보임).
+  영상 id 로 못 맞춘 행 · news_id 모르는 행은 「없음」이 아니라 「못 맞춤」 → 그대로(리뷰 B5). 빈 목록은 그대로 보류.
+· 원천 까닭 셋(source_archived · source_deleted · source_unlisted)끼리는 까닭만 바꿈 · 사람 숨김 그대로. collect:broadcasts 로그에 「내림(source_unlisted) N건」 · 「정본 / publish 창 대기」.
+· 두 길 시험 broadcast-canonical.spec 7(10-25 실물 응답 = 대기 · 정본 신호 넷 · 잘림 · 모르는 tier · 다시 보임 · 빈 목록).
+
+━━ ■4 받는 문(스위치 끔) ━━
+· 표: migration 1789000000000-CreateEcoInbox — 새 표 eco_inbox 하나 + 색인 하나(기존 표 변경 0 · 값 채움 0 · 배포 preDeploy 에서 적용 · 운영 health ok).
+  한 표 두 원천(origin statory · addicted-news) · 유일 (origin, slug, version) · paper_key · upstream · review_* · keep_from_version · key_moved_* · payload(아는 열쇠만).
+· Statory(build-evidence-export 꼴 · Statory main 실물 대조): 봉투 readEnvelope(§6-1 · card_version · missing[] · stale) → 줄 readCardLines(§6-2 — card_id · card_version · title · doi 10. · source_url https ·
+  authors/year/statory_page_url 꼴 · addiction_type = §1 열 id(별칭 거절) · topics/topic · paper_id(cardKeyOf) · 봉투 안 같은 paper_id 뒤 줄 거절 · license 낱말/옛 객체 → 값 여섯 · license_use 적기만 ·
+  related_indicators = 받지 않음(unreceived ours) · missing[] 은 카드에 붙임).
+· 중독뉴스 export v0(docs/EXPORT_V0.md): 봉투(field addiction · version v0 · nextCursor) · 줄 readNewsLine — sourceType → 등급(broadcast/article) · subtype[] = §1 id(별칭·사전 밖 거절) ·
+  sourceEn 은 payload 로 손님 응답에 · 옛 꼴(sourceType · subtype 없음) = 당긴 kind 로 등급 · category 대응표(§7)로 subtype · 「중독사회와 회복」 = topic recovery · tier ≠ publish 거절.
+  kind=article · kind=broadcast 를 따로 끝까지(쪽 상한 100 · 넘으면 withdrawn 안 돌림) · 열쇠는 요청 머리 x-export-key(값 적음 0).
+· 들어온 줄 = 검수 대기(review_decision NULL) — 같은 열쇠에 사람 결정이 있으면 계약 v1.4 대로 상속(keep + 표식 · hide · 보류). 사람 결정을 기계가 덮는 길 0(ON CONFLICT DO NOTHING · 내용 새로 맞춤은 검토 대기 행만).
+· 숨김 상속(§3-3): 끝까지 된 전부 당기기에 없는 행 → upstream withdrawn(행 지움 0) · 다시 오면 public. 깨진 봉투 · 쪽 실패 · 빈 Statory 봉투 · 5000 줄 꽉 참 · slug 를 모르는 거절 줄 → 그 회차 withdrawn 0.
+  거절됐지만 원천에 있는 줄(slug · 논문 열쇠)은 withdrawn 에서 뺌(리뷰 B1 · 반박 1).
+· 스위치: env ECO_LINK1_INBOX_ENABLED — 글자 그대로 'true' 일 때만 켜짐. 꺼짐 = import:eco 가 DB 를 열지 않고 「꺼짐」 한 줄 + job_counts 0 · dailySteps = DAILY_STEPS 아홉 그대로 ·
+  GET /api/evidence/received 404. 켬 = import:eco 가 refresh:home 앞에 붙어 열 단계.
+· 켜는 법(docs/ECO_LINK1_CONTRACT_V1.md §6-4 한 줄): Render env 에 ECO_LINK1_INBOX_ENABLED=true(+ ECO_STATORY_EXPORT_URL · ECO_NEWS_EXPORT_KEY)를 넣고 다시 띄운다. 켜는 때는 따로.
+· 관리자 API: GET /api/admin/eco/review?tab=pending|keep|hide|withdrawn&before=<id>(200 줄 · keyset) · PUT /api/admin/eco/:id/review { decision: keep|hide|null }(열쇠 없으면 400) — 관리자 JWT(AUTH-001 목록에 더함).
+· fixture 시험(backend/src/evidence/__fixtures__ 넷 · eco-inbox.spec 24 · service.spec 3): 두 원천(ASK-54 실물 꼴 · Q12 꼴) · 옛 꼴(면허 객체 · paper_id 없음 / sourceType·subtype 없음) ·
+  꼴 틀림(봉투 셋 · 줄 아홉 · 중독뉴스 봉투 넷 · 줄 셋) · missing 줄(license · id null = missing_card_id_empty) · 중복 paper_id · 상속 · C1 · C2 · withdrawn 지킴 · 스위치 · migration.
+· 계약 v1.5: §3-3 의 4(C1 · C2) · §6-3(eco_inbox) · §6-4(import:eco · env 이름 · 켜는 법) · §8 의 16 닫힘(양쪽) · 17(paper_id 실물 = 글) · 18(중독뉴스 subtype tobacco·digital) · §9 C7.
+
+━━ 게이트 ━━
+· backend jest 31 suites 251/251(+34 · 20:00) · nest build(pretest) 0 · tsc --noEmit 0 · eslint 바뀐 backend 0
+· frontend npm test 23(pass 22 · skipped 1) · eslint admin 0 · next build 한 번(NEXT_PUBLIC_API_URL=운영 · 명령줄 env · .env 0 · 37 쪽 · /ko·/en admin/eco)
+· /en 새는 꼴 0: 빌드 산출물 게이트 통과 · 운영 /en/admin/eco 200 · 한글 0
+· migration 시험: CreateEcoInbox up = CREATE TABLE + CREATE INDEX 둘뿐(ALTER·DROP·DELETE·UPDATE·INSERT 0) · down = 색인·표 지움 · 운영 preDeploy 적용 후 health ok
+· E2E 0 · 행 삭제 0 · seed 변경 0
+· 리뷰(읽기 전용 리뷰 에이전트 셋 · 지시서 「찾기 2(승인 잇기 · 받는 문) + 반박 1」):
+  찾기 A(승인 잇기) 5:
+   A1(중간) 검수 save() 가 낡은 행 전체를 덮어 그사이 받는 문이 옮긴 열쇠 · withdrawn 을 되돌림 → 결정 칸만 update · 잠금 · 다시 읽기.
+   A2(중간) 옛 판에 사람이 정한 결정이 이미 물려받은 새 판에 안 닿음(옛 판 hide 해도 새 판 keep 이 손님에게) → 같은 열쇠 reviewed_at NULL 행도 맞춤.
+   A3(낮음) C2 UPDATE 결과를 안 봄 → 원천별 트랜잭션 · FOR UPDATE · 수가 다르면 되돌림.
+   A4(낮음) 같은 논문·같은 판인데 card_id 가 다른 줄은 사람 keep 을 표식 없이 받음 → 멱등 길 건너뛰고 사람 마지막 결정으로.
+   A5(낮음) 빈 몸 {} 이 「사람이 보류로 되돌림」으로 기록 → decision 열쇠 필수(null 은 됨).
+  찾기 B(받는 문) 6:
+   B1(중간) 이번에 거절된 줄(원천엔 있음)의 옛 행이 withdrawn → 거절 줄의 slug 를 지킴 · 모르면 그 회차 withdrawn 0.
+   B2(중간) 검수 창이 최근 2000 줄만 읽고 탭을 걸러 옛 줄이 어느 탭에도 안 섬 → 표에서 탭 거름 · 쪽 넘김.
+   B3(중간) 다시 본 행의 제목·하위 유형·sourceEn 이 처음 받은 값에 굳음 → 내용 새로 맞춤.
+   B4(낮음) Statory 생성기 5000 줄 상한(잘림 칸 없음) · 빈 봉투가 「전부」로 읽혀 withdrawn → 빈/꽉 찬 봉투는 withdrawn 0.
+   B5(중간) C3 정본에서 「못 맞춘 행」을 「목록에 없음」으로 내림 → news_id 를 알고 응답 어디에도 없을 때만.
+   B6(낮음) 스위치 값 앞뒤 빈칸을 잘라 켜짐 → 글자 그대로 'true'.
+  반박(고친 것을 깨 보기) — A1·A4·A5·B2(백엔드)·B4·B5·B6 버팀 · A2·A3 대체로 버팀 · B1 일부 깨짐 · 새 문제 7:
+   1(중간) B1 지킴이 slug(판마다 새 card_id)로만 → 새 판이 거절되면 앞 판 행이 withdrawn → 논문 열쇠로도 지킴 · 시험.
+   2(낮음-중간) 검수 잠금(행 하나 → 형제) · 받는 문 잠금(차례 없음)이 엇갈려 교착 → 둘 다 같은 열쇠 행을 id 차례로 먼저 잠금.
+   3(중간) 내용 새로 맞춤이 본 행마다 늘 UPDATE → 바뀐 것이 있을 때만(IS DISTINCT FROM).
+   4(중간) 검수 창 offset 쪽 넘김이 결정해 빠진 줄만큼 건너뜀 → keyset(before=<마지막 id>).
+   5(낮음-중간) 사람이 살린 행의 면허·제목이 그 뒤 바뀌어 안 본 발견이 손님에게 → 내용 새로 맞춤은 검토 대기 행만.
+   6(낮음) slug 모르는 거절 줄 하나가 withdrawn 을 조용히 멈춤 → 로그에 「멈춤」.
+   7(낮음) tier ≠ publish 검사가 제목 검사 뒤라 실림 아닌 줄을 지킴 → tier 먼저.
+  받아들인 채 남김(고치지 않음): 반박 A2 곁 — 원천에서 빠진(withdrawn) 옛 판을 사람이 hide 하면 같은 논문의 물려받은 keep 새 판도 손님에게서 내려간다.
+   v1.4 「사람 마지막 결정」 그대로라 고치지 않고 아래 CTO 판정 C2 로 올림. 같은 판 쌍둥이 행의 꼬리표가 자기 판 이름을 가리키는 것(화면 글자만)도 그대로.
+
+━━ 배포 ━━
+· Render: health commit 382d520 · startedAt 25T11:05:53Z(20:05 KST · push 20:03) · schema.review_columns true · preDeploy migration(CreateEcoInbox) 통과 · 앞으로 당겨 읽기(파이썬 한 명령 · 30초 간격 · 배경 작업 아님).
+· 운영 실측(20:07 KST): /api/evidence/received 404(스위치 꺼짐) · /api/admin/eco/review 401(토큰 없음) · 연대기 방송 21 = 방송 목록 21 · newsId 21/21.
+· Vercel: /en/admin/eco 200 · 「Received evidence review」 · 한글 0.
+
+━━ 지시서와 다르게 한 것 ━━
+1. ■3 C3 — NEWS-Q16 미push 라 「대기」. 다만 그쪽이 칸 이름을 아직 정하지 않아, 「전 기간」 신호를 응답이 스스로 말하는 넷(publishAllTime · publish_all_time · publishDays null · days null)으로 읽게 세움.
+   그쪽이 다른 이름을 쓰면 계속 대기(안전한 쪽) — 다음 판 첫머리에서 NEWS-Q16 docs 와 대조.
+2. ■3 「목록이 정본」 — 「목록에 없으면 내림」을 news_id 를 아는 행으로 좁힘(리뷰 B5). 영상 id 로 못 맞춘 행은 정본에서도 그대로.
+3. ■4 「검수 대기로 넣음」 — 같은 논문에 사람 결정이 있으면 대기가 아니라 상속 값으로 선다(계약 v1.4 「승인 · 숨김 상속은 계약대로」를 따름).
+4. ■4 받는 표 — 계약 §6-3 의 Statory 표 제안을 두 원천 한 표(eco_inbox · origin 칸)로 세움(중독뉴스 줄도 같은 검수 · 같은 숨김 상속).
+5. ■4 손님 응답 /api/evidence/received 와 관리자 화면 /admin/eco 를 더함(C1 의 「손님 화면 · 관리자 검수 화면」 자리) — 스위치 꺼짐이면 손님 응답 404 · 관리자 화면은 빈 표.
+6. 매일 예약 — 스위치가 켜질 때만 import:eco 가 붙는다(꺼짐 = 아홉 단계 그대로 · 「스위치 하나로」 켜지게).
+7. 시험 하나(security/auth-containment.static.spec)의 감사 목록에 새 관리자 PUT 을 더함 — 새 쓰기 길을 목록에 적으라는 그 시험의 뜻대로(JWT + 관리자 검사는 그대로 통과).
+
+━━ 건너뜀 · 사유 ━━
+· collect:broadcasts 04:00 로그 원문(「기준 보관 목록 …」 줄) — Render 로그 = 오너 화면 · 읽지 못함 → job_counts · 공개 응답으로 맞춤(■0).
+· 받는 문 실제 당기기 — 스위치 꺼짐 · 원천 열쇠 · 주소 env 0(넣는 것은 오너 액션) → fixture 로만.
+· 운영 DB 에 대고 migration:show — .env 읽기 0 · 운영 DB 직접 접속 0 → 배포 preDeploy 통과 · health ok 로 대신.
+· 한 번 &&·파이프를 쓴 명령(src/sources jest · 19:38) — 규칙 어김 · 그 뒤 하나씩. 결과(통과 82 · 실패 1 = 고친 toEqual)는 다시 돌려 같음.
+
+━━ 확인 (다음 판 첫머리 · 10-26 04:00) ━━
+1. 10-26 04:00: 9/9 ok(import:eco 붙지 않음 = 스위치 꺼짐) · collect:broadcasts 「내림(source_unlisted) 0건」 · 기준 보관 목록 · publish 창 대기 · 연대기 = 방송 목록
+2. NEWS-Q16 push 뒤: docs/BROADCAST_ARCHIVE_LIST.md 의 「전 기간」 칸 이름 대조 — 넷 가운데 하나면 그날 밤부터 정본 · 아니면 읽는 이름 한 줄 더함
+3. eco_inbox 0 행 · /api/evidence/received 404 · /admin/eco 빈 탭
+4. ASK-56 진행(Statory) · 켜는 날 정해지면 Statory latest.json 실물로 readCardLines 한 번(거절 사유 셈)
+5. 11-01(일) 09:00 spo · drugfree 「2026-10 · 발표 없음」 · mohw 「사람 확인」
+
+━━ CTO 판정 필요 ━━
+C1 원천에서 빠진 판의 결정 — 사람이 「원천에서 빠짐」 탭의 옛 판을 hide/keep 하면 그것이 그 논문의 「사람 마지막 결정」이 되어, 이미 물려받은 값으로 서 있는 새 판도 따라 바뀐다
+   (옛 판 hide → 손님에게 보이던 새 판 내려감). v1.4 규칙 그대로다. withdrawn 판의 결정은 상속에서 빼고 그 판에만 둘지 · 지금처럼 논문 전체에 걸지.
+C2 중독뉴스 subtype 의 tobacco · digital(계약 §8 의 18 · §9 C7) — 지금 받는 문은 §1 대로 그 줄을 거절한다(「게임·디지털」 기사는 gaming · digital 둘이라 모두 거절).
+   켜기 전에 중독뉴스가 tobacco → nicotine · digital 빼기(또는 smartphone)로 바꿀지 · 받는 쪽 대응표를 계약에 넣을지.
+C3 C3 정본 신호의 칸 이름 — NEWS-Q16 이 publish 전 기간을 어떤 칸으로 알릴지(publishAllTime · days null 따위). 그쪽 판에서 정해 docs 에 적으면 우리는 그대로 읽는다(지금 넷 가운데 하나).
+C4 켜는 때 · 원천 주소 — Statory latest.json 을 어디서 내줄지(ECO_STATORY_EXPORT_URL · 지금 Statory 저장소 docs/evidence/export 파일뿐) · 중독뉴스 export 열쇠(EXPORT_READ_KEY) 를 두 저장소에 언제 넣을지.
