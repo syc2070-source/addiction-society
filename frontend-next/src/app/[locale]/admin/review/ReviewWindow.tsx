@@ -27,7 +27,7 @@ const TABS: { key: Tab; label: string }[] = [
 /** 토큰은 이 탭이 열려 있는 동안만 둔다(sessionStorage). */
 const TOKEN_KEY = 'as_admin_token';
 
-function readToken(): string | null {
+export function readToken(): string | null {
   try {
     return sessionStorage.getItem(TOKEN_KEY);
   } catch {
@@ -35,7 +35,7 @@ function readToken(): string | null {
   }
 }
 
-function writeToken(token: string | null) {
+export function writeToken(token: string | null) {
   try {
     if (token) sessionStorage.setItem(TOKEN_KEY, token);
     else sessionStorage.removeItem(TOKEN_KEY);
@@ -239,7 +239,7 @@ export default function ReviewWindow({ apiUrl }: { apiUrl: string }) {
   );
 }
 
-function LoginForm({
+export function LoginForm({
   apiUrl,
   notice,
   onLogin,

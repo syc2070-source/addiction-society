@@ -1,0 +1,34 @@
+{
+  "field": "addiction",
+  "version": "v0",
+  "limit": 200,
+  "items": [
+    {
+      "id": 5600,
+      "title": "도박 광고 규제",
+      "source": "연합뉴스",
+      "publishedAt": "2026-10-10",
+      "publishedTs": "2026-10-10T01:00:00.000Z",
+      "sourceUrl": "https://www.yna.co.kr/view/AKR0600",
+      "field": "addiction",
+      "category": "도박중독",
+      "clusterId": null,
+      "tier": "publish",
+      "sourceGrade": "press"
+    },
+    {
+      "id": 5601,
+      "title": "알코올 가격 정책",
+      "source": "연합뉴스",
+      "publishedAt": "2026-10-10",
+      "publishedTs": null,
+      "sourceUrl": "https://www.yna.co.kr/view/AKR0601",
+      "field": "addiction",
+      "category": "알코올·약물중독",
+      "clusterId": null,
+      "tier": "publish",
+      "sourceGrade": "press"
+    }
+  ],
+  "nextCursor": "aWQ6NTYwMQ"
+}

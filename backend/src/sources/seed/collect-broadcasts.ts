@@ -8,6 +8,8 @@
  * hidden_reason='source_archived' 로 연대기 공개에서 내리고, 다시 실리면 다시 보인다(행 지움 0).
  * SOC-R13: ③ news_id(중독뉴스 id)를 채운다 ④ 보관 목록(NEWS-Q14 ■5 · GET /api/broadcast/archive?tier=all)의
  * tier 로 내린다 — 주소를 비우거나(null) · 못 읽거나 · 꼴이 틀리거나 · available false 면 ② 그대로.
+ * SOC-R15: ⑤ 보관 목록이 스스로 「publish 전 기간 · 잘리지 않음」을 말하면(archiveListScope · NEWS-Q16 ■4)
+ * 목록이 정본 — 두 목록에 없는 보이는 행은 source_unlisted 로 내림. 아니면 「두 목록에 없음 = 그대로」(대기).
  * 수: inserted = 새 행 · updated = 칸 맞춤(영어 이름 · news_id) + 내림 + 다시 보임 · skipped = 이미 있던 행.
  * 주소: env ADDICTION_NEWS_API_URL (기본 중독뉴스 운영 주소).
  */
@@ -16,15 +18,19 @@ import { AppDataSource } from '../../data-source';
 import {
   archiveDecision,
   archiveListDecision,
+  archiveListIds,
+  archiveListScope,
   BROADCAST_ARCHIVE_LIST_PATH,
   BROADCAST_FETCH_LIMIT,
   DEFAULT_NEWS_API_URL,
   parseArchiveList,
   SOURCE_ARCHIVED,
   SOURCE_DELETED,
+  SOURCE_UNLISTED,
   toBroadcastRows,
   type ArchiveDecision,
   type ArchiveListEntry,
+  type ArchiveListScope,
   type StoredBroadcast,
 } from '../broadcast.util';
 import { updatedCount } from '../source-url-fixes';
@@ -40,20 +46,41 @@ async function getJson(url: string): Promise<unknown> {
 }
 
 /** 보관 목록 — 주소가 없으면 null(대기) · 못 읽음 · 꼴 틀림도 null(지금 규칙으로) */
-async function readArchiveList(
-  base: string,
-): Promise<{ list: ArchiveListEntry[] | null; note: string }> {
-  if (!BROADCAST_ARCHIVE_LIST_PATH) return { list: null, note: '대기' };
+async function readArchiveList(base: string): Promise<{
+  list: ArchiveListEntry[] | null;
+  scope: ArchiveListScope | null;
+  ids: Set<number> | null;
+  note: string;
+}> {
+  if (!BROADCAST_ARCHIVE_LIST_PATH) {
+    return { list: null, scope: null, ids: null, note: '대기' };
+  }
   try {
-    const list = parseArchiveList(
-      await getJson(`${base}${BROADCAST_ARCHIVE_LIST_PATH}`),
-    );
+    const body = await getJson(`${base}${BROADCAST_ARCHIVE_LIST_PATH}`);
+    const list = parseArchiveList(body);
+    const scope = archiveListScope(body);
     return list
-      ? { list, note: `보관 목록 ${list.length}줄` }
-      : { list: null, note: '보관 목록 꼴 틀림 → 지금 규칙' };
+      ? {
+          list,
+          scope,
+          ids: archiveListIds(body),
+          note:
+            `보관 목록 ${list.length}줄 · ` +
+            (scope.canonical
+              ? '정본(publish 전 기간)'
+              : `publish 창 대기${scope.publishAllTime ? '(잘림)' : ''}`),
+        }
+      : {
+          list: null,
+          scope: null,
+          ids: null,
+          note: '보관 목록 꼴 틀림 → 지금 규칙',
+        };
   } catch (e) {
     return {
       list: null,
+      scope: null,
+      ids: null,
       note: `보관 목록 못 읽음(${(e as Error).message}) → 지금 규칙`,
     };
   }
@@ -127,33 +154,38 @@ async function run() {
   }));
   const feedUrls = new Set(rows.map((r) => r.url));
   const listed = archiveList.list
-    ? archiveListDecision(stored, archiveList.list, feedUrls)
+    ? archiveListDecision(stored, archiveList.list, feedUrls, {
+        canonical: archiveList.scope?.canonical === true,
+        listedIds: archiveList.ids ?? undefined,
+      })
     : null;
   const d: ArchiveDecision =
     listed ?? archiveDecision(stored, feedUrls, feedSize);
-  // 원천 까닭(보관 · 지움)끼리는 까닭만 바꾼다 · 사람 숨김(그 밖 까닭)은 건드리지 않음
-  const hideAs = async (ids: number[], reason: string, other: string) =>
+  // 원천 까닭(보관 · 지움 · 목록 밖)끼리는 까닭만 바꾼다 · 사람 숨김(그 밖 까닭)은 건드리지 않음
+  const sourceReasons = [SOURCE_ARCHIVED, SOURCE_DELETED, SOURCE_UNLISTED];
+  const hideAs = async (ids: number[], reason: string) =>
     ids.length === 0
       ? 0
       : updatedCount(
           await ds.query(
             `UPDATE "broadcast_items"
                 SET "hidden_reason" = $2, "hidden_at" = COALESCE("hidden_at", now())
-              WHERE "id" = ANY($1) AND ("hidden_reason" IS NULL OR "hidden_reason" = $3)`,
-            [ids, reason, other],
+              WHERE "id" = ANY($1) AND ("hidden_reason" IS NULL OR "hidden_reason" = ANY($3))`,
+            [ids, reason, sourceReasons],
           ),
         );
-  const hidden = await hideAs(d.hide, SOURCE_ARCHIVED, SOURCE_DELETED);
-  const deleted = listed
-    ? await hideAs(listed.hideDeleted, SOURCE_DELETED, SOURCE_ARCHIVED)
+  const hidden = await hideAs(d.hide, SOURCE_ARCHIVED);
+  const deleted = listed ? await hideAs(listed.hideDeleted, SOURCE_DELETED) : 0;
+  const unlistedHidden = listed
+    ? await hideAs(listed.hideUnlisted, SOURCE_UNLISTED)
     : 0;
   let shown = 0;
   if (d.unhide.length > 0) {
     shown = updatedCount(
       await ds.query(
         `UPDATE "broadcast_items" SET "hidden_reason" = NULL, "hidden_at" = NULL
-          WHERE "id" = ANY($1) AND "hidden_reason" IN ($2, $3)`,
-        [d.unhide, SOURCE_ARCHIVED, SOURCE_DELETED],
+          WHERE "id" = ANY($1) AND "hidden_reason" = ANY($2)`,
+        [d.unhide, sourceReasons],
       ),
     );
   }
@@ -169,7 +201,8 @@ async function run() {
   }
   console.log(
     `[collect:broadcasts] 받음 ${rows.length}건 · 새로 넣음 ${inserted}건 · 칸 맞춤(영어 이름·news_id) ${fixed}건 · ` +
-      `내림(source_archived) ${hidden}건 · 내림(source_deleted) ${deleted}건 · 다시 보임 ${shown}건 · ` +
+      `내림(source_archived) ${hidden}건 · 내림(source_deleted) ${deleted}건 · ` +
+      `내림(source_unlisted) ${unlistedHidden}건 · 다시 보임 ${shown}건 · ` +
       `영상 id 로 news_id ${idFilled}건 · 기준 ${listed ? '보관 목록' : '방송 목록'}(${archiveList.note})` +
       (listed && listed.unlisted.length > 0
         ? ` · 두 목록에 없음 ${listed.unlisted.length}건(그대로)`
@@ -178,7 +211,7 @@ async function run() {
   );
   printJobCounts({
     inserted,
-    updated: fixed + hidden + deleted + shown + idFilled,
+    updated: fixed + hidden + deleted + unlistedHidden + shown + idFilled,
     skipped: rows.length - inserted,
   });
   await ds.destroy();

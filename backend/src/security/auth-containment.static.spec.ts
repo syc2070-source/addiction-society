@@ -28,6 +28,8 @@ const MUTATION_DECORATORS = new Map<string, MutationMethod>([
 const AUDITED_MUTATION_ENDPOINTS = [
   'backend/src/auth/auth.controller.ts POST /api/auth/login',
   'backend/src/auth/auth.controller.ts POST /api/auth/register',
+  // SOC-R15 ■4 받은 것 검수(관리자 JWT · research 검수 창과 같은 틀)
+  'backend/src/evidence/eco-inbox.controller.ts PUT /api/admin/eco/:id/review',
   'backend/src/indicators/indicators.controller.ts POST /api/indicators/extract-pdf',
   'backend/src/indicators/indicators.controller.ts POST /api/indicators/observations/approve',
   'backend/src/indicators/review.controller.ts POST /api/indicators/review/:token',

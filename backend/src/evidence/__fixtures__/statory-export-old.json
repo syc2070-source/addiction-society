@@ -1,0 +1,33 @@
+{
+  "schema": "EVIDENCE_EXPORT_V1",
+  "generated_at": "2026-10-22T09:00:00.000Z",
+  "source_table": "paper_cards",
+  "verdict": "ok",
+  "count": 1,
+  "skipped": {},
+  "items": [
+    {
+      "title": "Old-form card (ASK-51 before · licence object · no paper_id)",
+      "authors": ["Kim J"],
+      "year": 2021,
+      "venue": null,
+      "doi": "10.1000/old.0001",
+      "population": null,
+      "region": null,
+      "addiction_type": null,
+      "design": null,
+      "sample": null,
+      "key_findings": ["Old finding."],
+      "limitations": null,
+      "related_indicators": null,
+      "statory_page_url": null,
+      "source_url": "https://doi.org/10.1000/old.0001",
+      "license": { "value": "cc-by-sa", "use": "corpus" },
+      "judged_at": "2026-10-20T00:00:00.000Z",
+      "card_version": "paper-card-v3.2",
+      "card_id": "old-card-1",
+      "generated_at": "2026-10-22T09:00:00.000Z",
+      "fields_missing": []
+    }
+  ]
+}

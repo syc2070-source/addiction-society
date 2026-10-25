@@ -15,6 +15,7 @@ import { BroadcastItem } from './sources/entities/broadcast-item.entity';
 import { Indicator } from './indicators/entities/indicator.entity';
 import { Observation } from './indicators/entities/observation.entity';
 import { JobRun } from './scheduler/entities/job-run.entity';
+import { EcoInboxItem } from './evidence/entities/eco-inbox.entity';
 
 // CLI는 Nest 컨텍스트 밖에서 돌아가므로 .env를 직접 로드한다(app.module과 동일한 env 키).
 config();
@@ -42,7 +43,7 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_NAME || 'addiction_society',
   // Supabase 등 원격 DB는 SSL 필요. 로컬은 DB_SSL 미설정(false)이라 영향 없음.
   ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
-  // app.module.ts의 entities 배열과 반드시 일치해야 한다(12개).
+  // app.module.ts의 entities 배열과 반드시 일치해야 한다(13개).
   entities: [
     User,
     Research,
@@ -56,6 +57,7 @@ export const AppDataSource = new DataSource({
     Indicator,
     Observation,
     JobRun,
+    EcoInboxItem,
   ],
   // CLI는 ts-node로 실행되므로 소스(.ts) 경로만 지정.
   // (dist/*.js를 함께 넣으면 watch 컴파일 산출물과 중복 로드되어 오류)

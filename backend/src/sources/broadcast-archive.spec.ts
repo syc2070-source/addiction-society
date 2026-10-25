@@ -232,6 +232,7 @@ describe('중독뉴스 방송 보관 목록 읽기 (SOC-R13 ■3)', () => {
       unhide: [],
       held: null,
       unlisted: [],
+      hideUnlisted: [],
       idFill: [],
     });
   });

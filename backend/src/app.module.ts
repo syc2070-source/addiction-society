@@ -24,6 +24,8 @@ import { BroadcastItem } from './sources/entities/broadcast-item.entity';
 import { Indicator } from './indicators/entities/indicator.entity';
 import { Observation } from './indicators/entities/observation.entity';
 import { JobRun } from './scheduler/entities/job-run.entity';
+import { EcoInboxItem } from './evidence/entities/eco-inbox.entity';
+import { EvidenceModule } from './evidence/evidence.module';
 import { validateJwtEnvironment } from './auth/jwt.config';
 import { HealthController } from './health.controller';
 
@@ -63,6 +65,7 @@ import { HealthController } from './health.controller';
           Indicator,
           Observation,
           JobRun,
+          EcoInboxItem,
         ],
         // 스키마 변경은 오직 마이그레이션으로만. DB_SYNCHRONIZE='true'를 명시한
         // 경우에만 켜짐(기본 false). 운영에서는 절대 금지(테이블 파괴 위험).
@@ -86,6 +89,7 @@ import { HealthController } from './health.controller';
     ReportsModule,
     SourcesModule,
     IndicatorsModule,
+    EvidenceModule,
   ],
   controllers: [HealthController],
 })

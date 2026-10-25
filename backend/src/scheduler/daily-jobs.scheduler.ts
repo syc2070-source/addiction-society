@@ -11,6 +11,7 @@ import {
   parseJobCountsLine,
   sumJobCounts,
 } from '../common/job-counts';
+import { ecoInboxEnabled } from '../evidence/eco-inbox';
 import { SourcesNotifier } from '../sources/discord.notifier';
 import { JobRun } from './entities/job-run.entity';
 import {
@@ -64,6 +65,27 @@ export const DAILY_STEPS: readonly DailyStep[] = [
   // 마지막: 홈 ko·en on-demand 재굽기 + 데우기 — 아침 첫 손님도 오늘 숫자 (SOC-R6 ■3).
   { name: 'refresh:home', entry: 'scheduler/refresh-home' },
 ];
+
+/** ECO-LINK1 받는 문(SOC-R15 ■4) — 스위치가 켜졌을 때만 04:00 회차에 붙는다(refresh:home 앞). */
+export const ECO_IMPORT_STEP: DailyStep = {
+  name: 'import:eco',
+  entry: 'evidence/seed/import-eco',
+};
+
+/**
+ * 오늘 밤 돌 단계 — 받는 문 스위치(ECO_LINK1_INBOX_ENABLED=true)가 꺼져 있으면 DAILY_STEPS 아홉 그대로.
+ * 켜면 import:eco 가 refresh:home 앞에 선다(받은 것이 홈 재굽기 전에 들어오게).
+ */
+export function dailySteps(
+  env: Record<string, string | undefined> = process.env,
+): readonly DailyStep[] {
+  if (!ecoInboxEnabled(env)) return DAILY_STEPS;
+  return [
+    ...DAILY_STEPS.slice(0, -1),
+    ECO_IMPORT_STEP,
+    DAILY_STEPS[DAILY_STEPS.length - 1],
+  ];
+}
 
 /**
  * 00:05 KST 자정 홈 재굽기 (SOC-R7 ■1) — 「오늘의 숫자」는 KST 자정에 바뀌는데 홈은
@@ -158,7 +180,7 @@ export class DailyJobsScheduler {
       return;
     }
     try {
-      await this.runAll();
+      await this.runAll(dailySteps());
     } catch (e: unknown) {
       // 최상위 격리: 절대 throw 하지 않음
       this.logger.error(`[daily] 최상위 예외(무시): ${String(e)}`);
