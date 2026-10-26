@@ -1,0 +1,21 @@
+SOC-R17 지시서 (중독사회 · 데스크탑 Claude Code · D:\addiction-society)
+
+〔위치판〕 중독사회(addictionsociety.net) · Render · 04:00 일일 · Phase = 11월 1주 ECO-LINK1 받는 문 켜기 앞. 끝난 것: SOC-R16(ⓑ 02a2164 · main 4b4e626 · 숨김 = 목록 tier 짝만 · 없으면 보임 · 비었거나 잘렸거나 못 읽으면 숨김 0(R15 「없으면 내림」 길 거둠 · 오늘 밤 04:00 첫 실전) · aliases tobacco→nicotine · digital→smartphone · unknown_subtype 표시 · 계약 v1.6 · KCI 카드 = 서지+링크+2문장 300자 · credit 줄 · ECO_SOURCE_LATEST_URL/READ_KEY 빈 값 · 11-01 세 줄 = 09:00 감시 크론). Render 배포 확인 = 붙임 줄로 읽는 중(결과 있으면 적기). Statory 쪽 ASK-58(가지 · 1.6.56 올리는 중)은 내보내기 GET 열쇠 머리를 x-eco-export-key 로 만들었고 KCI 카드는 DOI ∨ source_url 이면 내보냄. CTO 답(R16 판정): 열쇠 머리 이름 맞춤 · internet·social-media→smartphone · ai-dependence→ai · 달 계산 KST 한 자리 · 09:00 세 줄 OK · 받는 쪽 KCI 줄임은 안전망으로 유지. 지금 할 일 = SOC-R17.
+
+〔목표〕 ① Statory 와 열쇠 머리 이름·DOI 없는 KCI 카드 규칙을 맞춰 11월에 첫 받기가 401·거절 없이 되게 한다〔ⓐ〕. ② 나머지 별칭 셋을 정본 유형에 대응시킨다〔ⓑ〕. ③ 달 경계를 KST 로 재는 자리를 하나로 모을 수 있는지 실측하고, 작으면 고친다〔ⓒ〕.
+
+〔손님에게 달라지는 것〕 지금 0(깃발 꺼짐) · 11월에 켜면 한국 논문(DOI 없는 KCI)도 연구 목록에 들어오고 유형 꼬리표가 빠짐 없이 붙음. 〔LLM 의존〕 0.
+
+〔무인 진행 규칙〕 오너에게 묻지 말고 끝까지 계속 진행하라. 판단이 갈리면 안전한 쪽(깃발 꺼짐 · 저장 0 · 거절보다 표시 · 기존 행 변경 0)을 기본값으로 하고 이유를 쓴다. 허용이 필요한 명령은 건너뛰고 사유. 못 잰 것은 「미측」. 질문은 보고서 끝 한 절에만. 오너 액션 0. 코드 상태 단정 0 · 실측 → 맞으면 A · 아니면 B.
+
+■0 받자마자 docs/reports/202610/SOC-R17_instruction.txt 저장. 현재 가지 실측 → main 아니면 checkout main · pull → 가지 claude/soc-r17. ⓐ push [skip render]. Render health 가 02a2164(또는 그 뒤)인지 지금 한 번 더 읽어 첫머리에 적음(안 됐으면 사유만 · 설정 손대지 않음). 명령 하나씩 · Edit/Write 만 · 설치 0 · 지움 0 · git add 파일별 · rebase/force 0 · schema 는 TypeORM migration 덧붙임만.
+
+■1 〔ⓐ〕 열쇠 머리 이름 = `x-eco-export-key`(Statory EVIDENCE_EXPORT_V1 §5-2 와 같은 이름 · 지금 x-export-key 면 바꿈) · 계약 v1.7 · 시험 1. 받는 쪽: KCI 카드(source=kci)는 DOI 가 없어도 source_url 이 있으면 받음(서지 링크 = source_url) · 둘 다 없으면 지금처럼 missing 표시 · 계약 v1.7 한 줄 · 시험 1.
+
+■2 〔ⓑ〕 별칭 셋: 정본 유형 목록을 실측(저장소 안 TOPIC_TAXONOMY_V1 사본 또는 ECO 계약의 subtype 정본) → 기준 = 오너 10-17 유형(행동: 도박·게임·쇼핑·일·스마트폰·음식·AI / 물질: 알코올·약물·니코틴) → internet·social-media → smartphone · ai-dependence → ai(정본에 ai 가 없으면 더하고 화면 라벨 ko/en) · unknown_subtype 표시는 그대로 · 시험 +1 · 계약 v1.7 표 갱신.
+
+■3 〔ⓒ〕 달 경계 KST: 홈·달력·감시 크론에서 「이번 달」을 재는 자리 수와 파일을 실측 → 공용 함수 하나(KST 기준)로 모으는 변경이 자리 ≤5 이면 이 판에서 고침 + 시험 2(11-01 00:00~09:00 KST 경계 · 10-31 23:59) · 넘으면 크기 표만 보고서에(다음 판). 11-01 세 줄은 09:00 그대로.
+
+■4 〔ⓐ〕 11월 켜기 예행: v1.7 fixture 봉투(aliases 셋 · KCI 카드 DOI 없음+source_url · 보통 카드 · missing 줄)로 import:eco 를 시험 하네스에서 돌려 받는 결과(받음·unknown·missing 수) 표 · 깃발 꺼짐 · DB 쓰기 0.
+
+■5 마감: **jest 전량 1회(push 앞 · 규율)** · tsc · eslint · 리뷰 = 찾기 ≤2 + 반박 ≤1(■1 열쇠·■2 대응에 반박 1) · ⓑ 코드 push 04:00 앞뒤 30분 0 · Render health GET 한 번(기다리지 않음) · ⓒ 보고서 docs/reports/202610/SOC-R17_<MMDD>.txt [skip render] · 끝 절 「묻고 싶었던 것」. 오늘 밤 04:00 새 숨김 첫 실전 = SOC-R18 첫머리. 끝나면 main 으로 돌아가기(git checkout main 한 번 · git pull 한 번).
