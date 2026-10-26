@@ -1,0 +1,89 @@
+SOC-R17 보고서 (2026-10-26 월 · 중독사회 · 데스크탑 Claude Code)
+
+〔첫머리〕
+· Render health(16:02 KST · ■0): commit 02a2164 · startedAt 2026-10-26T04:40:16Z — SOC-R16 ⓑ 배포됨(R16 판 확인 끝).
+· 가지: 시작 main(4b4e626) → claude/soc-r17 · ⓐ 지시서 60a47b6 [skip render] push.
+· 오늘 밤(10-27 04:00) 새 숨김(목록 tier 짝만) 첫 실전 = SOC-R18 첫머리.
+
+〔한 줄〕 Statory 열쇠 머리 x-eco-export-key · DOI 없는 KCI 카드 받음(링크 없으면 받고 missing 표시 · 손님 0) · 별칭 셋 대응 · 달 경계 KST 한 자리(+ 리뷰가 찾은 04:00 이월 문제 고침) · 11월 예행 표 · 계약 v1.7. 깃발 꺼짐 · migration 0 · DB 쓰기 0 · 기존 행 변경 0.
+
+■1 〔ⓐ〕 열쇠 머리 · DOI 없는 KCI 카드
+· 실측: ECO_SOURCE_READ_HEADER = 'x-export-key'(eco-inbox.ts · 한 곳) → B → 'x-eco-export-key' 로 바꿈. 중독뉴스 export 머리 x-export-key(ECO_NEWS_EXPORT_KEY)는 다른 원천이라 그대로.
+  시험 1: eco-inbox-r17.spec 「x-eco-export-key …」(머리 이름 · x-export-key 없음).
+· 실측(KCI): source=kci ∧ DOI 없음 ∧ source_url https → 이미 받음(SOC-R16) = A.
+  그러나 source_url 이 없으면(DOI 만 · 둘 다 없음) 'source_url_invalid' 로 **거절**됐다 — 지시가 말한 「지금처럼 missing 표시」가 아님 → B.
+  Statory 는 DOI ∨ source_url 이면 내보내므로 DOI 만 있는 KCI 카드가 11월에 거절될 참이었다.
+· 고침(거절보다 표시):
+  - KCI 카드에 source_url 이 없으면 받되 url = null · 받은 줄 missing 에 우리 표시(['source_url'] · DOI 도 없으면 ['doi','source_url'] · 봉투 missing 과 겹침 없이).
+  - 관리자 화면은 이미 「빈 칸 …」 꼬리표 · url null 을 그림(EcoReviewWindow · 화면 변경 0).
+  - 손님: KCI 카드에 url 이 없으면 서지 않음(isGuestVisible · 서지 + 링크 규칙).
+  - 꼴이 틀린 링크(https 아님) · KCI 아닌 카드의 빈 링크는 지금처럼 source_url_invalid.
+  시험 1: 「KCI without DOI is received when source_url is there …」.
+· 계약 v1.7: §6-2 source_url 줄 · §6-4 머리 이름 · §6-5 한 단락 · §8 의 19 닫힘(받는 쪽).
+
+■2 〔ⓑ〕 별칭 셋
+· 정본 실측: eco-inbox.ts SUBTYPE_IDS = 계약 §1 표 열 개(alcohol · drugs · nicotine · gambling · gaming · shopping · work · smartphone · food · ai) =
+  오너 10-17 유형(행동 7 · 물질 3)과 같음 = A. ai 는 이미 정본 열째 → 더한 id 0.
+· 화면 라벨: 코드에 subtype 라벨 표가 없다(관리자 화면은 id 그대로 · 손님 화면 0) · ko/en 라벨은 계약 §1 표에만(AI / AI) → 화면 라벨 더함 0.
+  TOPIC_TAXONOMY_V1 사본은 저장소에 없음(계약 머리가 Statory 원본을 읽은 기록만).
+· 고침: SUBTYPE_ALIASES += internet → smartphone · social-media → smartphone · ai-dependence → ai. unknown_subtype 표시 그대로.
+  시험 +1: 「internet · social-media → smartphone · ai-dependence → ai …」(카드 · 중독뉴스 줄 둘 다). eco-inbox.spec 의 internet 기대값 한 줄 고침(이제 smartphone).
+· 계약 v1.7 §1-1 표 셋 더함 · §9 C8 닫힘.
+
+■3 〔ⓒ〕 달 경계 KST
+· 실측 — 「이번 달 · 오늘」을 재는 자리:
+  | # | 파일 | 자리 | 전 |
+  | 1 | backend/src/sources/next-expected.util.ts | monthStartOf(→ isExpectedOverdue · scheduler reconcileExpected cutoff · sources.service 하한 두 곳 · backfillPlan · missedReleases) | UTC |
+  | 2 | 같은 파일 | computeNextExpected curYear · curMonthStart | UTC |
+  | 3 | 같은 파일 | computeNextExpected todayMs | UTC |
+  | — | backend/src/sources/missed-releases.ts | monthEndMs | 이미 KST |
+  | — | frontend-next/src/app/[locale]/page.tsx | currentMonthKst(홈 「이번 달 발표」) | 이미 KST |
+  | — | frontend-next/…/calendar/page.tsx | 저장된 YYYY-MM 으로 묶기만 | 해당 없음 |
+  → 자리 3(≤5) · 파일 하나 → 이 판에서 고침: kstDateParts(today) 하나(epoch + 9h · 기계 시간대 무관)로 셋 다.
+· 시험 2(+1): missed-1101.spec 「10-31 23:59 KST is still October」 · 「11-01 00:00 ~ 09:00 KST is November」(00:00 · 04:00 · 08:59 · 09:00).
+  expected-rollover.spec 의 「11-01 04:00 은 아직 10월(UTC)」 한 줄은 의도한 바뀜이라 「11월 · 이월할 때」로 고침.
+· 리뷰 찾기 B1(실제 버그 · 고침): KST 경계면 04:00 backfill:next 가 09:00 감시보다 먼저 이월한다 → 연간 출처가 30일 감시 창 밖으로 밀려
+  달 끝 읽기를 못 받음(예: hri_gshr 11월 예정 → 12-01 04:00 에 2027-11 로 · 09:00 에 안 읽힘 · 줄은 「확인 전」에 머묾 · 11월 말 발간도 못 잡음).
+  → backfill:next 는 빈 값 채움만 · 이월(rescheduled)은 09:00 감시가 읽은 뒤 reconcileExpected 한 곳에서만(SOC-R16 까지의 「읽기 먼저」 순서 그대로).
+  반박 1: 이제 이월이 한 곳이라, 감시 단계가 깨져도 reconcileExpected 는 따로 try 로 돈다(못 읽은 줄은 「확인 전」 · 「발표 없음」을 말하지 않음).
+· 11-01 세 줄(09:00 그대로): 00:00 ~ 09:00 KST = spo · drugfree 「확인 전」(unchecked) · mohw 「사람 확인」 → 09:00 읽기 + 이월 뒤 spo · drugfree 「발표 없음」 · mohw 「사람 확인」.
+  (SOC-R16 판은 09:00 전에는 줄이 서지 않았다 — 이제 00:00 부터 「확인 전」으로 선다.) 시험: missed-1101.spec 넷 모두 통과.
+· 홈 「이번 달 발표」(frontend KST)와 백엔드 달력 하한이 이제 같은 순간(00:00 KST)에 넘어감 — 전에는 매달 1일 00:00~08:59 동안 백엔드가 지난 달 하한을 썼다.
+
+■4 〔ⓐ〕 11월 켜기 예행(깃발 꺼짐 · DB 쓰기 0)
+· 봉투 fixture backend/src/evidence/__fixtures__/statory-export-v17.json(줄 넷 · 봉투 missing 둘) → import:eco 의 순수 길(readEnvelope → readCardLines → planInbox · 빈 표) · 시험 eco-inbox-r17.spec 「the v1.7 envelope …」.
+  (import-eco.ts 는 불러오면 run() 이 돌아 DB 를 열므로 하네스는 같은 순수 함수만 부름 · ecoInboxEnabled({}) = false 확인.)
+  | 줄 | 받은 값 | subtype | missing | 손님(사람 keep 뒤) |
+  | 보통 카드(DOI · source_url · internet · social-media) | 받음 | [smartphone] | — | 보임 |
+  | KCI · DOI 없음 + source_url · ai-dependence | 받음 | [ai] | [doi](봉투) | 보임 · 출처 줄 |
+  | KCI · DOI 만 · gambling | 받음 | [gambling] | [source_url](우리) | 안 보임(링크 없음) |
+  | KCI · 둘 다 없음 · vaping | 받음 | [] | [doi, source_url](봉투+우리) | 안 보임 |
+  합: 받음 4 · 거절 0 · unknown 1(vaping) · missing 3 · 새로 넣음 4(모두 검수 대기 · 상속 0) · withdrawn 0 · 출처 줄 있음.
+
+■5 마감
+· 리뷰: 찾기 2(A = ■1·■2·■4 · B = ■3) + 반박 1(■1 열쇠 · ■2 대응 · B1 고침).
+  - B1 고침(위 ■3). 반박 1 · 2 고침(이월 따로 try · backfill 기록 줄이 쓰지 않은 값을 세던 것).
+  - A1(기록만): 결정이 있는 KCI 행에 같은 판이 링크를 달고 다시 오면 url · missing 을 채우지 않음 → 손님 안 보임이 그대로.
+    기존 행 변경 0 을 기본값으로 둠 · Statory card_id 는 판마다 새 값이라 링크를 단 새 판은 새 행(결정 상속)으로 들어옴 · 계약 §6-5 에 적음.
+  - A2(기록만): 링크 없는 KCI 판도 같은 논문의 KCI 아닌 옛 판을 손님에게서 가림 — KCI 규칙을 비켜 서지 않는 쪽(보이는 것이 줄어드는 쪽) · 계약 §6-5 에 적음.
+  - 반박: 주장 셋(열쇠 머리 · 대응 · 이월 한 곳) 깨지지 않음.
+· jest 전량 1회(push 앞): 34 suites · 269/269. tsc 0. eslint(바뀐 파일): 새 오류 0 — next-expected.util.ts 의 prettier 2 · sources.scheduler.ts 의 no-unsafe-member-access 9 는 HEAD 원본에 있던 것(손대지 않음).
+  frontend 변경 0 → frontend tsc · next build 돌리지 않음.
+· ⓑ 0354d7d · push 16:19 KST(04:00 앞뒤 30분 밖) · 가지 + main(fast-forward 4b4e626..0354d7d).
+· health GET 한 번(16:19): commit 02a2164 — 배포 진행 중 · 기다리지 않음 → 0354d7d 확인은 SOC-R18 첫머리.
+· 바뀐 파일: backend/src/evidence/eco-inbox.ts · eco-inbox.spec.ts · eco-inbox-r16.spec.ts · eco-inbox-r17.spec.ts(새) · __fixtures__/statory-export-v17.json(새) ·
+  backend/src/sources/next-expected.util.ts · seed/backfill-next.ts · sources.scheduler.ts · missed-1101.spec.ts · expected-rollover.spec.ts · docs/ECO_LINK1_CONTRACT_V1.md(v1.7).
+· 지움 0(파일 · 행) · 설치 0 · migration 0 · .env* 읽기·쓰기 0 · 열쇠 값 적음 0 · D:\addicted-news 손댐 0.
+
+〔SOC-R18 첫머리〕
+1. Render health = 0354d7d.
+2. 10-27 04:00 = 9/9 · 새 숨김 첫 실전(목록 tier 짝만 · 숨김 사유 분포 · 보관 목록 행 수 · days · truncated).
+3. backfill:next 기록 줄 「이월 0건 · 09:00 감시 뒤로 미룸 N건」(10월 안에는 N = 0 이 맞음).
+4. 11-01 00:00 이후 「지난 예정 · 미확인」 세 줄 = 확인 전 → 09:00 뒤 발표 없음 둘 · 사람 확인 하나.
+
+〔묻고 싶었던 것〕
+1. 링크(source_url)가 없는 KCI 카드를 손님에게 아예 내지 않게 했다(DOI 만 있어도). DOI 가 있으면 https://doi.org/<DOI> 를 링크로 써서 내도 되는지 — 지금은 「서지 링크 = source_url」 대로 둠.
+2. 결정이 있는 KCI 행에 같은 판이 링크를 달고 다시 오면 url 을 채워도 되는지(지금은 기존 행 변경 0 · 새 판으로만).
+3. 링크 없는 KCI 판이 같은 논문의 옛 판(KCI 아님)을 손님에게서 가리는 것 — 그대로(안전한 쪽) 둬도 되는지.
+4. 04:00 backfill:next 의 이월을 09:00 감시 뒤로 미룬 것 — 이제 이월하는 곳이 09:00 한 곳뿐이다. 09:00 감시가 며칠 연속 깨지면 이월도 멈춘다(경보 없음 · 로그만). 이월 결과를 /api/health/nightly 에 실을지.
+5. Statory EVIDENCE_EXPORT_V1 §5-2 원문은 이 판에서 읽지 못했다(위치판의 x-eco-export-key 를 따름 · 미측). ASK-58 이 main 에 오른 뒤 원문 대조를 다음 판에 해도 되는지.
