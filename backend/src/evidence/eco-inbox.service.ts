@@ -13,7 +13,8 @@ import { EcoInboxItem } from './entities/eco-inbox.entity';
 import {
   adminTabOf,
   adminView,
-  guestView,
+  guestResponse,
+  KCI_SOURCE,
   type AdminTab,
   type InboxRowView,
 } from './eco-inbox';
@@ -103,14 +104,27 @@ export class EcoInboxService {
       .map(adminView);
   }
 
-  /** 손님 응답 — keep ∧ public 만 · 표식 없음(C1) */
+  /**
+   * 손님 응답 — keep ∧ public 만 · 표식 없음(C1) · { items, credit } — credit = 바닥 출처 줄
+   * (KCI 유래 항목이 하나라도 보일 때만 · ko/en · SOC-R16 ■3)
+   */
   async guest() {
     const rows = await this.repo.find({
       where: { upstream: 'public', reviewDecision: 'keep' },
       order: { id: 'DESC' },
       take: 500,
     });
-    return guestView(rows.map(viewOf));
+    // KCI 논문 열쇠는 표 전체에서(결정 · upstream 무관) — KCI 판이 보류·숨김이어도 옛 판의 발견이 서지 않게(반박 1)
+    const kci: { paper_key: string }[] = await this.repo.query(
+      `SELECT DISTINCT "paper_key" FROM "eco_inbox"
+        WHERE "origin" = 'statory' AND lower(btrim("payload"->>$1)) = $2`,
+      [KCI_SOURCE.field, KCI_SOURCE.value],
+    );
+    return guestResponse(
+      rows.map(viewOf),
+      new Date(),
+      kci.map((k) => k.paper_key),
+    );
   }
 
   /**

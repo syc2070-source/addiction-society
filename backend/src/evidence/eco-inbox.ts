@@ -64,6 +64,7 @@ export type LineReject =
   | 'doi_missing'
   | 'source_url_invalid'
   | 'statory_page_url_invalid'
+  /** SOC-R16 ■2 부터 쓰지 않음(모르는 값 = 표시만) — 옛 기록을 읽는 자리 때문에 이름만 남김 */
   | 'subtype_unknown'
   | 'topic_unknown'
   | 'cross_topic_unknown'
@@ -116,16 +117,149 @@ const isHttps = (v: string) => {
   }
 };
 
-/** 하위 유형 배열 — null/없음 = [] · 글 아닌 것 · 사전 밖 · 별칭 = null(줄 거절 subtype_unknown) */
-function subtypesOf(v: unknown): string[] | null {
-  if (v === undefined || v === null) return [];
-  if (!Array.isArray(v)) return null;
-  const out: string[] = [];
-  for (const s of v) {
-    if (typeof s !== 'string' || !SUBTYPE_IDS.includes(s.trim())) return null;
-    if (!out.includes(s.trim())) out.push(s.trim());
+/**
+ * 받는 쪽 subtype 대응표(SOC-R16 ■2 · 계약 v1.6 §1-1) — 보내는 쪽(중독뉴스 · Statory)은 제 값을 그대로 보내고
+ * 우리가 받을 때만 §1 열 id 로 읽는다. 원래 값은 payload 에 그대로 남는다.
+ */
+export const SUBTYPE_ALIASES: Readonly<Record<string, string>> = {
+  tobacco: 'nicotine',
+  digital: 'smartphone',
+};
+/** 사전에도 대응표에도 없는 값 — 줄을 거절하지 않고 payload 의 이 칸에 보낸 그대로 적는다(관리자 화면 표시) */
+export const UNKNOWN_SUBTYPE_KEY = 'unknown_subtype';
+
+/**
+ * 하위 유형 — null/없음 = [] · §1 id 는 그대로 · 대응표 값은 id 로 · 그 밖(사전 밖 · 글 아님 · 배열 아님)은
+ * unknown 으로(거절 0 · SOC-R16 ■2). 대소문자 · 앞뒤 빈칸은 맞출 때만 무시.
+ */
+export function subtypesOf(v: unknown): { ids: string[]; unknown: string[] } {
+  const ids: string[] = [];
+  const unknown: string[] = [];
+  if (v === undefined || v === null) return { ids, unknown };
+  for (const s of Array.isArray(v) ? (v as unknown[]) : [v]) {
+    const raw = typeof s === 'string' ? s.trim() : JSON.stringify(s);
+    const low = raw.toLowerCase();
+    const id = SUBTYPE_IDS.includes(low) ? low : SUBTYPE_ALIASES[low];
+    if (id) {
+      if (!ids.includes(id)) ids.push(id);
+    } else if (raw && !unknown.includes(raw)) unknown.push(raw);
   }
-  return out;
+  return { ids, unknown };
+}
+
+// ── KCI 유래 카드(SOC-R16 ■3 · Statory ASK-58 ■4) ─────────────────────────────
+
+/** Statory 가 KCI 유래 카드에 붙이는 칸 · 값 — 이름이 바뀌면 여기 한 곳만 */
+export const KCI_SOURCE = { field: 'source', value: 'kci' } as const;
+/** 짧은 인용 상한(문장) */
+export const KCI_QUOTE_MAX_SENTENCES = 2;
+/** 짧은 인용 상한(글자) — 문장이 길게 이어진 글이 통째로 들어오지 않게 */
+export const KCI_QUOTE_MAX_CHARS = 300;
+/** 화면 바닥 출처 줄 — KCI 유래 항목이 하나라도 보일 때만 */
+export const KCI_CREDIT = {
+  ko: 'KCI(한국학술지인용색인) 데이터 활용',
+  en: 'Uses data from KCI (Korea Citation Index)',
+} as const;
+/**
+ * KCI 유래 카드에서 담는 칸 = 서지 + 링크 + 판·열쇠·면허·주제(초록 · 발견 · 표본 · 한계 따위 본문 0).
+ * 인용은 따로 줄여 `quote` 로.
+ */
+const KCI_KEEP_KEYS = new Set([
+  'card_id',
+  'card_version',
+  'paper_id',
+  'title',
+  'authors',
+  'year',
+  'venue',
+  'doi',
+  'source_url',
+  'statory_page_url',
+  'license',
+  'license_use',
+  'judged_at',
+  'topics',
+  'topic',
+  'field_id',
+  'generated_at',
+  'addiction_type',
+  'source',
+  'use_until',
+]);
+
+export const isKciCard = (r: Record<string, unknown>): boolean =>
+  typeof r[KCI_SOURCE.field] === 'string' &&
+  (r[KCI_SOURCE.field] as string).trim().toLowerCase() === KCI_SOURCE.value;
+
+/**
+ * 짧은 인용 — 앞 두 문장까지 · 문장 끝 = . ! ? 。 ！ ？ … 또는 줄바꿈(마침표 없는 줄 나열도 한 줄 = 한 문장 · 리뷰 B3) ·
+ * 300 자 넘으면 자르고 「…」 · 빈 글 = null
+ */
+export function shortQuote(
+  v: unknown,
+  maxSentences = KCI_QUOTE_MAX_SENTENCES,
+): string | null {
+  const t = text(v);
+  if (!t) return null;
+  const parts = (t.match(/[^.!?。！？…\n]+(?:[.!?。！？…]+|\n+|$)/g) ?? [t])
+    .map((p) => p.replace(/\s+/g, ' ').trim())
+    .filter(Boolean);
+  let q = parts.slice(0, maxSentences).join(' ').trim();
+  // 글자 수는 코드 포인트로(그림 글자를 반으로 자르지 않게)
+  const cps = Array.from(q);
+  if (cps.length > KCI_QUOTE_MAX_CHARS) {
+    q = `${cps
+      .slice(0, KCI_QUOTE_MAX_CHARS - 1)
+      .join('')
+      .trimEnd()}…`;
+  }
+  return q || null;
+}
+
+/** KCI 카드 payload — 담는 칸만 + quote(카드의 quote · 없으면 key_findings 첫 글을 두 문장으로) */
+function kciPayloadOf(r: Record<string, unknown>): Record<string, unknown> {
+  const payload: Record<string, unknown> = {};
+  for (const k of Object.keys(r)) if (KCI_KEEP_KEYS.has(k)) payload[k] = r[k];
+  const kf = r.key_findings;
+  const first = Array.isArray(kf) ? kf.find((x) => typeof x === 'string') : kf;
+  const quote = shortQuote(r.quote) ?? shortQuote(first);
+  if (quote) payload.quote = quote;
+  return payload;
+}
+
+/**
+ * use_until 이 끝나는 순간(epoch ms) — 없음 = null(끝 없음) · 못 읽음 = -Infinity(이미 끝남 · 안전한 쪽).
+ * 날짜만 오면(2027-10-24) 한국 시각 그날 끝(리뷰 B4) · 없는 날(2027-02-31)은 못 읽음(반박 3) ·
+ * 시각이 오면 시간대가 있어야 읽음(없으면 서버 시간대로 읽혀 늦게 끝남).
+ */
+function useUntilEnd(u: unknown): number | null {
+  if (u === undefined || u === null) return null;
+  if (typeof u !== 'string') return -Infinity;
+  const s = u.trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+    const [y, m, d] = s.split('-').map(Number);
+    const day = new Date(Date.UTC(y, m - 1, d));
+    if (
+      day.getUTCFullYear() !== y ||
+      day.getUTCMonth() !== m - 1 ||
+      day.getUTCDate() !== d
+    ) {
+      return -Infinity;
+    }
+    return day.getTime() - 9 * 3_600_000 + 86_400_000;
+  }
+  if (!/(Z|[+-]\d{2}:?\d{2})$/i.test(s)) return -Infinity;
+  const t = Date.parse(s);
+  return Number.isNaN(t) ? -Infinity : t;
+}
+
+/** 이용 기간(use_until · KCI 만)이 지났나 — 날짜를 못 읽으면 지난 것으로(안전한 쪽 = 손님에게 안 섬) */
+export function kciExpired(
+  payload: Record<string, unknown>,
+  now: Date = new Date(),
+): boolean {
+  const end = useUntilEnd(payload.use_until);
+  return end !== null && now.getTime() >= end;
 }
 
 const reject = (
@@ -168,6 +302,10 @@ const CARD_KEYS = new Set([
   'topic',
   'field_id',
   'generated_at',
+  // SOC-R16 ■3(ASK-58 ■4) — KCI 유래 카드
+  KCI_SOURCE.field,
+  'use_until',
+  'quote',
 ]);
 /** 받지 않는다 — 우리가 채운다(§6-2) */
 const CARD_OURS = new Set(['related_indicators']);
@@ -238,8 +376,10 @@ export function readCardLine(
       return no('year_invalid');
     }
   }
+  // KCI 유래 카드는 DOI 가 없는 국내 논문이 많다 — 서지 + KCI 상세 링크로 서므로 DOI 없음은 받는다(꼴이 틀린 DOI 는 거절)
+  const kci = isKciCard(r);
   const doi = text(r.doi);
-  if (!doi || !doi.startsWith('10.')) return no('doi_missing');
+  if (doi ? !doi.startsWith('10.') : !kci) return no('doi_missing');
   const sourceUrl = text(r.source_url);
   if (!sourceUrl || !isHttps(sourceUrl)) return no('source_url_invalid');
   if (r.statory_page_url != null) {
@@ -247,7 +387,6 @@ export function readCardLine(
     if (!p || !isHttps(p)) return no('statory_page_url_invalid');
   }
   const subtype = subtypesOf(r.addiction_type);
-  if (!subtype) return no('subtype_unknown');
   if (r.topics != null) {
     if (!Array.isArray(r.topics) || r.topics.some((t) => t !== 'addiction')) {
       return no('topic_unknown');
@@ -263,8 +402,13 @@ export function readCardLine(
   const key = cardKeyOf(r);
   if (key.reject) return no(key.reject);
   const lic = licenceOf(r.license, r.license_use);
-  const payload: Record<string, unknown> = {};
-  for (const k of Object.keys(r)) if (CARD_KEYS.has(k)) payload[k] = r[k];
+  // KCI 유래 = 서지 + 링크 + 짧은 인용만(초록 본문 저장 0 · SOC-R16 ■3) · 그 밖 = §6-2 열쇠 그대로
+  const payload: Record<string, unknown> = kci ? kciPayloadOf(r) : {};
+  if (!kci) {
+    for (const k of Object.keys(r)) if (CARD_KEYS.has(k)) payload[k] = r[k];
+  }
+  if (subtype.unknown.length > 0)
+    payload[UNKNOWN_SUBTYPE_KEY] = subtype.unknown;
   return {
     line: {
       origin: 'statory',
@@ -276,7 +420,7 @@ export function readCardLine(
       url: sourceUrl,
       grade: 'paper',
       kind: 'card',
-      subtype,
+      subtype: subtype.ids,
       topic,
       licence: lic.licence,
       licenceUse: lic.licenceUse,
@@ -394,7 +538,8 @@ export function readNewsPage(
 
 /**
  * 중독뉴스 줄 하나. pullKind = 당긴 kind(article · broadcast) — sourceType 이 없는 옛 꼴의 등급 자리(§7).
- * subtype 이 있으면 그 값(사전 밖 · 별칭 = subtype_unknown · §1) · 없으면 category 대응표.
+ * subtype 이 있으면 그 값(대응표 SUBTYPE_ALIASES · 사전 밖 = payload.unknown_subtype 표시 · 거절 0 · SOC-R16 ■2) ·
+ * 없으면 category 대응표.
  */
 export function readNewsLine(
   item: unknown,
@@ -434,19 +579,17 @@ export function readNewsLine(
       ? null
       : pullKind;
   if (!kind) return no('source_type_missing');
-  let subtype: string[] | null;
-  let topic: string | null = null;
   const cat = text(r.category)?.replace(/\s+/g, '') ?? '';
-  if (r.subtype !== undefined) {
-    subtype = subtypesOf(r.subtype);
-    topic = CATEGORY_MAP[cat]?.topic ?? null;
-  } else {
-    subtype = CATEGORY_MAP[cat]?.subtype ?? [];
-    topic = CATEGORY_MAP[cat]?.topic ?? null;
-  }
-  if (!subtype) return no('subtype_unknown');
+  // subtype 이 오면 그 값(대응표 · 모르는 값은 표시만 · SOC-R16 ■2) · 없으면 category 대응표(옛 꼴)
+  const read =
+    r.subtype !== undefined
+      ? subtypesOf(r.subtype)
+      : { ids: CATEGORY_MAP[cat]?.subtype ?? [], unknown: [] };
+  const subtype = read.ids;
+  const topic = CATEGORY_MAP[cat]?.topic ?? null;
   const payload: Record<string, unknown> = {};
   for (const k of Object.keys(r)) if (NEWS_KEYS.has(k)) payload[k] = r[k];
+  if (read.unknown.length > 0) payload[UNKNOWN_SUBTYPE_KEY] = read.unknown;
   const slug = `addicted-news:${kind}:${id}`;
   return {
     line: {
@@ -644,14 +787,23 @@ export interface InboxRowView {
   payload: Record<string, unknown>;
 }
 
-/** 손님에게 서나(§6-3) — upstream public ∧ keep(물려받은 keep 도 · C1 「그대로」) */
+/**
+ * 손님에게 서나(§6-3) — upstream public ∧ keep(물려받은 keep 도 · C1 「그대로」) ·
+ * KCI 유래는 이용 기간(use_until)이 지나면 서지 않음(SOC-R16 ■3 · 행 지움 0)
+ */
 export const isGuestVisible = (
-  r: Pick<InboxRowView, 'upstream' | 'reviewDecision'>,
-) => r.upstream === 'public' && r.reviewDecision === 'keep';
+  r: Pick<InboxRowView, 'upstream' | 'reviewDecision'> &
+    Partial<Pick<InboxRowView, 'payload'>>,
+  now: Date = new Date(),
+) =>
+  r.upstream === 'public' &&
+  r.reviewDecision === 'keep' &&
+  !(r.payload && isKciCard(r.payload) && kciExpired(r.payload, now));
 
-/** 화면 규칙(§5): 허용 넷이면 소화한 발견도 · 그 밖은 제목 + 원문 링크만 */
+/** 화면 규칙(§5): 허용 넷이면 소화한 발견도 · 그 밖은 제목 + 원문 링크만 · KCI 유래 = 발견 0(짧은 인용만) */
 function findingsFor(r: InboxRowView): string[] | null {
   if (r.origin !== 'statory') return null;
+  if (isKciCard(r.payload)) return null;
   if (!r.licence || !LICENCE_CORPUS.includes(r.licence)) return null;
   const f = r.payload.key_findings;
   if (typeof f === 'string' && f.trim()) return [f.trim()];
@@ -668,21 +820,83 @@ function findingsFor(r: InboxRowView): string[] | null {
  * 손님 응답 — 검수 칸 · 표식(keep_from_version) · 열쇠 기록은 **싣지 않는다**(C1: 이어받은 keep 은 손님에게
  * 여느 승인과 똑같이 보임).
  */
-export function guestView(rows: InboxRowView[]) {
-  return rows.filter(isGuestVisible).map((r) => ({
-    slug: r.slug,
-    title: r.title,
-    url: r.url,
-    grade: r.grade,
-    kind: r.kind,
-    subtype: r.subtype,
-    topic: r.topic,
-    keyFindings: findingsFor(r),
-    sourceEn:
-      r.origin === 'addicted-news' && typeof r.payload.sourceEn === 'string'
-        ? r.payload.sourceEn
-        : null,
-  }));
+export function guestView(
+  rows: InboxRowView[],
+  now: Date = new Date(),
+  kciPaperKeys: Iterable<string> = [],
+) {
+  // 같은 논문의 어떤 판이든 KCI 유래면, 그 논문의 KCI 아닌 옛 판은 손님에게 내지 않는다
+  // (옛 판의 발견 · 본문이 KCI 규칙을 비켜 서지 않게 · 리뷰 B2 — withdrawn 은 전부 당기기 뒤에만 돌아서).
+  // kciPaperKeys = 표 전체(결정 · upstream 무관)의 KCI 논문 열쇠 — 손님 줄만 보면 KCI 판이 보류·숨김일 때 놓침(반박 1)
+  const kciKeys = new Set([
+    ...kciPaperKeys,
+    ...rows
+      .filter((r) => r.origin === 'statory' && isKciCard(r.payload))
+      .map((r) => r.paperKey),
+  ]);
+  return rows
+    .filter((r) => isGuestVisible(r, now))
+    .filter(
+      (r) =>
+        r.origin !== 'statory' ||
+        isKciCard(r.payload) ||
+        !kciKeys.has(r.paperKey),
+    )
+    .map((r) => {
+      const kci = r.origin === 'statory' && isKciCard(r.payload);
+      return {
+        slug: r.slug,
+        title: r.title,
+        url: r.url,
+        grade: r.grade,
+        kind: r.kind,
+        subtype: r.subtype,
+        topic: r.topic,
+        keyFindings: findingsFor(r),
+        sourceEn:
+          r.origin === 'addicted-news' && typeof r.payload.sourceEn === 'string'
+            ? r.payload.sourceEn
+            : null,
+        // SOC-R16 ■3 — KCI 유래면 출처 표시 + 짧은 인용(≤2문장) · 그 밖 null
+        source: kci ? KCI_SOURCE.value : null,
+        quote: kci ? shortQuote(r.payload.quote) : null,
+      };
+    });
+}
+
+/** 화면 바닥 출처 줄 — 보이는 항목에 KCI 유래가 하나라도 있을 때만(ko · en) · 없으면 null */
+export function kciCreditOf(
+  items: { source: string | null }[],
+): typeof KCI_CREDIT | null {
+  return items.some((i) => i.source === KCI_SOURCE.value) ? KCI_CREDIT : null;
+}
+
+/** 손님 응답 — 항목 + 바닥 출처 줄(KCI 유래가 보일 때만) */
+export function guestResponse(
+  rows: InboxRowView[],
+  now: Date = new Date(),
+  kciPaperKeys: Iterable<string> = [],
+) {
+  const items = guestView(rows, now, kciPaperKeys);
+  return { items, credit: kciCreditOf(items) };
+}
+
+/**
+ * 결정이 있는 행에 KCI 줄이 다시 왔을 때의 payload — **좁히기만**(반박 2): KCI 꼴 칸으로 줄이되,
+ * 사람이 본 인용(quote)은 그대로 두고(없었으면 새 인용 없음) · use_until 은 더 이른 쪽.
+ */
+export function kciNarrowPayload(
+  stored: Record<string, unknown>,
+  incoming: Record<string, unknown>,
+): Record<string, unknown> {
+  const out: Record<string, unknown> = { ...incoming };
+  delete out.quote;
+  if (typeof stored.quote === 'string') out.quote = stored.quote;
+  // 둘 중 먼저 끝나는 쪽(없음 = 끝 없음 · 못 읽음 = 이미 끝남)
+  const a = useUntilEnd(stored.use_until);
+  const b = useUntilEnd(incoming.use_until);
+  if (a !== null && (b === null || a < b)) out.use_until = stored.use_until;
+  return out;
 }
 
 /** 관리자 검수 꼬리표 — 물려받은 keep 이면 「이전 판 승인」(C1) */
@@ -719,7 +933,35 @@ export function adminView(r: InboxRowView) {
         : null,
     keyMovedFrom: r.keyMovedFrom,
     guestVisible: isGuestVisible(r),
+    // SOC-R16 ■2 · ■3 — 대응표에 없는 하위 유형(보낸 그대로) · KCI 유래 표시
+    unknownSubtype: Array.isArray(r.payload[UNKNOWN_SUBTYPE_KEY])
+      ? (r.payload[UNKNOWN_SUBTYPE_KEY] as unknown[]).map(String)
+      : [],
+    source:
+      r.origin === 'statory' && isKciCard(r.payload) ? KCI_SOURCE.value : null,
   };
+}
+
+// ── Statory 공개 자리 설정 칸(SOC-R16 ■4 · Statory ASK-58 ■3) ─────────────────
+
+/**
+ * 주소 · 읽기 열쇠 env 이름 — 값은 Render env(11월 오너) · 코드·문서에 값 0.
+ * SOC-R15 의 옛 이름 ECO_STATORY_EXPORT_URL 은 읽지 않는다 — 「새 이름이 비면 미설정 · 당김 0」 하나로
+ * (옛 주소로 새 열쇠가 나가는 일 0 · 리뷰 B 규칙 3).
+ */
+export const ECO_SOURCE_LATEST_URL = 'ECO_SOURCE_LATEST_URL';
+export const ECO_SOURCE_READ_KEY = 'ECO_SOURCE_READ_KEY';
+/** 읽기 열쇠를 싣는 요청 머리 — ASK-58 문서가 다른 이름을 정하면 여기 한 곳만 */
+export const ECO_SOURCE_READ_HEADER = 'x-export-key';
+
+/** Statory 당기기 설정 — URL 이 비면 null(「미설정」 · 당기지 않음) · 열쇠가 있으면 머리에 싣는다 */
+export function statorySource(
+  env: Record<string, string | undefined> = process.env,
+): { url: string; headers: Record<string, string> } | null {
+  const url = env[ECO_SOURCE_LATEST_URL]?.trim();
+  if (!url) return null;
+  const key = env[ECO_SOURCE_READ_KEY]?.trim();
+  return { url, headers: key ? { [ECO_SOURCE_READ_HEADER]: key } : {} };
 }
 
 // ── 스위치 ───────────────────────────────────────────────────────────────

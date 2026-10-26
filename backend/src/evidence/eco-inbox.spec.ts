@@ -46,14 +46,18 @@ describe('받는 문 — Statory 내보내기 (SOC-R15 ■4 · 계약 v1.4 §6)'
     expect(read.lines.map((l) => l.paperKey)).toEqual([
       'paper:item-41',
       'paper:item-42',
+      'paper:item-44',
       'card:6f1c0e2a-0000-4000-8000-000000000006',
     ]);
     expect(read.rejected).toEqual([
       { index: 2, reason: 'paper_id_duplicate' },
-      { index: 3, reason: 'subtype_unknown' }, // 별칭 internet(§1)
       { index: 4, reason: 'doi_missing' },
     ]);
-    const [a, b, thin] = read.lines;
+    const [a, b, gaming, thin] = read.lines;
+    // SOC-R16 ■2: 대응표에 없는 internet 은 거절 0 — 아는 값만 subtype · 모르는 값은 표시
+    expect(gaming.subtype).toEqual(['gaming']);
+    expect(gaming.payload.unknown_subtype).toEqual(['internet']);
+    expect(gaming.payload.addiction_type).toEqual(['gaming', 'internet']);
     expect(a).toMatchObject({
       origin: 'statory',
       slug: 'statory:card:6f1c0e2a-0000-4000-8000-000000000001',
@@ -165,14 +169,19 @@ describe('받는 문 — Statory 내보내기 (SOC-R15 ■4 · 계약 v1.4 §6)'
 });
 
 describe('받는 문 — 중독뉴스 export v0 (SOC-R15 ■4 · 계약 §7)', () => {
-  it('Q12 shape: sourceType → grade, subtype ids, sourceEn kept; alias/non-id subtype rejected (§1)', () => {
+  it('Q12 shape: sourceType → grade, subtype ids, sourceEn kept; digital read as smartphone (SOC-R16 ■2)', () => {
     const page = readNewsPage(fixture('news-export-v0.json'))!;
     const read = readNewsLines([{ items: page.items, kind: 'article' }]);
     expect(read.lines.map((l) => l.slug)).toEqual([
       'addicted-news:article:5672',
       'addicted-news:broadcast:5873',
       'addicted-news:article:5700',
+      'addicted-news:article:5701',
     ]);
+    // 「게임·디지털」 = gaming · digital → gaming · smartphone(보낸 값은 payload 에 그대로)
+    expect(read.lines[3].subtype).toEqual(['gaming', 'smartphone']);
+    expect(read.lines[3].payload.subtype).toEqual(['gaming', 'digital']);
+    expect(read.lines[3].payload).not.toHaveProperty('unknown_subtype');
     expect(read.lines[1]).toMatchObject({
       grade: 'broadcast',
       kind: 'broadcast',
@@ -181,10 +190,7 @@ describe('받는 문 — 중독뉴스 export v0 (SOC-R15 ■4 · 계약 §7)', (
     expect(read.lines[1].payload.sourceEn).toBe('MBC PD Notebook');
     // 「중독사회와 회복」 = topic recovery
     expect(read.lines[2].topic).toBe('recovery');
-    expect(read.rejected).toEqual([
-      { index: 3, reason: 'subtype_unknown' }, // digital
-      { index: 4, reason: 'title_missing' },
-    ]);
+    expect(read.rejected).toEqual([{ index: 4, reason: 'title_missing' }]);
     expect(page.nextCursor).toBeNull();
   });
 
@@ -367,14 +373,12 @@ describe('승인 잇기 — 계획 planInbox (SOC-R15 ■1 · ■2 · ■4)', ()
     );
     expect(plan.withdraw).toEqual([2]);
     expect(planInbox([kept, other], [], true, null).withdraw).toEqual([]);
-    // 실물 fixture: 거절 줄(겹친 paper_id · 별칭 · DOI 없음)의 slug 는 지켜진다
+    // 실물 fixture: 거절 줄(겹친 paper_id · DOI 없음)의 slug 는 지켜진다(별칭 줄은 SOC-R16 ■2 부터 받음)
     const { read } = cardLines('statory-export.json');
     expect([...read.protect!].sort()).toEqual([
       'paper:item-41',
-      'paper:item-44',
       'paper:item-45',
       'statory:card:6f1c0e2a-0000-4000-8000-000000000003',
-      'statory:card:6f1c0e2a-0000-4000-8000-000000000004',
       'statory:card:6f1c0e2a-0000-4000-8000-000000000005',
     ]);
     // 반박 1: 새 판(새 card_id)이 거절되면 앞 판 행(다른 slug · 같은 논문)도 지켜진다
@@ -393,13 +397,9 @@ describe('승인 잇기 — 계획 planInbox (SOC-R15 ■1 · ■2 · ■4)', ()
         kind: 'article',
       },
     ]);
+    // 5701(digital)은 SOC-R16 ■2 부터 받는 줄 — 지킬 거절 줄은 5702(제목 없음)만
     expect(news.protect).toEqual(
-      new Set([
-        'addicted-news:article:5701',
-        'addicted-news:broadcast:5701',
-        'addicted-news:article:5702',
-        'addicted-news:broadcast:5702',
-      ]),
+      new Set(['addicted-news:article:5702', 'addicted-news:broadcast:5702']),
     );
     // id 가 없는 줄이 거절되면 지킬 것을 모름 → null
     expect(
@@ -497,6 +497,8 @@ describe('C1 — 이어받은 keep 은 손님에게 그대로 · 관리자에게
       topic: null,
       keyFindings: ['f'],
       sourceEn: null,
+      source: null,
+      quote: null,
     });
     expect(JSON.stringify(inherited)).not.toMatch(
       /keep_?[Ff]rom|이전 판|reviewed/,

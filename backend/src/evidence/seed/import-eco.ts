@@ -6,7 +6,8 @@
  * 켜면 매일 예약(04:00)에도 이 단계가 붙는다(dailySteps · refresh:home 앞).
  *
  * 원천(읽기만 · GET):
- *  - Statory: env ECO_STATORY_EXPORT_URL(build-evidence-export.mjs 가 쓴 latest.json 을 내주는 주소) — 없으면 건너뜀.
+ *  - Statory: env ECO_SOURCE_LATEST_URL(Statory 공개 자리 · ASK-58 ■3 · SOC-R16 ■4) + 읽기 열쇠 ECO_SOURCE_READ_KEY
+ *    (요청 머리 ECO_SOURCE_READ_HEADER · 값은 적지 않음) — URL 이 비면 「미설정」 한 줄만(옛 이름 ECO_STATORY_EXPORT_URL 은 읽지 않음).
  *  - 중독뉴스: `${ADDICTION_NEWS_API_URL}/api/export/articles?kind=article|broadcast&tier=publish&cursor=` ·
  *    열쇠 env ECO_NEWS_EXPORT_KEY(요청 머리 x-export-key · 값은 적지 않음) — 없으면 건너뜀.
  * 쓰기: 넣기(ON CONFLICT DO NOTHING) · 본 행 last_seen · 빠진 행 upstream='withdrawn' · C2 열쇠 옮김 — 행 지움 0.
@@ -20,10 +21,14 @@ import { envelopeJobCounts, readEnvelope } from '../card-envelope';
 import {
   ecoInboxEnabled,
   ECO_INBOX_SWITCH,
+  ECO_SOURCE_LATEST_URL,
+  isKciCard,
+  kciNarrowPayload,
   planInbox,
   readCardLines,
   readNewsLines,
   readNewsPage,
+  statorySource,
   type InboxLine,
   type InboxPlan,
   type LinesRead,
@@ -44,6 +49,8 @@ async function getJson(
 ): Promise<unknown> {
   const res = await fetch(url, {
     headers: { Accept: 'application/json', ...headers },
+    // 열쇠 머리가 다른 주소로 따라가지 않게 — 넘겨주기(redirect)는 실패로(리뷰 B 규칙 3)
+    redirect: 'error',
     signal: AbortSignal.timeout(60_000),
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -60,11 +67,11 @@ interface Pulled {
 }
 
 async function pullStatory(prev: string | null): Promise<Pulled | string> {
-  const url = process.env.ECO_STATORY_EXPORT_URL?.trim();
-  if (!url) return 'Statory 주소 없음(ECO_STATORY_EXPORT_URL) → 건너뜀';
+  const src = statorySource();
+  if (!src) return `Statory 미설정(${ECO_SOURCE_LATEST_URL} 빈 값) → 건너뜀`;
   let body: unknown;
   try {
-    body = await getJson(url);
+    body = await getJson(src.url, src.headers);
   } catch (e) {
     return `Statory 못 읽음(${(e as Error).message}) → 건너뜀`;
   }
@@ -278,6 +285,26 @@ async function applyOrigin(m: EntityManager, p: Pulled): Promise<Applied> {
         JSON.stringify(l.payload),
       ],
     );
+    // KCI 유래로 바뀐(또는 KCI 인) 줄은 **결정이 있는 행**도 payload 를 KCI 꼴(서지 + 링크 + 인용)로 줄인다(리뷰 B1 ·
+    // 초록 · 발견이 옛 payload 에 남지 않게). 좁히기만(반박 2): 사람이 본 인용은 그대로 · use_until 은 이른 쪽(kciNarrowPayload).
+    // 검토 대기 행은 위 UPDATE 가 이미 새 payload 로 맞춤.
+    if (isKciCard(l.payload)) {
+      const cur: { payload: Record<string, unknown> | null }[] = await m.query(
+        `SELECT "payload" FROM "eco_inbox"
+          WHERE "id" = $1 AND ("review_decision" IS NOT NULL OR "reviewed_at" IS NOT NULL)`,
+        [id],
+      );
+      if (cur.length > 0) {
+        const next = JSON.stringify(
+          kciNarrowPayload(cur[0].payload ?? {}, l.payload),
+        );
+        await m.query(
+          `UPDATE "eco_inbox" SET "payload" = $2::jsonb
+            WHERE "id" = $1 AND "payload" IS DISTINCT FROM $2::jsonb`,
+          [id, next],
+        );
+      }
+    }
   }
   const withdrawn = plan.withdraw.length
     ? updatedCount(

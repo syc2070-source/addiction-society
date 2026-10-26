@@ -2,6 +2,7 @@ import {
   archiveListDecision,
   archiveListIds,
   archiveListScope,
+  feedOnlyDecision,
   parseArchiveList,
   SOURCE_ARCHIVED,
   SOURCE_DELETED,
@@ -85,67 +86,94 @@ describe('보관 목록 정본 판정 archiveListScope (SOC-R15 ■3)', () => {
   });
 });
 
-describe('「목록이 정본」 규칙 (SOC-R15 ■3)', () => {
+/**
+ * SOC-R16 ■1 「목록 정본 v1 · 부재 추론 0」 — 숨김은 목록 짝(news_id ∨ videoId)의 tier 로만.
+ * 10-26 13:1x 실측: ?tier=all = days null · truncated false · count 59(archive 38 · publish 21 · videoId 59/59) ·
+ * 연대기 21 = 방송 목록 21 = publish 21.
+ */
+describe('목록 정본 v1 · 부재 추론 0 (SOC-R16 ■1)', () => {
   const stored = [
     row(1), // 방송 목록에 있음
     row(2), // publish(방송 목록 50 밖)
     row(3), // 목록에 없음(막힘 따위)
-    row(4, SOURCE_ARCHIVED), // 120일 넘게 숨긴 편 — 전 기간 publish 로 돌아옴
+    row(4, SOURCE_ARCHIVED), // 오래 숨긴 편 — 전 기간 publish 로 돌아옴
     row(5, 'owner_hidden'), // 사람 숨김
     row(6, null, null), // news_id 도 영상 id 도 없는 행
+    row(7), // archive 로 짝
+    row(8), // deleted 로 짝
   ];
-  const list = [entry(2, 'publish'), entry(4, 'publish')];
+  const list = [
+    entry(2, 'publish'),
+    entry(4, 'publish'),
+    entry(7, 'archive'),
+    entry(8, 'deleted'),
+  ];
   const feed = new Set([u(1)]);
 
-  it('wait (not canonical): rows missing from both lists stay as they are (counted only)', () => {
+  it('hides only by a list match (archive / deleted); a row missing from the list stays visible', () => {
     const d = archiveListDecision(stored, list, feed);
-    expect(d.hideUnlisted).toEqual([]);
+    expect(d.held).toBeNull();
+    expect(d.hide).toEqual([7]);
+    expect(d.hideDeleted).toEqual([8]);
     expect(d.unlisted.sort()).toEqual([3, 6]);
     expect(d.unhide).toEqual([4]);
-  });
-
-  it('canonical: a visible row missing from both lists comes down as source_unlisted; publish brings old hidden ones back', () => {
-    const d = archiveListDecision(stored, list, feed, { canonical: true });
-    expect(d.hideUnlisted).toEqual([3]);
-    // 리뷰 B5: news_id 를 모르는(영상 id 로도 못 맞춘) 행은 「없음」이 아니라 「못 맞춤」 → 그대로
-    expect(d.unlisted).toEqual([6]);
-    expect(d.unhide).toEqual([4]);
-    expect(d.hide).toEqual([]);
     // 사람 숨김 · 방송 목록에 있는 행은 그대로
-    expect(d.hideUnlisted).not.toContain(5);
-    expect(d.hideUnlisted).not.toContain(1);
+    expect([...d.hide, ...d.hideDeleted]).not.toContain(5);
+    expect([...d.hide, ...d.hideDeleted]).not.toContain(1);
   });
 
-  it('canonical: an unlisted row that comes back (feed or publish) shows again; archive/deleted re-label it', () => {
-    const rows = [
-      row(3, SOURCE_UNLISTED),
-      row(7, SOURCE_UNLISTED),
-      row(8, SOURCE_UNLISTED),
-      row(9, SOURCE_UNLISTED),
-    ];
+  it('a list match by video id (no news_id yet) hides the same way', () => {
+    const r: StoredBroadcast = {
+      id: 9,
+      url: 'https://youtu.be/Ab3dEfGhIjK',
+      hiddenReason: null,
+      newsId: null,
+    };
     const d = archiveListDecision(
-      rows,
-      [entry(7, 'publish'), entry(8, 'archive'), entry(9, 'deleted')],
-      new Set([u(3)]),
-      { canonical: true },
+      [r],
+      [{ ...entry(9, 'archive'), videoId: 'Ab3dEfGhIjK' }],
+      new Set(),
     );
-    expect(d.unhide.sort()).toEqual([3, 7]);
-    expect(d.hide).toEqual([8]);
-    expect(d.hideDeleted).toEqual([9]);
-    // 이미 source_unlisted 인 행은 다시 내리지 않음
-    expect(d.hideUnlisted).toEqual([]);
+    expect(d.hide).toEqual([9]);
+    expect(d.idFill).toEqual([{ id: 9, newsId: nid(9) }]);
   });
 
-  it('canonical but empty list: hold (never hides everything on a broken day)', () => {
-    const d = archiveListDecision(stored, [], feed, { canonical: true });
-    expect(d.held).toBe('empty_list');
-    expect(d.hideUnlisted).toEqual([]);
+  it('empty list or truncated list: hide 0 (positive evidence may still bring rows back)', () => {
+    const empty = archiveListDecision(stored, [], feed);
+    expect(empty.held).toBe('empty_list');
+    expect([...empty.hide, ...empty.hideDeleted]).toEqual([]);
+    const cut = archiveListDecision(stored, list, feed, { truncated: true });
+    expect(cut.held).toBe('truncated_list');
+    expect([...cut.hide, ...cut.hideDeleted]).toEqual([]);
+    expect(cut.unhide).toEqual([4]);
   });
 
-  it('end to end from a response: days null + truncated false → canonical → unlisted row hidden; an unknown-tier line still counts as listed', () => {
+  it('an old source_unlisted row (SOC-R15 absence) shows again unless the list carries it under any tier', () => {
+    const rows = [
+      row(3, SOURCE_UNLISTED), // 응답 어디에도 없음 → 다시 보임
+      row(7, SOURCE_UNLISTED), // archive 로 짝 → 까닭만 바꿈
+      row(10, SOURCE_UNLISTED), // 모르는 tier 줄로 실림 → 그대로
+    ];
+    const ids = new Set([nid(7), nid(10)]);
+    const d = archiveListDecision(rows, [entry(7, 'archive')], new Set(), {
+      listedIds: ids,
+    });
+    expect(d.unhide).toEqual([3]);
+    expect(d.hide).toEqual([7]);
+    // 잘린 날은 부재를 근거로 쓰지 않음
+    const cut = archiveListDecision(rows, [entry(7, 'archive')], new Set(), {
+      listedIds: ids,
+      truncated: true,
+    });
+    expect(cut.unhide).toEqual([]);
+  });
+
+  it('end to end from the 10-26 shape: days null + truncated false → canonical, yet a row missing from the list is not hidden', () => {
     const body = {
-      available: true,
+      kind: 'broadcast',
+      tier: 'all',
       days: null,
+      available: true,
       truncated: false,
       items: [
         { id: nid(2), tier: 'publish', changedAt: null, videoId: null },
@@ -157,19 +185,31 @@ describe('「목록이 정본」 규칙 (SOC-R15 ■3)', () => {
         },
       ],
     };
+    const scope = archiveListScope(body);
+    expect(scope).toEqual({
+      publishAllTime: true,
+      truncated: false,
+      canonical: true,
+    });
     const d = archiveListDecision(
       [row(2), row(3), row(4)],
       parseArchiveList(body)!,
       new Set(),
-      {
-        canonical: archiveListScope(body).canonical,
-        listedIds: archiveListIds(body),
-      },
+      { truncated: scope.truncated, listedIds: archiveListIds(body) },
     );
-    expect(d.hideUnlisted).toEqual([3]);
-    // 모르는 tier 로 읽지 않은 줄의 편은 목록에 있다 → 내리지 않음(리뷰 B5)
-    expect(d.unlisted).toEqual([4]);
+    expect([...d.hide, ...d.hideDeleted]).toEqual([]);
+    expect(d.unlisted.sort()).toEqual([3, 4]);
     expect(archiveListIds(body)).toEqual(new Set([nid(2), nid(4)]));
     expect(SOURCE_DELETED).toBe('source_deleted');
+  });
+});
+
+describe('보관 목록을 못 읽은 날 feedOnlyDecision (SOC-R16 ■1)', () => {
+  it('missing from the feed is not a reason to hide; back in the feed shows again', () => {
+    const d = feedOnlyDecision(
+      [row(1), row(2), row(3, SOURCE_ARCHIVED), row(4, 'owner_hidden')],
+      new Set([u(3), u(4)]),
+    );
+    expect(d).toEqual({ hide: [], unhide: [3], held: 'no_list' });
   });
 });

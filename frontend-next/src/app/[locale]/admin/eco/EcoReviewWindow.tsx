@@ -25,6 +25,10 @@ interface EcoItem {
   inheritedKeep: { label: string; fromVersion: string } | null;
   keyMovedFrom: string | null;
   guestVisible: boolean;
+  /** 대응표에 없는 하위 유형(보낸 그대로 · SOC-R16 ■2) */
+  unknownSubtype?: string[];
+  /** KCI 유래 카드면 'kci'(SOC-R16 ■3) */
+  source?: string | null;
 }
 
 const TABS: { key: Tab; label: string }[] = [
@@ -208,6 +212,12 @@ export default function EcoReviewWindow({ apiUrl }: { apiUrl: string }) {
                   <span className="tag">열쇠 옮김: {it.keyMovedFrom}</span>
                 )}{' '}
                 {it.licence && <span className="tag">면허 {it.licence}</span>}{' '}
+                {it.source === 'kci' && <span className="tag">KCI 유래</span>}{' '}
+                {it.unknownSubtype && it.unknownSubtype.length > 0 && (
+                  <span className="tag tag-warn">
+                    모르는 하위 유형 {it.unknownSubtype.join(', ')}
+                  </span>
+                )}{' '}
                 {it.missing && it.missing.length > 0 && (
                   <span className="tag">빈 칸 {it.missing.join(', ')}</span>
                 )}{' '}

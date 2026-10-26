@@ -106,8 +106,36 @@ export interface ArchiveDecision {
   hide: number[];
   /** 다시 보일 행(source_archived 로 내렸는데 목록에 다시 있음) */
   unhide: number[];
-  /** 내리기를 하지 않은 까닭(빈 목록 · 꽉 찬 목록 · 빈 보관 목록) — null 이면 판정함 */
-  held: 'empty_feed' | 'full_feed' | 'empty_list' | null;
+  /**
+   * 내리기를 하지 않은 까닭(빈 목록 · 꽉 찬 목록 · 빈 보관 목록 · 잘린 보관 목록 · 보관 목록 없음) — null 이면 판정함
+   */
+  held:
+    | 'empty_feed'
+    | 'full_feed'
+    | 'empty_list'
+    | 'truncated_list'
+    | 'no_list'
+    | null;
+}
+
+/**
+ * 보관 목록을 못 읽은 날(주소 없음 · 못 닿음 · 꼴 틀림 · available false) — SOC-R16 ■1 「목록 정본 v1 · 부재 추론 0」.
+ * 방송 목록에서 빠졌다는 것만으로는 내리지 않는다(hide 0 · held no_list). 방송 목록에 다시 실린 편만 다시 보임.
+ * (archiveDecision 은 SOC-R12 옛 규칙 · 이제 수집이 부르지 않음 — 시험이 옛 규칙을 지키려고 남김)
+ */
+export function feedOnlyDecision(
+  stored: StoredBroadcast[],
+  feedUrls: Set<string>,
+): ArchiveDecision {
+  const unhide = stored
+    .filter(
+      (r) =>
+        r.hiddenReason != null &&
+        SOURCE_REASONS.includes(r.hiddenReason) &&
+        feedUrls.has(r.url),
+    )
+    .map((r) => r.id);
+  return { hide: [], unhide, held: 'no_list' };
 }
 
 /**
@@ -255,6 +283,8 @@ export interface ArchiveListScope {
  * **응답이 스스로 말할 때만**: `publishAllTime: true`(또는 publish_all_time) · `publishDays: null` ·
  * `days: null`(days = 실림에만 거는 날 수 · NEWS-Q15 docs). 10-25 실측 = `days: 120` → false(대기).
  * `truncated: true` 거나 꼴을 모르면 정본이 아니다(지금 규칙 · 「목록에 없으면 그대로」).
+ * SOC-R16 ■1: 10-26 실측 = `days: null` · `truncated: false` → canonical. 정본이어도 부재로 내리지 않는다 —
+ * canonical 은 로그에만 쓰고, 숨김에는 `truncated` 만 쓴다(잘리면 숨김 0).
  */
 export function archiveListScope(body: unknown): ArchiveListScope {
   const env =
@@ -277,10 +307,8 @@ export interface ArchiveListDecision extends ArchiveDecision {
   hide: number[];
   /** 내릴 행 → source_deleted(보이는 행 · 또는 source_archived 였다가 지워진 행) */
   hideDeleted: number[];
-  /** 보이는데 방송 목록에도 보관 목록에도 없는 행 — 내리지 않고 수만 적는다(넘겨짚지 않음 · 정본이 아닐 때) */
+  /** 보이는데 방송 목록에도 보관 목록에도 없는 행 — 내리지 않고 수만 적는다(부재 추론 0 · SOC-R16 ■1) */
   unlisted: number[];
-  /** 정본 목록(SOC-R15 ■3)에서 그 목록에 없는 보이는 행 → source_unlisted · 정본이 아니면 늘 [] */
-  hideUnlisted: number[];
   /** news_id 를 모르던 행 가운데 영상 id 로 짝을 찾은 것 → news_id 채움 */
   idFill: { id: number; newsId: number }[];
 }
@@ -293,11 +321,11 @@ export interface ArchiveListDecision extends ArchiveDecision {
  *    이미 원천 까닭으로 숨긴 행의 까닭이 바뀌면(보관 → 지움) 까닭만 바꾼다.
  *  - 다시 보임(원천 까닭 둘만): 방송 목록에 다시 있음 ∨ 짝이 tier=publish(같은 news_id 가 이미 보이는 행에 있으면 옛 행은 안 살림).
  *    「보관 목록에 없음」만으로는 다시 보이지 않는다(지운 편이 tier deleted 로 오기 전 · 120일 창 밖 실림).
- *  - 짝이 없는 행: 내리지 않고 「두 목록에 없음」으로 센다.
- *  - 빈 목록: 내리지 않는다(held empty_list) — 방송 목록에 다시 있는 편은 다시 보임.
- *  - SOC-R15 ■3(CTO C3): canonical(전 기간 publish ∧ 잘리지 않음 · archiveListScope) 이면 「목록이 정본」 —
- *    보이는데 방송 목록에도 보관 목록에도 없는 행은 source_unlisted 로 내린다(행 지움 0 · 다시 실리면 다시 보임).
- *    정본이 아니면 지금 규칙(「두 목록에 없음」 = 그대로 · 수만).
+ *  - SOC-R16 ■1 「목록 정본 v1 · 부재 추론 0」: 숨김은 목록 짝(news_id ∨ videoId)의 tier 로만.
+ *    짝이 없는 보이는 행은 내리지 않고 「두 목록에 없음」으로 센다(목록에 없으면 보임 · 전 기간 목록이어도).
+ *    SOC-R15 의 source_unlisted(부재로 내림)는 더 만들지 않고, 그 까닭으로 내려 둔 행은 짝이 없으면 다시 보인다.
+ *  - 빈 목록(held empty_list) · 잘린 목록(opts.truncated · held truncated_list): 숨김 0 —
+ *    방송 목록에 다시 있는 편 · 짝이 publish 인 편은 다시 보임(있다는 근거만 씀).
  * 사람이 다른 까닭으로 내린 행은 건드리지 않는다(archiveDecision 과 같음).
  */
 export function archiveListDecision(
@@ -305,7 +333,8 @@ export function archiveListDecision(
   list: ArchiveListEntry[],
   feedUrls: Set<string>,
   opts: {
-    canonical?: boolean;
+    /** 응답이 truncated 가 아니라고 말하지 않았다(archiveListScope.truncated) → 숨김 0 */
+    truncated?: boolean;
     /** 응답에 실린 모든 id(모르는 tier 줄 포함 · archiveListIds) — 없으면 읽은 줄의 id */
     listedIds?: { has(id: number): boolean };
   } = {},
@@ -351,12 +380,12 @@ export function archiveListDecision(
     const e = videoEntry(r);
     return e && claims.get(e.id) === 1 ? e : undefined;
   };
-  const held = list.length === 0 ? 'empty_list' : null;
+  const held =
+    list.length === 0 ? 'empty_list' : opts.truncated ? 'truncated_list' : null;
 
   const hide: number[] = [];
   const hideDeleted: number[] = [];
   const unlisted: number[] = [];
-  const hideUnlisted: number[] = [];
   const idFill: { id: number; newsId: number }[] = [];
   const visibleIds = new Set<number>();
   const matched = new Map<number, ArchiveListEntry | undefined>();
@@ -381,13 +410,8 @@ export function archiveListDecision(
       r.hiddenReason != null && SOURCE_REASONS.includes(r.hiddenReason);
     if (!visible && !bySource) continue;
     if (!e) {
-      if (!visible) continue;
-      // 「목록에 없음」을 아는 것은 news_id 를 아는 행뿐 — 영상 id 로 못 맞춘 행 · 모르는 tier 로 빠진 줄은
-      // 「없음」이 아니라 「못 맞춤」이라 그대로(리뷰 B5)
-      const absent =
-        r.newsId != null && !(opts.listedIds ?? latest).has(r.newsId);
-      if (opts.canonical && !held && absent) hideUnlisted.push(r.id);
-      else unlisted.push(r.id);
+      // 짝 없음 = 내리지 않음(부재 추론 0 · SOC-R16 ■1)
+      if (visible) unlisted.push(r.id);
       continue;
     }
     if (held) continue;
@@ -404,8 +428,15 @@ export function archiveListDecision(
       }
       if (feedUrls.has(r.url)) return true;
       const e = matched.get(r.id);
-      return e?.tier === 'publish' && !visibleIds.has(e.id);
+      if (e) return e.tier === 'publish' && !visibleIds.has(e.id);
+      // 부재로 내렸던 행(SOC-R15 source_unlisted)은 그 근거가 없어졌으므로 다시 보임 — 목록이 멀쩡한 날만.
+      // 응답 어디에도(모르는 tier 줄 포함) 없는 편이어야 함: 모르는 tier 로 실린 편은 그대로 둔다.
+      return (
+        r.hiddenReason === SOURCE_UNLISTED &&
+        !held &&
+        !(r.newsId != null && opts.listedIds?.has(r.newsId))
+      );
     })
     .map((r) => r.id);
-  return { hide, hideDeleted, unhide, held, unlisted, hideUnlisted, idFill };
+  return { hide, hideDeleted, unhide, held, unlisted, idFill };
 }
