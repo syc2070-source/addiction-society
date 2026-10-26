@@ -39,10 +39,14 @@ describe('SOC-R8 ■2 roll-over rule', () => {
       '2026-10-03T04:00:00',
       '2026-10-18T04:00:00',
       '2026-10-31T23:00:00',
-      '2026-11-01T04:00:00', // 04:00 KST = 10-31 UTC — 아직 10월(월 판정은 UTC)
     ]) {
       expect(backfillPlan(drugfree, kst(at))).toBeNull();
     }
+    // SOC-R17 ■3: 달 경계는 KST — 11-01 04:00 KST 는 11월(SOC-R16 까지는 UTC 라 아직 10월이었다)
+    expect(backfillPlan(drugfree, kst('2026-11-01T04:00:00'))).toEqual({
+      to: '2026-11-01',
+      rolled: true,
+    });
     const src = readFileSync(
       join(__dirname, 'seed', 'backfill-next.ts'),
       'utf8',

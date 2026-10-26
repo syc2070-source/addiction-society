@@ -54,9 +54,9 @@ describe('받는 문 — Statory 내보내기 (SOC-R15 ■4 · 계약 v1.4 §6)'
       { index: 4, reason: 'doi_missing' },
     ]);
     const [a, b, gaming, thin] = read.lines;
-    // SOC-R16 ■2: 대응표에 없는 internet 은 거절 0 — 아는 값만 subtype · 모르는 값은 표시
-    expect(gaming.subtype).toEqual(['gaming']);
-    expect(gaming.payload.unknown_subtype).toEqual(['internet']);
+    // SOC-R17 ■2: internet 은 대응표(→ smartphone) · 모르는 값 표시 없음(보낸 값은 payload 에 그대로)
+    expect(gaming.subtype).toEqual(['gaming', 'smartphone']);
+    expect(gaming.payload.unknown_subtype).toBeUndefined();
     expect(gaming.payload.addiction_type).toEqual(['gaming', 'internet']);
     expect(a).toMatchObject({
       origin: 'statory',

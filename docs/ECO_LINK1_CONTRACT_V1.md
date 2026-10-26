@@ -1,6 +1,6 @@
 # ECO-LINK1 계약 v1 — 중독사회 · 중독뉴스 · Statory (SOC-R10 ■3)
 
-> 상태: **v1 · 2026-10-21 · 코드 0 · migration 0.** · **v1.1 · 2026-10-22(SOC-R11 ■1)**: 면허 철자 `licence` · 나가는 열쇠 `license` + `license_use`(Statory ASK-51 ⓑ) · §8 표 갱신. · **v1.2 · 2026-10-23(SOC-R12 ■3)**: §6-1 봉투 `card_version` · `missing[{id, fields}]` 선택 칸(없으면 옛 꼴) · §8 의 13·14 닫힘. · **v1.3 · 2026-10-24(SOC-R13 ■2)**: §6-1 `missing` 꼴을 Statory ASK-52 실물(main b6faee813 `envelopeMissingOf`) `{ id, fields }` 로 — `fields` = 필수 여섯 가운데 빈 것 · `id: null`(카드 id 가 빈 카드) 줄은 `missing_card_id_empty` · §8 의 15. · **v1.4 · 2026-10-24(SOC-R14 ■2)**: 줄 `paper_id`(선택 · Statory `item_id` · 판이 바뀌어도 같음) — keep/hide 와 상속의 열쇠를 `card_id`(판마다 다른 줄 id) 대신 `paper_id` 로 · 새 판은 앞 판의 **keep 도** 이어받고 표식 `keep_from_version`(「전 판 keep」) · 없으면 옛 꼴(card_id 열쇠) · §8 의 16. · **v1.5 · 2026-10-25(SOC-R15)**: CTO 판정 C1(이어받은 keep 은 손님에게 그대로 · 관리자 화면에만 「이전 판 승인」 꼬리표) · C2(paper_id 를 달고 다시 온 줄은 같은 `card_id` 의 옛 card 열쇠 결정을 paper 열쇠로 한 번 옮겨 적음 · 기록 `key_moved_from` · `key_moved_at`) · **받는 문 구현**(표 `eco_inbox` · `import:eco` · **스위치 `ECO_LINK1_INBOX_ENABLED` 꺼짐**) · §8 의 17 · 18 · §9 C7. 받는 문을 **켜는 때**는 따로 정한다(11월 1주 예정) — 이 문서가 그 판의 정본이다. · **v1.6 · 2026-10-26(SOC-R16)**: §1-1 **받는 쪽 subtype 대응표**(`tobacco`→`nicotine` · `digital`→`smartphone` · 모르는 값은 거절 0 · `unknown_subtype` 표시 · §9 C7 닫힘) · §6-5 **KCI 유래 카드**(`source=kci` · 초록 저장 0 · 서지 + KCI 링크 + 짧은 인용 ≤2문장 · 바닥 출처 줄) · §6-4 **Statory 공개 자리 설정 칸**(`ECO_SOURCE_LATEST_URL` · `ECO_SOURCE_READ_KEY` · 켜는 순서 셋) · §3-3 연대기 방송 **목록 정본 v1 · 부재 추론 0**.
+> 상태: **v1 · 2026-10-21 · 코드 0 · migration 0.** · **v1.1 · 2026-10-22(SOC-R11 ■1)**: 면허 철자 `licence` · 나가는 열쇠 `license` + `license_use`(Statory ASK-51 ⓑ) · §8 표 갱신. · **v1.2 · 2026-10-23(SOC-R12 ■3)**: §6-1 봉투 `card_version` · `missing[{id, fields}]` 선택 칸(없으면 옛 꼴) · §8 의 13·14 닫힘. · **v1.3 · 2026-10-24(SOC-R13 ■2)**: §6-1 `missing` 꼴을 Statory ASK-52 실물(main b6faee813 `envelopeMissingOf`) `{ id, fields }` 로 — `fields` = 필수 여섯 가운데 빈 것 · `id: null`(카드 id 가 빈 카드) 줄은 `missing_card_id_empty` · §8 의 15. · **v1.4 · 2026-10-24(SOC-R14 ■2)**: 줄 `paper_id`(선택 · Statory `item_id` · 판이 바뀌어도 같음) — keep/hide 와 상속의 열쇠를 `card_id`(판마다 다른 줄 id) 대신 `paper_id` 로 · 새 판은 앞 판의 **keep 도** 이어받고 표식 `keep_from_version`(「전 판 keep」) · 없으면 옛 꼴(card_id 열쇠) · §8 의 16. · **v1.5 · 2026-10-25(SOC-R15)**: CTO 판정 C1(이어받은 keep 은 손님에게 그대로 · 관리자 화면에만 「이전 판 승인」 꼬리표) · C2(paper_id 를 달고 다시 온 줄은 같은 `card_id` 의 옛 card 열쇠 결정을 paper 열쇠로 한 번 옮겨 적음 · 기록 `key_moved_from` · `key_moved_at`) · **받는 문 구현**(표 `eco_inbox` · `import:eco` · **스위치 `ECO_LINK1_INBOX_ENABLED` 꺼짐**) · §8 의 17 · 18 · §9 C7. 받는 문을 **켜는 때**는 따로 정한다(11월 1주 예정) — 이 문서가 그 판의 정본이다. · **v1.6 · 2026-10-26(SOC-R16)**: §1-1 **받는 쪽 subtype 대응표**(`tobacco`→`nicotine` · `digital`→`smartphone` · 모르는 값은 거절 0 · `unknown_subtype` 표시 · §9 C7 닫힘) · §6-5 **KCI 유래 카드**(`source=kci` · 초록 저장 0 · 서지 + KCI 링크 + 짧은 인용 ≤2문장 · 바닥 출처 줄) · §6-4 **Statory 공개 자리 설정 칸**(`ECO_SOURCE_LATEST_URL` · `ECO_SOURCE_READ_KEY` · 켜는 순서 셋) · §3-3 연대기 방송 **목록 정본 v1 · 부재 추론 0**. · **v1.7 · 2026-10-26(SOC-R17)**: §6-4 Statory 읽기 열쇠 머리 **`x-eco-export-key`**(Statory `EVIDENCE_EXPORT_V1` §5-2 · ASK-58 과 같은 이름) · §6-5 **DOI 없는 KCI 카드** = `source_url` 이 있으면 받음(서지 링크 = `source_url`) · 링크가 없으면 받고 `missing` 표시(손님 0) · §1-1 **별칭 셋 더함**(`internet` · `social-media` → `smartphone` · `ai-dependence` → `ai` · §9 C8 닫힘) · §8 의 19 닫힘(받는 쪽).
 > 앞 판: `docs/ECO_LINK1_CONTRACT_DRAFT.md`(SOC-R9 · 10-19 · D1~D9 를 처음 적은 곳 — 지우지 않고 남긴다).
 >
 > 받은 결정(이 문서가 옮긴 것 · 지어 넣은 결정 0):
@@ -40,17 +40,20 @@
   관리자 검수 화면에 보인다(`subtype` 에는 아는 id 만 · 모르는 값만 있으면 `[]` = 분야 전체). 원래 값은 `payload` 에 그대로 남는다.
   (Statory **올리는 문**의 별칭 거절 규약은 그쪽 몫 — 이 대응표는 중독사회 받는 문에만.)
 
-### 1-1. 받는 쪽 subtype 대응표 (v1.6 · `backend/src/evidence/eco-inbox.ts` `SUBTYPE_ALIASES`)
+### 1-1. 받는 쪽 subtype 대응표 (v1.6 · **v1.7** · `backend/src/evidence/eco-inbox.ts` `SUBTYPE_ALIASES`)
 
 | 받은 값 | → 열 id | 누가 보냄 | 까닭 |
 |---|---|---|---|
 | `tobacco` | `nicotine` | 중독뉴스 export v0 `subtype[]` (NEWS-Q12) | §1 표의 별칭(니코틴·담배) |
 | `digital` | `smartphone` | 중독뉴스 export v0 `subtype[]` (「게임·디지털」 = `gaming` · `digital`) | CTO 판정(SOC-R16 ■2) — 디지털 = 스마트폰 열 |
+| `internet` | `smartphone` | (지금 보내는 곳 미측 · Statory `addiction_type` 에 올 수 있음) | **v1.7** §1 표의 별칭 · CTO R16 판정 |
+| `social-media` | `smartphone` | (위와 같음) | **v1.7** §1 표의 별칭 · CTO R16 판정 |
+| `ai-dependence` | `ai` | (위와 같음) | **v1.7** §1 표의 별칭 · CTO R16 판정(`ai` 는 §1 열째 id 그대로 · 더한 id 0) |
 | (열 id 열 개) | 그대로 | 셋 다 | §1 |
 | 그 밖 | — (`unknown_subtype` 표시 · 거절 0) | — | 넘겨짚지 않음 |
 
 - 맞출 때만 대소문자 · 앞뒤 빈칸을 무시한다(`Gambling` = `gambling`). 배열이 아닌 글 하나도 한 낱말로 읽는다.
-- §1 표의 다른 별칭(`internet` · `social-media` · `ai-dependence`)은 **v1.6 대응표에 넣지 않았다**(지시 범위 = 둘) — 오면 `unknown_subtype` 으로 보인다(§9 C8).
+- v1.7 로 §1 표의 별칭 다섯이 모두 대응표에 있다(§9 C8 닫힘). 정본 열 id 는 그대로 열 개(오너 10-17 유형: 행동 도박·게임·쇼핑·일·스마트폰·음식·AI / 물질 알코올·약물·니코틴 = 아래 표와 같음).
 
 | # | id | ko | en | 갈래 | 별칭(id 아님) | 중독사회 DomainCode | 중독뉴스 category |
 |---|---|---|---|---|---|---|---|
@@ -218,7 +221,7 @@ Statory `CARD_V4_FIELDS_ADDENDUM_ECO1.md` §6 이 **이 절을 경로로 가리�
 | `year` | 정수 | — | 1900~올해 | `year_invalid` |
 | `venue` | 글 | — | — | — |
 | `doi` | 글 | ✓(KCI 유래 제외) | `10.` 으로 시작(Statory 는 DOI 없는 줄을 내보내지 않는다) · **v1.6**: `source=kci` 카드는 DOI 가 없어도 받는다(서지 + KCI 상세 링크 · §6-5) · 있으면 같은 검사 | `doi_missing` |
-| `source_url` | URL | ✓ | `https://` | `source_url_invalid` |
+| `source_url` | URL | ✓(KCI 유래 제외) | `https://` · **v1.7**: `source=kci` 카드는 없어도 받는다(링크 없음 → `missing` 표시 · 손님 0 · §6-5) · 있으면 같은 검사 | `source_url_invalid` |
 | `population` | 글 | — | — | — |
 | `region` | 글 | — | — | — |
 | `addiction_type` | 글 배열 | — | **링크 줄 `subtype`** 로 읽는다 · 낱말마다 §1 열 id · 빈 배열 = 분야 전체 · **v1.6**: §1-1 대응표로 읽고 모르는 값은 `payload.unknown_subtype` 표시(거절 0) | (v1.5 까지 `subtype_unknown`) |
@@ -273,7 +276,7 @@ v1.5 구현: 한 표에 두 원천(`origin` = `statory` · `addicted-news`) · �
   | env | 지금 | 뜻 |
   |---|---|---|
   | `ECO_SOURCE_LATEST_URL` | 빈 값 | Statory 공개 자리(읽기 전용 GET · 봉투 §6-1) 주소 · 비면 import:eco 가 「Statory 미설정」 한 줄만 적고 당기지 않음 · v1.5 의 옛 이름 `ECO_STATORY_EXPORT_URL` 은 **읽지 않음**(옛 주소로 새 열쇠가 나가지 않게) · 넘겨주기(redirect)는 실패로 |
-  | `ECO_SOURCE_READ_KEY` | 빈 값(값은 11월 오너) | Statory 읽기 열쇠(그쪽 env `ECO_EXPORT_READ_KEY` 와 같은 값) · 요청 머리 `x-export-key`(`ECO_SOURCE_READ_HEADER` 한 곳 · ASK-58 문서가 다른 이름을 정하면 그것만 바꿈) · 비면 머리 없이 당김 |
+  | `ECO_SOURCE_READ_KEY` | 빈 값(값은 11월 오너) | Statory 읽기 열쇠(그쪽 env `ECO_EXPORT_READ_KEY` 와 같은 값) · 요청 머리 **`x-eco-export-key`**(v1.7 · Statory `EVIDENCE_EXPORT_V1` §5-2 와 같은 이름 · `ECO_SOURCE_READ_HEADER` 한 곳 · v1.6 의 `x-export-key` 는 중독뉴스 열쇠 머리로만 남음) · 비면 머리 없이 당김 |
   | `ECO_LINK1_INBOX_ENABLED` | 꺼짐 | 받는 문 깃발(위 한 줄) — URL · 열쇠가 있어도 이것이 `true` 가 아니면 아무것도 당기지 않음 |
 
   **켜는 순서 셋**: ① `ECO_SOURCE_LATEST_URL`(Statory 가 깃발 `ECO_EXPORT_ENABLED` 를 켠 뒤 · 꺼진 동안은 그쪽이 404) →
@@ -293,7 +296,12 @@ v1.5 구현: 한 표에 두 원천(`origin` = `statory` · `addicted-news`) · �
 - 이미 받은(결정이 있는) 행이라도 원천이 KCI 로 보내면 payload 를 KCI 꼴로 **줄인다**(좁히기만) · 같은 논문(`paper_key`)의 어느 판이 KCI 유래면 KCI 아닌 옛 판은 손님 응답에 내지 않는다.
 - 이용 기간: `use_until` 이 지난 KCI 카드는 손님 응답에서 빠진다(행 지움 0 · 관리자 화면에는 남음) · 날짜만 오면 **한국 시각 그날 끝까지** · 날짜를 못 읽으면 지난 것으로.
 - 관리자 화면 줄: `source`(`kci` · 그 밖 `null`) · `unknownSubtype`(§1-1).
-- 지금 데이터 0(깃발 꺼짐) → 손님 화면 변화 0 · 확인은 fixture(`__fixtures__/statory-export-kci.json` · 시험 `eco-inbox-r16.spec`).
+- **v1.7 DOI 없는 KCI 카드(SOC-R17 ■1 · Statory ASK-58 = `doi` ∨ `source_url` 이면 내보냄)**: `source_url` 이 있으면 받고 서지 링크 = `source_url` ·
+  `source_url` 이 없으면(DOI 만 · 둘 다 없음) **거절하지 않고** 받되 `url` 없음 + 받은 줄 `missing` 에 우리 표시(`source_url` · DOI 도 없으면 `doi` 도 · 봉투 `missing` 과 겹침 없이) —
+  관리자 화면에 보이고, **손님에게는 링크가 생길 때까지 서지 않는다**(서지 + 링크 규칙). 꼴이 틀린 링크(`https` 아님)는 지금처럼 `source_url_invalid`.
+  링크는 **링크를 단 새 판(새 행 · 결정 상속)** 으로 생긴다 — 이미 결정이 있는 행의 `url` · `missing` 은 같은 판이 다시 와도 채우지 않는다(기존 행 변경 0 · 리뷰 A1).
+  링크 없는 KCI 판도 그 논문의 KCI 아닌 옛 판을 손님에게서 가린다(KCI 규칙을 비켜 서지 않는 쪽 · 리뷰 A2 · 보이는 것이 줄어드는 쪽).
+- 지금 데이터 0(깃발 꺼짐) → 손님 화면 변화 0 · 확인은 fixture(`__fixtures__/statory-export-kci.json` · `statory-export-v17.json` · 시험 `eco-inbox-r16.spec` · `eco-inbox-r17.spec`).
 
 ## 7. 중독뉴스 export v0 ↔ 링크 줄
 
@@ -355,7 +363,7 @@ ASK-51 의 ■1(나가는 `license` 꼴 ⓑ)은 **아직 main 에 없다**(내�
 | 16 | 판을 넘는 논문 열쇠(새 줄 · SOC-R14 ■2) | ASK-53 리뷰 F1 · CTO 판정 1(10-24): 나가는 `card_id` = 판마다 다른 줄 id · 같은 논문 = `item_id` · ASK-54 가 줄에 `paper_id` 를 더함(10-24 16:1x 실측 Statory main cd3fe04 = 아직 없음) | §6-2 `paper_id`(선택) · §3-3 의 4 · §6-3 `paper_key` · `keep_from_version` — keep/hide 상속 열쇠 = 논문 | **닫힘(받는 쪽 · 검사 · 규칙 · 시험)** — Statory 쪽은 ASK-54 push 뒤 실물 대조(꼴: 글/정수) → **닫힘(양쪽 · SOC-R15 · 10-25)** §8 의 17 |
 | 17 | `paper_id` 실물 꼴(새 줄 · SOC-R15) | ASK-54 ■1(판 1.6.51 · main c807de585 · 10-24) `paper_id: text(card.item_id)` — **글**(빈 item_id 면 `null` → 옛 꼴) · `card_id: text(card.id) ?? text(card.item_id)` | §6-2 글 꼴 그대로 받음(fixture statory-export.json · `null` = card 열쇠) | **닫힘** |
 | 18 | 중독뉴스 export v0 `subtype` 낱말(새 줄 · SOC-R15) | (중독뉴스 `docs/EXPORT_V0.md` · NEWS-Q12) 묶음 id 에 `tobacco`(§1 별칭) · `digital`(§1 에 없음)이 나옴 — 「게임·디지털」 = `gaming` · `digital` 둘 | ~~§1 대로 그 줄 거절~~ → **v1.6 §1-1 받는 쪽 대응표**(`tobacco`→`nicotine` · `digital`→`smartphone` · 중독뉴스 변경 0) | **닫힘**(SOC-R16 · 10-26) |
-| 19 | KCI 유래 카드(새 줄 · SOC-R16) | Statory ASK-58 ■4(지시서 fd12ec071 · 10-26 · 코드 아직) — 줄에 `source: 'kci'` · `use_until` · 내보내기에서 초록 비움 | §6-5 — 같은 이름으로 받음 · 초록 저장 0 · 서지 + 링크 + 인용 ≤2문장 · 출처 줄 | **열림** — ASK-58 push 뒤 실물 대조(칸 이름 · 읽기 열쇠 머리 이름) |
+| 19 | KCI 유래 카드(새 줄 · SOC-R16) | Statory ASK-58 ■4(지시서 fd12ec071 · 10-26 · 코드 아직) — 줄에 `source: 'kci'` · `use_until` · 내보내기에서 초록 비움 | §6-5 — 같은 이름으로 받음 · 초록 저장 0 · 서지 + 링크 + 인용 ≤2문장 · 출처 줄 · **v1.7** 열쇠 머리 `x-eco-export-key` · DOI 없는 KCI = `source_url` 로 받음 | **닫힘(받는 쪽 · SOC-R17 · 10-26)** — 머리 이름 · 내보냄 조건(DOI ∨ source_url)은 SOC-R17 지시서 위치판(ASK-58 가지 · 1.6.56)으로 맞춤 · Statory main 실물 대조는 ASK-58 push 뒤 |
 
 ## 9. CTO 판정 필요 (v1 이 안전한 쪽으로 읽어 둔 것)
 
@@ -367,5 +375,5 @@ ASK-51 의 ■1(나가는 `license` 꼴 ⓑ)은 **아직 main 에 없다**(내�
 | C4 | 몸 전체가 깨진 회차의 숨김 상속 | 돌리지 않음(그 회차 건너뜀) |
 | C5 | ~~Statory 내보내기 면허 값이 늘 「모름」~~ | **닫힘(ASK-50 ■1 · §8-3)** — 값은 글자 그대로 온다 · 꼴은 §8-13 |
 | C7 | ~~중독뉴스 `subtype` 의 `tobacco` · `digital`~~ | **닫힘(v1.6 · SOC-R16 ■2)** — 받는 쪽 대응표 §1-1 · 보내는 쪽 값 그대로 · 모르는 값은 표시만 |
-| C8 | §1 표의 나머지 별칭(`internet` · `social-media` → `smartphone` · `ai-dependence` → `ai`) | v1.6 대응표에 넣지 않음(지시 범위 둘) — 오면 `unknown_subtype` 표시 · 넣을지 판정 |
+| C8 | ~~§1 표의 나머지 별칭(`internet` · `social-media` → `smartphone` · `ai-dependence` → `ai`)~~ | **닫힘(v1.7 · CTO R16 판정 · SOC-R17 ■2)** — 대응표 §1-1 에 셋 더함 |
 | C6 | `sources` 의 등급 — `sources.kind` 는 주제 낱말(prevalence · policy · treatment · enforcement · market)이라 등급 칸이 아니다 | `policy` → `report` · 그 밖 → `statistic` 으로 읽음(행 변경 0 · 출처 하나하나의 등급 칸은 덧붙임 migration 후보) |

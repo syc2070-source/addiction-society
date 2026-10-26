@@ -1,15 +1,24 @@
+import { readFileSync } from 'fs';
+import { join } from 'path';
 import { Source } from './entities/source.entity';
 import { missedReleases, type EventLike } from './missed-releases';
-import { backfillPlan, computeNextExpected } from './next-expected.util';
+import {
+  backfillPlan,
+  computeNextExpected,
+  isExpectedOverdue,
+  kstDateParts,
+  monthStartOf,
+} from './next-expected.util';
 
 /**
  * SOC-R16 ■5 — 11-01(일)에 「지난 예정 · 미확인」 세 줄이 서는가(코드·설정 실측).
  * 운영 설정(10-26 13:2x · GET /api/sources): 세 소스 모두 next_expected_at 2026-10-01 ·
  *  spo_drug_monthly(monthly · pdf · 마지막 발간 2026-09-30) · drugfree_stats(monthly · html) ·
  *  mohw_addiction_center(annual 10월 · manual).
- * 길: 04:00 KST(= 10-31 19:00 UTC)의 backfill:next 는 달 경계를 UTC 로 재므로 아직 10월 → 이월 0.
- *     09:00 KST(= 11-01 00:00 UTC) 감시 크론이 먼저 읽고(checked) 그다음 이월(rescheduled overdue) →
- *     spo · drugfree = 「발표 없음」(not_published) · mohw = 「사람 확인」(manual).
+ * 길(SOC-R17 ■3 · 달 경계 KST 한 자리 kstDateParts): 11-01 00:00 KST 부터 11월 — 세 줄이 「확인 전」(unchecked ·
+ *     mohw = manual)으로 서고, 04:00 backfill:next 는 이월하지 않으며(빈 값 채움만 · 리뷰 B1), 09:00 KST 감시 크론이
+ *     먼저 읽고(checked) 그다음 이월(rescheduled overdue) → spo · drugfree = not_published · mohw = manual(09:00 세 줄 그대로).
+ *     (SOC-R16 판은 UTC 경계라 04:00 에 이월 0 · 09:00 이월이었다.)
  */
 const src = (over: Partial<Source>): Source =>
   ({
@@ -48,15 +57,67 @@ const SOURCES = [
 ];
 
 describe('11-01 세 줄 (SOC-R16 ■5)', () => {
-  it('the 04:00 KST run on 11-01 does not roll yet (UTC month); the 09:00 KST cron does', () => {
-    const at0400 = new Date('2026-10-31T19:00:00Z');
-    const at0900 = new Date('2026-11-01T00:00:00Z');
+  it('KST boundary: 10-31 23:59 KST is still October (no roll)', () => {
+    const at2359 = new Date('2026-10-31T14:59:00Z'); // 10-31 23:59 KST
+    expect(monthStartOf(at2359)).toBe('2026-10-01');
     for (const s of SOURCES) {
-      expect(backfillPlan(s, at0400)).toBeNull();
-      expect(backfillPlan(s, at0900)).toMatchObject({ rolled: true });
+      expect(isExpectedOverdue(s.nextExpectedAt, at2359)).toBe(false);
+      expect(backfillPlan(s, at2359)).toBeNull();
     }
-    expect(computeNextExpected(SOURCES[0], at0900)).toBe('2026-11-01');
-    expect(computeNextExpected(SOURCES[2], at0900)).toBe('2027-10-01');
+  });
+
+  it('KST boundary: 11-01 00:00 ~ 09:00 KST is November — the plan says roll (backfill:next defers it to the 09:00 read)', () => {
+    for (const at of [
+      '2026-10-31T15:00:00Z', // 11-01 00:00 KST
+      '2026-10-31T19:00:00Z', // 04:00 KST (backfill:next)
+      '2026-10-31T23:59:00Z', // 08:59 KST
+      '2026-11-01T00:00:00Z', // 09:00 KST (감시 크론)
+    ]) {
+      const t = new Date(at);
+      expect(monthStartOf(t)).toBe('2026-11-01');
+      expect(kstDateParts(t)).toEqual({ y: 2026, m: 10, d: 1 });
+      for (const s of SOURCES) {
+        expect(backfillPlan(s, t)).toMatchObject({ rolled: true });
+      }
+      expect(computeNextExpected(SOURCES[0], t)).toBe('2026-11-01');
+      expect(computeNextExpected(SOURCES[2], t)).toBe('2027-10-01');
+    }
+    // 홈 「이번 달」 하한(monthStartOf)이 00:00 KST 에 넘어감 — 폴백 길(발표 이력 없음)도 11월부터
+    expect(
+      computeNextExpected(
+        src({ id: 'x', cadence: 'monthly', lastPublishedAt: null }),
+        new Date('2026-10-31T15:00:00Z'),
+      ),
+    ).toBe('2026-11-01');
+  });
+
+  it('00:00 ~ 09:00 KST: not rolled yet (backfill:next only fills empty values), the lines stand as unchecked until the 09:00 read', () => {
+    // 리뷰 B1: 04:00 에 이월하면 연간 출처가 09:00 감시 30일 창 밖으로 밀려 달 끝 읽기를 못 받는다
+    const backfill = readFileSync(
+      join(__dirname, 'seed', 'backfill-next.ts'),
+      'utf8',
+    );
+    expect(backfill).toMatch(/if \(plan\.rolled\) \{\s*deferred\.push/);
+    expect(backfill).not.toContain("eventType: 'rescheduled'");
+    // 이월 전(next_expected_at 10-01 그대로) · 10-31 09:00 KST 의 마지막 읽기(달 끝 전)
+    const lastRead: EventLike[] = SOURCES.map((s) => ({
+      sourceId: s.id,
+      eventType: 'checked',
+      detectedAt: '2026-10-31T00:00:10Z',
+      detail: { method: 'hash' },
+    }));
+    const at0400 = missedReleases(
+      SOURCES,
+      lastRead,
+      new Date('2026-10-31T19:00:30Z'),
+    );
+    expect(
+      at0400.map((l) => [l.sourceId, l.expected, l.monitor]).sort(),
+    ).toEqual([
+      ['drugfree_stats', '2026-10', 'unchecked'],
+      ['mohw_addiction_center', '2026-10', 'manual'],
+      ['spo_drug_monthly', '2026-10', 'unchecked'],
+    ]);
   });
 
   it('after the 09:00 read + roll: spo · drugfree = not published · mohw = person check', () => {

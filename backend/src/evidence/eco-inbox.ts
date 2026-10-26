@@ -124,6 +124,10 @@ const isHttps = (v: string) => {
 export const SUBTYPE_ALIASES: Readonly<Record<string, string>> = {
   tobacco: 'nicotine',
   digital: 'smartphone',
+  // SOC-R17 ■2(계약 v1.7 · CTO R16 판정) — §1 표의 나머지 별칭 셋
+  internet: 'smartphone',
+  'social-media': 'smartphone',
+  'ai-dependence': 'ai',
 };
 /** 사전에도 대응표에도 없는 값 — 줄을 거절하지 않고 payload 의 이 칸에 보낸 그대로 적는다(관리자 화면 표시) */
 export const UNKNOWN_SUBTYPE_KEY = 'unknown_subtype';
@@ -190,6 +194,21 @@ const KCI_KEEP_KEYS = new Set([
 export const isKciCard = (r: Record<string, unknown>): boolean =>
   typeof r[KCI_SOURCE.field] === 'string' &&
   (r[KCI_SOURCE.field] as string).trim().toLowerCase() === KCI_SOURCE.value;
+
+/** 링크(source_url)가 없는 KCI 카드의 우리 missing 표시 — 없는 칸 이름(DOI 도 없으면 둘) */
+const kciLinkMissing = (doi: string | null): string[] =>
+  doi ? ['source_url'] : ['doi', 'source_url'];
+
+/** 봉투 missing(§6-1)에 우리 표시를 겹침 없이 더함 · 둘 다 비면 null(옛 꼴 그대로) */
+function withMissing(
+  envelope: string[] | null,
+  ours: string[],
+): string[] | null {
+  if (ours.length === 0) return envelope;
+  const out = [...(envelope ?? [])];
+  for (const k of ours) if (!out.includes(k)) out.push(k);
+  return out;
+}
 
 /**
  * 짧은 인용 — 앞 두 문장까지 · 문장 끝 = . ! ? 。 ！ ？ … 또는 줄바꿈(마침표 없는 줄 나열도 한 줄 = 한 문장 · 리뷰 B3) ·
@@ -381,7 +400,10 @@ export function readCardLine(
   const doi = text(r.doi);
   if (doi ? !doi.startsWith('10.') : !kci) return no('doi_missing');
   const sourceUrl = text(r.source_url);
-  if (!sourceUrl || !isHttps(sourceUrl)) return no('source_url_invalid');
+  // 꼴이 틀린 링크는 거절(KCI 도) · KCI 카드에 링크가 없으면(Statory = DOI ∨ source_url 이면 내보냄) 거절하지 않고
+  // 받되 url 없음 + 우리 missing 표시(SOC-R17 ■1 · 계약 v1.7 §6-5) — 손님에게는 링크가 생길 때까지 서지 않음
+  if (sourceUrl ? !isHttps(sourceUrl) : !kci) return no('source_url_invalid');
+  const linkMissing = kci && !sourceUrl ? kciLinkMissing(doi) : [];
   if (r.statory_page_url != null) {
     const p = text(r.statory_page_url);
     if (!p || !isHttps(p)) return no('statory_page_url_invalid');
@@ -424,7 +446,7 @@ export function readCardLine(
       topic,
       licence: lic.licence,
       licenceUse: lic.licenceUse,
-      missing: missingByCard?.get(cardId) ?? null,
+      missing: withMissing(missingByCard?.get(cardId) ?? null, linkMissing),
       payload,
     },
     reject: null,
@@ -789,16 +811,21 @@ export interface InboxRowView {
 
 /**
  * 손님에게 서나(§6-3) — upstream public ∧ keep(물려받은 keep 도 · C1 「그대로」) ·
- * KCI 유래는 이용 기간(use_until)이 지나면 서지 않음(SOC-R16 ■3 · 행 지움 0)
+ * KCI 유래는 이용 기간(use_until)이 지나면 서지 않음(SOC-R16 ■3 · 행 지움 0) ·
+ * KCI 유래에 링크(url)가 없으면 서지 않음(서지 + 링크 규칙 · SOC-R17 ■1)
  */
 export const isGuestVisible = (
   r: Pick<InboxRowView, 'upstream' | 'reviewDecision'> &
-    Partial<Pick<InboxRowView, 'payload'>>,
+    Partial<Pick<InboxRowView, 'payload' | 'url'>>,
   now: Date = new Date(),
 ) =>
   r.upstream === 'public' &&
   r.reviewDecision === 'keep' &&
-  !(r.payload && isKciCard(r.payload) && kciExpired(r.payload, now));
+  !(
+    r.payload &&
+    isKciCard(r.payload) &&
+    (kciExpired(r.payload, now) || !r.url)
+  );
 
 /** 화면 규칙(§5): 허용 넷이면 소화한 발견도 · 그 밖은 제목 + 원문 링크만 · KCI 유래 = 발견 0(짧은 인용만) */
 function findingsFor(r: InboxRowView): string[] | null {
@@ -951,8 +978,11 @@ export function adminView(r: InboxRowView) {
  */
 export const ECO_SOURCE_LATEST_URL = 'ECO_SOURCE_LATEST_URL';
 export const ECO_SOURCE_READ_KEY = 'ECO_SOURCE_READ_KEY';
-/** 읽기 열쇠를 싣는 요청 머리 — ASK-58 문서가 다른 이름을 정하면 여기 한 곳만 */
-export const ECO_SOURCE_READ_HEADER = 'x-export-key';
+/**
+ * 읽기 열쇠를 싣는 요청 머리 — Statory EVIDENCE_EXPORT_V1 §5-2(ASK-58)와 같은 이름(SOC-R17 ■1 · 계약 v1.7).
+ * 중독뉴스 export 의 `x-export-key` 와는 다른 이름이다(원천마다 따로).
+ */
+export const ECO_SOURCE_READ_HEADER = 'x-eco-export-key';
 
 /** Statory 당기기 설정 — URL 이 비면 null(「미설정」 · 당기지 않음) · 열쇠가 있으면 머리에 싣는다 */
 export function statorySource(

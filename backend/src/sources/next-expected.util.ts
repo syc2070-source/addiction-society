@@ -16,8 +16,24 @@ type NextInput = Pick<
   'cadence' | 'expectedMonth' | 'lastPublishedAt'
 >;
 
+const KST_OFFSET_MS = 9 * 3600 * 1000;
+
 /**
- * 이번 달 1일('YYYY-MM-01', UTC). 예정일 비교의 기준선.
+ * 한국 시각(KST · UTC+9 · 서머타임 없음)의 연 · 월(0~11) · 일 — 「이번 달」 · 「오늘」을 재는 한 자리(SOC-R17 ■3).
+ * 전에는 UTC 로 재서 11-01 00:00~08:59 KST 에도 10월로 읽혔다(04:00 backfill:next 가 이월하지 않음).
+ * 홈 「이번 달 발표」(frontend currentMonthKst) · missed-releases monthEndMs 와 같은 경계.
+ */
+export function kstDateParts(today: Date = new Date()): {
+  y: number;
+  m: number;
+  d: number;
+} {
+  const k = new Date(today.getTime() + KST_OFFSET_MS);
+  return { y: k.getUTCFullYear(), m: k.getUTCMonth(), d: k.getUTCDate() };
+}
+
+/**
+ * 이번 달 1일('YYYY-MM-01', KST). 예정일 비교의 기준선.
  *
  * next_expected_at은 "예상 발간 **월**의 1일"로 저장되는 월 정밀도 값이고
  * 화면(홈 카드·발표 달력)도 YYYY-MM으로만 표시한다. 따라서 지남/안 지남 판정은
@@ -25,9 +41,8 @@ type NextInput = Pick<
  * "이번 달 예정" 전체가 화면에서 통째로 빠진다.
  */
 export function monthStartOf(today: Date = new Date()): string {
-  const y = today.getUTCFullYear();
-  const m = String(today.getUTCMonth() + 1).padStart(2, '0');
-  return `${y}-${m}-01`;
+  const { y, m } = kstDateParts(today);
+  return `${y}-${String(m + 1).padStart(2, '0')}-01`;
 }
 
 /**
@@ -69,9 +84,11 @@ export function computeNextExpected(
     return `${d.getUTCFullYear()}-${mm}-${dd}`;
   };
 
-  const curYear = today.getUTCFullYear();
+  // 오늘 · 이번 달은 KST 로(kstDateParts · SOC-R17 ■3)
+  const kst = kstDateParts(today);
+  const curYear = kst.y;
   // 이번 달 1일: expectedMonth가 이번 달이면 아직 감시 대상으로 잡히도록 경계로 사용
-  const curMonthStart = Date.UTC(curYear, today.getUTCMonth(), 1);
+  const curMonthStart = Date.UTC(curYear, kst.m, 1);
 
   // 폴백: 발표 이력이 없어도 예상 월이 검증된 사실이므로 그것만으로 계산한다.
   // 오늘 기준 다음(또는 이번 달) 도래 월 1일.
@@ -97,11 +114,7 @@ export function computeNextExpected(
 
   const last = new Date(`${src.lastPublishedAt}T00:00:00Z`);
   const lastMs = last.getTime();
-  const todayMs = Date.UTC(
-    today.getUTCFullYear(),
-    today.getUTCMonth(),
-    today.getUTCDate(),
-  );
+  const todayMs = Date.UTC(kst.y, kst.m, kst.d);
   const startYear = last.getUTCFullYear();
 
   const candidates: number[] = [];

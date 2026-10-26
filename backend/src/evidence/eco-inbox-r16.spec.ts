@@ -58,7 +58,8 @@ const rowOf = (
 
 describe('받는 쪽 subtype 대응표 (SOC-R16 ■2 · 계약 v1.6 §1-1)', () => {
   it('maps tobacco → nicotine and digital → smartphone; §1 ids pass; the sent value stays in payload', () => {
-    expect(SUBTYPE_ALIASES).toEqual({
+    // SOC-R17 ■2 가 셋을 더함(eco-inbox-r17.spec) — 여기서는 v1.6 의 둘만 잰다
+    expect(SUBTYPE_ALIASES).toMatchObject({
       tobacco: 'nicotine',
       digital: 'smartphone',
     });

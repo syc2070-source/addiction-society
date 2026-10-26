@@ -189,15 +189,22 @@ export class SourcesScheduler {
       );
       const res = await this.monitorSources(due);
       this.logger.log(`[cron:daily] 완료 ${this.summarize(res)}`);
-
-      // 감시 후에 이월한다. 순서가 중요: 예정일이 지난 소스야말로 지금 확인해야 할
-      // 대상이므로 먼저 감시하고(발간을 잡으면 그 자리에서 재계산됨),
-      // 그래도 발간을 못 잡은 것만 다음 주기로 넘긴다.
-      const rolled = await this.reconcileExpected();
-      this.logger.log(`[cron:daily] 예정일 이월 ${rolled.length}건`);
     } catch (e: any) {
       // 최상위 격리: 절대 throw 하지 않음
       this.logger.error(`[cron:daily] 최상위 예외(무시): ${e?.message || e}`);
+    }
+    // 감시 후에 이월한다. 순서가 중요: 예정일이 지난 소스야말로 지금 확인해야 할
+    // 대상이므로 먼저 감시하고(발간을 잡으면 그 자리에서 재계산됨),
+    // 그래도 발간을 못 잡은 것만 다음 주기로 넘긴다.
+    // SOC-R17 ■3(반박 1): 이월은 이제 여기 한 곳(04:00 backfill:next 는 이월 0) — 감시가 깨져도 따로 돈다
+    // (못 읽은 줄은 「확인 전」으로 남아 「발표 없음」을 말하지 않음).
+    try {
+      const rolled = await this.reconcileExpected();
+      this.logger.log(`[cron:daily] 예정일 이월 ${rolled.length}건`);
+    } catch (e) {
+      this.logger.error(
+        `[cron:daily] 이월 예외(무시): ${e instanceof Error ? e.message : String(e)}`,
+      );
     }
   }
 
