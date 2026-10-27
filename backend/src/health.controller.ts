@@ -8,7 +8,13 @@ import { DataSource } from 'typeorm';
 import { JobRun } from './scheduler/entities/job-run.entity';
 import { nightlySummary, NightlySummary } from './scheduler/job-runs';
 import { Source } from './sources/entities/source.entity';
-import { monitorCounts } from './sources/missed-releases';
+import { SourceEvent } from './sources/entities/source-event.entity';
+import {
+  monitorCounts,
+  rollSummary,
+  type RollSummary,
+} from './sources/missed-releases';
+import { SourcesService } from './sources/sources.service';
 
 const startedAt = new Date().toISOString();
 
@@ -49,7 +55,10 @@ export class HealthController {
    */
   @Get('nightly')
   async nightly(): Promise<
-    NightlySummary & { monitor: ReturnType<typeof monitorCounts> | null }
+    NightlySummary & {
+      monitor: ReturnType<typeof monitorCounts> | null;
+      roll: RollSummary | null;
+    }
   > {
     if (!this.dataSource?.isInitialized) {
       throw new ServiceUnavailableException('db not ready');
@@ -60,7 +69,39 @@ export class HealthController {
     } catch {
       throw new ServiceUnavailableException('job_runs not ready');
     }
-    return { ...summary, monitor: await this.monitor() };
+    return {
+      ...summary,
+      monitor: await this.monitor(),
+      roll: await this.roll(),
+    };
+  }
+
+  /**
+   * 09:00 이월 줄 (SOC-R18 ■3) — 「지난 예정」 줄(달력 페이지와 같은 길)의 표기별 수 + 마지막 이월 시각.
+   * 읽기만 · 실패하면 null(밤 기록은 그대로).
+   */
+  private async roll(): Promise<RollSummary | null> {
+    try {
+      const sources = this.dataSource!.getRepository(Source);
+      const events = this.dataSource!.getRepository(SourceEvent);
+      const [rows, rescheduled] = await Promise.all([
+        new SourcesService(sources, events).findMissed(),
+        events.find({
+          where: { eventType: 'rescheduled' },
+          order: { detectedAt: 'DESC' },
+          take: 50,
+          select: {
+            sourceId: true,
+            eventType: true,
+            detectedAt: true,
+            detail: true,
+          },
+        }),
+      ]);
+      return rollSummary(rows, rescheduled);
+    } catch {
+      return null;
+    }
   }
 
   /** 발표 감시 건강 (SOC-R4 ■2) — stale·읽지 못한 소스 수. 실패하면 null(밤 기록은 그대로). */

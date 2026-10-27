@@ -174,7 +174,8 @@ describe('11월 켜기 예행 (SOC-R17 ■4 · 깃발 꺼짐 · DB 쓰기 0)', (
     expect(unknown[0].payload[UNKNOWN_SUBTYPE_KEY]).toEqual(['vaping']);
     // 모두 검수 대기로 들어감(결정 상속 0)
     expect(plan.insert.every((i) => i.reviewDecision === null)).toBe(true);
-    // 사람이 넷 다 keep 해도 손님에게는 링크 있는 둘만 · KCI 출처 줄
+    // 사람이 넷 다 keep 해도 손님에게는 링크 있는 것만 · KCI 출처 줄
+    // (SOC-R18 ■1: DOI 만 있는 카드는 doi.org 링크로 서서 셋 — eco-inbox-r18.spec)
     const guest = guestResponse(
       read.lines.map((l, i) => rowOf(l, i + 1)),
       new Date('2026-11-05T00:00:00Z'),
@@ -182,6 +183,7 @@ describe('11월 켜기 예행 (SOC-R17 ■4 · 깃발 꺼짐 · DB 쓰기 0)', (
     expect(guest.items.map((i) => i.slug)).toEqual([
       'statory:card:v17-card-plain',
       'statory:card:v17-card-kci-url',
+      'statory:card:v17-card-kci-doi',
     ]);
     expect(guest.credit).not.toBeNull();
   });

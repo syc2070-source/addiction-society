@@ -303,6 +303,14 @@ async function applyOrigin(m: EntityManager, p: Pulled): Promise<Applied> {
             WHERE "id" = $1 AND "payload" IS DISTINCT FROM $2::jsonb`,
           [id, next],
         );
+        // SOC-R18 ■1: 링크 없던 KCI 행에 링크가 생기면(source_url · doi.org) 빈 url 만 채운다 — 있는 링크는 덮지 않음
+        // (migration 1789100000000 과 같은 규칙 · 결정 · missing 칸은 그대로)
+        if (l.url) {
+          await m.query(
+            `UPDATE "eco_inbox" SET "url" = $2 WHERE "id" = $1 AND "url" IS NULL`,
+            [id, l.url],
+          );
+        }
       }
     }
   }

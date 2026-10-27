@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { Source } from './entities/source.entity';
-import { missedReleases, type EventLike } from './missed-releases';
+import { missedReleases, rollSummary, type EventLike } from './missed-releases';
 import {
   backfillPlan,
   computeNextExpected,
@@ -172,5 +172,111 @@ describe('11-01 세 줄 (SOC-R16 ■5)', () => {
       new Date('2026-11-01T01:00:00Z'),
     );
     expect(published.map((l) => l.sourceId)).not.toContain('spo_drug_monthly');
+  });
+});
+
+describe('health 이월 줄 (SOC-R18 ■3 · /api/health/nightly roll)', () => {
+  const zero = { unreadable: 0, manual: 0, unchecked: 0, not_published: 0 };
+
+  it('no roll yet: lastRolledAt null and every count 0 (an empty value is 0, never 「not published」)', () => {
+    expect(rollSummary([], [])).toEqual({
+      lastRolledAt: null,
+      lines: 0,
+      rolled: 0,
+      check: 0,
+      monitor: zero,
+    });
+    // 되돌리기(restore) 사건은 이월이 아님
+    expect(
+      rollSummary(
+        [],
+        [
+          {
+            sourceId: 'drugfree_stats',
+            eventType: 'rescheduled',
+            detectedAt: '2026-10-18T06:00:00Z',
+            detail: { reason: 'restore' },
+          },
+        ],
+      ).lastRolledAt,
+    ).toBeNull();
+  });
+
+  it('11-01 08:59 KST (before the read): 3 lines unchecked · manual, no roll; after 09:00: 2 not published · 1 manual with the roll time', () => {
+    const before = missedReleases(
+      SOURCES,
+      [],
+      new Date('2026-10-31T23:59:00Z'),
+    );
+    expect(rollSummary(before, [])).toEqual({
+      lastRolledAt: null,
+      lines: 3,
+      rolled: 3,
+      check: 0,
+      monitor: { ...zero, unchecked: 2, manual: 1 },
+    });
+    const roll = '2026-11-01T00:01:00Z';
+    const events: EventLike[] = SOURCES.flatMap((s) => [
+      {
+        sourceId: s.id,
+        eventType: 'checked',
+        detectedAt: '2026-11-01T00:00:10Z',
+        detail: { method: 'hash' },
+      },
+      {
+        sourceId: s.id,
+        eventType: 'rescheduled',
+        detectedAt: roll,
+        detail: {
+          from: '2026-10-01',
+          to: computeNextExpected(s, new Date(roll)),
+          reason: 'overdue',
+          publicationConfirmed: false,
+        },
+      },
+    ]);
+    const rolled = SOURCES.map((s) =>
+      src({ ...s, nextExpectedAt: computeNextExpected(s, new Date(roll)) }),
+    );
+    const after = missedReleases(
+      rolled,
+      events,
+      new Date('2026-11-01T01:00:00Z'),
+    );
+    expect(rollSummary(after, events)).toEqual({
+      lastRolledAt: '2026-11-01T00:01:00.000Z',
+      lines: 3,
+      rolled: 3,
+      check: 0,
+      monitor: { ...zero, not_published: 2, manual: 1 },
+    });
+  });
+
+  it('a roll with an empty next value is 「check」 (no next month made up), still counted', () => {
+    const irr = src({
+      id: 'x_irregular',
+      cadence: 'irregular',
+      accessMethod: 'html',
+      lastPublishedAt: '2026-01-01',
+    });
+    const lines = missedReleases([irr], [], new Date('2026-11-01T01:00:00Z'));
+    expect(lines).toEqual([
+      expect.objectContaining({
+        next: null,
+        action: 'check',
+        monitor: 'unchecked',
+      }),
+    ]);
+    expect(rollSummary(lines, [])).toMatchObject({ rolled: 0, check: 1 });
+  });
+
+  it('the health route exposes it read-only next to monitor', () => {
+    const health = readFileSync(
+      join(__dirname, '..', 'health.controller.ts'),
+      'utf8',
+    );
+    expect(health).toContain('roll: await this.roll()');
+    expect(health).toContain('rollSummary(rows, rescheduled)');
+    expect(health).not.toMatch(/\.(update|save|insert|delete)\(/);
   });
 });

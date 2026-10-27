@@ -115,9 +115,11 @@ export class EcoInboxService {
       take: 500,
     });
     // KCI 논문 열쇠는 표 전체에서(결정 · upstream 무관) — KCI 판이 보류·숨김이어도 옛 판의 발견이 서지 않게(반박 1)
+    // SOC-R18 반박 A1: btrim 은 빈칸만 떼서 「kci\n」 따위를 놓쳤다(isKciCard 는 JS trim) — 「kci 를 품음」으로 넓게
+    // 잡는다(넘쳐도 옛 판의 발견을 더 빼는 쪽뿐 · 모자라면 새는 쪽)
     const kci: { paper_key: string }[] = await this.repo.query(
       `SELECT DISTINCT "paper_key" FROM "eco_inbox"
-        WHERE "origin" = 'statory' AND lower(btrim("payload"->>$1)) = $2`,
+        WHERE "origin" = 'statory' AND position($2 in lower("payload"->>$1)) > 0`,
       [KCI_SOURCE.field, KCI_SOURCE.value],
     );
     return guestResponse(

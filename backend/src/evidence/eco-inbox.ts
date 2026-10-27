@@ -199,6 +199,17 @@ export const isKciCard = (r: Record<string, unknown>): boolean =>
 const kciLinkMissing = (doi: string | null): string[] =>
   doi ? ['source_url'] : ['doi', 'source_url'];
 
+/**
+ * DOI 를 링크로 쓸 수 있는 꼴(Crossref 권장 꼴 · 접두 10.<4~9자리>/ · 안전 글자만) — 이 꼴만 doi.org 링크로 낸다.
+ * 그 밖(꼴 다름 · 띄어쓰기 · # ? % 따위)은 링크를 짓지 않음(url 빈 채 · missing 표시 그대로 · 거절 0).
+ * migration 1789100000000 의 SQL 꼴과 같다.
+ */
+export const DOI_LINK_RE = /^10\.\d{4,9}\/[-._;()/:A-Za-z0-9]+$/;
+
+/** DOI 만 있는 KCI 카드의 링크(SOC-R18 ■1) — https://doi.org/<DOI> · 꼴이 아니면 null */
+export const doiLinkOf = (doi: string | null): string | null =>
+  doi && DOI_LINK_RE.test(doi) ? `https://doi.org/${doi}` : null;
+
 /** 봉투 missing(§6-1)에 우리 표시를 겹침 없이 더함 · 둘 다 비면 null(옛 꼴 그대로) */
 function withMissing(
   envelope: string[] | null,
@@ -404,6 +415,8 @@ export function readCardLine(
   // 받되 url 없음 + 우리 missing 표시(SOC-R17 ■1 · 계약 v1.7 §6-5) — 손님에게는 링크가 생길 때까지 서지 않음
   if (sourceUrl ? !isHttps(sourceUrl) : !kci) return no('source_url_invalid');
   const linkMissing = kci && !sourceUrl ? kciLinkMissing(doi) : [];
+  // SOC-R18 ■1: DOI 만 있는 KCI 카드는 doi.org 링크로 선다(url 칸 채움) · 원천에 source_url 이 없다는 표시는 그대로
+  const url = sourceUrl ?? (kci ? doiLinkOf(doi) : null);
   if (r.statory_page_url != null) {
     const p = text(r.statory_page_url);
     if (!p || !isHttps(p)) return no('statory_page_url_invalid');
@@ -439,7 +452,7 @@ export function readCardLine(
       paperKey: key.key!,
       cardId,
       title: title.slice(0, 1000),
-      url: sourceUrl,
+      url,
       grade: 'paper',
       kind: 'card',
       subtype: subtype.ids,
@@ -852,8 +865,8 @@ export function guestView(
   now: Date = new Date(),
   kciPaperKeys: Iterable<string> = [],
 ) {
-  // 같은 논문의 어떤 판이든 KCI 유래면, 그 논문의 KCI 아닌 옛 판은 손님에게 내지 않는다
-  // (옛 판의 발견 · 본문이 KCI 규칙을 비켜 서지 않게 · 리뷰 B2 — withdrawn 은 전부 당기기 뒤에만 돌아서).
+  // 같은 논문의 어떤 판이든 KCI 유래면, 그 논문의 KCI 아닌 옛 판은 발견 없이만 낸다
+  // (옛 판의 발견 · 본문이 KCI 규칙을 비켜 서지 않게 · 리뷰 B2 — withdrawn 은 전부 당기기 뒤에만 돌아서 · SOC-R18 ■2 좁힘).
   // kciPaperKeys = 표 전체(결정 · upstream 무관)의 KCI 논문 열쇠 — 손님 줄만 보면 KCI 판이 보류·숨김일 때 놓침(반박 1)
   const kciKeys = new Set([
     ...kciPaperKeys,
@@ -861,16 +874,31 @@ export function guestView(
       .filter((r) => r.origin === 'statory' && isKciCard(r.payload))
       .map((r) => r.paperKey),
   ]);
-  return rows
-    .filter((r) => isGuestVisible(r, now))
-    .filter(
-      (r) =>
-        r.origin !== 'statory' ||
-        isKciCard(r.payload) ||
-        !kciKeys.has(r.paperKey),
-    )
+  // SOC-R18 ■2 — 보이는 최신 판: 논문마다 손님에게 서는 판 가운데 하나만(보이는 KCI 판이 있으면 그 가운데 가장 늦게
+  // 받은 것 · 없으면 보이는 판 가운데 가장 늦게 받은 것 · id 큼). 안 보이는 판(withdrawn · 숨김 · 보류 · 기간 지남 ·
+  // 링크 없음)은 옛 판을 가리지 않는다. 그 논문에 KCI 판이 있으면 옛 KCI 아닌 판은 좁혀서(발견 0 · 제목 + 링크)
+  // — 전에는 KCI 판이 안 보여도 옛 판을 통째로 내렸다(R16 반박 1).
+  const visible = rows.filter((r) => isGuestVisible(r, now));
+  const isKci = (r: InboxRowView) =>
+    r.origin === 'statory' && isKciCard(r.payload);
+  const pick = new Map<string, InboxRowView>();
+  for (const r of visible) {
+    const k = `${r.origin}\u0000${r.paperKey}`;
+    const cur = pick.get(k);
+    if (
+      !cur ||
+      (isKci(r) && !isKci(cur)) ||
+      (isKci(r) === isKci(cur) && r.id > cur.id)
+    ) {
+      pick.set(k, r);
+    }
+  }
+  return visible
+    .filter((r) => pick.get(`${r.origin}\u0000${r.paperKey}`) === r)
     .map((r) => {
-      const kci = r.origin === 'statory' && isKciCard(r.payload);
+      const kci = isKci(r);
+      const narrowed =
+        r.origin === 'statory' && !kci && kciKeys.has(r.paperKey);
       return {
         slug: r.slug,
         title: r.title,
@@ -879,7 +907,7 @@ export function guestView(
         kind: r.kind,
         subtype: r.subtype,
         topic: r.topic,
-        keyFindings: findingsFor(r),
+        keyFindings: narrowed ? null : findingsFor(r),
         sourceEn:
           r.origin === 'addicted-news' && typeof r.payload.sourceEn === 'string'
             ? r.payload.sourceEn

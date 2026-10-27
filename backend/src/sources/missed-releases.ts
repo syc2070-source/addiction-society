@@ -100,6 +100,49 @@ export function monitorCounts(
   };
 }
 
+/**
+ * 09:00 이월 줄 (SOC-R18 ■3 · /api/health/nightly roll) — 이월은 09:00 감시 크론 한 곳(reconcileExpected)이라
+ * 밤 기록(job_runs)에는 실리지 않는다. 그래서 같은 「지난 예정」 줄(missedReleases)과 마지막 이월 사건으로 센다(쓰기 0).
+ * 이월이 없으면 lastRolledAt = null · 수 = 0(빈 칸이 아니라 0 — 「발표 없음」은 읽은 사실이 있을 때만 · monitorState).
+ * 읽는 법(리뷰 A): lines · monitor = 달력 페이지와 같은 120일 창의 「지난 예정」 줄 전부(오늘 아침 이월만이 아님) ·
+ * rolled = 다음 예정이 있는 줄(이미 이월 ∨ 09:00 에 이월할 미리 보기) — 이월이 실제로 돌았는지는 lastRolledAt 으로 본다.
+ */
+export interface RollSummary {
+  /** 마지막 rescheduled(reason overdue) 시각 · 없으면 null */
+  lastRolledAt: string | null;
+  lines: number;
+  rolled: number;
+  check: number;
+  monitor: Record<MonitorState, number>;
+}
+
+export function rollSummary(
+  rows: Pick<MissedRelease, 'action' | 'monitor'>[],
+  events: EventLike[],
+): RollSummary {
+  let last: number | null = null;
+  for (const e of events) {
+    if (e.eventType !== 'rescheduled' || e.detail?.reason !== 'overdue')
+      continue;
+    const t = new Date(e.detectedAt).getTime();
+    if (Number.isFinite(t) && (last == null || t > last)) last = t;
+  }
+  const monitor: Record<MonitorState, number> = {
+    unreadable: 0,
+    manual: 0,
+    unchecked: 0,
+    not_published: 0,
+  };
+  for (const r of rows) monitor[r.monitor]++;
+  return {
+    lastRolledAt: last == null ? null : new Date(last).toISOString(),
+    lines: rows.length,
+    rolled: rows.filter((r) => r.action === 'rolled').length,
+    check: rows.filter((r) => r.action === 'check').length,
+    monitor,
+  };
+}
+
 export function monitorState(
   s: Pick<Source, 'status' | 'accessMethod'>,
   expected: string,

@@ -220,8 +220,11 @@ describe('KCI 유래 카드 (SOC-R16 ■3 · Statory ASK-58 ■4)', () => {
     );
     const items = guestView([rowOf(kci, 1), oldPlain], now);
     expect(items.map((i) => i.source)).toEqual(['kci']);
-    // 반박 1: KCI 판이 손님 줄에 없어도(보류 · 숨김) 표 전체의 KCI 열쇠로 옛 판을 내림 · 다른 논문은 그대로
-    expect(guestView([oldPlain], now, [kci.paperKey])).toEqual([]);
+    // 반박 1: KCI 판이 손님 줄에 없어도(보류 · 숨김) 표 전체의 KCI 열쇠로 옛 판의 발견을 내림 · 다른 논문은 그대로
+    // (SOC-R18 ■2: 안 보이는 판은 옛 판을 가리지 않음 — 옛 판은 서되 발견 0)
+    expect(
+      guestView([oldPlain], now, [kci.paperKey]).map((i) => i.keyFindings),
+    ).toEqual([null]);
     expect(guestView([rowOf(plain, 2)], now, [kci.paperKey])).toHaveLength(1);
   });
 
