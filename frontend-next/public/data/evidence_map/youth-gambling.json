@@ -4,7 +4,7 @@
   "topic": "youth-gambling",
   "title": "청소년 도박",
   "title_en": "Youth gambling",
-  "generated_at": "2026-10-18T00:11:31.073Z",
+  "generated_at": "2026-11-02T02:44:31.301Z",
   "source": "addiction bibliography (Europe PMC) — metadata and abstracts only",
   "query": {
     "all_of_groups": [
@@ -69,7 +69,7 @@
     }
   },
   "values": {
-    "studies": 740,
+    "studies": 747,
     "by_year": {
       "2002": 5,
       "2003": 7,
@@ -95,47 +95,55 @@
       "2023": 41,
       "2024": 34,
       "2025": 39,
-      "2026": 45
+      "2026": 51
     },
     "trend": {
-      "last_five_years": 214,
+      "last_five_years": 220,
       "five_years_before": 236,
       "latest_year": 2026
     },
     "journal_countries_top": [
       [
-        "AU",
-        2
-      ],
-      [
         "CA",
-        2
+        9
       ],
       [
-        "GB",
-        1
-      ],
-      [
-        "IN",
-        1
-      ],
-      [
-        "ES",
-        1
+        "AU",
+        7
       ],
       [
         "US",
+        7
+      ],
+      [
+        "ES",
+        5
+      ],
+      [
+        "GB",
+        4
+      ],
+      [
+        "FR",
+        4
+      ],
+      [
+        "IT",
+        1
+      ],
+      [
+        "CH",
         1
       ]
     ],
     "designs": {
-      "other": 268,
-      "survey": 198,
-      "cross-sectional": 82,
+      "other": 269,
+      "survey": 199,
+      "cross-sectional": 85,
       "cohort": 65,
       "qualitative": 48,
-      "rct": 25,
-      "meta-analysis": 18,
+      "rct": 26,
+      "meta-analysis": 19,
       "experiment": 18,
       "systematic-review": 17,
       "case-control": 1
@@ -155,7 +163,7 @@
       ],
       [
         "CPGI",
-        13
+        14
       ],
       [
         "AUDIT",
@@ -191,6 +199,13 @@
         "cited": 702
       },
       {
+        "title": "Psychological therapies for pathological and problem gambling.",
+        "doi": "10.1002/14651858.cd008937.pub2",
+        "year": 2012,
+        "journal": "The Cochrane database of systematic reviews",
+        "cited": 320
+      },
+      {
         "title": "Impulsivity predicts problem gambling in low SES adolescent males.",
         "doi": "10.1046/j.1360-0443.1999.94456511.x",
         "year": 1999,
@@ -212,13 +227,6 @@
         "cited": 98
       },
       {
-        "title": "Early risk and protective factors for problem gambling: A systematic review and meta-analysis of longitudinal studies.",
-        "doi": "10.1016/j.cpr.2016.10.008",
-        "year": 2017,
-        "journal": "Clinical psychology review",
-        "cited": 430
-      },
-      {
         "title": "A neurocognitive comparison of cognitive flexibility and response inhibition in gamblers with varying degrees of clinical severity.",
         "doi": "10.1017/s0033291711000316",
         "year": 2011,
@@ -226,25 +234,18 @@
         "cited": 77
       },
       {
-        "title": "Psychological therapies for pathological and problem gambling.",
-        "doi": "10.1002/14651858.cd008937.pub2",
+        "title": "Altered brain activity during reward anticipation in pathological gambling and obsessive-compulsive disorder.",
+        "doi": "10.1371/journal.pone.0045938",
         "year": 2012,
-        "journal": "The Cochrane database of systematic reviews",
-        "cited": 320
+        "journal": "PloS one",
+        "cited": 84
       },
       {
-        "title": "Prevalence of Adolescent Problem Gambling: A Systematic Review of Recent Research.",
-        "doi": "10.1007/s10899-016-9627-5",
+        "title": "Early risk and protective factors for problem gambling: A systematic review and meta-analysis of longitudinal studies.",
+        "doi": "10.1016/j.cpr.2016.10.008",
         "year": 2017,
-        "journal": "Journal of gambling studies",
-        "cited": 477
-      },
-      {
-        "title": "The natural history of problem gambling from age 18 to 29.",
-        "doi": "10.1037/0021-843x.112.2.263",
-        "year": 2003,
-        "journal": "Journal of abnormal psychology",
-        "cited": 115
+        "journal": "Clinical psychology review",
+        "cited": 430
       },
       {
         "title": "Neuroendocrine response to casino gambling in problem gamblers.",
@@ -252,6 +253,13 @@
         "year": 2004,
         "journal": "Psychoneuroendocrinology",
         "cited": 88
+      },
+      {
+        "title": "Prevalence of Adolescent Problem Gambling: A Systematic Review of Recent Research.",
+        "doi": "10.1007/s10899-016-9627-5",
+        "year": 2017,
+        "journal": "Journal of gambling studies",
+        "cited": 477
       }
     ],
     "core_basis": "in-bibliography citations (reviews x3)",
@@ -298,14 +306,14 @@
       }
     ],
     "evidence_levels": {
-      "fulltext": 35,
-      "abstract": 5,
-      "indirect": 67,
-      "bib_only": 633
+      "fulltext": 53,
+      "abstract": 29,
+      "indirect": 132,
+      "bib_only": 533
     },
-    "open_access": 257,
+    "open_access": 259,
     "open_access_share": 0.347,
-    "full_text_held": 87
+    "full_text_held": 91
   },
   "honesty": [
     "every value is counted from the bibliography; none is estimated",
@@ -318,7 +326,7 @@
       "en": "Youth gambling"
     },
     "source": "addiction bibliography (Europe PMC) — metadata and abstracts only",
-    "total": 740,
+    "total": 747,
     "counts_by_year": [
       {
         "year": 2002,
@@ -418,47 +426,55 @@
       },
       {
         "year": 2026,
-        "n": 45
+        "n": 51
       }
     ],
     "countries": [
       {
-        "name": "AU",
-        "n": 2
-      },
-      {
         "name": "CA",
-        "n": 2
+        "n": 9
       },
       {
-        "name": "GB",
-        "n": 1
-      },
-      {
-        "name": "IN",
-        "n": 1
-      },
-      {
-        "name": "ES",
-        "n": 1
+        "name": "AU",
+        "n": 7
       },
       {
         "name": "US",
+        "n": 7
+      },
+      {
+        "name": "ES",
+        "n": 5
+      },
+      {
+        "name": "GB",
+        "n": 4
+      },
+      {
+        "name": "FR",
+        "n": 4
+      },
+      {
+        "name": "IT",
+        "n": 1
+      },
+      {
+        "name": "CH",
         "n": 1
       }
     ],
     "designs": [
       {
         "name": "other",
-        "n": 268
+        "n": 269
       },
       {
         "name": "survey",
-        "n": 198
+        "n": 199
       },
       {
         "name": "cross-sectional",
-        "n": 82
+        "n": 85
       },
       {
         "name": "cohort",
@@ -470,11 +486,11 @@
       },
       {
         "name": "rct",
-        "n": 25
+        "n": 26
       },
       {
         "name": "meta-analysis",
-        "n": 18
+        "n": 19
       },
       {
         "name": "experiment",
@@ -504,7 +520,7 @@
       },
       {
         "name": "CPGI",
-        "n": 13
+        "n": 14
       },
       {
         "name": "AUDIT",
@@ -539,6 +555,12 @@
         "url": "https://doi.org/10.4088/jcp.v66n0504"
       },
       {
+        "title": "Psychological therapies for pathological and problem gambling.",
+        "year": 2012,
+        "doi": "10.1002/14651858.cd008937.pub2",
+        "url": "https://doi.org/10.1002/14651858.cd008937.pub2"
+      },
+      {
         "title": "Impulsivity predicts problem gambling in low SES adolescent males.",
         "year": 1999,
         "doi": "10.1046/j.1360-0443.1999.94456511.x",
@@ -557,40 +579,34 @@
         "url": "https://doi.org/10.1159/000355832"
       },
       {
-        "title": "Early risk and protective factors for problem gambling: A systematic review and meta-analysis of longitudinal studies.",
-        "year": 2017,
-        "doi": "10.1016/j.cpr.2016.10.008",
-        "url": "https://doi.org/10.1016/j.cpr.2016.10.008"
-      },
-      {
         "title": "A neurocognitive comparison of cognitive flexibility and response inhibition in gamblers with varying degrees of clinical severity.",
         "year": 2011,
         "doi": "10.1017/s0033291711000316",
         "url": "https://doi.org/10.1017/s0033291711000316"
       },
       {
-        "title": "Psychological therapies for pathological and problem gambling.",
+        "title": "Altered brain activity during reward anticipation in pathological gambling and obsessive-compulsive disorder.",
         "year": 2012,
-        "doi": "10.1002/14651858.cd008937.pub2",
-        "url": "https://doi.org/10.1002/14651858.cd008937.pub2"
+        "doi": "10.1371/journal.pone.0045938",
+        "url": "https://doi.org/10.1371/journal.pone.0045938"
       },
       {
-        "title": "Prevalence of Adolescent Problem Gambling: A Systematic Review of Recent Research.",
+        "title": "Early risk and protective factors for problem gambling: A systematic review and meta-analysis of longitudinal studies.",
         "year": 2017,
-        "doi": "10.1007/s10899-016-9627-5",
-        "url": "https://doi.org/10.1007/s10899-016-9627-5"
-      },
-      {
-        "title": "The natural history of problem gambling from age 18 to 29.",
-        "year": 2003,
-        "doi": "10.1037/0021-843x.112.2.263",
-        "url": "https://doi.org/10.1037/0021-843x.112.2.263"
+        "doi": "10.1016/j.cpr.2016.10.008",
+        "url": "https://doi.org/10.1016/j.cpr.2016.10.008"
       },
       {
         "title": "Neuroendocrine response to casino gambling in problem gamblers.",
         "year": 2004,
         "doi": "10.1016/j.psyneuen.2004.03.005",
         "url": "https://doi.org/10.1016/j.psyneuen.2004.03.005"
+      },
+      {
+        "title": "Prevalence of Adolescent Problem Gambling: A Systematic Review of Recent Research.",
+        "year": 2017,
+        "doi": "10.1007/s10899-016-9627-5",
+        "url": "https://doi.org/10.1007/s10899-016-9627-5"
       }
     ],
     "reviews": [
@@ -631,18 +647,18 @@
       }
     ],
     "evidence_levels": {
-      "fulltext": 35,
-      "abstract": 5,
-      "indirect": 67,
-      "bib_only": 633
+      "fulltext": 53,
+      "abstract": 29,
+      "indirect": 132,
+      "bib_only": 533
     },
     "oa_ratio": {
-      "with_fulltext": 257,
-      "total": 740
+      "with_fulltext": 259,
+      "total": 747
     },
     "gaps": {
-      "no_fulltext": 653,
-      "owner_hands": 1
+      "no_fulltext": 656,
+      "owner_hands": 0
     }
   }
 }
