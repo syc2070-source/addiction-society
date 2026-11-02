@@ -1,0 +1,160 @@
+main 반영 · 머리 SHA = d729909(코드 마지막) — 이 보고서 커밋이 그 위에 하나 더 얹힌다(FF · rebase·force·amend 0)
+SOC-R19 보고 — 홈 v2 「한 그림 먼저」(미리보기) + 닷새 실측 + 관리자 꼬리표 · 2026-11-02(월) 15:0x KST
+
+■ 원칙(지킨 것)
+- 오너 액션 0 · 묻지 않음 · 보조 에이전트 0 · 설치 0(새 패키지 0 · 그래프 = 인라인 SVG · 캡처 = 깔려 있던 Chrome headless 를 node 내장 WebSocket 으로)
+- migration 0 · 손 SQL 0 · 운영 DB 무접촉 · 기존 행 값 손대기 0 · 자동 기능 제거 0 · 지움 0
+- 수 불변: 지표 값 · 연구 수 · 회복자원 수 = 운영 API · Statory 묶음의 저장 값 그대로. 화면용 셈 둘만(「앞 조사 대비 ±」 · 그림 지수 토글) — 둘 다 저장 0 · 시험 등재
+- LLM 0(유형 · 논문 한 줄 · 사건 분류 = 표와 정규식)
+- 어김 1 = ⓐ 앞 첫 명령 하나를 && 로 묶음(git fetch && git status && git log && date · 읽기만) — 그 뒤 명령 하나씩
+
+━━ ■0 실측(읽기만 · GET · 14:44~14:58 KST) ━━
+1) 04:00 회차 닷새(/api/health/nightly · last7Days runs 7 · failed 0)
+ | KST 회차   | runId     | 단계 ok | diff | inserted | updated | skipped | 방송(받음/새로/바꿈) | 걸린 시간 | 오류 |
+ | 10-29 04:00 | 87bf5bbd | 9/9 | 0 | 0 | 48 | 281 | 21/0/0 | 97s | 0 |
+ | 10-30 04:00 | 3d9d0532 | 9/9 | 0 | 0 | 48 | 281 | 21/0/0 | 93s | 0 |
+ | 10-31 04:00 | 993f5726 | 9/9 | 0 | 0 | 48 | 281 | 21/0/0 | 89s | 0 |
+ | 11-01 04:00 | fc71195d | 9/9 | 0 | 0 | 48 | 281 | 21/0/0 | 85s | 0 |
+ | 11-02 04:00 | 25c62286 | 9/9 | 0 | 0 | 48 | 281 | 21/0/0 | 95s | 0 |
+ (KST = startedAt(…T19:00Z) + 9h · updated 48 = collect:research 의 기존 행 갱신 · 그 밖 단계 바꿈 0. 10-28 회차 30247c8e 는 updated 49.)
+ - 숨김 수 · 보관 목록 줄 수 · truncated = 미측(job_runs 에 없고 stdout 로그에만 · Render 로그 무접촉). 방송 단계 받음 21 · 새로 0 · 바꿈 0 = 숨김·다시 보임 0 으로 읽힘(R18 과 같은 수).
+ - 09:00 출처 읽기(cron:daily 00:00Z) = 연대기에 날마다 checked 줄(spo · drugfree · kocca · hri) · 11-02 = changed 8 · checked 5 · blocked 1(samhsa) · manual 1(lancet).
+ - health roll 줄: lastRolledAt 2026-11-01T00:00:11.904Z(= 11-01 09:00:11 KST) · lines 4 · rolled 4 · check 0 · monitor {unreadable 0 · manual 1 · unchecked 0 · not_published 3}.
+ - lastRefresh(00:05) 11-01T15:05Z ok.
+
+2) 11-01 「세 줄」 첫 실전 — 실제는 두 줄
+ - spo(마약류 월간동향): 10-29 09:00 board-latest 가 새 글을 잡음 → published(prevExpectedAt 10-01 → newExpectedAt 11-01) → 11-01 에 지난 예정이 아니어서 이월 줄에 오지 않음. 「발표 없음」 예약은 실제 발간이 앞질러 풀림(정상).
+ - drugfree(마약류 통계): 11-01 00:00:11.892Z rescheduled 10-01 → 11-01(overdue · publicationConfirmed false) · 달력 「지난 예정 · 미확인」 = 2026-10 예정 지남 · 다음 2026-11 · 꼬리표 「발표 없음」(not_published).
+ - mohw(중독관리통합지원센터 운영현황): 11-01 00:00:11.904Z rescheduled 10-01 → 2027-10-01 · 꼬리표 「사람 확인」(manual) · 11-01 00:00 manual 사건(cooldown).
+ - roll 의 not_published 3 = drugfree 08 · 09 · 10 월 세 줄(120일 창) · manual 1 = mohw.
+ - 「수동 확인 필요」가 손님 화면에 보이나 = 예. 지금 홈 「최근 관측 활동」(GET /api/timeline?limit=4) 11-02 실측 4줄 = changed kcgp_rehab · changed ncmh_mhs · blocked samhsa_nsumhss · manual lancet_gambling. → ■3 로 v2 에서 뺌.
+ - 덤: 연대기 30일 사건 종류(summary.byType) = checked 98 · changed 34 · manual 34 · blocked 5 · rescheduled 4 · source_updated 3 · document_updated 2 · published 1.
+
+3) 배포 · 받는 문
+ - Render health commit = 12fe2c3(R18 feat) · startedAt 2026-10-27T00:39:31Z · schema.review_columns true. main 머리 1f00027 은 [skip render] 데이터 커밋이라 Render 그대로가 맞음.
+ - Vercel production = 1f00027 · GitHub 상태 Vercel success 2026-11-02T03:55:39Z(12:55 KST). www 홈 X-Nextjs-Prerender 1 · X-Vercel-Cache STALE(5분 ISR 정상).
+ - 받는 문: 04:00 단계 9개에 eco 단계 없음 + GET /api/evidence/received = 404 → 깃발 ECO_LINK1_INBOX_ENABLED 꺼짐. ECO_SOURCE_LATEST_URL / READ_KEY 값 = 미측(열쇠 값 0 · Render env 무접촉).
+   eco_inbox 행 수 = 미측(관리자 토큰 없음 · DB 무접촉) · 기대 0(깃발 꺼짐). R18 소급 migration 로그 수 = 미측(Render 로그 무접촉 · 기대 0).
+
+4) 홈 자료(지표 11)
+ | 지표 | 유형 | 기간 | 점 | 단절 | 점≥5 |
+ | knhanes_high_risk_drinking_rate 성인 고위험음주율 % | 알코올 | 2015~2024 | 10 | — | ○ |
+ | who_alcohol_per_capita_kr 1인당 알코올 L | 알코올 | 2000~2024 | 25 | — | ○ |
+ | spo_drug_offenders_total 마약류 사범 명 | 마약 | 2015~2025 | 11 | — | ○ |
+ | unodc_global_drug_users 세계 약물 사용자 백만 명(세계) | 마약 | 2017~2024 | 8 | — | ○ |
+ | knhanes_current_smoking_rate 성인 현재흡연율 % | 담배 | 2015~2024 | 10 | — | ○ |
+ | nia_smartphone_overdependence_rate 과의존 위험군 % | 스마트폰 | 2016~2025 | 10 | — | ○ |
+ | kocca_game_usage_rate 게임 이용률 % | 게임 | 2016~2025 | 10 | 2023 | ○ |
+ | kcgp_youth_gambling_problem_rate (위험+문제) % | 도박 | 2015~2022 | 4 | 2020 · 2022 | × |
+ | kcgp_youth_gambling_problem_group_rate % | 도박 | 2015~2022 | 4 | 2020 · 2022 | × |
+ | kcgp_youth_gambling_atrisk_rate % | 도박 | 2015~2022 | 4 | 2020 · 2022 | × |
+ | kcgp_youth_v2 평생 도박 경험률 % | 도박 | 2024~2025 | 2 | — | × |
+ - 유형별 하나씩: 알코올 · 마약 · 담배 · 스마트폰 · 게임 = 점 ≥5 있음 · 도박 = 없음(4점 · 단절 둘) → 그림엔 4점 그대로 넣고 점선 + 「조사 설계 변경」 꼬리.
+ - 게임 대표는 「이용률」(중독 지표 아님) — 게임 쪽 다른 시계열이 없어 그대로 · 정직 표기.
+ - 연대기 최근 30일(10-03~11-02): 손님 사건 = 발간 감지 1(spo 10-29) · 방송 2(10-14 · 10-19) · 정책문서 사건 0 / 운영 사건 = 변경 감지 35(그중 발간 아님 6) · 차단 5 · 수동 확인 35 · 이월 4 · 주소 변경 3 · 문서 링크 2 · 확인 99.
+ - 근거 지도 두 주제(묶음 값): 청소년 도박 = 연구 747 · 열린 원문 259 · 척도 SOGS 88 · PGSI 42 · IAT 18 / 알코올 회복 = 연구 7,523 · 열린 원문 1,712 · AUDIT 116 · ASI 67 · OCDS 53
+   (지시서 예시 「740 · 257」은 옛 값 — 11-02 주간 갱신 1f00027 뒤 값을 그대로 씀).
+ - 회복자원 73곳 · 지역 18(city 값 그대로: 경기 11 · 경남 · 인천 · 광주 · 대전 6 · 서울 · 강원 5 · 전북 · 부산 4 · 경북 · 대구 · 제주 · 울산 3 · 전남 · 충남 · 충북 2 · 경기남부 · 경기북부 1 · 세종 0).
+
+5) 프런트 구조
+ - 홈 = app/[locale]/page.tsx 한 파일(서버 컴포넌트) · 블록: 첫 화면(배지·슬로건·설명) · 넷(오늘의 숫자 · 근거 지도 · 이번 달 발표 · 회복자원) · 지금까지 모은 것 4칸 · 관측소 LIVE · 부처 분산 · 주목 지표 2 · 최근 관측 활동.
+ - 그래프 부품 = MiniTrend(220×48 스파크라인 · 홈 안) · 지표 상세 .spark · 끊김 = lib/seriesBreaks.
+ - 색 = globals.css 토큰(주 슬레이트 블루 · 앰버 액센트 · 관측소 남색 obs-*) · 유형 색 없었음. 글자 = 6단(34·24·18·16·14·13).
+ - 미리보기 길: 쿼리 ?v=2 = 홈이 searchParams 를 읽어 정적(ISR) → 요청마다 그림으로 바뀜(지금 홈 캐시를 흔듦) · 깃발 = 배포 env 필요(오너 액션) →
+   고름 = 경로 /preview/home(ko) · /en/preview/home(en) — 따로 선 정적 쪽(5분 ISR · 빌드에 ● 둘) · 지금 홈 캐시 무관 · en 게이트가 빌드 산출 en/preview/home.html 을 그대로 봄.
+
+━━ ■1 첫 화면 「한국 중독 10년」 ━━
+- 한 문장(「중독은 개인의 도덕 실패가 아니라, 사회 전체의 구조적 위험 시그널입니다」 그대로) → 그림 → 큰 수 셋 → 신뢰 문장.
+- 그림 = 유형 여섯 × 대표 지표 하나 · 2×3 작은 그림(1440 = 3열 2줄 · 640~959 = 2열 · <640 = 1열 세로).
+  고른 까닭: 단위가 % 다섯 · 명 하나 → 축 둘(이중 축)은 읽는 이를 속이는 대표 꼴이고, 여섯 색을 한 그림에 겹치면 색 검사(모든 쌍) FAIL(CVD ΔE 3.2 · 정상 10.5).
+  작은 그림은 그림마다 색 하나 + 유형 이름이라 색에 기대지 않음.
+- 지수 토글(첫 해 = 100) = 같은 2×3 을 여섯이 같은 눈금(40~240)으로 · CSS 라디오만(JS 0) · 「화면용 · 저장 값은 발표 값」 한 줄. 기본 = 원 값.
+- 끊김 = 기존 규칙(splitAtBreaks · 점선 · 「조사 설계 변경(…) — 점선 앞뒤는 직접 비교하지 않습니다」).
+- 점마다 <title>(해 · 값) · 「표로 보기」(details · 여섯 줄 해:값) = 색 대비 3:1 미만 둘(aqua · magenta)의 보완.
+- 큰 수 셋 = 오늘의 숫자 고르기(pickTodaysNumber · 같은 날 같은 셋)에서 이어지는 셋 · 값 56px 급(clamp 40→56) · 「{앞 해} 대비 ±」(소수 자리 = 저장 값 자리 · %는 %p) ·
+  두 점 사이 단절이면 「{앞 해} 뒤 조사 설계 변경 — 비교하지 않습니다」 · 해 · 출처 · 원본 보기 ↗. 11-02 셋 = 청소년 도박(4.8 · 단절로 비교 안 함) · 평생 도박 경험(4.0 · −0.3%p) · 성인 흡연(16.7 · −2.9%p).
+- 신뢰 문장 「추정 값은 없습니다 · 모든 수는 원본에서 센 값입니다」 유지.
+- 손님에게 달라지는 것: (미리보기에서) 첫 화면이 그림이다 — 여섯 유형의 10년이 한눈에. LLM 의존: 0.
+
+━━ ■2 이야기 순서 ━━
+① 그림·수 → ② 「한국의 중독 대응은 6개 부처로 흩어져 있습니다」(표 · 인용 · 각주 글 그대로 · 배경 둘째 단계 띠) → ③ 근거(주제 카드 머리 = 「연구 747편 · 열린 원문 259」 · 유형 색 꼬리표 ·
+척도 상위 4 · 「논문 보기 ▸」 접힘 · 펼치면 영어 제목 + 한국어 한 줄) → ④ 연대기 다섯(손님 사건만 = 발간 감지(발간 아님 제외) + 방송 · 유형 색 점) → ⑤ 회복자원(73곳 · 18개 지역 + 가로 막대 18 + 찾기) →
+⑥ 다음 발표(달력 이번 달 + 관측소 「다음 발표 예정」 한 목록 · 같은 출처 한 번 · 「최근 갱신은 연대기에서 →」) → ⑦ 운영 수 한 줄.
+- 한국어 한 줄 규칙(lib/paperLine): 제목 낱말 표 → 「주제 · 척도 · 표본」 낱말만 · 걸린 것이 없으면 줄 없음 · ko 에서만(en 은 영어 제목만). 예: 「Impulsivity predicts problem gambling in low SES adolescent males.」 → 주제 도박·충동성 · 표본 청소년·남성·저소득층.
+- 지도: 면허 확인된 시도 SVG 가 저장소에 없음 · 이 판에서 받아 면허를 확인하지 않음 → 가로 막대(지시서 대안).
+- 섹션 머리 한 꼴(작은 주황 라벨 + 제목 한 줄) · 카드 테두리 0(흰 면 · 베이지 띠 두 단계) · 섹션 간격 하나(64px).
+- 손님에게 달라지는 것: 읽는 순서가 생긴다(그림 → 흩어진 대응 → 근거 → 연대기 → 회복 → 다음 발표). LLM 의존: 0.
+
+━━ ■3 운영 수 · 운영 로그 옮기기(제거 0) ━━
+- 「지금까지 모은 것」 → v2 바닥 한 줄(13px · 감시 소스 24 · 지표 11 · 정책문서 23 · 회복자원 73).
+- 관측소 LIVE 블록 → ⑥ 다음 발표에 합침(남색 = 이 블록 하나만).
+- 「최근 관측 활동」 → /admin/activity(새 · 로그인 뒤 · 읽기 전용 · 공개 GET /api/timeline 그대로 · 「확인」 줄 숨김 단추 · 줄마다 「손님에게 보임(홈 v2) / 운영 전용」).
+- 지금 홈(/)은 그대로(운영 블록 셋 다 아직 보임) — R20 전환 때 사라짐. 공개 API · 연대기 페이지 변경 0.
+- 손님에게 달라지는 것: v2 에서 운영 계기판(변경 감지 · 차단 · 수동 확인)이 사라진다. LLM 의존: 0.
+
+━━ ■4 색 · 글자 ━━
+- 유형 색 여섯 = globals.css --type-alcohol #2a78d6 · gambling #eb6834 · drug #1baf7a · smartphone #6250d6 · game #e87ba4 · tobacco #008300 (+ none #9a958a) ·
+  이름 짝 = lib/addictionTypes.ts(대표 지표 · 지표 코드 · 출처 domain · 제목 낱말 → 유형). validate_palette light: 밝기 · 채도 PASS · 인접 CVD ΔE 9.2 · 정상 27.6 PASS · 대비 3:1 미만 2(→ 이름 · 표 보완).
+- 쓰는 곳(v2): 그래프 선 · 큰 수 점 · 근거 카드 꼬리표 · 연대기 점. 다른 쪽(지표 목록 · 연대기 페이지)은 아직 안 씀 → R20 재료.
+- 글자 세 단계(v2): 큰 수 40→56 · 제목 22→28 · 본문 16. 390 폭 가로 넘침 0(ko · en scrollWidth = 390).
+- 손님에게 달라지는 것: v2 안에서 같은 색 = 같은 유형. LLM 의존: 0.
+
+━━ ■5 미리보기 주소 · 캡처 ━━
+- 오너가 볼 주소(main 배포 뒤): https://www.addictionsociety.net/preview/home · 영어 https://www.addictionsociety.net/en/preview/home
+  (noindex · nofollow · sitemap 없음 · canonical = 홈 · 지금 홈 그대로)
+- 캡처(로컬 next build + next start · API = 운영 · 15:03 KST) → docs/reports/202611/SOC-R19_samples/
+  v2_ko_1440.png 332,792 B(1440×4814) · v2_ko_390.png 299,517 B(390×7778) · v2_en_1440.png 436,224 B(1440×5056) · v2_en_390.png 397,729 B(390×8452) ·
+  v2_ko_1440_index.png 328,573 B(지수 보기) · current_ko_1440.png 261,783 B(지금 홈 · 전후 비교)
+  (캡처는 A1 고침(라디오 자리) 앞 빌드 — 보이는 차이 0)
+- 손님에게 달라지는 것: 아직 0(오너 「됐다」 뒤 R20 전환). LLM 의존: 0.
+
+━━ ■6 관리자 「손님에게 보임」 꼬리표 + 마무리 ━━
+- /admin/review 줄마다 「손님에게 보임」 또는 「손님에게 안 보임(까닭: 숨김 · 관문)」 · 백엔드 findReviewQueue 가 guestVisible · guestReason 을 실음(공개 판정 isPubliclyVisible 하나 · 쓰기 0) ·
+  research 에는 보관 상태가 없어 「보관」 까닭은 이 창에서 나오지 않음(정직 표기). 옛 API 응답이면 꼬리표를 그리지 않음.
+- health 이월 줄 = ■0-1 · ■0-2 대로 맞음(결함 0).
+- P0 결함 = 0 → 이 판 고침 없음. 나머지 → R20 재료.
+- 손님에게 달라지는 것: 0(관리자 화면). LLM 의존: 0.
+
+■ 정직 표기
+- 04:00 숨김 수 · 보관 목록 수 · truncated · 소급 수 · eco_inbox 행 수 · ECO env 값 = 미측(로그 · DB · env 무접촉).
+- 큰 수의 「± 」와 지수 = 화면에서 만든 수(저장 0) · 나머지 수는 모두 저장 값.
+- 도박 대표 지표는 4점 · 단절 둘 — 10년 그림 안에서 가장 약한 선. 게임 대표는 이용률(중독 지표 아님).
+- 「정책문서」 손님 사건: 연대기에 정책문서 발행 사건 종류가 없음(document_updated 는 링크 바꿈 = 운영) → ④ 는 발간 감지 + 방송.
+- 방송 유형 색 = 제목 낱말 하나만 걸릴 때(둘 이상 · 없음 = 회색 점).
+- 시도 지도 = 안 함(면허 확인 자료 없음) → 막대.
+- 캡처 도구 첫 회차가 빈 그림(Git Bash 가 /preview/home 인자를 윈도 경로로 바꿈) → MSYS_NO_PATHCONV=1 로 다시 · 빈 그림은 덮어씀.
+- 백엔드 eslint(research.review.spec.ts) 오류 6 = 모두 이 판 앞부터 있던 줄(이 판이 넣은 13줄은 0) · 그대로 둠.
+
+■ 게이트
+- 백엔드 jest 전량 1회(nest build 뒤): 35 suites / 285 tests 모두 통과(8.6s) · tsc 0 · eslint 바뀐 줄 0(research.service.ts 0)
+- 프런트 npm test 전량: 30 중 29 통과 · 1 건너뜀(요청 쪽 en 게이트 = 주소 없음) → 따로 EN_GATE_REQUIRE=1 EN_GATE_BASE_URL=localhost next start 로 2/2 통과(빌드 산출 + 요청 28 쪽 · /en/preview/home 포함)
+- tsc 0 · eslint(바뀐 프런트 파일 전부) 0 · next build ok(41 정적 · /ko·/en preview/home ●)
+- push = 15:1x KST(04:00±30 밖) · main FF
+- Render/Vercel 배포 확인 = R20 ■0(코드 = 프런트 + 백엔드 research 한 칸 → Render 새 배포 · Vercel 새 배포)
+
+■ 교수님 판정/실행 필요
+- 위 미리보기 주소를 보고 「됐다」 또는 「고칠 점」 한 줄만.
+
+■ R20 재료
+1. 오너 「됐다」면 /preview/home → / 기본 전환(지금 홈 블록 셋 = 운영 수 · LIVE · 최근 관측 활동 손님 화면에서 빠짐) · 옛 홈 파일 보관 여부.
+2. 유형 색을 지표 목록 · 지표 상세 · 연대기 페이지 · 근거 지도 페이지에도.
+3. 시도 지도: 공공누리 1유형 · 퍼블릭 도메인 시도 경계 SVG 를 찾아 면허 확인 뒤 막대와 바꿀지.
+4. 도박 대표 지표: kcgp 2024~ 새 조사(kcgp_youth_v2 · 2점)가 쌓이면 대표 교체 · 게임 쪽 중독 지표(과몰입) 시계열 찾기.
+5. Statory 카드 한글 칸이 생기면 paperLine 규칙을 그 칸으로.
+6. 04:00 숨김 수 · 보관 목록 수를 job_runs counts 에 실을지(지금 stdout 만 → 닷새 실측 불가).
+7. 관리자 화면에 관리자 메뉴 한 줄(검수 · 받은 것 · 운영 로그 사이 길) — 지금은 주소를 알아야 감.
+8. 프런트 package.json "type": "module" 경고(node --test MODULE_TYPELESS) — 동작 무관 · 정리만.
+
+■ 커밋(가지 claude/soc-r19 · origin/main 1f00027 위)
+241ceed docs: SOC-R19 instruction [skip ci]
+723aff8 feat(home-v2): preview at /preview/home …(■1 ■2 ■4 ■5)
+d767d02 feat(admin): ops log /admin/activity · review guest tag …(■3 ■6)
+19e4782 fix(home-v2): tile type label · narrow timeline
+e70c6f6 docs(soc-r19): samples [skip ci] [skip render]
+d729909 fix(home-v2): radio positioned parent (리뷰 A1)
+(+ 이 보고서 커밋)
+
+■ 리뷰(찾기 2 · 반박 1 · 직접)
+찾기 1(v2 화면): A1 = 숨긴 라디오가 위치 부모 없이 absolute → 키보드 초점 때 쪽 맨 위로 튈 수 있음 → 고침(d729909). 그 밖 B 0.
+찾기 2(지금 홈 무변화): globals.css 는 새 변수만 · 기존 값 0 · revalidate 는 길 하나 더 비움(응답 꼴 그대로) → 지금 홈 그림 같음 · B 0.
+반박 1(v2 가 운영 사건을 새나): 발간 감지(발간 아님 제외) + 방송만 · changed · blocked · manual · rescheduled 0 → B 0.
