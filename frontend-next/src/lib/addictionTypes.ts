@@ -25,6 +25,21 @@ export function typeColorVar(type: AddictionType | null): string {
   return type ? `var(--type-${type})` : 'var(--type-none)';
 }
 
+/** 어두운 바탕용 짝(SOC-R20 ■1 · 값은 globals.css --type-<key>-dark) */
+export function typeColorVarDark(type: AddictionType | null): string {
+  return type ? `var(--type-${type}-dark)` : 'var(--type-none-dark)';
+}
+
+/** 유형 경로 이름인지(/evidence/<type>) */
+export function isAddictionType(v: string): v is AddictionType {
+  return (ADDICTION_TYPES as readonly string[]).includes(v);
+}
+
+/** 대표 지표가 중독 지표가 아닌 것(SOC-R20 ■4 · 게임 과몰입 계열이 자료에 없어 이용률로 그림) */
+export const NOT_ADDICTION_INDICATORS: ReadonlySet<string> = new Set([
+  'kocca_game_usage_rate',
+]);
+
 /** 홈 v2 그림의 유형별 대표 지표 — 한국 · 전체값 시계열(■0-4 실측으로 고름). */
 export const TYPE_REPRESENTATIVE: Record<AddictionType, string> = {
   alcohol: 'knhanes_high_risk_drinking_rate',

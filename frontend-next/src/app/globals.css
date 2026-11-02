@@ -55,6 +55,24 @@
   --type-tobacco: #008300;
   --type-none: #9a958a;
 
+  /* ── 어두운 첫 화면 (SOC-R20 ■1 · 홈 v3 미리보기 전용 · 위 밝은 판 변수는 그대로) ──
+   * 대비(WCAG): 글 15.9:1 · 흐린 글 9.3:1 · 강조 10.7:1 (바탕) — 카드 위 14.5 · 8.5 · 9.8.
+   * 유형 색 여섯 = 바탕 대비 7.2~9.4:1(그래픽 3:1 PASS) · 밝기끼리는 거의 같음(도박↔게임 1.00) →
+   * 색만으로 가르지 않는다: 주인공·띠·타일마다 유형 이름이 언제나 붙는다(보고서 대비 표). */
+  --dark-bg: #12151c;
+  --dark-text: #f2efe6;
+  --dark-muted: #b4b9c4;
+  --dark-card: #1a1e27;
+  --dark-line: #2a2f3a;
+  --dark-accent: #ffb86b;
+  --type-alcohol-dark: #6ea8ff;
+  --type-gambling-dark: #ff9a4a;
+  --type-drug-dark: #3fd0a6;
+  --type-smartphone-dark: #a394ff;
+  --type-game-dark: #ff8fc0;
+  --type-tobacco-dark: #86c95f;
+  --type-none-dark: #8a909c;
+
   /* ── 홈 v2 글자 세 단계 (SOC-R19 ■4: 큰 수 · 제목 · 본문) ── */
   --fs-v2-number: clamp(2.5rem, 1.6rem + 3vw, 3.5rem); /* 40 → 56 */
   --fs-v2-title: clamp(1.375rem, 1.1rem + 1vw, 1.75rem); /* 22 → 28 */
