@@ -32,27 +32,36 @@ import {
 } from '@/lib/enLabels';
 import {
   ADDICTION_TYPES,
+  NOT_ADDICTION_INDICATORS,
   TYPE_REPRESENTATIVE,
   indicatorType,
   sourceType,
   titleType,
   typeColorVar,
+  typeColorVarDark,
   type AddictionType,
 } from '@/lib/addictionTypes';
+import { seriesBreakYears } from '@/lib/seriesBreaks';
 import { changeFromPrevious, threeFrom } from '@/lib/homeV2';
+import { pickHero, ratioText } from '@/lib/homeV3';
+import { loadStatoryExport } from '@/lib/statoryEvidence';
 import { paperLine } from '@/lib/paperLine';
-import TenYearChart, { type Panel } from './TenYearChart';
+import HeroBoard, { type SeriesPanel } from './HeroBoard';
+import StatorySection from './StatorySection';
+import { serifKr } from './serifFont';
 import styles from './v2.module.css';
+import d from './v3.module.css';
 
 /**
- * 홈 v2 「한 그림 먼저」 미리보기 (SOC-R19 ■1~■5) — /preview/home · /en/preview/home.
+ * 홈 v3 미리보기 · 견본 A (SOC-R20) — /preview/home · /en/preview/home.
+ * (R19 의 v2 「한 그림 먼저」를 오너 결정 11-02 17:28 견본 A 꼴로 다시 지음 · R19 의 2×3 그림 TenYearChart.tsx 는 지우지 않고 남김)
  *
  * 지금 홈(/)은 그대로 두고 따로 선 길이다. 검색 색인 0(noindex · sitemap 에 없음).
- * 이야기 순서: ① 그림·큰 수 셋 → ② 흩어진 대응 → ③ 근거 → ④ 연대기(손님 사건만) → ⑤ 회복자원 →
- * ⑥ 다음 발표(달력 + 관측소 「다음 발표 예정」) → ⑦ 운영 수 한 줄.
- * 운영 로그(변경 감지 · 차단 · 수동 확인 필요)는 여기 없다 — /admin/activity 로 옮김(공개 API 는 그대로).
- * 수는 모두 운영 API · Statory 묶음의 저장된 값 그대로. 화면용으로 만드는 것은 「앞 조사 대비 ±」와
- * 그림의 지수 토글뿐(lib/homeV2). 모델 호출 0.
+ * 어두운 판: ① 「한국 · 최근 10년」 · 제목 · 한 줄 → 주인공 그래프 하나(8/12) + 오늘의 큰 수 셋(4/12) → 나머지 다섯 띠
+ *           ② 연구는 무엇을 말하나 · Statory 서재(카드 묶음이 있을 때만 · 견본이면 띠)
+ * 밝은 판:   ③ 여섯 부처 표 → 중독사회 수집 논문(접기) → 연대기 다섯 → 회복자원 → 다음 발표 → 운영 수 한 줄 (R19 그대로)
+ * 수는 모두 운영 API · Statory 묶음의 저장된 값 그대로. 화면용으로 만드는 것은 「앞 조사 대비 ±」 · 「n배」(발표 값 둘의
+ * 나눗셈 · 소수 1자리) · 지수 토글뿐(lib/homeV2 · lib/homeV3). 모델 호출 0.
  */
 
 export async function generateMetadata({
@@ -61,7 +70,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'homeV2' });
+  const t = await getTranslations({ locale, namespace: 'homeV3' });
   return {
     title: t('metaTitle'),
     robots: { index: false, follow: false },
@@ -100,6 +109,7 @@ export default async function HomeV2Page({
 
   const t = await getTranslations();
   const tv = await getTranslations('homeV2');
+  const t3 = await getTranslations('homeV3');
   const fmt = (n: number) => n.toLocaleString(l);
 
   const [
@@ -137,46 +147,62 @@ export default async function HomeV2Page({
   const indicatorName = (i: Indicator) =>
     l === 'en' && i.nameEn ? i.nameEn : i.nameKo;
   const typeLabel = (type: AddictionType) => t(`addictionType.${type}`);
-  const unitOf = (unit: string | null) => {
-    const u = unitLabel(unit, l);
-    return !u ? '' : u === '%' ? '%' : ` ${u}`;
-  };
   const sourceById = new Map<string, Source>(
     (sourceList?.data ?? []).map((s) => [s.id, s]),
   );
 
-  // ① 그림 — 유형별 대표 지표(값이 있는 것만 · 빈 그림 0)
-  const panels: Panel[] = [];
+  // 단위 꼬리 — ko 는 붙여 쓰고(11,916명 · 12.6%) en 은 띄움(23,403 persons)
+  const unitSuffix = (unit: string | null) => {
+    const u = unitLabel(unit, l);
+    if (!u) return '';
+    return u === '%' || l === 'ko' ? u : ` ${u}`;
+  };
+
+  // ① 유형별 대표 지표(값이 있는 것만 · 빈 그림 0)
+  const panels: Array<SeriesPanel & { indicator: Indicator }> = [];
   for (const type of ADDICTION_TYPES) {
-    const d = details.get(TYPE_REPRESENTATIVE[type]);
-    if (!d) continue;
-    const series = totalSeries(d.observations);
+    const det = details.get(TYPE_REPRESENTATIVE[type]);
+    if (!det) continue;
+    const series = totalSeries(det.observations);
     if (series.length < 2) continue;
     panels.push({
       type,
       typeLabel: typeLabel(type),
-      code: d.indicator.code,
-      name: indicatorName(d.indicator),
-      unit: d.indicator.unit ?? '',
+      code: det.indicator.code,
+      name: indicatorName(det.indicator),
+      unit: unitSuffix(det.indicator.unit),
       series: series.map((o) => ({ period: o.period, value: o.value })),
-      breakYears: d.indicator.breakYears ?? null,
-      href: `/indicators/${d.indicator.code}`,
+      breakYears: det.indicator.breakYears ?? null,
+      href: `/indicators/${det.indicator.code}`,
+      indicator: det.indicator,
     });
   }
 
-  // ① 큰 수 셋 — 오늘의 숫자(날마다 순환 · 지금 홈과 같은 고르기)에서 이어지는 셋
+  // ■2 주인공 — 첫 값 대비 바뀐 폭이 가장 큰 유형(설계 단절 계열은 후보 아님 · lib/homeV3)
+  const heroRow = pickHero(panels);
+  const hero = heroRow ? panels.find((p) => p.type === heroRow.type) ?? null : null;
+  const strips = panels.filter((p) => p !== hero);
+
+  // ■3 오늘의 큰 수 셋 — 오늘의 숫자(날마다 순환 · 지금 홈과 같은 고르기)에서 주인공 유형을 뺀 셋
   const candidates = seriesMeta
     .map((m) => details.get(m.code))
-    .filter((d) => d !== undefined)
-    .map((d) => {
-      const series = totalSeries(d.observations);
-      return { code: d.indicator.code, points: series.length, indicator: d.indicator, series };
+    .filter((det) => det !== undefined)
+    .filter((det) => !hero || indicatorType(det.indicator.code) !== hero.type)
+    .map((det) => {
+      const series = totalSeries(det.observations);
+      return { code: det.indicator.code, points: series.length, indicator: det.indicator, series };
     });
   const todayPick = pickTodaysNumber(candidates, new Date());
   const pool = candidates
     .filter((c) => c.points >= 2)
     .sort((a, b) => (a.code < b.code ? -1 : a.code > b.code ? 1 : 0));
   const tiles = todayPick ? threeFrom(pool, todayPick.index) : [];
+
+  // ■5 Statory 서재 카드 — 실물 묶음이 있으면 실물, 없으면 견본(미리보기만 허락) · 둘 다 없으면 섹션 0
+  const statory = loadStatoryExport({ allowSample: true });
+
+  const fmtValue = (v: string) =>
+    v.includes('.') || Number(v) < 1000 ? v : fmt(Number(v));
 
   // ③ 근거 지도
   const topics = evidenceTopics();
@@ -271,54 +297,93 @@ export default async function HomeV2Page({
   }
   nextRows.sort((a, b) => a.ym.localeCompare(b.ym));
 
-  const rich = {
-    hl: (chunks: React.ReactNode) => <b>{chunks}</b>,
-    b: (chunks: React.ReactNode) => <b>{chunks}</b>,
-  };
-
   return (
-    <main className={styles.main}>
-      {/* ① 한 문장 + 그림 + 큰 수 셋 */}
-      <section>
-        <h1 className={styles.lead}>
-          {t.rich('hero.line1', rich)} {t.rich('hero.line2', rich)}
+    <main className={serifKr.variable}>
+      <div className={d.dark}>
+      {/* ① 어두운 첫 화면 — 「한국 · 최근 10년」 → 제목 → 한 줄 → 주인공 · 큰 수 셋 · 다섯 띠 */}
+      <section aria-labelledby="v3-title">
+        <div className={d.kicker}>{t3('kicker')}</div>
+        <h1 id="v3-title" className={d.title}>
+          {t3('title')}
         </h1>
+        <p className={d.lead}>{t3('lead')}</p>
 
-        <div className={styles.chartHead}>
-          <div className={styles.kicker}>{tv('chartKicker')}</div>
-          <h2 className={styles.title}>{tv('chartTitle')}</h2>
-          <p className={styles.desc}>{tv('chartDesc')}</p>
-        </div>
-        {panels.length === 0 ? (
-          <p className={styles.empty}>{t('common.unavailable')}</p>
+        {!hero ? (
+          <p className={d.lead}>{t('common.unavailable')}</p>
         ) : (
-          <TenYearChart
-            panels={panels}
-            labels={{
-              scaleRaw: tv('scaleRaw'),
-              scaleIndex: tv('scaleIndex'),
-              scaleIndexNote: tv('scaleIndexNote'),
-              tableView: tv('tableView'),
-              colType: tv('colType'),
-              colIndicator: tv('colIndicator'),
-              colValues: tv('colValues'),
-              points: (p) =>
-                tv('pointsNote', {
-                  points: p.series.length,
-                  from: p.series[0].period,
-                  to: p.series[p.series.length - 1].period,
-                }),
-            }}
-            breakNote={(years) =>
-              t('common.designChange', { years: years.join(' · ') })
+          <HeroBoard
+            hero={hero}
+            heroHead={(() => {
+              const first = hero.series[0];
+              const last = hero.series[hero.series.length - 1];
+              const ratio = ratioText(first.value, last.value);
+              const src = hero.indicator.sourceId
+                ? sourceById.get(hero.indicator.sourceId)
+                : undefined;
+              return (
+                <>
+                  <span className={d.heroMeta}>
+                    <span
+                      className={d.typeDot}
+                      style={{ background: typeColorVarDark(hero.type) }}
+                      aria-hidden
+                    />
+                    <span className={d.heroType}>{hero.typeLabel}</span>
+                    <Link href={hero.href} className={d.darkLink}>
+                      {hero.name}
+                    </Link>
+                    {src && <span>{orgLabel(src, l)}</span>}
+                    <span>
+                      {t3('heroMeta', {
+                        points: hero.series.length,
+                        from: first.period,
+                        to: last.period,
+                      })}
+                    </span>
+                  </span>
+                  <span className={d.heroNumberRow}>
+                    <span className={d.heroNumber}>
+                      {fmtValue(last.value)}
+                      {hero.unit && <span className={d.heroUnit}>{hero.unit.trim()}</span>}
+                    </span>
+                    {ratio && (
+                      <span className={d.heroRatio}>
+                        {t3('heroRatio', {
+                          lastYear: last.period,
+                          firstYear: first.period,
+                          firstValue: fmtValue(first.value),
+                          unit: hero.unit,
+                          ratio,
+                        })}
+                      </span>
+                    )}
+                  </span>
+                </>
+              );
+            })()}
+            heroMaxLabel={(period, value) =>
+              t3('heroMax', { period, value, unit: hero.unit })
             }
-            unitText={unitOf}
-          />
-        )}
-
-        {tiles.length > 0 && (
-          <div className={styles.tiles}>
-            {tiles.map((c) => {
+            heroIndexMaxLabel={(period, value) => t3('heroIndexMax', { period, value })}
+            strips={strips}
+            stripNote={(p) => {
+              const breaks = seriesBreakYears(
+                p.series.map((s) => s.period),
+                p.breakYears,
+              );
+              const base =
+                breaks.length > 0
+                  ? t3('stripBreak', { points: p.series.length })
+                  : t3('stripPoints', {
+                      points: p.series.length,
+                      from: p.series[0].period,
+                      to: p.series[p.series.length - 1].period,
+                    });
+              return NOT_ADDICTION_INDICATORS.has(p.code)
+                ? `${t3('stripNotAddiction')} · ${base}`
+                : base;
+            }}
+            tiles={tiles.map((c) => {
               const last = c.series[c.series.length - 1];
               const type = indicatorType(c.code);
               const change = changeFromPrevious(
@@ -329,66 +394,69 @@ export default async function HomeV2Page({
                 ? sourceById.get(c.indicator.sourceId)
                 : undefined;
               const pointUnit =
-                c.indicator.unit === '%' ? tv('pointUnit') : unitOf(c.indicator.unit);
+                c.indicator.unit === '%' ? tv('pointUnit') : unitSuffix(c.indicator.unit);
               return (
-                <div key={c.code} className={styles.tile}>
-                  <div className={styles.tileHead}>
+                <div key={c.code} className={d.tile}>
+                  <div className={d.tileHead}>
                     <span
-                      className={styles.typeDot}
-                      style={{ background: typeColorVar(type) }}
+                      className={d.typeDot}
+                      style={{ background: typeColorVarDark(type) }}
                       aria-hidden
                     />
-                    {type && <span className={styles.tileType}>{typeLabel(type)}</span>}
-                    <Link href={`/indicators/${c.code}`} className={styles.link}>
+                    {type && <span className={d.tileType}>{typeLabel(type)}</span>}
+                    <Link href={`/indicators/${c.code}`} className={d.darkLink}>
                       {indicatorName(c.indicator)}
                     </Link>
                   </div>
-                  <div className={styles.tileValue}>
-                    {Number(last.value) >= 1000
-                      ? fmt(Number(last.value))
-                      : last.value}
+                  <div className={d.tileValue}>
+                    {fmtValue(last.value)}
                     {c.indicator.unit ? (
-                      <span className={styles.tileUnit}>
-                        {unitLabel(c.indicator.unit, l)}
-                      </span>
+                      <span className={d.tileUnit}>{unitLabel(c.indicator.unit, l)}</span>
                     ) : null}
                   </div>
-                  <p className={styles.tileChange}>
+                  <p className={d.tileChange}>
                     {change.kind === 'delta'
-                      ? tv('change', {
+                      ? t3('tileChange', {
+                          year: last.period,
                           from: change.fromPeriod,
                           delta: `${change.text}${pointUnit}`,
                         })
                       : change.kind === 'break'
-                        ? tv('changeBreak', { from: change.fromPeriod })
-                        : tv('changeNone')}
+                        ? t3('tileChangeBreak', { year: last.period, from: change.fromPeriod })
+                        : t3('tileChangeNone', { year: last.period })}
                   </p>
-                  <div className={styles.tileMeta}>
-                    <span>{last.period}</span>
-                    {src && <span>{orgLabel(src, l)}</span>}
+                  <p className={d.tileMeta}>
+                    {src && <span>{orgLabel(src, l)} · </span>}
                     <a
                       href={last.sourceUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={styles.link}
+                      className={d.darkLink}
                     >
                       {t('common.viewOriginal')}
                     </a>
-                  </div>
+                  </p>
                 </div>
               );
             })}
-          </div>
+            labels={{
+              scaleRaw: tv('scaleRaw'),
+              scaleIndex: tv('scaleIndex'),
+              scaleIndexNote: t3('scaleIndexNote'),
+              tilesLabel: t3('tilesLabel'),
+              stripsLabel: t3('stripsLabel'),
+            }}
+          />
         )}
-        {todayPick && todayPick.total > 3 && (
-          <p className={styles.tileOthers}>
-            <Link href="/indicators" className={styles.link}>
-              {tv('tileOthers', { total: todayPick.total })}
-            </Link>
-          </p>
-        )}
-        <p className={styles.trust}>{tv('trust')}</p>
+        <p className={d.trust}>{tv('trust')}</p>
+        <p className={d.rule}>{t3('heroRule')}</p>
       </section>
+
+      {/* ② 연구는 무엇을 말하나 · Statory 서재 — 묶음이 없으면 섹션 자체가 없다 */}
+      {statory && <StatorySection loaded={statory} locale={l} />}
+      </div>
+
+      <div className={d.light}>
 
       {/* ② 흩어진 대응 — 지금 표·인용 그대로 */}
       <section className={styles.band}>
@@ -426,7 +494,7 @@ export default async function HomeV2Page({
       {topics.length > 0 && (
         <section className={styles.section}>
           <div className={styles.kicker}>{tv('evidenceKicker')}</div>
-          <h2 className={styles.title}>{tv('evidenceTitle')}</h2>
+          <h2 className={styles.title}>{t3('collectedTitle')}</h2>
           <p className={styles.desc}>{t('home.mapDesc')}</p>
           <div className={styles.evidenceGrid}>
             {topics.map((tp, i) => {
@@ -680,6 +748,7 @@ export default async function HomeV2Page({
           recovery: recoveryAll ? fmt(recoveryAll.total) : '—',
         })}
       </p>
+      </div>
     </main>
   );
 }
