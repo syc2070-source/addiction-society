@@ -425,6 +425,9 @@ export default async function HomeV2Page({
                         ? t3('tileChangeBreak', { year: last.period, from: change.fromPeriod })
                         : t3('tileChangeNone', { year: last.period })}
                   </p>
+                  {NOT_ADDICTION_INDICATORS.has(c.code) && (
+                    <p className={d.tileMeta}>{t3('stripNotAddiction')}</p>
+                  )}
                   <p className={d.tileMeta}>
                     {src && <span>{orgLabel(src, l)} · </span>}
                     <a
