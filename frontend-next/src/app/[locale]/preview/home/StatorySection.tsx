@@ -107,7 +107,11 @@ export default async function StatorySection({
                 </>
               )}
               <p className={styles.typeCardMore}>
-                <Link href={`/evidence/${tile.type}`} className={styles.darkLink}>
+                <Link
+                  href={`/evidence/${tile.type}`}
+                  className={styles.darkLink}
+                  aria-label={`${tt(tile.type)} · ${t('tileMore')}`}
+                >
                   {t('tileMore')}
                 </Link>
               </p>
