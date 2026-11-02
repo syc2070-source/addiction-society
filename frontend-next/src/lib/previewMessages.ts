@@ -14,5 +14,8 @@ const pick = (locale: string) => (locale === 'en' ? en : ko);
 export const homeV3T = (locale: string) =>
   createTranslator({ locale, messages: pick(locale), namespace: 'homeV3' });
 
+export const homeV4T = (locale: string) =>
+  createTranslator({ locale, messages: pick(locale), namespace: 'homeV4' });
+
 export const statoryT = (locale: string) =>
   createTranslator({ locale, messages: pick(locale), namespace: 'statory' });

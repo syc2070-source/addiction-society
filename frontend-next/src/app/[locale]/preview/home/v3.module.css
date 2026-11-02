@@ -20,7 +20,8 @@
 }
 
 .kicker {
-  font-size: var(--fs-sm);
+  font-size: 0.8125rem; /* 13 · R21 구간 문법 */
+  letter-spacing: 0.08em;
   color: var(--dark-accent);
 }
 
@@ -57,7 +58,7 @@
 }
 
 .darkLink {
-  color: var(--dark-text);
+  color: var(--dark-link, var(--dark-text));
   text-decoration: underline;
   text-decoration-color: var(--dark-line);
   text-underline-offset: 3px;
@@ -99,8 +100,9 @@
 
 .scaleRawInput:checked ~ .scaleToggle .scaleRawLabel,
 .scaleIndexInput:checked ~ .scaleToggle .scaleIndexLabel {
-  background: var(--dark-text);
-  color: var(--dark-bg);
+  /* R21: 파랑 판에서는 --dark-link(= --blue-link) 바탕 · 없으면 R20 그대로 */
+  background: var(--dark-link, var(--dark-text));
+  color: var(--dark-on-link, var(--dark-bg));
 }
 
 .scaleRawInput:focus-visible ~ .scaleToggle .scaleRawLabel,

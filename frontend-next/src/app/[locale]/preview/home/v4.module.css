@@ -1,0 +1,433 @@
+/*
+ * 홈 v4 미리보기 · 전체 파랑 (SOC-R21) — 구간 문법 하나:
+ *   꼬리말(--blue-accent 13 · 자간 0.08em) → 제목(Noto Serif KR 32) → 한 줄 설명(--blue-muted 16) → 내용
+ *   위아래 64 · 안쪽 최대 폭 1240 · 구간 사이 선 --blue-line 하나 · 바닥 --blue-deep 한 줄.
+ * 첫 화면(R20 HeroBoard · StatorySection · v3.module.css)은 그대로 두고 --dark-* 변수만 파랑으로 바꿔 끼운다.
+ * 흰 바탕 · 종이색 0(입력 칸 흰색만 예외).
+ */
+
+.page {
+  /* R20 어두운 판 변수 → 파랑 한 벌 */
+  --dark-bg: var(--blue-0);
+  --dark-text: var(--blue-text);
+  --dark-muted: var(--blue-muted);
+  --dark-card: var(--blue-card);
+  --dark-line: var(--blue-line);
+  --dark-accent: var(--blue-accent);
+  --dark-link: var(--blue-link);
+  --dark-on-link: var(--blue-on-link);
+  --type-alcohol-dark: var(--type-alcohol-blue);
+  --type-gambling-dark: var(--type-gambling-blue);
+  --type-drug-dark: var(--type-drug-blue);
+  --type-smartphone-dark: var(--type-smartphone-blue);
+  --type-game-dark: var(--type-game-blue);
+  --type-tobacco-dark: var(--type-tobacco-blue);
+  --type-none-dark: var(--blue-muted);
+
+  background: var(--blue-0);
+  color: var(--blue-text);
+  font-size: 1rem;
+  overflow-x: clip;
+}
+
+.page :focus-visible {
+  outline: 2px solid var(--blue-accent);
+  outline-offset: 2px;
+}
+
+/* ── 구간 ── */
+
+.section {
+  padding: var(--space-6) var(--space-3);
+  border-top: 1px solid var(--blue-line);
+}
+
+.section:first-child {
+  border-top: 0;
+}
+
+.tone0 {
+  background: var(--blue-0);
+}
+
+.toneUp {
+  background: var(--blue-up);
+}
+
+.toneDown {
+  background: var(--blue-down);
+}
+
+.inner {
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+.kicker {
+  font-size: 0.8125rem; /* 13 */
+  letter-spacing: 0.08em;
+  color: var(--blue-accent);
+}
+
+.title {
+  margin-top: var(--space-1);
+  font-family: var(--font-serif-kr), 'Noto Serif KR', serif;
+  font-size: 2rem; /* 32 */
+  font-weight: var(--fw-medium);
+  line-height: 1.3;
+  word-break: keep-all;
+}
+
+.desc {
+  margin-top: var(--space-1);
+  max-width: 48em;
+  color: var(--blue-muted);
+  line-height: var(--lh-body);
+  word-break: keep-all;
+}
+
+.body {
+  margin-top: var(--space-4);
+}
+
+.link {
+  color: var(--blue-link);
+  text-decoration: underline;
+  text-decoration-color: var(--blue-line-2);
+  text-underline-offset: 3px;
+}
+
+.link:hover {
+  text-decoration-color: var(--blue-link);
+}
+
+.empty {
+  color: var(--blue-muted);
+}
+
+/* ── 서재 규모 한 줄 ── */
+
+.scaleLine {
+  margin-top: var(--space-4);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--blue-line);
+  font-size: 1.125rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.scaleNote {
+  margin-top: 4px;
+  font-size: var(--fs-sm);
+  color: var(--blue-muted);
+}
+
+/* ── 누가 맡고 있나 ── */
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  min-width: 560px;
+  border-collapse: collapse;
+}
+
+.table th {
+  text-align: left;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  color: var(--blue-muted);
+  padding: 12px var(--space-2) 12px 0;
+  border-bottom: 1px solid var(--blue-line-2);
+}
+
+.table td {
+  padding: 12px var(--space-2) 12px 0;
+  border-bottom: 1px solid var(--blue-line-2);
+}
+
+.quote {
+  margin-top: var(--space-4);
+  padding: var(--space-3);
+  background: var(--blue-card);
+  border-left: 4px solid var(--blue-accent);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-family: var(--font-serif-kr), 'Noto Serif KR', serif;
+  font-size: 1.25rem; /* 20 */
+  line-height: 1.5;
+  word-break: keep-all;
+}
+
+.quoteBy {
+  margin-top: var(--space-1);
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  color: var(--blue-muted);
+}
+
+.quote .quoteBy {
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+.footnote {
+  margin-top: var(--space-2);
+  max-width: 48em;
+  color: var(--blue-muted);
+  line-height: var(--lh-body);
+}
+
+/* ── 무엇이 나왔나 (두 칸 → 390 폭 세로) ── */
+
+.twoCol {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-5);
+}
+
+@media (min-width: 900px) {
+  .twoCol {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  }
+}
+
+.colTitle {
+  font-size: 1.125rem;
+  font-weight: var(--fw-medium);
+}
+
+.list {
+  margin-top: var(--space-2);
+  list-style: none;
+}
+
+.event {
+  display: grid;
+  grid-template-columns: 92px 12px minmax(0, 1fr);
+  gap: 4px 12px;
+  align-items: baseline;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--blue-line);
+}
+
+@media (max-width: 599px) {
+  .event {
+    grid-template-columns: 12px minmax(0, 1fr);
+  }
+
+  .event .date {
+    grid-column: 1 / -1;
+  }
+}
+
+.date {
+  color: var(--blue-muted);
+  font-size: var(--fs-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  align-self: center;
+}
+
+.eventBody {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.meta {
+  display: block;
+  font-size: var(--fs-sm);
+  color: var(--blue-muted);
+}
+
+.nextItem {
+  display: grid;
+  grid-template-columns: 5.5em minmax(0, 1fr);
+  gap: 12px;
+  align-items: baseline;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--blue-line);
+}
+
+.more {
+  margin-top: var(--space-2);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px var(--space-3);
+  font-size: var(--fs-sm);
+}
+
+/* ── 어디서 도움을 받나 ── */
+
+.helpGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-5);
+}
+
+@media (min-width: 900px) {
+  .helpGrid {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  }
+}
+
+.search {
+  display: flex;
+  gap: var(--space-1);
+  max-width: 560px;
+}
+
+.search input {
+  flex: 1;
+  min-width: 0;
+  font-size: 1rem;
+  padding: 10px 12px;
+  border: 1px solid var(--blue-line-2);
+  border-radius: var(--radius-sm);
+  background: #ffffff; /* 미리보기에서 흰색은 입력 칸만 */
+  color: #28323a;
+}
+
+.searchButton {
+  padding: 10px 18px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--blue-link);
+  color: var(--blue-on-link);
+  font-size: 1rem;
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+}
+
+.bars {
+  margin-top: var(--space-3);
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.bar {
+  display: grid;
+  grid-template-columns: 8em minmax(0, 1fr) 2.5em;
+  gap: var(--space-1);
+  align-items: center;
+  font-size: var(--fs-sm);
+}
+
+.barLabel {
+  overflow-wrap: anywhere;
+}
+
+.barTrack {
+  height: 12px;
+  background: var(--blue-line);
+  border-radius: 0 4px 4px 0;
+}
+
+.barFill {
+  display: block;
+  height: 100%;
+  min-width: 4px;
+  background: var(--blue-link);
+  border-radius: 0 4px 4px 0;
+}
+
+.barValue {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--blue-muted);
+}
+
+.allRegions {
+  margin-top: var(--space-2);
+}
+
+.allRegions summary {
+  cursor: pointer;
+  color: var(--blue-link);
+  font-size: var(--fs-sm);
+}
+
+.helpCard {
+  background: var(--blue-card);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3);
+  min-width: 0;
+}
+
+.helpTitle {
+  color: var(--blue-accent);
+  font-size: 1.125rem;
+  font-weight: var(--fw-medium);
+}
+
+.helpText {
+  margin-top: var(--space-1);
+  color: var(--blue-muted);
+  line-height: var(--lh-body);
+}
+
+.helpList {
+  margin-top: var(--space-2);
+  list-style: none;
+}
+
+.helpList li {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--blue-line);
+  overflow-wrap: anywhere;
+}
+
+.phone {
+  display: block;
+  font-size: 1.125rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── 바닥 한 줄 ── */
+
+.bottom {
+  background: var(--blue-deep);
+  padding: var(--space-3);
+  border-top: 1px solid var(--blue-line);
+  font-size: var(--fs-sm);
+  color: var(--blue-muted);
+}
+
+.bottomInner {
+  max-width: 1240px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px var(--space-3);
+}
+
+.stats {
+  margin-top: 4px;
+  max-width: 1240px;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: var(--fs-caption);
+  color: var(--blue-muted);
+}
+
+/* ── 390 폭 ── */
+
+@media (max-width: 599px) {
+  .section {
+    padding: var(--space-5) var(--space-2);
+  }
+
+  .title {
+    font-size: 1.625rem; /* 26 */
+  }
+
+  .bar {
+    grid-template-columns: 6.5em minmax(0, 1fr) 2em;
+  }
+}

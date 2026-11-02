@@ -20,6 +20,7 @@ import { statoryT } from '@/lib/previewMessages';
 import { citeLine, countryName } from '../../preview/home/StatorySection';
 import { serifKr } from '../../preview/home/serifFont';
 import styles from '../../preview/home/v3.module.css';
+import v from '../../preview/home/v4.module.css';
 
 /**
  * 「연구는 무엇을 말하나」 유형 한 쪽 (/evidence/<유형> · SOC-R20 ■5).
@@ -70,7 +71,8 @@ export default async function EvidenceTypePage({
   const fmt = (n: number) => n.toLocaleString(locale);
 
   return (
-    <main className={`${styles.dark} ${styles.page} ${serifKr.variable}`}>
+    <main className={`${styles.dark} ${styles.page} ${v.page} ${serifKr.variable} blue-preview`}>
+      <div className={v.inner}>
       <p>
         <Link href="/preview/home" className={styles.darkLink}>
           {t('back')}
@@ -181,6 +183,7 @@ export default async function EvidenceTypePage({
           );
         })}
       </ol>
+      </div>
     </main>
   );
 }

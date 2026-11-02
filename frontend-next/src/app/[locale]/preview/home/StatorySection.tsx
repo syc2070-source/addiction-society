@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { typeColorVarDark } from '@/lib/addictionTypes';
@@ -39,9 +40,15 @@ export function citeLine(
 export default async function StatorySection({
   loaded,
   locale,
+  footer,
+  className,
 }: {
   loaded: LoadedExport;
   locale: string;
+  /** 섹션 끝 한 줄(R21 ■2 서재 규모) */
+  footer?: ReactNode;
+  /** 바깥 구간 꼴(R21 파랑 구간) — 없으면 R20 꼴 */
+  className?: string;
 }) {
   const t = statoryT(locale);
   const tt = await getTranslations('addictionType');
@@ -49,7 +56,7 @@ export default async function StatorySection({
   if (tiles.length === 0) return null;
 
   return (
-    <section className={styles.statory} aria-labelledby="v3-statory-title">
+    <section className={className ?? styles.statory} aria-labelledby="v3-statory-title">
       <div className={styles.kicker}>{t('kicker')}</div>
       <h2 id="v3-statory-title" className={styles.h2}>
         {t('title')}
@@ -61,7 +68,11 @@ export default async function StatorySection({
           const lead = tile.lead;
           const ex = lead ? excerptOf(lead, locale) : null;
           return (
-            <article key={tile.type} className={styles.typeCard}>
+            <article
+              key={tile.type}
+              className={styles.typeCard}
+              style={{ borderTop: `3px solid ${typeColorVarDark(tile.type)}` }}
+            >
               <h3 className={styles.typeCardHead}>
                 <span
                   className={styles.typeDot}
@@ -97,13 +108,14 @@ export default async function StatorySection({
               )}
               <p className={styles.typeCardMore}>
                 <Link href={`/evidence/${tile.type}`} className={styles.darkLink}>
-                  {t('tileMore', { n: tile.n })}
+                  {t('tileMore')}
                 </Link>
               </p>
             </article>
           );
         })}
       </div>
+      {footer}
     </section>
   );
 }
