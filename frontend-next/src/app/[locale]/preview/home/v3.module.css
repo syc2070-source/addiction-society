@@ -1,0 +1,591 @@
+/*
+ * 홈 v3 미리보기 · 견본 A (SOC-R20 ■1~■5) — 어두운 첫 화면 + 「연구는 무엇을 말하나」.
+ * 여섯 부처 표부터는 밝은 판(v2.module.css 그대로) — 경계는 판 끝 하나(가운데 띠 0).
+ * 글자: 제목 48(390 폭 32 · 세리프는 제목만) · 주인공 수 72(390 폭 56) · 큰 수 44 · 본문 16 · 띠 라벨 13~14.
+ * 색: globals.css --dark-* · --type-<key>-dark (대비 표는 보고서 · 유형 이름이 언제나 색 옆에).
+ */
+
+.dark {
+  background: var(--dark-bg);
+  color: var(--dark-text);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  padding: var(--space-5) var(--space-3) var(--space-5);
+  font-size: 1rem;
+  overflow-x: clip;
+}
+
+.dark :focus-visible {
+  outline: 2px solid var(--dark-accent);
+  outline-offset: 2px;
+}
+
+.kicker {
+  font-size: var(--fs-sm);
+  color: var(--dark-accent);
+}
+
+.title {
+  margin-top: var(--space-1);
+  font-family: var(--font-serif-kr), 'Noto Serif KR', serif;
+  font-size: 3rem; /* 48 */
+  font-weight: var(--fw-medium);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  word-break: keep-all;
+  max-width: 18em;
+}
+
+.lead {
+  margin-top: var(--space-2);
+  max-width: 44em;
+  color: var(--dark-muted);
+  line-height: var(--lh-body);
+  word-break: keep-all;
+}
+
+.trust {
+  margin-top: var(--space-3);
+  font-size: var(--fs-sm);
+  color: var(--dark-muted);
+}
+
+.rule {
+  margin-top: 4px;
+  font-size: var(--fs-caption);
+  color: var(--dark-muted);
+  max-width: 60em;
+}
+
+.darkLink {
+  color: var(--dark-text);
+  text-decoration: underline;
+  text-decoration-color: var(--dark-line);
+  text-underline-offset: 3px;
+}
+
+.darkLink:hover {
+  text-decoration-color: var(--dark-accent);
+}
+
+/* ── 판(토글 · 주인공 · 큰 수 · 띠) ── */
+
+.board {
+  position: relative; /* 숨긴 라디오가 이 자리에 머문다(초점 점프 0) */
+  margin-top: var(--space-4);
+}
+
+.scaleInput {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.scaleToggle {
+  display: inline-flex;
+  border: 1px solid var(--dark-line);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  font-size: var(--fs-sm);
+}
+
+.scaleToggle label {
+  padding: 6px 12px;
+  cursor: pointer;
+  color: var(--dark-muted);
+  background: var(--dark-card);
+}
+
+.scaleRawInput:checked ~ .scaleToggle .scaleRawLabel,
+.scaleIndexInput:checked ~ .scaleToggle .scaleIndexLabel {
+  background: var(--dark-text);
+  color: var(--dark-bg);
+}
+
+.scaleRawInput:focus-visible ~ .scaleToggle .scaleRawLabel,
+.scaleIndexInput:focus-visible ~ .scaleToggle .scaleIndexLabel {
+  outline: 2px solid var(--dark-accent);
+  outline-offset: -2px;
+}
+
+.indexNote {
+  display: none;
+  margin-top: var(--space-1);
+  font-size: var(--fs-sm);
+  color: var(--dark-muted);
+}
+
+.indexView {
+  display: none;
+}
+
+.scaleIndexInput:checked ~ .indexNote {
+  display: block;
+}
+
+.scaleIndexInput:checked ~ .boardGrid .indexView,
+.scaleIndexInput:checked ~ .strips .indexView {
+  display: block;
+}
+
+.scaleIndexInput:checked ~ .boardGrid .rawView,
+.scaleIndexInput:checked ~ .strips .rawView {
+  display: none;
+}
+
+.boardGrid {
+  margin-top: var(--space-3);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
+}
+
+@media (min-width: 960px) {
+  .boardGrid {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+  }
+
+  .hero {
+    grid-column: span 8;
+  }
+
+  .tiles {
+    grid-column: span 4;
+  }
+}
+
+/* 주인공 */
+
+.hero {
+  margin: 0;
+  min-width: 0;
+}
+
+.heroMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+  font-size: var(--fs-sm);
+  color: var(--dark-muted);
+}
+
+.heroType {
+  color: var(--dark-text);
+  font-weight: var(--fw-medium);
+  white-space: nowrap;
+}
+
+.heroNumberRow {
+  margin-top: var(--space-1);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px var(--space-2);
+}
+
+.heroNumber {
+  font-size: 4.5rem; /* 72 */
+  font-weight: var(--fw-medium);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.heroUnit {
+  font-size: 1.5rem;
+  margin-left: 4px;
+  color: var(--dark-muted);
+  letter-spacing: 0;
+}
+
+.heroRatio {
+  color: var(--dark-text);
+  font-size: 1rem;
+}
+
+.heroSvg {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: var(--space-2);
+  overflow: visible;
+}
+
+.grid {
+  stroke: var(--dark-line);
+  stroke-width: 1;
+}
+
+.axisText {
+  fill: var(--dark-muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.axisYear {
+  fill: var(--dark-muted);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.pointLabel {
+  fill: var(--dark-muted);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.endLabel {
+  fill: var(--dark-text);
+  font-size: 16px;
+  font-weight: var(--fw-medium);
+  font-variant-numeric: tabular-nums;
+}
+
+.maxLabel {
+  fill: var(--dark-text);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.breakLine {
+  stroke: var(--dark-muted);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 3;
+  fill: none;
+}
+
+/* 오늘의 큰 수 셋(세로) */
+
+.tiles {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-3);
+  align-content: start;
+}
+
+@media (min-width: 640px) and (max-width: 959px) {
+  .tiles {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.tile {
+  min-width: 0;
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--dark-line);
+}
+
+.tileHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 6px;
+  font-size: var(--fs-sm);
+  color: var(--dark-muted);
+}
+
+.tileType {
+  white-space: nowrap;
+  color: var(--dark-text);
+}
+
+.tileValue {
+  margin-top: 4px;
+  font-size: 2.75rem; /* 44 */
+  font-weight: var(--fw-medium);
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+}
+
+.tileUnit {
+  font-size: 1rem;
+  font-weight: var(--fw-normal);
+  color: var(--dark-muted);
+  margin-left: 4px;
+}
+
+.tileChange {
+  margin-top: 4px;
+  color: var(--dark-text);
+}
+
+.tileMeta {
+  margin-top: 2px;
+  font-size: var(--fs-sm);
+  color: var(--dark-muted);
+}
+
+/* 나머지 다섯 띠 */
+
+.strips {
+  margin-top: var(--space-4);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3) var(--space-2);
+}
+
+@media (min-width: 640px) {
+  .strips {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 960px) {
+  .strips {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+.strip {
+  margin: 0;
+  min-width: 0;
+  background: var(--dark-card);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+}
+
+.stripHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 6px;
+  font-size: 0.875rem; /* 14 */
+}
+
+.typeDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.stripType {
+  color: var(--dark-text);
+  font-weight: var(--fw-medium);
+  white-space: nowrap;
+}
+
+.stripValue {
+  margin-left: auto;
+  color: var(--dark-text);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.stripSvg {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: 6px;
+  overflow: visible;
+}
+
+.stripName {
+  margin-top: 6px;
+  font-size: 0.8125rem; /* 13 */
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.stripNote {
+  margin-top: 2px;
+  font-size: 0.8125rem;
+  color: var(--dark-muted);
+  line-height: 1.4;
+}
+
+/* ── 둘째 화면: 연구는 무엇을 말하나 · Statory 서재 ── */
+
+.statory {
+  margin-top: var(--space-5);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--dark-line); /* 구분선 하나 */
+}
+
+.sampleBand {
+  display: inline-block;
+  margin-top: var(--space-2);
+  padding: 4px 10px;
+  border: 1px dashed var(--dark-accent);
+  border-radius: var(--radius-sm);
+  color: var(--dark-accent);
+  font-size: var(--fs-sm);
+}
+
+.h2 {
+  margin-top: var(--space-1);
+  font-family: var(--font-serif-kr), 'Noto Serif KR', serif;
+  font-size: clamp(1.5rem, 1.1rem + 1.4vw, 2rem);
+  font-weight: var(--fw-medium);
+  line-height: 1.3;
+  word-break: keep-all;
+}
+
+.cardGrid {
+  margin-top: var(--space-3);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-2);
+}
+
+@media (min-width: 720px) {
+  .cardGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1040px) {
+  .cardGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.typeCard {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: var(--dark-card);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3);
+}
+
+.typeCardHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: var(--fw-medium);
+}
+
+.typeCardCount {
+  margin-top: 4px;
+  font-size: var(--fs-sm);
+  color: var(--dark-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.quote {
+  margin-top: var(--space-2);
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+}
+
+.tag {
+  margin-left: 6px;
+  font-size: var(--fs-sm);
+  color: var(--dark-accent);
+  white-space: nowrap;
+}
+
+.cite {
+  margin-top: var(--space-1);
+  font-size: var(--fs-sm);
+  color: var(--dark-muted);
+  overflow-wrap: anywhere;
+}
+
+.typeCardMore {
+  margin-top: auto;
+  padding-top: var(--space-2);
+  font-size: var(--fs-sm);
+}
+
+/* ── 밝은 판 쪽 이음(여섯 부처 표부터 · 판 끝 하나) ── */
+
+.light {
+  --v2-gap: var(--space-6);
+  /* 위 여백 0 — 어두운 판 끝에 여섯 부처 띠(--bg-alt)가 바로 붙는다(경계 하나 · 가운데 흰 띠 0).
+   * 좌우 여백은 v2 .band 의 음수 여백(--space-3)과 같아야 띠가 판 끝까지 닿고 넘치지 않는다. */
+  padding: 0 var(--space-3) var(--space-4);
+  font-size: var(--fs-v2-body);
+  overflow-x: clip;
+}
+
+.light > section:first-child {
+  margin-top: 0;
+}
+
+/* ── 390 폭 ── */
+
+@media (max-width: 599px) {
+  .dark {
+    padding: var(--space-4) var(--space-2) var(--space-4);
+  }
+
+  .title {
+    font-size: 2rem; /* 32 */
+  }
+
+  .heroNumber {
+    font-size: 3.5rem; /* 56 */
+  }
+
+  /* 주인공 SVG(viewBox 740)가 ~340px 로 줄어 글이 6px 가 되지 않게 — 사용자 단위를 키워 화면에서 11~13px */
+  .heroSvg .axisText {
+    font-size: 26px;
+  }
+
+  .heroSvg .axisYear,
+  .heroSvg .pointLabel,
+  .heroSvg .maxLabel {
+    font-size: 28px;
+  }
+
+  .heroSvg .endLabel {
+    font-size: 30px;
+  }
+}
+
+/* ── /evidence/<유형> 쪽 ── */
+
+.page {
+  border-radius: var(--radius-lg);
+}
+
+.cardList {
+  margin-top: var(--space-4);
+  list-style: none;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.cardItem {
+  background: var(--dark-card);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3);
+  min-width: 0;
+}
+
+.cardTitle {
+  font-size: 1.125rem;
+  font-weight: var(--fw-medium);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.facts {
+  margin-top: var(--space-2);
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 4px var(--space-2);
+  font-size: var(--fs-sm);
+}
+
+.facts dt {
+  color: var(--dark-muted);
+}
+
+.facts dd {
+  overflow-wrap: anywhere;
+}
+
+.links {
+  margin-top: var(--space-2);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px var(--space-3);
+  font-size: var(--fs-sm);
+}
