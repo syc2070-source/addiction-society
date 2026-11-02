@@ -99,7 +99,12 @@ describe('migration AddResearchReviewColumns', () => {
   ];
   const run = async (dir: 'up' | 'down') => {
     const sql: string[] = [];
-    const qr = { query: jest.fn(async (q: string) => void sql.push(q)) };
+    const qr = {
+      query: jest.fn((q: string) => {
+        sql.push(q);
+        return Promise.resolve();
+      }),
+    };
     await new AddResearchReviewColumns1788400000000()[dir](qr as never);
     return sql.join('\n');
   };
@@ -129,7 +134,7 @@ describe('ResearchService review', () => {
     { id: 4, ...failing, reviewDecision: 'hide' },
   ] as unknown as Research[];
   const repo = {
-    find: jest.fn(async () => rows),
+    find: jest.fn(() => Promise.resolve(rows)),
     findOne: jest.fn(),
     update: jest.fn(),
   };
@@ -171,7 +176,7 @@ describe('ResearchService review', () => {
     expect(repo.update).toHaveBeenCalledWith(2, {
       reviewDecision: 'keep',
       reviewedBy: 'owner@example.com',
-      reviewedAt: expect.any(Date),
+      reviewedAt: expect.any(Date) as unknown,
     });
   });
 
@@ -192,13 +197,15 @@ describe('PUT /api/admin/research/:id/review', () => {
   let jwtService: JwtService;
   const userRepository = { findOne: jest.fn() };
   const researchService = {
-    review: jest.fn(async (id: number, decision: unknown, by: string) => ({
-      id,
-      reviewDecision: decision,
-      reviewedBy: by,
-      reviewedAt: new Date(),
-    })),
-    findReviewQueue: jest.fn(async () => []),
+    review: jest.fn((id: number, decision: unknown, by: string) =>
+      Promise.resolve({
+        id,
+        reviewDecision: decision,
+        reviewedBy: by,
+        reviewedAt: new Date(),
+      }),
+    ),
+    findReviewQueue: jest.fn(() => Promise.resolve([])),
   };
 
   beforeAll(async () => {
@@ -276,7 +283,9 @@ describe('PUT /api/admin/research/:id/review', () => {
       'hide',
       'admin@example.com',
     );
-    expect(res.body.reviewDecision).toBe('hide');
+    expect((res.body as { reviewDecision?: unknown }).reviewDecision).toBe(
+      'hide',
+    );
   });
 
   it('400 for an unknown decision value', async () => {
