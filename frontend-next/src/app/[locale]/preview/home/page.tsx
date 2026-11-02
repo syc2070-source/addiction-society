@@ -338,7 +338,7 @@ export default async function HomeV2Page({
                       style={{ background: typeColorVar(type) }}
                       aria-hidden
                     />
-                    {type && <span>{typeLabel(type)}</span>}
+                    {type && <span className={styles.tileType}>{typeLabel(type)}</span>}
                     <Link href={`/indicators/${c.code}`} className={styles.link}>
                       {indicatorName(c.indicator)}
                     </Link>
