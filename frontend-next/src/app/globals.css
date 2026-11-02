@@ -44,6 +44,22 @@
   --obs-label-text: #e8be97; /* 소형 라벨 AA (4.9:1) */
   --obs-live-border: #5a7c99;
 
+  /* ── 중독 유형 고정색 여섯 (SOC-R19 ■4 · 이름 짝은 lib/addictionTypes.ts) ──
+   * dataviz 기본 범주 팔레트 · validate_palette.js light 인접 쌍 PASS(CVD ΔE 9.2 · 정상 27.6).
+   * aqua · magenta 는 흰 면 대비 3:1 미만 → 색 옆에 언제나 유형 이름(글은 글 색 · 색은 표식만). */
+  --type-alcohol: #2a78d6;
+  --type-gambling: #eb6834;
+  --type-drug: #1baf7a;
+  --type-smartphone: #6250d6;
+  --type-game: #e87ba4;
+  --type-tobacco: #008300;
+  --type-none: #9a958a;
+
+  /* ── 홈 v2 글자 세 단계 (SOC-R19 ■4: 큰 수 · 제목 · 본문) ── */
+  --fs-v2-number: clamp(2.5rem, 1.6rem + 3vw, 3.5rem); /* 40 → 56 */
+  --fs-v2-title: clamp(1.375rem, 1.1rem + 1vw, 1.75rem); /* 22 → 28 */
+  --fs-v2-body: 1rem; /* 16 (본문 하한) */
+
   /* ── 타이포 스케일 (6단 고정) ── */
   --fs-h1: 2.125rem; /* 34 */
   --fs-h2: 1.5rem; /* 24 */

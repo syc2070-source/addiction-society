@@ -35,5 +35,7 @@ export async function POST() {
   }
   // 홈 = app/[locale]/page.tsx → 모든 언어(ko '/' · en '/en')
   revalidatePath('/[locale]', 'page');
+  // SOC-R19 ■5: 홈 v2 미리보기도 같은 「오늘의 숫자」를 쓰므로 함께 비운다(응답 꼴은 그대로)
+  revalidatePath('/[locale]/preview/home', 'page');
   return Response.json({ ok: true, revalidated: '/[locale]' });
 }
