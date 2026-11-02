@@ -186,7 +186,14 @@ function files(dir: string, ext: RegExp): string[] {
 
 test('current home and the public API never read the Statory export', () => {
   const home = readFileSync(join(root, 'src', 'app', '[locale]', 'page.tsx'), 'utf8');
-  assert.ok(!/statoryEvidence|evidence_export/.test(home));
+  assert.ok(!/statoryEvidence|evidence_export|previewMessages/.test(home));
+  // 레이아웃이 messages/{locale}.json 전부를 모든 쪽 응답에 싣는다 → 미리보기 글은 messages/preview 에만
+  for (const lang of ['ko', 'en']) {
+    const all = readFileSync(join(root, 'messages', `${lang}.json`), 'utf8');
+    for (const s of ['견본', 'Sample data', '"statory"', '"homeV3"']) {
+      assert.ok(!all.includes(s), `messages/${lang}.json: ${s}`);
+    }
+  }
   const backend = files(join(root, '..', 'backend', 'src'), /\.ts$/);
   assert.ok(backend.length > 50);
   for (const f of backend) {

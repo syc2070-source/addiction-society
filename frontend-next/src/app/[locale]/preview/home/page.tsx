@@ -45,6 +45,7 @@ import { seriesBreakYears } from '@/lib/seriesBreaks';
 import { changeFromPrevious, threeFrom } from '@/lib/homeV2';
 import { pickHero, ratioText } from '@/lib/homeV3';
 import { loadStatoryExport } from '@/lib/statoryEvidence';
+import { homeV3T } from '@/lib/previewMessages';
 import { paperLine } from '@/lib/paperLine';
 import HeroBoard, { type SeriesPanel } from './HeroBoard';
 import StatorySection from './StatorySection';
@@ -70,7 +71,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'homeV3' });
+  const t = homeV3T(locale);
   return {
     title: t('metaTitle'),
     robots: { index: false, follow: false },
@@ -109,7 +110,7 @@ export default async function HomeV2Page({
 
   const t = await getTranslations();
   const tv = await getTranslations('homeV2');
-  const t3 = await getTranslations('homeV3');
+  const t3 = homeV3T(l);
   const fmt = (n: number) => n.toLocaleString(l);
 
   const [

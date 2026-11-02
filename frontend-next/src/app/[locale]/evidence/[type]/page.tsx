@@ -16,6 +16,7 @@ import {
   isKorea,
   loadStatoryExport,
 } from '@/lib/statoryEvidence';
+import { statoryT } from '@/lib/previewMessages';
 import { citeLine, countryName } from '../../preview/home/StatorySection';
 import { serifKr } from '../../preview/home/serifFont';
 import styles from '../../preview/home/v3.module.css';
@@ -43,7 +44,7 @@ export async function generateMetadata({
   params: Promise<Params>;
 }): Promise<Metadata> {
   const { locale, type } = await params;
-  const t = await getTranslations({ locale, namespace: 'statory' });
+  const t = statoryT(locale);
   const tt = await getTranslations({ locale, namespace: 'addictionType' });
   const loaded = loadStatoryExport({ allowSample: true });
   return {
@@ -63,7 +64,7 @@ export default async function EvidenceTypePage({
   const loaded = loadStatoryExport({ allowSample: true });
   if (!loaded) notFound();
 
-  const t = await getTranslations('statory');
+  const t = statoryT(locale);
   const tt = await getTranslations('addictionType');
   const cards = cardsOfType(loaded.data, type);
   const fmt = (n: number) => n.toLocaleString(locale);

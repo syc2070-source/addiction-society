@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { typeColorVarDark } from '@/lib/addictionTypes';
+import { statoryT } from '@/lib/previewMessages';
 import {
   enSafe,
   excerptOf,
@@ -42,7 +43,7 @@ export default async function StatorySection({
   loaded: LoadedExport;
   locale: string;
 }) {
-  const t = await getTranslations('statory');
+  const t = statoryT(locale);
   const tt = await getTranslations('addictionType');
   const tiles = typeTiles(loaded.data);
   if (tiles.length === 0) return null;
