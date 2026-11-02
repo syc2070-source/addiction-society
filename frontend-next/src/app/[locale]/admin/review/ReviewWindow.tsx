@@ -16,6 +16,27 @@ interface ReviewItem {
   reviewDecision: Decision;
   reviewedBy: string | null;
   reviewedAt: string | null;
+  /** SOC-R19 ■6 — 옛 API 응답엔 없을 수 있다(그때는 꼬리표를 그리지 않음) */
+  guestVisible?: boolean;
+  guestReason?: 'hidden' | 'gate' | null;
+}
+
+const GUEST_REASON: Record<'hidden' | 'gate', string> = {
+  hidden: '숨김',
+  gate: '관문',
+};
+
+/** 「손님에게 보임 / 안 보임(까닭)」 — 읽기 전용 꼬리표 */
+function GuestTag({ item }: { item: ReviewItem }) {
+  if (item.guestVisible === undefined) return null;
+  return item.guestVisible ? (
+    <span className="tag">손님에게 보임</span>
+  ) : (
+    <span className="tag tag-warn">
+      손님에게 안 보임
+      {item.guestReason ? ` (까닭: ${GUEST_REASON[item.guestReason]})` : ''}
+    </span>
+  );
 }
 
 const TABS: { key: Tab; label: string }[] = [
@@ -172,7 +193,8 @@ export default function ReviewWindow({ apiUrl }: { apiUrl: string }) {
               </div>
               <div className="list-item-title">{it.title}</div>
               <div className="list-item-desc">
-                <span className="tag tag-warn">관문: {it.gateReason}</span>
+                <span className="tag tag-warn">관문: {it.gateReason}</span>{' '}
+                <GuestTag item={it} />
               </div>
               <p className="list-item-desc">
                 {it.abstractPreview

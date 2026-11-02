@@ -32,6 +32,24 @@ export interface ReviewQueueItem {
   reviewDecision: 'keep' | 'hide' | null;
   reviewedBy: string | null;
   reviewedAt: Date | null;
+  /**
+   * 손님에게 보임 꼬리표 (SOC-R19 ■6 · 읽기 전용) — 공개 판정 isPubliclyVisible 그대로.
+   * 안 보이면 까닭: 'hidden' = 검수 창 숨김 · 'gate' = 관련성 관문(미검토). 보이면 null.
+   * research 에는 보관(archive) 상태가 없다 — 그 까닭은 이 표에서 나오지 않는다.
+   */
+  guestVisible: boolean;
+  guestReason: 'hidden' | 'gate' | null;
+}
+
+/** 검수 창 한 줄의 「손님에게 보임」 꼬리표 (SOC-R19 ■6). 공개 길과 같은 판정 하나만 쓴다. */
+export function guestTag(
+  r: Parameters<typeof isPubliclyVisible>[0],
+): Pick<ReviewQueueItem, 'guestVisible' | 'guestReason'> {
+  if (isPubliclyVisible(r)) return { guestVisible: true, guestReason: null };
+  return {
+    guestVisible: false,
+    guestReason: r.reviewDecision === 'hide' ? 'hidden' : 'gate',
+  };
 }
 
 /**
@@ -258,6 +276,7 @@ export class ResearchService {
         reviewDecision: r.reviewDecision ?? null,
         reviewedBy: r.reviewedBy ?? null,
         reviewedAt: r.reviewedAt ?? null,
+        ...guestTag(r),
       }));
   }
 

@@ -152,6 +152,19 @@ describe('ResearchService review', () => {
     expect(item.abstractPreview.length).toBeLessThanOrEqual(200);
   });
 
+  it('SOC-R19 ■6: each row says whether guests see it, by the same public rule', async () => {
+    const tag = async (tab: 'pending' | 'keep' | 'hide') =>
+      (await service.findReviewQueue(tab)).map((r) => [
+        r.id,
+        r.guestVisible,
+        r.guestReason,
+      ]);
+    expect(await tag('pending')).toEqual([[2, false, 'gate']]);
+    expect(await tag('keep')).toEqual([[3, true, null]]);
+    expect(await tag('hide')).toEqual([[4, false, 'hidden']]);
+    expect(repo.update).not.toHaveBeenCalled();
+  });
+
   it('writes only review_* columns (status untouched)', async () => {
     repo.findOne.mockResolvedValue({ id: 2 });
     await service.review(2, 'keep', 'owner@example.com');
