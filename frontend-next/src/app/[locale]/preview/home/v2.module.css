@@ -73,6 +73,7 @@
 }
 
 .chart {
+  position: relative; /* 숨긴 라디오가 이 자리에 머문다(키보드 초점이 쪽 맨 위로 튀지 않게) */
   margin-top: var(--space-2);
 }
 
