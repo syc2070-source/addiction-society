@@ -6,6 +6,16 @@
  * 두 주제에 함께 든 논문은 두 번 셀 수 있다(묶음에 논문 id 목록이 없어 겹침을 뺄 수 없음) — 화면 꼬리말에 적는다.
  */
 
+/**
+ * 지표 줄 「유형 · 지표 이름 · 출처」 (SOC-R22 ■4) — 지표 이름이 유형 이름으로 시작하면 유형을 생략한다
+ * (「게임 · 게임 이용률」 → 「게임 이용률」 · 「Smartphone · Smartphone overdependence …」 → 이름만). 대소문자·앞뒤 빈칸 무시.
+ */
+export function showTypeLabel(typeLabel: string, indicatorName: string): boolean {
+  const a = typeLabel.trim().toLowerCase();
+  const b = indicatorName.trim().toLowerCase();
+  return !(a && b.startsWith(a));
+}
+
 export interface ScaleInput {
   studies: number;
   openAccess: number | null;

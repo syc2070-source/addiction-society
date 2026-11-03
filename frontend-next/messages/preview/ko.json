@@ -48,6 +48,9 @@
     "sampleBand": "견본 자료 · 실제 카드는 다음 판",
     "tileCount": "{n}편 · 한국 {k}편 · {from}~{to}",
     "tileMore": "더 보기 →",
+    "tileEmpty": "아직 카드 없음",
+    "countryUnknown": "나라 미상",
+    "alsoTypes": "함께 다룬 유형",
     "sourceTag": "(원문)",
     "koreanTag": "(한국어)",
     "koreanTitle": "(한국어 제목)",
@@ -80,6 +83,7 @@
     },
     "license": {
       "cc_by": "CC BY",
+      "cc_by_sa": "CC BY-SA",
       "cc_by_nc": "CC BY-NC",
       "open_access": "열린 원문",
       "quote_only": "인용만 허용",

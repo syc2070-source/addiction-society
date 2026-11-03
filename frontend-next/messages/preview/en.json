@@ -48,6 +48,9 @@
     "sampleBand": "Sample data · real cards arrive in the next round",
     "tileCount": "{n} studies · {k} from Korea · {from}–{to}",
     "tileMore": "More →",
+    "tileEmpty": "No cards yet",
+    "countryUnknown": "Country not stated",
+    "alsoTypes": "Also covers",
     "sourceTag": "(original)",
     "koreanTag": "(Korean)",
     "koreanTitle": "(Korean title)",
@@ -80,6 +83,7 @@
     },
     "license": {
       "cc_by": "CC BY",
+      "cc_by_sa": "CC BY-SA",
       "cc_by_nc": "CC BY-NC",
       "open_access": "Open access",
       "quote_only": "Quote only",

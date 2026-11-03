@@ -43,6 +43,7 @@ export const TILE_TYPES: readonly TileType[] = [
 /** 면허 — quote_only 는 발췌 0(제목·출처만). */
 export const LICENSES = [
   'cc_by',
+  'cc_by_sa',
   'cc_by_nc',
   'open_access',
   'quote_only',
@@ -67,10 +68,12 @@ export type Design = (typeof DESIGNS)[number];
 export interface EvidenceCard {
   card_id: string;
   type: CardTypeKo;
+  /** v1.1 선택 칸 — 함께 다룬 유형(보조 · 셈은 type 하나로만) */
+  types: CardTypeKo[];
   title: string;
   authors_short: string;
   year: number;
-  /** ISO 3166-1 alpha-2 (KR · US …) */
+  /** ISO 3166-1 alpha-2 (KR · US …) · v1.1: 빈 글 허용 = 나라 미상(한국 셈에서 빠짐) */
   country: string;
   sample_n: number | null;
   design: Design;
@@ -87,6 +90,8 @@ export interface EvidenceCard {
 
 export interface EvidenceExport {
   version: typeof EXPORT_VERSION;
+  /** v1.1 의 contract 칸("1.1") · 없으면 null(v1) */
+  contract: string | null;
   exported_at: string;
   field: 'addiction';
   source: 'statory';
@@ -116,9 +121,19 @@ function toCard(v: unknown): EvidenceCard | null {
   }
   const license = str(o.license);
   const design = str(o.design);
+  const types = Array.isArray(o.types)
+    ? [
+        ...new Set(
+          o.types.filter(
+            (x): x is CardTypeKo => typeof x === 'string' && x in CARD_TYPES,
+          ),
+        ),
+      ]
+    : [];
   return {
     card_id: id,
     type: type as CardTypeKo,
+    types,
     title,
     authors_short: str(o.authors_short) ?? '',
     year,
@@ -155,6 +170,7 @@ export function parseExport(body: unknown): { data: EvidenceExport; dropped: num
   return {
     data: {
       version: EXPORT_VERSION,
+      contract: str(o.contract),
       exported_at: exportedAt,
       field: 'addiction',
       source: 'statory',
@@ -255,12 +271,23 @@ export function leadCard(cards: EvidenceCard[]): EvidenceCard | null {
   return pool.length ? [...pool].sort(byLead)[0] : null;
 }
 
-/** 유형 타일(카드가 한 장 이상인 유형만 · TILE_TYPES 순서) */
-export function typeTiles(data: EvidenceExport): TypeTile[] {
+/**
+ * 유형 타일(TILE_TYPES 순서). 기본은 카드가 한 장 이상인 유형만.
+ * includeEmpty(R22 대문 · 실물): 여섯 모두 — 카드 0 인 유형은 n 0 · lead null(화면 「아직 카드 없음」).
+ */
+export function typeTiles(
+  data: EvidenceExport,
+  opts: { includeEmpty?: boolean } = {},
+): TypeTile[] {
   const out: TypeTile[] = [];
   for (const type of TILE_TYPES) {
     const cards = data.cards.filter((c) => slugOf(c) === type);
-    if (cards.length === 0) continue;
+    if (cards.length === 0) {
+      if (opts.includeEmpty) {
+        out.push({ type, n: 0, korea: 0, yearFrom: 0, yearTo: 0, lead: null });
+      }
+      continue;
+    }
     const years = cards.map((c) => c.year);
     out.push({
       type,
@@ -284,6 +311,20 @@ export function cardsOfType(data: EvidenceExport, type: TileType): EvidenceCard[
         b.approved_at.localeCompare(a.approved_at) ||
         a.card_id.localeCompare(b.card_id),
     );
+}
+
+/**
+ * 짧은 인용(R22 ■1) — 카드 문장에서 앞 두 문장까지만(문장 끝 = . ! ? 。 뒤 띄어쓰기 · 「다.」 포함).
+ * 자르기만 하고 바꾸거나 잇지 않는다(생성 0). 두 문장보다 짧으면 그대로.
+ */
+export function shortQuote(text: string, max = 2): string {
+  const parts = text.trim().split(/(?<=[.!?。])\s+/);
+  return parts.length <= max ? text.trim() : parts.slice(0, max).join(' ');
+}
+
+/** 실물 카드가 있는 유형(sitemap · 색인) */
+export function typesWithCards(data: EvidenceExport): TileType[] {
+  return TILE_TYPES.filter((t) => data.cards.some((c) => slugOf(c) === t));
 }
 
 export const doiHref = (doi: string) =>
