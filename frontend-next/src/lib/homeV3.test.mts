@@ -14,6 +14,7 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { heroRows, maxIndex, pickHero, ratioText } from './homeV3.ts';
+import { visibleTexts } from './enHangulGate.ts';
 import {
   SAMPLE_FILE,
   REAL_FILE,
@@ -223,8 +224,10 @@ test('built home (ko · en) is v4, carries no sample text, and folds the library
       assert.ok(!html.includes(s), `${f}: ${s}`);
     }
     if (!real) {
-      for (const s of ['연구는 무엇을 말하나 · Statory', 'What the research says · Statory']) {
-        assert.ok(!html.includes(s), `${f}: section should be folded — ${s}`);
+      // 구간 글은 본 글(messages)에 있어 스크립트 짐에는 실린다 — 화면에 보이는 글만 본다(en 관문과 같은 잣대)
+      const shown = visibleTexts(html);
+      for (const s of ['연구는 무엇을 말하나 · Statory', 'What the research says · Statory', '아직 카드 없음', 'No cards yet']) {
+        assert.ok(!shown.some((x) => x.includes(s)), `${f}: section should be folded — ${s}`);
       }
     }
   }
