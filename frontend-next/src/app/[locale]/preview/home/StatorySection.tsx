@@ -2,10 +2,11 @@ import type { ReactNode } from 'react';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { typeColorVarDark } from '@/lib/addictionTypes';
-import { statoryT } from '@/lib/previewMessages';
+import { statoryText } from '@/lib/previewMessages';
 import {
   enSafe,
   excerptOf,
+  shortQuote,
   typeTiles,
   type EvidenceCard,
   type LoadedExport,
@@ -13,9 +14,11 @@ import {
 import styles from './v3.module.css';
 
 /**
- * 둘째 화면 「연구는 무엇을 말하나 · Statory 서재」 (SOC-R20 ■5) — 유형 타일 여섯.
- * 묶음이 없으면 부른 쪽이 이 섹션을 그리지 않는다(빈 칸 0). 견본이면 머리에 「견본 자료」 띠.
- * 문장은 카드의 것 그대로(요약·번역 생성 0).
+ * 「연구는 무엇을 말하나 · Statory 서재」 (SOC-R20 ■5 · R22 ■1) — 유형 타일 여섯.
+ * 묶음이 없으면 부른 쪽이 이 섹션을 그리지 않는다(빈 칸 0).
+ *  견본(미리보기만): 머리에 「견본 자료」 띠 · 글은 messages/preview.
+ *  실물(대문 · R22): 띠 0 · 글은 messages 본 글 · 여섯 유형 모두 — 카드 0 인 유형은 「아직 카드 없음」 · 대표 문장은 두 문장까지(shortQuote).
+ * 문장은 카드의 것 그대로(자르기만 · 요약·번역 생성 0).
  */
 
 export function countryName(code: string, locale: string): string {
@@ -27,14 +30,16 @@ export function countryName(code: string, locale: string): string {
   }
 }
 
-/** 출처 한 줄(저자 · 연도 · 나라) — en 에서 한글 저자명은 꼬리표로 */
+/** 출처 한 줄(저자 · 연도 · 나라) — en 에서 한글 저자명은 꼬리표로 · 나라 빈 글은 「나라 미상」(R22 v1.1) */
 export function citeLine(
   c: EvidenceCard,
   locale: string,
   koreanAuthors: string,
+  countryUnknown: string,
 ): string {
   const authors = locale === 'ko' ? c.authors_short : (enSafe(c.authors_short) ?? koreanAuthors);
-  return [authors, String(c.year), countryName(c.country, locale)].filter(Boolean).join(' · ');
+  const country = c.country ? countryName(c.country, locale) : countryUnknown;
+  return [authors, String(c.year), country].filter(Boolean).join(' · ');
 }
 
 export default async function StatorySection({
@@ -50,10 +55,11 @@ export default async function StatorySection({
   /** 바깥 구간 꼴(R21 파랑 구간) — 없으면 R20 꼴 */
   className?: string;
 }) {
-  const t = statoryT(locale);
+  const sample = loaded.mode === 'sample';
+  const t = statoryText(locale, sample ? 'preview' : 'main');
   const tt = await getTranslations('addictionType');
-  const tiles = typeTiles(loaded.data);
-  if (tiles.length === 0) return null;
+  const tiles = typeTiles(loaded.data, { includeEmpty: !sample });
+  if (tiles.every((x) => x.n === 0)) return null;
 
   return (
     <section className={className ?? styles.statory} aria-labelledby="v3-statory-title">
@@ -61,7 +67,7 @@ export default async function StatorySection({
       <h2 id="v3-statory-title" className={styles.h2}>
         {t('title')}
       </h2>
-      {loaded.mode === 'sample' && <p className={styles.sampleBand}>{t('sampleBand')}</p>}
+      {sample && <p className={styles.sampleBand}>{t('sampleBand')}</p>}
       <p className={styles.lead}>{t('desc')}</p>
       <div className={styles.cardGrid}>
         {tiles.map((tile) => {
@@ -81,19 +87,23 @@ export default async function StatorySection({
                 />
                 {tt(tile.type)}
               </h3>
-              <p className={styles.typeCardCount}>
-                {t('tileCount', {
-                  n: tile.n,
-                  k: tile.korea,
-                  from: tile.yearFrom,
-                  to: tile.yearTo,
-                })}
-              </p>
+              {tile.n === 0 ? (
+                <p className={styles.typeCardCount}>{t('tileEmpty')}</p>
+              ) : (
+                <p className={styles.typeCardCount}>
+                  {t('tileCount', {
+                    n: tile.n,
+                    k: tile.korea,
+                    from: tile.yearFrom,
+                    to: tile.yearTo,
+                  })}
+                </p>
+              )}
               {lead && ex && (
                 <>
                   {ex.kind === 'text' ? (
                     <p className={styles.quote}>
-                      {ex.text}
+                      {sample ? ex.text : shortQuote(ex.text)}
                       {ex.tag === 'source' && <span className={styles.tag}>{t('sourceTag')}</span>}
                     </p>
                   ) : ex.kind === 'korean' ? (
@@ -103,18 +113,22 @@ export default async function StatorySection({
                   ) : (
                     <p className={styles.cite}>{t('noExcerpt')}</p>
                   )}
-                  <p className={styles.cite}>{citeLine(lead, locale, t('koreanAuthors'))}</p>
+                  <p className={styles.cite}>
+                    {citeLine(lead, locale, t('koreanAuthors'), t('countryUnknown'))}
+                  </p>
                 </>
               )}
-              <p className={styles.typeCardMore}>
-                <Link
-                  href={`/evidence/${tile.type}`}
-                  className={styles.darkLink}
-                  aria-label={`${tt(tile.type)} · ${t('tileMore')}`}
-                >
-                  {t('tileMore')}
-                </Link>
-              </p>
+              {tile.n > 0 && (
+                <p className={styles.typeCardMore}>
+                  <Link
+                    href={`/evidence/${tile.type}`}
+                    className={styles.darkLink}
+                    aria-label={`${tt(tile.type)} · ${t('tileMore')}`}
+                  >
+                    {t('tileMore')}
+                  </Link>
+                </p>
+              )}
             </article>
           );
         })}

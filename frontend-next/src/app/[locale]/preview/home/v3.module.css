@@ -166,8 +166,8 @@
 
 .heroMeta {
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
+  flex-wrap: nowrap;
+  align-items: flex-start;
   gap: 2px 8px;
   font-size: var(--fs-sm);
   color: var(--dark-muted);
@@ -279,10 +279,22 @@
   border-top: 1px solid var(--dark-line);
 }
 
+/* R22 ■4: 점 + 「유형 · 지표 이름」 한 덩이 — 긴 이름이 줄을 넘겨도 점이 홀로 남지 않게(줄바꿈은 글 안에서만) */
+.tileHead > .typeDot,
+.heroMeta > .typeDot {
+  margin-top: 0.35em;
+  align-self: flex-start;
+}
+
+.tileHead > span:last-child,
+.heroMeta > span:last-child {
+  min-width: 0;
+}
+
 .tileHead {
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
+  flex-wrap: nowrap;
+  align-items: flex-start;
   gap: 2px 6px;
   font-size: var(--fs-sm);
   color: var(--dark-muted);

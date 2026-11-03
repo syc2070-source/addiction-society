@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { evidenceTopics } from '@/lib/evidenceMap';
+import { loadStatoryExport, typesWithCards } from '@/lib/statoryEvidence';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
 
@@ -18,7 +19,14 @@ const PATHS = [
   '/evidence-map',
   // 근거 지도 주제는 index.json 에서 자동으로 (SOC-R2)
   ...evidenceTopics().map((tp) => `/evidence-map/${tp}`),
+  // 연구는 무엇을 말하나 — 실물 Statory 카드가 있는 유형만(SOC-R22 ■3 · 견본은 0 · /preview 는 넣지 않음)
+  ...evidenceTypePaths(),
 ];
+
+function evidenceTypePaths(): string[] {
+  const real = loadStatoryExport({ allowSample: false });
+  return real ? typesWithCards(real.data).map((t) => `/evidence/${t}`) : [];
+}
 
 /** sitemap.xml — ko(무접두사)·en 쌍 + hreflang alternate */
 export default function sitemap(): MetadataRoute.Sitemap {

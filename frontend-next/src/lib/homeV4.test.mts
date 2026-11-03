@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { libraryScale } from './homeV4.ts';
+import { libraryScale, showTypeLabel } from './homeV4.ts';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
 const read = (...p: string[]) => readFileSync(join(root, ...p), 'utf8');
@@ -50,7 +50,8 @@ test('preview has no white or paper background (only the search input is white)'
   const v4 = read('src', 'app', '[locale]', 'preview', 'home', 'v4.module.css');
   assert.equal((v4.match(/#fff(fff)?\b/gi) ?? []).length, 1);
   assert.ok(!/--bg-alt|--card-bg|--bg\)/.test(v4));
-  const page = read('src', 'app', '[locale]', 'preview', 'home', 'page.tsx');
+  // R22: 본문은 HomeV4.tsx 하나(대문 · 미리보기 둘 다)
+  const page = read('src', 'app', '[locale]', 'preview', 'home', 'HomeV4.tsx');
   assert.ok(!/from '\.\/v2\.module\.css'/.test(page), 'v2 (white/paper) styles not imported');
   assert.ok(page.includes('blue-preview'));
   // 레이아웃 판·머리·바닥을 파랑으로 바꾸는 규칙은 표식이 있는 쪽에만
@@ -58,8 +59,20 @@ test('preview has no white or paper background (only the search input is white)'
   for (const ln of overrides.filter((x) => x.includes('blue'))) assert.match(ln, /body:has\(\.blue-preview\)/);
 });
 
-test('current home never carries the blue-preview marker', () => {
+// R22 ■2: 대문이 v4 로 — R21 의 「대문에 표식 0」을 바꿈. 표식은 한 길(.blue-preview · HomeV4 가 단다) · 옛 대문은 부르지 않음.
+test('home renders HomeV4 (blue marker one way) and never calls the old home', () => {
   const home = read('src', 'app', '[locale]', 'page.tsx');
-  assert.ok(!home.includes('blue-preview'));
-  assert.ok(!/homeV4|previewMessages/.test(home));
+  assert.match(home, /import HomeV4 from '\.\/preview\/home\/HomeV4'/);
+  assert.ok(!/_legacy/.test(home.replace(/\/\*[\s\S]*?\*\//g, '')), 'old home not imported');
+  const legacy = read('src', 'app', '[locale]', '_legacy', 'HomeV1.tsx');
+  assert.ok(legacy.length > 1000, 'old home kept (지움 0)');
+});
+
+test('indicator line: type label is dropped when the indicator name already starts with it', () => {
+  assert.equal(showTypeLabel('게임', '게임 이용률 (최근 1년)'), false);
+  assert.equal(showTypeLabel('스마트폰', '스마트폰 과의존 위험군 비율'), false);
+  assert.equal(showTypeLabel('Smartphone', 'Smartphone overdependence risk group rate'), false);
+  assert.equal(showTypeLabel('마약', '마약류 사범 단속 인원'), false);
+  assert.equal(showTypeLabel('알코올', '성인 고위험음주율'), true);
+  assert.equal(showTypeLabel('Gaming', 'Game usage rate'), true);
 });

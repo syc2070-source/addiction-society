@@ -27,7 +27,7 @@ import { MINISTRY_MAP } from '@/data/ministry-map';
 import { pickTodaysNumber } from '@/lib/todayNumber';
 import { orgLabel, unitLabel } from '@/lib/enLabels';
 import { seriesBreakYears, splitAtBreaks } from '@/lib/seriesBreaks';
-import styles from './page.module.css';
+import styles from './HomeV1.module.css';
 
 /**
  * 홈 (F-1 + AS-UI-4 → SOC-R2 첫 화면 재정의).
@@ -136,7 +136,11 @@ function currentMonthKst(): string {
     .slice(0, 7);
 }
 
-export default async function HomePage({ params }: PageProps<'/[locale]'>) {
+/**
+ * SOC-R22 ■2: 옛 대문(R19 까지의 / · /en). 대문은 v4(전체 파랑)로 바뀌어 이 파일은 부르지 않는다 — 지움 0.
+ * _legacy 폴더는 앞에 밑줄이 있어 길(route)이 되지 않는다. 다시 쓰려면 app/[locale]/page.tsx 가 이 함수를 돌려주면 된다.
+ */
+export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) return null;
   setRequestLocale(locale);

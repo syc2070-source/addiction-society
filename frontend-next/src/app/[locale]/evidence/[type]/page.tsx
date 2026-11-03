@@ -9,14 +9,16 @@ import {
   typeColorVarDark,
 } from '@/lib/addictionTypes';
 import {
+  CARD_TYPES,
   cardsOfType,
   doiHref,
+  type TileType,
   enSafe,
   excerptOf,
   isKorea,
   loadStatoryExport,
 } from '@/lib/statoryEvidence';
-import { statoryT } from '@/lib/previewMessages';
+import { statoryText } from '@/lib/previewMessages';
 import { citeLine, countryName } from '../../preview/home/StatorySection';
 import { serifKr } from '../../preview/home/serifFont';
 import styles from '../../preview/home/v3.module.css';
@@ -45,12 +47,15 @@ export async function generateMetadata({
   params: Promise<Params>;
 }): Promise<Metadata> {
   const { locale, type } = await params;
-  const t = statoryT(locale);
-  const tt = await getTranslations({ locale, namespace: 'addictionType' });
   const loaded = loadStatoryExport({ allowSample: true });
+  const t = statoryText(locale, loaded?.mode === 'real' ? 'main' : 'preview');
+  const tt = await getTranslations({ locale, namespace: 'addictionType' });
+  // R22 ■3: 실물이고 그 유형에 카드가 있을 때만 색인(sitemap 과 같은 잣대) · 견본이면 noindex 그대로
+  const indexable =
+    loaded?.mode === 'real' && isAddictionType(type) && cardsOfType(loaded.data, type).length > 0;
   return {
     title: isAddictionType(type) ? t('pageMeta', { type: tt(type) }) : t('kicker'),
-    robots: loaded?.mode === 'real' ? undefined : { index: false, follow: false },
+    robots: indexable ? undefined : { index: false, follow: false },
   };
 }
 
@@ -65,7 +70,8 @@ export default async function EvidenceTypePage({
   const loaded = loadStatoryExport({ allowSample: true });
   if (!loaded) notFound();
 
-  const t = statoryT(locale);
+  const real = loaded.mode === 'real';
+  const t = statoryText(locale, real ? 'main' : 'preview');
   const tt = await getTranslations('addictionType');
   const cards = cardsOfType(loaded.data, type);
   const fmt = (n: number) => n.toLocaleString(locale);
@@ -74,7 +80,7 @@ export default async function EvidenceTypePage({
     <main className={`${styles.dark} ${styles.page} ${v.page} ${serifKr.variable} blue-preview`}>
       <div className={v.inner}>
       <p>
-        <Link href="/preview/home" className={styles.darkLink}>
+        <Link href={real ? '/' : '/preview/home'} className={styles.darkLink}>
           {t('back')}
         </Link>
       </p>
@@ -111,7 +117,20 @@ export default async function EvidenceTypePage({
               <h2 className={styles.cardTitle} lang={title && locale !== 'ko' ? 'en' : undefined}>
                 {title ?? t('koreanTitle')}
               </h2>
-              <p className={styles.cite}>{citeLine(c, locale, t('koreanAuthors'))}</p>
+              <p className={styles.cite}>
+                {citeLine(c, locale, t('koreanAuthors'), t('countryUnknown'))}
+              </p>
+              {(() => {
+                // v1.1 types(보조) — 이 쪽 유형과 「기타」를 뺀 나머지
+                const also = c.types
+                  .map((x) => CARD_TYPES[x])
+                  .filter((s): s is TileType => s !== 'other' && s !== type);
+                return also.length > 0 ? (
+                  <p className={styles.cite}>
+                    {t('alsoTypes')} · {also.map((s) => tt(s)).join(' · ')}
+                  </p>
+                ) : null;
+              })()}
               {ex.kind === 'text' ? (
                 <p className={styles.quote}>
                   {ex.text}
@@ -131,7 +150,7 @@ export default async function EvidenceTypePage({
               )}
               <dl className={styles.facts}>
                 <dt>{t('colCountry')}</dt>
-                <dd>{countryName(c.country, locale)}</dd>
+                <dd>{c.country ? countryName(c.country, locale) : t('countryUnknown')}</dd>
                 {c.sample_n !== null && (
                   <>
                     <dt>{t('colSample')}</dt>

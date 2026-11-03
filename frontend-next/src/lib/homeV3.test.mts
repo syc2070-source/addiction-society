@@ -22,7 +22,9 @@ import {
   leadCard,
   loadStatoryExport,
   parseExport,
+  shortQuote,
   typeTiles,
+  typesWithCards,
   type EvidenceCard,
 } from './statoryEvidence.ts';
 
@@ -129,6 +131,7 @@ test('real file present → sample is never read; broken real file → null, not
 const card = (o: Partial<EvidenceCard>): EvidenceCard => ({
   card_id: 'c',
   type: '알코올',
+  types: [],
   title: 't',
   authors_short: 'a',
   year: 2024,
@@ -184,13 +187,16 @@ function files(dir: string, ext: RegExp): string[] {
   });
 }
 
-test('current home and the public API never read the Statory export', () => {
+// R22 ■2: 대문 = HomeV4(mode 'home') — Statory 는 실물만 읽고 견본은 읽지 않는다(R20 「대문은 묶음을 읽지 않음」을 바꿈).
+test('public home reads only the real Statory export (never the sample); the public API never reads it', () => {
   const home = readFileSync(join(root, 'src', 'app', '[locale]', 'page.tsx'), 'utf8');
-  assert.ok(!/statoryEvidence|evidence_export|previewMessages/.test(home));
-  // 레이아웃이 messages/{locale}.json 전부를 모든 쪽 응답에 싣는다 → 미리보기 글은 messages/preview 에만
+  assert.match(home, /<HomeV4[^>]*mode="home"/);
+  const v4 = readFileSync(join(root, 'src', 'app', '[locale]', 'preview', 'home', 'HomeV4.tsx'), 'utf8');
+  assert.match(v4, /loadStatoryExport\(\{ allowSample: mode === 'preview' \}\)/);
+  // 레이아웃이 messages/{locale}.json 전부를 모든 쪽 응답에 싣는다 → 견본 글은 messages/preview 에만
   for (const lang of ['ko', 'en']) {
     const all = readFileSync(join(root, 'messages', `${lang}.json`), 'utf8');
-    for (const s of ['견본', 'Sample data', '"statory"', '"homeV3"']) {
+    for (const s of ['견본', 'Sample data', 'sampleBand']) {
       assert.ok(!all.includes(s), `messages/${lang}.json: ${s}`);
     }
   }
@@ -201,27 +207,55 @@ test('current home and the public API never read the Statory export', () => {
   }
 });
 
-// 지금 대문에는 R12 부터 「Statory 서재가 Europe PMC 서지에서 센 수」(home.mapDesc)가 있다 — 그 줄은 그대로 두고,
-// 이 판이 새로 만든 글(견본 띠 · 서재 카드 섹션 머리)이 대문에 새지 않는지만 본다.
-test('built current home (ko · en) has no 견본 / sample band / Statory card section strings', (t) => {
+// R22 ■1 · ■2: 빌드된 대문(ko · en) = 파랑 v4 · 견본 글 0 · 실물 묶음이 없으면 서재 구간 자체가 없다.
+test('built home (ko · en) is v4, carries no sample text, and folds the library section without real cards', (t) => {
   const app = join(root, '.next', 'server', 'app');
   const pages = [join(app, 'ko.html'), join(app, 'en.html')].filter((f) => existsSync(f));
   if (pages.length === 0) {
     t.skip('no build output (run npm run build)');
     return;
   }
+  const real = existsSync(join(statory, REAL_FILE));
   for (const f of pages) {
     const html = readFileSync(f, 'utf8');
-    for (const s of [
-      '견본',
-      'Sample data',
-      'Statory 서재에서 읽기 전용',
-      'Read-only from the Statory library',
-      '연구는 무엇을 말하나',
-      'What the research says',
-      'evidence_export',
-    ]) {
+    assert.ok(html.includes('blue-preview'), `${f}: v4 marker`);
+    for (const s of ['견본', 'Sample data', 'Sample card', '(합성)', 'synthetic', 'evidence_export']) {
       assert.ok(!html.includes(s), `${f}: ${s}`);
     }
+    if (!real) {
+      for (const s of ['연구는 무엇을 말하나 · Statory', 'What the research says · Statory']) {
+        assert.ok(!html.includes(s), `${f}: section should be folded — ${s}`);
+      }
+    }
   }
+});
+
+test('contract v1.1: empty country = unknown (not Korea), optional types, cc_by_sa, contract field', () => {
+  const parsed = parseExport({
+    version: 'evidence_export_v1',
+    contract: '1.1',
+    exported_at: '2026-11-03T00:00:00Z',
+    cards: [
+      { card_id: 'a', type: '도박', types: ['도박', '게임', '커피'], title: 'x', year: 2022, country: '', approved_at: '2026-11-01', license: 'cc_by_sa', findings_ko: '첫 문장이다. 둘째 문장이다. 셋째 문장이다.' },
+      { card_id: 'b', type: '도박', title: 'y', year: 2020, country: 'KR', approved_at: '2026-10-01', license: 'cc_by' },
+    ],
+  });
+  assert.ok(parsed);
+  assert.equal(parsed.data.contract, '1.1');
+  assert.equal(parsed.dropped, 0);
+  const [a, b] = parsed.data.cards;
+  assert.equal(a.country, '');
+  assert.deepEqual(a.types, ['도박', '게임']);
+  assert.equal(a.license, 'cc_by_sa');
+  assert.deepEqual(b.types, []);
+  const tiles = typeTiles(parsed.data, { includeEmpty: true });
+  assert.equal(tiles.length, 6);
+  const g = tiles.find((x) => x.type === 'gambling');
+  assert.deepEqual([g?.n, g?.korea], [2, 1]);
+  assert.equal(tiles.find((x) => x.type === 'drug')?.n, 0);
+  assert.deepEqual(typesWithCards(parsed.data), ['gambling']);
+  assert.equal(shortQuote('첫 문장이다. 둘째 문장이다. 셋째 문장이다.'), '첫 문장이다. 둘째 문장이다.');
+  assert.equal(shortQuote('한 문장뿐.'), '한 문장뿐.');
+  // v1(contract 칸 없음)도 읽는다 — contract null
+  assert.equal(parseExport({ version: 'evidence_export_v1', exported_at: 'x', cards: [] })?.data.contract, null);
 });
