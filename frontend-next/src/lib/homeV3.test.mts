@@ -162,6 +162,16 @@ test('empty findings_ko → source sentence with the (원문) tag; en shows Engl
   assert.equal(leadCard([c]), null);
 });
 
+test('en lead card: prefers a card en can show (English source sentence, English authors); ko keeps Korea first', () => {
+  const krOnly = card({ card_id: 'k', country: 'KR', authors_short: '홍길동 외', findings_ko: '한글 발췌' });
+  const intl = card({ card_id: 'i', country: 'US', authors_short: 'Smith et al.', findings_ko: '한글 발췌', findings_src: 'An English sentence.' });
+  assert.equal(leadCard([krOnly, intl])?.card_id, 'k');
+  assert.equal(leadCard([krOnly, intl], 'ko')?.card_id, 'k');
+  assert.equal(leadCard([krOnly, intl], 'en')?.card_id, 'i');
+  // en 에 실을 카드가 없으면 기본 규칙 그대로(꼬리표)
+  assert.equal(leadCard([krOnly], 'en')?.card_id, 'k');
+});
+
 test('quote-only licence → no excerpt (title and source only); unknown licence reads as quote-only', () => {
   const q = card({ findings_ko: '발췌', findings_src: 'excerpt', license: 'quote_only' });
   assert.deepEqual(excerptOf(q, 'ko'), { kind: 'none' });
@@ -223,12 +233,18 @@ test('built home (ko · en) is v4, carries no sample text, and folds the library
     for (const s of ['견본', 'Sample data', 'Sample card', '(합성)', 'synthetic', 'evidence_export']) {
       assert.ok(!html.includes(s), `${f}: ${s}`);
     }
+    // 구간 글은 본 글(messages)에 있어 스크립트 짐에는 실린다 — 화면에 보이는 글만 본다(en 관문과 같은 잣대)
+    const shown = visibleTexts(html);
     if (!real) {
-      // 구간 글은 본 글(messages)에 있어 스크립트 짐에는 실린다 — 화면에 보이는 글만 본다(en 관문과 같은 잣대)
-      const shown = visibleTexts(html);
       for (const s of ['연구는 무엇을 말하나 · Statory', 'What the research says · Statory', '아직 카드 없음', 'No cards yet']) {
         assert.ok(!shown.some((x) => x.includes(s)), `${f}: section should be folded — ${s}`);
       }
+    } else {
+      // R22 판 2 재실행: 실물이 들어오면 구간이 보인다
+      assert.ok(
+        shown.some((x) => x.includes('연구는 무엇을 말하나') || x.includes('What the research says')),
+        `${f}: library section should be shown with real cards`,
+      );
     }
   }
 });
@@ -240,7 +256,7 @@ test('contract v1.1: empty country = unknown (not Korea), optional types, cc_by_
     exported_at: '2026-11-03T00:00:00Z',
     cards: [
       { card_id: 'a', type: '도박', types: ['도박', '게임', '커피'], title: 'x', year: 2022, country: '', approved_at: '2026-11-01', license: 'cc_by_sa', findings_ko: '첫 문장이다. 둘째 문장이다. 셋째 문장이다.' },
-      { card_id: 'b', type: '도박', title: 'y', year: 2020, country: 'KR', approved_at: '2026-10-01', license: 'cc_by' },
+      { card_id: 'b', type: '도박', title: 'y', year: 2020, country: 'KR', approved_at: '2026-10-01', license: 'cc_by', source_grade: 'unknown' },
     ],
   });
   assert.ok(parsed);
@@ -251,6 +267,7 @@ test('contract v1.1: empty country = unknown (not Korea), optional types, cc_by_
   assert.deepEqual(a.types, ['도박', '게임']);
   assert.equal(a.license, 'cc_by_sa');
   assert.deepEqual(b.types, []);
+  assert.equal(b.source_grade, null); // 「unknown」 = 빈 칸
   const tiles = typeTiles(parsed.data, { includeEmpty: true });
   assert.equal(tiles.length, 6);
   const g = tiles.find((x) => x.type === 'gambling');
@@ -261,4 +278,36 @@ test('contract v1.1: empty country = unknown (not Korea), optional types, cc_by_
   assert.equal(shortQuote('한 문장뿐.'), '한 문장뿐.');
   // v1(contract 칸 없음)도 읽는다 — contract null
   assert.equal(parseExport({ version: 'evidence_export_v1', exported_at: 'x', cards: [] })?.data.contract, null);
+});
+
+// R22 판 2 재실행 ■1: 저장소에 든 실물 묶음 = 계약 1.1 · 카드 전부 통과 · 식별값 꼴 0 · 면허 밖 원문 0.
+test('real Statory export (if present): v1.1, every card parses, no identifier patterns, no source text outside cc_by/cc_by_sa', (t) => {
+  const f = join(statory, REAL_FILE);
+  if (!existsSync(f)) {
+    t.skip('no real export');
+    return;
+  }
+  const raw = JSON.parse(readFileSync(f, 'utf8')) as { cards: Record<string, unknown>[] };
+  const parsed = parseExport(raw);
+  assert.ok(parsed);
+  assert.equal(parsed.data.contract, '1.1');
+  assert.equal(parsed.dropped, 0);
+  assert.equal(parsed.data.cards.length, raw.cards.length);
+  const pats = [
+    /(?<!\d)\d{6}\s?-\s?[1-4]\d{6}(?!\d)/, // 주민번호
+    /(?<![\d./])01[016789][-\s.]?\d{3,4}[-\s.]?\d{4}(?![\d./])/, // 휴대전화
+    /(?<![\d./])0\d{1,2}-\d{3,4}-\d{4}(?![\d./])/, // 전화
+    /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/, // 이메일
+  ];
+  for (const c of raw.cards) {
+    for (const [k, v] of Object.entries(c)) {
+      const s = typeof v === 'string' ? v : Array.isArray(v) ? v.join(' ') : '';
+      for (const re of pats) assert.ok(!re.test(s), `${String(c.card_id)}.${k}: identifier pattern`);
+    }
+  }
+  for (const c of parsed.data.cards) {
+    if (c.license !== 'cc_by' && c.license !== 'cc_by_sa') {
+      assert.equal(c.findings_src, null, `${c.card_id}: source text under ${c.license}`);
+    }
+  }
 });

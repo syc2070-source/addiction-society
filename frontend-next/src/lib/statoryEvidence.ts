@@ -147,7 +147,8 @@ function toCard(v: unknown): EvidenceCard | null {
     findings_ko: str(o.findings_ko),
     findings_src: str(o.findings_src),
     implications_ko: str(o.implications_ko),
-    source_grade: str(o.source_grade),
+    // 「unknown」 은 등급이 아니라 빈 칸 표시(R22 판 2 재실행 · 1,615장 모두) — 없음으로 읽어 줄을 싣지 않는다
+    source_grade: /^unknown$/i.test(str(o.source_grade) ?? '') ? null : str(o.source_grade),
     // 모르는 면허는 가장 좁게(인용만) 읽는다
     license: (LICENSES as readonly string[]).includes(license ?? '')
       ? (license as License)
@@ -266,8 +267,19 @@ const byLead = (a: EvidenceCard, b: EvidenceCard) =>
   b.approved_at.localeCompare(a.approved_at) ||
   a.card_id.localeCompare(b.card_id);
 
-export function leadCard(cards: EvidenceCard[]): EvidenceCard | null {
+/**
+ * 대표 카드. locale 이 ko 가 아니면(R22 판 2 재실행) 먼저 그 화면에 문장을 실을 수 있는 카드
+ * (영어 원문 발췌 · 영어 저자명) 가운데서 같은 순서로 고르고, 없으면 기본 규칙 그대로.
+ * — en 타일이 「(Korean)」 꼬리표만 남는 것을 막는다(문장은 카드 그대로 · 생성 0).
+ */
+export function leadCard(cards: EvidenceCard[], locale?: string): EvidenceCard | null {
   const pool = cards.filter((c) => c.findings_ko && excerptAllowed(c));
+  if (locale && locale !== 'ko') {
+    const shown = pool.filter(
+      (c) => excerptOf(c, locale).kind === 'text' && enSafe(c.authors_short) !== null,
+    );
+    if (shown.length) return [...shown].sort(byLead)[0];
+  }
   return pool.length ? [...pool].sort(byLead)[0] : null;
 }
 
@@ -277,7 +289,7 @@ export function leadCard(cards: EvidenceCard[]): EvidenceCard | null {
  */
 export function typeTiles(
   data: EvidenceExport,
-  opts: { includeEmpty?: boolean } = {},
+  opts: { includeEmpty?: boolean; locale?: string } = {},
 ): TypeTile[] {
   const out: TypeTile[] = [];
   for (const type of TILE_TYPES) {
@@ -295,7 +307,7 @@ export function typeTiles(
       korea: cards.filter(isKorea).length,
       yearFrom: Math.min(...years),
       yearTo: Math.max(...years),
-      lead: leadCard(cards),
+      lead: leadCard(cards, opts.locale),
     });
   }
   return out;

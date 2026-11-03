@@ -58,7 +58,7 @@ export default async function StatorySection({
   const sample = loaded.mode === 'sample';
   const t = statoryText(locale, sample ? 'preview' : 'main');
   const tt = await getTranslations('addictionType');
-  const tiles = typeTiles(loaded.data, { includeEmpty: !sample });
+  const tiles = typeTiles(loaded.data, { includeEmpty: !sample, locale });
   if (tiles.every((x) => x.n === 0)) return null;
 
   return (
