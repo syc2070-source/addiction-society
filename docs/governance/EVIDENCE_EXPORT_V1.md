@@ -56,7 +56,7 @@ SOC-R20 ■5 · 2026-11-02 · 운반 = 파일(받는 문 eco inbox 는 꺼진 �
 2. **파일 없으면 섹션 자체가 없다**(빈 칸 0).
 3. 결과 문장: ko = `findings_ko` → 비면 `findings_src` + 「(원문)」. en = `findings_src` 가 영어면 그대로, 한글이면 글 없이
    「(Korean)」 꼬리표만(en 화면 한글 0 관문). 제목·저자명도 en 에서 한글이면 「(Korean title)」 「(Korean authors)」.
-4. `license = quote_only` 면 발췌 0 — 제목·출처만.
+4. `license = quote_only` 면 원문 발췌(`findings_src`) 0 — 서재 요약 `findings_ko` 만 첫 두 문장 · 300자까지(KCI 인용 잣대 · 넘으면 첫 문장 · 그래도 넘으면 299자 + 「…」) + 제목·출처. 유형 타일 대표 카드에서는 빠진다(SOC-R22 판 3).
 5. 추정·요약·번역 생성 0 — 카드에 있는 문장 그대로. 모델 호출 0.
 6. 유형 타일(카드가 한 장 이상인 유형만): 편 수 n · 한국 k편(`country = KR`) · 연도 범위 · 대표 결과 문장 하나 + 출처(저자 · 연도 · 나라).
    대표 = `findings_ko` 있음 · 발췌 허락 → 한국 우선 → `approved_at` 최신 → `card_id`.

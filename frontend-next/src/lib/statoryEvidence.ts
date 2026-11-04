@@ -220,7 +220,7 @@ export const isKorea = (c: EvidenceCard) => c.country === 'KR';
 const HANGUL = /[ᄀ-ᇿ㄰-㆏가-힯]/;
 export const hasHangul = (s: string | null | undefined) => !!s && HANGUL.test(s);
 
-/** 발췌 허락 여부 — 인용만 허용이면 제목·출처만 */
+/** 발췌 허락 여부 — 인용만 허용이면 거짓(대표 카드에서 빠짐 · 쪽에서는 excerptOf 가 두 문장 · 300자로 자름) */
 export const excerptAllowed = (c: EvidenceCard) => c.license !== 'quote_only';
 
 export type Excerpt =
@@ -228,14 +228,35 @@ export type Excerpt =
   | { kind: 'korean' }
   | { kind: 'none' };
 
+/** quote_only 가 보일 수 있는 길이(R22 판 3 · KCI 인용 잣대) — 첫 두 문장 · 300자까지 */
+export const QUOTE_ONLY_MAX_CHARS = 300;
+export const QUOTE_ONLY_MAX_SENTENCES = 2;
+
+/**
+ * quote_only 카드의 서재 요약(findings_ko)을 두 문장 · 300자 안으로.
+ * 두 문장이 300자를 넘으면 첫 문장 · 그래도 넘으면 299자 + 「…」. 자르기만(생성 0).
+ */
+export function quoteOnlyClip(text: string): string {
+  const two = shortQuote(text, QUOTE_ONLY_MAX_SENTENCES);
+  if (two.length <= QUOTE_ONLY_MAX_CHARS) return two;
+  const one = shortQuote(text, 1);
+  if (one.length <= QUOTE_ONLY_MAX_CHARS) return one;
+  return `${one.slice(0, QUOTE_ONLY_MAX_CHARS - 1)}…`;
+}
+
 /**
  * 화면에 실을 결과 문장(있는 그대로).
  *  ko: findings_ko → 없으면 findings_src + 「(원문)」 꼬리표.
  *  en: findings_src 가 영어면 그대로 · 한글이면 글 없이 「(Korean)」 꼬리표만(en 화면 한글 0 관문).
- *  quote_only: 발췌 0.
+ *  quote_only(R22 판 3 · 읽기 완화 넷째): 서재 요약 findings_ko 만 · 첫 두 문장 · 300자까지(quoteOnlyClip) ·
+ *    findings_src(원문)는 싣지 않음 · en 에서 한글이면 꼬리표.
  */
 export function excerptOf(c: EvidenceCard, locale: string): Excerpt {
-  if (!excerptAllowed(c)) return { kind: 'none' };
+  if (!excerptAllowed(c)) {
+    if (!c.findings_ko) return { kind: 'none' };
+    if (locale !== 'ko' && hasHangul(c.findings_ko)) return { kind: 'korean' };
+    return { kind: 'text', text: quoteOnlyClip(c.findings_ko), tag: null };
+  }
   if (locale === 'ko') {
     if (c.findings_ko) return { kind: 'text', text: c.findings_ko, tag: null };
     if (c.findings_src) return { kind: 'text', text: c.findings_src, tag: 'source' };

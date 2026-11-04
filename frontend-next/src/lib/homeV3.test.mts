@@ -23,6 +23,7 @@ import {
   leadCard,
   loadStatoryExport,
   parseExport,
+  quoteOnlyClip,
   shortQuote,
   typeTiles,
   typesWithCards,
@@ -172,10 +173,17 @@ test('en lead card: prefers a card en can show (English source sentence, English
   assert.equal(leadCard([krOnly], 'en')?.card_id, 'k');
 });
 
-test('quote-only licence → no excerpt (title and source only); unknown licence reads as quote-only', () => {
-  const q = card({ findings_ko: '발췌', findings_src: 'excerpt', license: 'quote_only' });
-  assert.deepEqual(excerptOf(q, 'ko'), { kind: 'none' });
-  assert.deepEqual(excerptOf(q, 'en'), { kind: 'none' });
+test('quote-only licence → library summary only, first two sentences and ≤300 chars, never the source text; not a tile lead; unknown licence reads as quote-only', () => {
+  // R22 판 3: findings_ko(서재 요약)만 · 두 문장 · 300자 · findings_src 0
+  const q = card({ findings_ko: '첫째다. 둘째다. 셋째다.', findings_src: 'Source excerpt.', license: 'quote_only' });
+  assert.deepEqual(excerptOf(q, 'ko'), { kind: 'text', text: '첫째다. 둘째다.', tag: null });
+  assert.deepEqual(excerptOf(q, 'en'), { kind: 'korean' });
+  assert.deepEqual(excerptOf(card({ findings_src: 'Source excerpt.', license: 'quote_only' }), 'en'), { kind: 'none' });
+  const long1 = `${'가'.repeat(200)}다. ${'나'.repeat(150)}다.`;
+  assert.equal(quoteOnlyClip(long1), `${'가'.repeat(200)}다.`); // 두 문장 > 300 → 첫 문장
+  const long2 = `${'가'.repeat(400)}다.`;
+  assert.equal(quoteOnlyClip(long2).length, 300); // 한 문장 > 300 → 299자 + …
+  assert.ok(quoteOnlyClip(long2).endsWith('…'));
   assert.equal(leadCard([q]), null);
   const parsed = parseExport({
     version: 'evidence_export_v1',
