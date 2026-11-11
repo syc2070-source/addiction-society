@@ -334,7 +334,22 @@
       "open_access": "Open access",
       "quote_only": "Quote only",
       "other": "Other"
-    }
+    },
+    "topicNav": "Filter by subtopic",
+    "topicRule": "Subtopics are picked by word rules over the title and the library summary (not a model judgement). A card can sit in more than one subtopic; a card that matches none is under \"Other\".",
+    "topic": {
+      "all": "All",
+      "prevention": "Prevention",
+      "treatment": "Treatment",
+      "policy": "Policy",
+      "youth": "Youth",
+      "other": "Other"
+    },
+    "showing": "{from}–{to} of {n}",
+    "pageOf": "page {page} of {pages}",
+    "pagerNav": "Pages",
+    "prev": "← Previous",
+    "next": "Next →"
   },
   "evidenceMap": {
     "kicker": "Evidence Map",

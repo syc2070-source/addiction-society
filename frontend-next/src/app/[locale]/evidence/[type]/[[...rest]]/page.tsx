@@ -19,25 +19,43 @@ import {
   loadStatoryExport,
 } from '@/lib/statoryEvidence';
 import { statoryText } from '@/lib/previewMessages';
-import { citeLine, countryName } from '../../preview/home/StatorySection';
-import { serifKr } from '../../preview/home/serifFont';
-import styles from '../../preview/home/v3.module.css';
-import v from '../../preview/home/v4.module.css';
+import {
+  allRests,
+  hrefOf,
+  isSplit,
+  parseRest,
+  sliceView,
+  topicCounts,
+  type EvidenceView,
+} from '@/lib/evidencePages';
+import { citeLine, countryName } from '../../../preview/home/StatorySection';
+import { serifKr } from '../../../preview/home/serifFont';
+import styles from '../../../preview/home/v3.module.css';
+import v from '../../../preview/home/v4.module.css';
 
 /**
- * 「연구는 무엇을 말하나」 유형 한 쪽 (/evidence/<유형> · SOC-R20 ■5).
+ * 「연구는 무엇을 말하나」 유형 쪽 (/evidence/<유형> · SOC-R20 ■5 · R23 ■2 나눔).
  * Statory 서재 카드 묶음(evidence_export_v1)을 읽기 전용으로 — 카드 목록(연도 내림) · 발췌 · 출처 · 면허.
+ * 100장을 넘는 유형은 한 쪽 40장 · 하위 주제(예방 · 치료 · 정책 · 청소년 · 그 밖)로 거르기 — 주소 꼴은 lib/evidencePages.
+ * 모두 빌드 때 정적(쿼리 0 · 클라이언트 JS 0). 색인: 전체 쪽들(1 · 2 · …)만 · 주제 쪽은 noindex,follow(같은 카드의 겹침).
  * 실물 묶음이 없으면 404(견본 길은 SOC-R23 ■1 에서 지움).
  * 문장은 카드 그대로(생성 0) · en 은 한글 글 대신 꼬리표(en 화면 한글 0 관문).
  */
 
-type Params = { locale: string; type: string };
+type Params = { locale: string; type: string; rest?: string[] };
 
 export const dynamicParams = false;
 
 export function generateStaticParams() {
+  const loaded = loadStatoryExport();
   return routing.locales.flatMap((locale) =>
-    ADDICTION_TYPES.map((type) => ({ locale, type })),
+    ADDICTION_TYPES.flatMap((type) =>
+      (loaded ? allRests(cardsOfType(loaded.data, type)) : [[]]).map((rest) => ({
+        locale,
+        type,
+        rest,
+      })),
+    ),
   );
 }
 
@@ -46,16 +64,28 @@ export async function generateMetadata({
 }: {
   params: Promise<Params>;
 }): Promise<Metadata> {
-  const { locale, type } = await params;
+  const { locale, type, rest } = await params;
   const loaded = loadStatoryExport();
   const t = statoryText(locale, 'main');
   const tt = await getTranslations({ locale, namespace: 'addictionType' });
-  // R22 ■3: 그 유형에 카드가 있을 때만 색인(sitemap 과 같은 잣대)
-  const indexable =
-    !!loaded && isAddictionType(type) && cardsOfType(loaded.data, type).length > 0;
+  const view = parseRest(rest);
+  const cards = loaded && isAddictionType(type) ? cardsOfType(loaded.data, type) : [];
+  const slice = view ? sliceView(cards, view) : null;
+  // R22 ■3: 그 유형에 카드가 있을 때만 색인(sitemap 과 같은 잣대) · R23: 주제 쪽은 noindex,follow
+  const indexable = cards.length > 0 && !!view && !view.topic;
+  const base = isAddictionType(type) ? t('pageMeta', { type: tt(type) }) : t('kicker');
+  const parts = [
+    base,
+    view?.topic ? t(`topic.${view.topic}`) : null,
+    slice && slice.pages > 1 ? t('pageOf', { page: slice.page, pages: slice.pages }) : null,
+  ].filter(Boolean);
   return {
-    title: isAddictionType(type) ? t('pageMeta', { type: tt(type) }) : t('kicker'),
-    robots: indexable ? undefined : { index: false, follow: false },
+    title: parts.join(' · '),
+    robots: indexable
+      ? undefined
+      : cards.length > 0
+        ? { index: false, follow: true }
+        : { index: false, follow: false },
   };
 }
 
@@ -64,16 +94,24 @@ export default async function EvidenceTypePage({
 }: {
   params: Promise<Params>;
 }) {
-  const { locale, type } = await params;
+  const { locale, type, rest } = await params;
   if (!isAddictionType(type)) notFound();
   setRequestLocale(locale);
   const loaded = loadStatoryExport();
   if (!loaded) notFound();
+  const view = parseRest(rest);
+  if (!view) notFound();
 
   const t = statoryText(locale, 'main');
   const tt = await getTranslations('addictionType');
-  const cards = cardsOfType(loaded.data, type);
+  const all = cardsOfType(loaded.data, type);
+  const slice = sliceView(all, view);
+  if (!slice) notFound();
+  const cards = slice.cards;
+  const split = isSplit(all.length);
   const fmt = (n: number) => n.toLocaleString(locale);
+  const go = (to: EvidenceView) => hrefOf(type, to);
+  const topics = split ? topicCounts(all).filter((x) => x.n > 0) : [];
 
   return (
     <main className={`${styles.dark} ${styles.page} ${v.page} ${serifKr.variable} blue-preview`}>
@@ -103,10 +141,44 @@ export default async function EvidenceTypePage({
         {t('pageHead', { date: loaded.data.exported_at.slice(0, 10) })}
       </p>
       <p className={styles.rule}>
-        {t('pageCount', { n: cards.length, k: cards.filter(isKorea).length })}
+        {t('pageCount', { n: fmt(all.length), k: fmt(all.filter(isKorea).length) })}
       </p>
 
-      <ol className={styles.cardList}>
+      {split && (
+        <nav className={v.topicNav} aria-label={t('topicNav')}>
+          <ul className={v.chips}>
+            <li>
+              <Link
+                href={go({ topic: null, page: 1 })}
+                className={view.topic === null ? `${v.chip} ${v.chipOn}` : v.chip}
+                aria-current={view.topic === null ? 'page' : undefined}
+              >
+                {t('topic.all')} <span className={v.chipN}>{fmt(all.length)}</span>
+              </Link>
+            </li>
+            {topics.map((x) => (
+              <li key={x.topic}>
+                <Link
+                  href={go({ topic: x.topic, page: 1 })}
+                  className={view.topic === x.topic ? `${v.chip} ${v.chipOn}` : v.chip}
+                  aria-current={view.topic === x.topic ? 'page' : undefined}
+                >
+                  {t(`topic.${x.topic}`)} <span className={v.chipN}>{fmt(x.n)}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <p className={styles.rule}>{t('topicRule')}</p>
+        </nav>
+      )}
+      {split && (
+        <p className={styles.rule} aria-live="polite">
+          {t('showing', { from: fmt(slice.from), to: fmt(slice.to), n: fmt(slice.total) })}
+          {slice.pages > 1 && <> · {t('pageOf', { page: slice.page, pages: slice.pages })}</>}
+        </p>
+      )}
+
+      <ol className={styles.cardList} start={slice.from || undefined}>
         {cards.map((c) => {
           const ex = excerptOf(c, locale);
           const title = locale === 'ko' ? c.title : enSafe(c.title);
@@ -200,6 +272,42 @@ export default async function EvidenceTypePage({
           );
         })}
       </ol>
+
+      {slice.pages > 1 && (
+        <nav className={v.pager} aria-label={t('pagerNav')}>
+          {slice.page > 1 ? (
+            <Link href={go({ topic: view.topic, page: slice.page - 1 })} className={v.chip} rel="prev">
+              {t('prev')}
+            </Link>
+          ) : (
+            <span className={`${v.chip} ${v.chipOff}`} aria-hidden>
+              {t('prev')}
+            </span>
+          )}
+          <ol className={v.chips}>
+            {Array.from({ length: slice.pages }, (_, i) => i + 1).map((p) => (
+              <li key={p}>
+                <Link
+                  href={go({ topic: view.topic, page: p })}
+                  className={p === slice.page ? `${v.chip} ${v.chipOn}` : v.chip}
+                  aria-current={p === slice.page ? 'page' : undefined}
+                >
+                  {p}
+                </Link>
+              </li>
+            ))}
+          </ol>
+          {slice.page < slice.pages ? (
+            <Link href={go({ topic: view.topic, page: slice.page + 1 })} className={v.chip} rel="next">
+              {t('next')}
+            </Link>
+          ) : (
+            <span className={`${v.chip} ${v.chipOff}`} aria-hidden>
+              {t('next')}
+            </span>
+          )}
+        </nav>
+      )}
       </div>
     </main>
   );

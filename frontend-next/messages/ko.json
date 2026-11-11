@@ -334,7 +334,22 @@
       "open_access": "열린 원문",
       "quote_only": "인용만 허용",
       "other": "기타"
-    }
+    },
+    "topicNav": "하위 주제로 거르기",
+    "topicRule": "하위 주제는 제목과 서재 요약의 낱말 규칙으로 고릅니다(모델 판정 아님). 한 카드가 여러 주제에 들 수 있고, 어느 주제에도 안 걸리면 「그 밖」입니다.",
+    "topic": {
+      "all": "전체",
+      "prevention": "예방",
+      "treatment": "치료",
+      "policy": "정책",
+      "youth": "청소년",
+      "other": "그 밖"
+    },
+    "showing": "{n}장 가운데 {from}–{to}",
+    "pageOf": "{page}/{pages}쪽",
+    "pagerNav": "쪽 넘기기",
+    "prev": "← 앞 쪽",
+    "next": "다음 쪽 →"
   },
   "evidenceMap": {
     "kicker": "Evidence Map",

@@ -9,7 +9,7 @@
  *
  * 문장은 카드에 있는 그대로만 — 요약·번역·추정 생성 0 · 모델 호출 0.
  */
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
 export const EXPORT_VERSION = 'evidence_export_v1';
@@ -191,12 +191,19 @@ export function statoryDir(): string {
   return join(process.cwd(), 'data', 'statory');
 }
 
-/** 실물 묶음 → 없거나 꼴이 틀리면 null. */
+/**
+ * 실물 묶음 → 없거나 꼴이 틀리면 null.
+ * R23 ■2: 근거 쪽이 여러 쪽으로 나뉘어 빌드가 수십 번 부른다 → 같은 파일(자리 · 고친 때 · 크기)이면 한 번만 읽는다.
+ */
+const cache = new Map<string, LoadedExport | null>();
 export function loadStatoryExport(opts: { dir?: string } = {}): LoadedExport | null {
   const dir = opts.dir ?? statoryDir();
   const real = join(dir, REAL_FILE);
   if (!existsSync(real)) return null;
-  return parseExport(readJson(real));
+  const st = statSync(real);
+  const key = `${real}|${st.mtimeMs}|${st.size}`;
+  if (!cache.has(key)) cache.set(key, parseExport(readJson(real)));
+  return cache.get(key) ?? null;
 }
 
 export const slugOf = (c: EvidenceCard): CardTypeSlug => CARD_TYPES[c.type];

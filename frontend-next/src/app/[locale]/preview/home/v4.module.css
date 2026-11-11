@@ -431,3 +431,67 @@
     grid-template-columns: 6.5em minmax(0, 1fr) 2em;
   }
 }
+
+/* ── 근거 쪽 거르기 · 쪽 넘김 (SOC-R23 ■2) — 링크만(클라이언트 JS 0) ── */
+
+.topicNav {
+  margin-top: var(--space-3);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px; /* 손가락 자리 */
+  min-width: 40px;
+  justify-content: center;
+  padding: 6px 14px;
+  border: 1px solid var(--blue-line-2);
+  border-radius: 999px;
+  color: var(--blue-text);
+  text-decoration: none;
+  font-size: var(--fs-sm);
+  white-space: nowrap;
+}
+
+.chip:hover {
+  border-color: var(--blue-accent);
+}
+
+.chipOn,
+.chipOn:hover {
+  background: var(--blue-accent);
+  border-color: var(--blue-accent);
+  color: var(--blue-card);
+  font-weight: var(--fw-medium);
+}
+
+.chipN {
+  color: var(--blue-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.chipOn .chipN {
+  color: var(--blue-card);
+}
+
+.chipOff {
+  opacity: 0.45;
+}
+
+.pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: var(--space-4);
+}
