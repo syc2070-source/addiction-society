@@ -15,6 +15,7 @@ import {
   type RollSummary,
 } from './sources/missed-releases';
 import { SourcesService } from './sources/sources.service';
+import { visibilityCounts, type VisibilitySummary } from './health-visibility';
 
 const startedAt = new Date().toISOString();
 
@@ -51,6 +52,7 @@ export class HealthController {
   /**
    * 밤 예약 기록 (SOC-R3 ■1) — 마지막 회차(시작·끝·단계 표) + 최근 7일 회차·실패 수.
    * 숫자·시각·단계 이름만. 출력 원문(error)·사람 칸은 내보내지 않는다.
+   * SOC-R23 ■3: visibility = 숨김 · 보관 수(health-visibility.ts · COUNT 만).
    * job_runs 표가 없으면(migration 전) 503.
    */
   @Get('nightly')
@@ -58,6 +60,7 @@ export class HealthController {
     NightlySummary & {
       monitor: ReturnType<typeof monitorCounts> | null;
       roll: RollSummary | null;
+      visibility: VisibilitySummary;
     }
   > {
     if (!this.dataSource?.isInitialized) {
@@ -73,6 +76,8 @@ export class HealthController {
       ...summary,
       monitor: await this.monitor(),
       roll: await this.roll(),
+      // SOC-R23 ■3: 숨김 · 보관 수(세기만 · 칸마다 실패하면 null)
+      visibility: await visibilityCounts(this.dataSource),
     };
   }
 
