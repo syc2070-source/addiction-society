@@ -96,14 +96,16 @@ test('every literal message key used in src exists in messages/ko.json and en.js
   let checked = 0;
   for (const f of files) {
     const src = readFileSync(f, 'utf8');
-    // 한 파일 안의 이름 붙은 번역기: const x = await getTranslations('ns') · getTranslations({ …, namespace: 'ns' }) · getTranslations()
+    // 한 파일 안의 이름 붙은 번역기: const x = await getTranslations('ns' | "ns") · getTranslations({ …, namespace: 'ns' }) · getTranslations()
+    //  · statoryText(locale, 'main') = messages 본 글의 statory (R23 리뷰: 큰따옴표 · statoryText 도 본다)
     const ns = new Map<string, string>();
-    for (const m of src.matchAll(/const (\w+) = await getTranslations\((?:'([\w.]+)'|"([\w.]+)"|\{[^}]*namespace: '([\w.]+)'[^}]*\})?\)/g)) {
+    for (const m of src.matchAll(/const (\w+) = await getTranslations\((?:'([\w.]+)'|"([\w.]+)"|\{[^}]*namespace: ['"]([\w.]+)['"][^}]*\})?\)/g)) {
       ns.set(m[1], m[2] ?? m[3] ?? m[4] ?? '');
     }
+    for (const m of src.matchAll(/const (\w+) = statoryText\(\w+, 'main'\)/g)) ns.set(m[1], 'statory');
     for (const [name, space] of ns) {
-      for (const m of src.matchAll(new RegExp(`\\b${name}\\('([\\w.]+)'`, 'g'))) {
-        const key = space ? `${space}.${m[1]}` : m[1];
+      for (const m of src.matchAll(new RegExp(`\\b${name}\\((?:'([\\w.]+)'|"([\\w.]+)")`, 'g'))) {
+        const key = space ? `${space}.${m[1] ?? m[2]}` : (m[1] ?? m[2]);
         for (const j of msgs) assert.ok(has(j, key), `${f}: ${key}`);
         checked++;
       }

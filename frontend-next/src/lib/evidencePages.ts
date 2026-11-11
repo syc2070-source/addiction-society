@@ -28,9 +28,9 @@ const RULES: Record<Exclude<Subtopic, 'other'>, RegExp> = {
   treatment:
     /치료|treatment|therap|재활|회복|recovery|약물요법|pharmacother|상담|counsel|중재|intervention|임상시험|clinical trial|randomi[sz]ed|해독|detox|금단|withdrawal|naltrexone|acamprosate|disulfiram/i,
   policy:
-    /정책|\bpolic(y|ies)\b|규제|regulat|법률|법적|법안|입법|\blaws?\b|legislat|세금|주세|과세|\btax|가격|\bpric(e|es|ing)\b|광고|advertis|marketing|판매|\bsales\b|면허|licens|minimum unit|제도/i,
+    /정책|\bpolic(y|ies)|규제|regulat|법률|법적|법안|입법|\blaws?\b|legislat|세금|주세|과세|\btax(es|ation)?\b|가격|\bpric(e|es|ing)\b|광고|advertis|marketing|판매|\bsales\b|면허|licens|minimum unit|제도/i,
   youth:
-    /청소년|adolescen|youth|teen|학생|student|아동|child|미성년|minor|대학생|college|university|청년|young (people|adult)|초등|중학|고등학/i,
+    /청소년|adolescen|youth|\bteen(s|age|aged|ager|agers)?\b|학생|student|아동|child|미성년|\bminors?\b|대학생|college|university|청년|young (people|adult)|초등|중학|고등학/i,
 };
 
 export const isSubtopic = (v: string): v is Subtopic =>

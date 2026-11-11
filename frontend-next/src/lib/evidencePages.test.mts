@@ -74,6 +74,11 @@ test('subtopic word rules: title + library summary; none → other; 방법 is no
   assert.deepEqual(subtopicsOf({ title: 'Minimum unit pricing in Scotland', findings_ko: null }), ['policy']);
   assert.deepEqual(subtopicsOf({ title: '통합사례관리 접근법 효과', findings_ko: '연구 방법은 면접이다.' }), ['other']);
   assert.deepEqual(subtopicsOf({ title: 'Liver disease', findings_ko: '주세 인상 뒤 음주가 줄었다.' }), ['policy']);
+  // 낱말 경계(R23 리뷰): fifteen · canteen · minority · taxonomy 는 걸리지 않고 policymakers 는 걸린다
+  assert.deepEqual(subtopicsOf({ title: 'Fifteen-year follow-up in canteen workers', findings_ko: null }), ['other']);
+  assert.deepEqual(subtopicsOf({ title: 'Ethnic minority drinking taxonomy', findings_ko: null }), ['other']);
+  assert.deepEqual(subtopicsOf({ title: 'What policymakers read', findings_ko: null }), ['policy']);
+  assert.deepEqual(subtopicsOf({ title: 'Teenage drinking and alcohol taxes', findings_ko: null }), ['policy', 'youth']);
 });
 
 test('≤ 100 cards: one page, no filter; > 100: 40 per page, page past the end is null', () => {

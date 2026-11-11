@@ -79,8 +79,14 @@ export async function generateMetadata({
     view?.topic ? t(`topic.${view.topic}`) : null,
     slice && slice.pages > 1 ? t('pageOf', { page: slice.page, pages: slice.pages }) : null,
   ].filter(Boolean);
+  // 레이아웃 기본 canonical 은 대문(/) — 이 쪽은 제 주소를 canonical · hreflang 으로(R23 리뷰 찾기)
+  const self = view && isAddictionType(type) ? hrefOf(type, view) : `/evidence/${type}`;
   return {
     title: parts.join(' · '),
+    alternates: {
+      canonical: locale === 'ko' ? self : `/${locale}${self}`,
+      languages: { ko: self, en: `/en${self}`, 'x-default': self },
+    },
     robots: indexable
       ? undefined
       : cards.length > 0
@@ -151,7 +157,7 @@ export default async function EvidenceTypePage({
               <Link
                 href={go({ topic: null, page: 1 })}
                 className={view.topic === null ? `${v.chip} ${v.chipOn}` : v.chip}
-                aria-current={view.topic === null ? 'page' : undefined}
+                aria-current={view.topic === null ? (view.page === 1 ? 'page' : 'true') : undefined}
               >
                 {t('topic.all')} <span className={v.chipN}>{fmt(all.length)}</span>
               </Link>
@@ -161,7 +167,7 @@ export default async function EvidenceTypePage({
                 <Link
                   href={go({ topic: x.topic, page: 1 })}
                   className={view.topic === x.topic ? `${v.chip} ${v.chipOn}` : v.chip}
-                  aria-current={view.topic === x.topic ? 'page' : undefined}
+                  aria-current={view.topic === x.topic ? (view.page === 1 ? 'page' : 'true') : undefined}
                 >
                   {t(`topic.${x.topic}`)} <span className={v.chipN}>{fmt(x.n)}</span>
                 </Link>
@@ -172,7 +178,7 @@ export default async function EvidenceTypePage({
         </nav>
       )}
       {split && (
-        <p className={styles.rule} aria-live="polite">
+        <p className={styles.rule}>
           {t('showing', { from: fmt(slice.from), to: fmt(slice.to), n: fmt(slice.total) })}
           {slice.pages > 1 && <> · {t('pageOf', { page: slice.page, pages: slice.pages })}</>}
         </p>

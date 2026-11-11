@@ -202,7 +202,10 @@ export function loadStatoryExport(opts: { dir?: string } = {}): LoadedExport | n
   if (!existsSync(real)) return null;
   const st = statSync(real);
   const key = `${real}|${st.mtimeMs}|${st.size}`;
-  if (!cache.has(key)) cache.set(key, parseExport(readJson(real)));
+  if (!cache.has(key)) {
+    cache.clear(); // 고친 파일이 들어오면 옛 묶음은 버린다(한 벌만 둔다)
+    cache.set(key, parseExport(readJson(real)));
+  }
   return cache.get(key) ?? null;
 }
 
