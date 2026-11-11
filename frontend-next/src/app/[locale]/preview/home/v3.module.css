@@ -419,16 +419,6 @@
   border-top: 1px solid var(--dark-line); /* 구분선 하나 */
 }
 
-.sampleBand {
-  display: inline-block;
-  margin-top: var(--space-2);
-  padding: 4px 10px;
-  border: 1px dashed var(--dark-accent);
-  border-radius: var(--radius-sm);
-  color: var(--dark-accent);
-  font-size: var(--fs-sm);
-}
-
 .h2 {
   margin-top: var(--space-1);
   font-family: var(--font-serif-kr), 'Noto Serif KR', serif;

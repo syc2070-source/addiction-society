@@ -1,7 +1,7 @@
 // SOC-R21 — 서재 규모 합 · 파랑 한 벌 대비(globals.css 값으로 계산) · 미리보기 흰·종이색 바탕 0 · 현 대문 표식 0. 모델 0.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { libraryScale, showTypeLabel } from './homeV4.ts';
@@ -59,13 +59,57 @@ test('preview has no white or paper background (only the search input is white)'
   for (const ln of overrides.filter((x) => x.includes('blue'))) assert.match(ln, /body:has\(\.blue-preview\)/);
 });
 
-// R22 ■2: 대문이 v4 로 — R21 의 「대문에 표식 0」을 바꿈. 표식은 한 길(.blue-preview · HomeV4 가 단다) · 옛 대문은 부르지 않음.
-test('home renders HomeV4 (blue marker one way) and never calls the old home', () => {
+// R22 ■2: 대문이 v4 로 — R21 의 「대문에 표식 0」을 바꿈. 표식은 한 길(.blue-preview · HomeV4 가 단다).
+// SOC-R23 ■1: 옛 대문(HomeV1) · R19 그래프(TenYearChart · v2.module.css) · 견본 카드 파일은 지움(태그 pre-remove-soc-legacy-20261111).
+test('home renders HomeV4 (blue marker one way); the old home, R19 chart and sample cards are gone', () => {
   const home = read('src', 'app', '[locale]', 'page.tsx');
   assert.match(home, /import HomeV4 from '\.\/preview\/home\/HomeV4'/);
   assert.ok(!/_legacy/.test(home.replace(/\/\*[\s\S]*?\*\//g, '')), 'old home not imported');
-  const legacy = read('src', 'app', '[locale]', '_legacy', 'HomeV1.tsx');
-  assert.ok(legacy.length > 1000, 'old home kept (지움 0)');
+  for (const gone of [
+    ['src', 'app', '[locale]', '_legacy', 'HomeV1.tsx'],
+    ['src', 'app', '[locale]', '_legacy', 'HomeV1.module.css'],
+    ['src', 'app', '[locale]', 'preview', 'home', 'TenYearChart.tsx'],
+    ['src', 'app', '[locale]', 'preview', 'home', 'v2.module.css'],
+    ['data', 'statory', 'evidence_export_v1.sample.json'],
+  ]) {
+    assert.ok(!existsSync(join(root, ...gone)), gone.join('/'));
+  }
+  // 미리보기 길은 남긴다(다음 손질에 쓴다)
+  assert.match(read('src', 'app', '[locale]', 'preview', 'home', 'page.tsx'), /mode="preview"/);
+});
+
+// SOC-R23 ■1: 지운 message 키를 부르는 곳 0 — 코드의 t('a.b') · getTranslations('a') + t('b') 글자 키가 messages 에 모두 있다.
+test('every literal message key used in src exists in messages/ko.json and en.json', () => {
+  const files: string[] = [];
+  const walk = (d: string) => {
+    for (const f of readdirSync(d)) {
+      const p = join(d, f);
+      if (statSync(p).isDirectory()) walk(p);
+      else if (/\.tsx?$/.test(f)) files.push(p);
+    }
+  };
+  walk(join(root, 'src', 'app'));
+  walk(join(root, 'src', 'components'));
+  const has = (obj: unknown, path: string) =>
+    path.split('.').reduce<unknown>((o, k) => (o && typeof o === 'object' ? (o as Record<string, unknown>)[k] : undefined), obj) !== undefined;
+  const msgs = ['ko', 'en'].map((l) => JSON.parse(read('messages', `${l}.json`)));
+  let checked = 0;
+  for (const f of files) {
+    const src = readFileSync(f, 'utf8');
+    // 한 파일 안의 이름 붙은 번역기: const x = await getTranslations('ns') · getTranslations({ …, namespace: 'ns' }) · getTranslations()
+    const ns = new Map<string, string>();
+    for (const m of src.matchAll(/const (\w+) = await getTranslations\((?:'([\w.]+)'|"([\w.]+)"|\{[^}]*namespace: '([\w.]+)'[^}]*\})?\)/g)) {
+      ns.set(m[1], m[2] ?? m[3] ?? m[4] ?? '');
+    }
+    for (const [name, space] of ns) {
+      for (const m of src.matchAll(new RegExp(`\\b${name}\\('([\\w.]+)'`, 'g'))) {
+        const key = space ? `${space}.${m[1]}` : m[1];
+        for (const j of msgs) assert.ok(has(j, key), `${f}: ${key}`);
+        checked++;
+      }
+    }
+  }
+  assert.ok(checked > 100, `checked ${checked}`);
 });
 
 test('indicator line: type label is dropped when the indicator name already starts with it', () => {

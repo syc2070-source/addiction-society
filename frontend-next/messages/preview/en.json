@@ -45,7 +45,6 @@
     "kicker": "What the research says",
     "title": "What the research says · Statory library",
     "desc": "For each type, approved cards are taken read-only from the Statory library. Sentences appear exactly as written on the card.",
-    "sampleBand": "Sample data · real cards arrive in the next round",
     "tileCount": "{n} studies · {k} from Korea · {from}–{to}",
     "tileMore": "More →",
     "tileEmpty": "No cards yet",

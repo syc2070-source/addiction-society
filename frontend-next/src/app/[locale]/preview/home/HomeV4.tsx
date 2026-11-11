@@ -50,7 +50,7 @@ import v from './v4.module.css';
 /**
  * 홈 v4 · 전체 파랑 (SOC-R21 지음 · R22 ■2 대문으로) — 한 컴포넌트를 두 길이 부른다.
  *   mode 'home'    = / · /en (공개 대문) — 글 = messages 본 글 · Statory 는 실물 묶음만(견본 0 · 실물 없으면 구간 0)
- *   mode 'preview' = /preview/home (noindex) — 글 = messages/preview · 실물 없으면 견본(띠 있음)
+ *   mode 'preview' = /preview/home (noindex) — 글 = messages/preview · Statory 는 대문과 같은 실물만(견본 길 SOC-R23 지움)
  * 구간(위 → 아래 · 파랑의 단만 한 칸씩): blue-0 첫 화면 · 서재 | blue-up 누가 맡고 있나 | blue-down 무엇이 나왔나 |
  *   blue-0 어디서 도움을 받나 | blue-deep 바닥 한 줄.
  * 수는 모두 운영 API · Statory 묶음의 저장된 값 그대로. 화면용으로 만드는 것은 「앞 조사 대비 ±」 · 「n배」 · 지수 토글 ·
@@ -204,8 +204,8 @@ export default async function HomeV4({ locale, mode }: { locale: AppLocale; mode
     .sort((a, b) => (a.code < b.code ? -1 : a.code > b.code ? 1 : 0));
   const tiles = todayPick ? threeFrom(pool, todayPick.index) : [];
 
-  // ② Statory 카드 — 대문은 실물만(견본 0 · 실물 없으면 구간 0) · 미리보기는 실물 → 견본 · 서재 규모(Europe PMC 주제 묶음 합)
-  const statory = loadStatoryExport({ allowSample: mode === 'preview' });
+  // ② Statory 카드 — 대문 · 미리보기 모두 실물만(실물 없으면 구간 0 · 견본 길 R23 지움) · 서재 규모(Europe PMC 주제 묶음 합)
+  const statory = loadStatoryExport();
   const scale = libraryScale(maps);
   const topicNames = maps.filter((m) => m !== null).map((m) => evidenceTitle(m, l));
 

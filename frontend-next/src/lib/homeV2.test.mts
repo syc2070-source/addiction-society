@@ -1,7 +1,7 @@
 // SOC-R19 ■1 · ■2 · ■4 — 홈 v2 규칙(변화 · 지수 · 셋 고르기 · 유형 · 논문 한 줄). 모델 0 · 저장 값 그대로.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { changeFromPrevious, indexSeries, threeFrom, yearDomain } from './homeV2.ts';
+import { changeFromPrevious, indexSeries, threeFrom } from './homeV2.ts';
 import {
   ADDICTION_TYPES,
   TYPE_REPRESENTATIVE,
@@ -43,7 +43,6 @@ test('three tiles start at today\'s number and wrap', () => {
   assert.deepEqual(threeFrom(['a', 'b', 'c', 'd'], 3), ['d', 'a', 'b']);
   assert.deepEqual(threeFrom(['a', 'b'], 1), ['b', 'a']);
   assert.deepEqual(threeFrom([], 0), []);
-  assert.deepEqual(yearDomain([S([['2015', '1']]), S([['2025', '2']])]), [2015, 2025]);
 });
 
 test('six types, each with one representative indicator', () => {

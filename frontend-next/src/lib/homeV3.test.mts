@@ -16,7 +16,6 @@ import { fileURLToPath } from 'node:url';
 import { heroRows, maxIndex, pickHero, ratioText } from './homeV3.ts';
 import { visibleTexts } from './enHangulGate.ts';
 import {
-  SAMPLE_FILE,
   REAL_FILE,
   cardsOfType,
   excerptOf,
@@ -70,20 +69,20 @@ function tmp(): string {
   return mkdtempSync(join(tmpdir(), 'soc-r20-'));
 }
 
-test('no export file → null (the section is not drawn at all)', () => {
+// SOC-R23 ■1: 견본 카드 길을 지움 — 합성 18장은 시험 자리(fixtures)에만 남는다.
+const SYNTHETIC = join(root, 'src', 'lib', 'fixtures', 'statory_synthetic_18.json');
+
+test('no export file → null (the section is not drawn at all); the sample path is gone', () => {
   const dir = tmp();
-  assert.equal(loadStatoryExport({ allowSample: true, dir }), null);
-  // 견본만 있는 자리에서 견본을 허락하지 않으면(미리보기 밖) 없음
-  if (!existsSync(join(statory, REAL_FILE))) {
-    assert.equal(loadStatoryExport({ allowSample: false, dir: statory }), null);
-  }
+  assert.equal(loadStatoryExport({ dir }), null);
+  // 옛 견본 파일 이름이 자리에 있어도 읽지 않는다
+  copyFileSync(SYNTHETIC, join(dir, 'evidence_export_v1.sample.json'));
+  assert.equal(loadStatoryExport({ dir }), null);
+  assert.ok(!existsSync(join(statory, 'evidence_export_v1.sample.json')));
 });
 
-test('sample: 18 synthetic cards, 6 types × 3, Korea 10, six tiles', () => {
-  const got = loadStatoryExport({ allowSample: true, dir: statory });
-  assert.ok(got);
-  assert.equal(got.mode, existsSync(join(statory, REAL_FILE)) ? 'real' : 'sample');
-  const sample = parseExport(JSON.parse(readFileSync(join(statory, SAMPLE_FILE), 'utf8')));
+test('synthetic fixture: 18 cards, 6 types × 3, Korea 10, six tiles', () => {
+  const sample = parseExport(JSON.parse(readFileSync(SYNTHETIC, 'utf8')));
   assert.ok(sample);
   assert.equal(sample.dropped, 0);
   assert.equal(sample.data.cards.length, 18);
@@ -110,9 +109,8 @@ test('sample: 18 synthetic cards, 6 types × 3, Korea 10, six tiles', () => {
   }
 });
 
-test('real file present → sample is never read; broken real file → null, not sample', () => {
+test('real file is read; broken real file → null', () => {
   const dir = tmp();
-  copyFileSync(join(statory, SAMPLE_FILE), join(dir, SAMPLE_FILE));
   writeFileSync(
     join(dir, REAL_FILE),
     JSON.stringify({
@@ -123,11 +121,10 @@ test('real file present → sample is never read; broken real file → null, not
       cards: [{ card_id: 'r1', type: '마약', title: 'Real one', year: 2025, approved_at: '2026-11-30', license: 'cc_by' }],
     }),
   );
-  const got = loadStatoryExport({ allowSample: true, dir });
-  assert.equal(got?.mode, 'real');
+  const got = loadStatoryExport({ dir });
   assert.equal(got?.data.cards.length, 1);
   writeFileSync(join(dir, REAL_FILE), '{"version":"other"}');
-  assert.equal(loadStatoryExport({ allowSample: true, dir }), null);
+  assert.equal(loadStatoryExport({ dir }), null);
 });
 
 const card = (o: Partial<EvidenceCard>): EvidenceCard => ({
@@ -211,7 +208,8 @@ test('public home reads only the real Statory export (never the sample); the pub
   const home = readFileSync(join(root, 'src', 'app', '[locale]', 'page.tsx'), 'utf8');
   assert.match(home, /<HomeV4[^>]*mode="home"/);
   const v4 = readFileSync(join(root, 'src', 'app', '[locale]', 'preview', 'home', 'HomeV4.tsx'), 'utf8');
-  assert.match(v4, /loadStatoryExport\(\{ allowSample: mode === 'preview' \}\)/);
+  assert.match(v4, /loadStatoryExport\(\)/);
+  assert.ok(!/allowSample|sampleBand/.test(v4));
   // 레이아웃이 messages/{locale}.json 전부를 모든 쪽 응답에 싣는다 → 견본 글은 messages/preview 에만
   for (const lang of ['ko', 'en']) {
     const all = readFileSync(join(root, 'messages', `${lang}.json`), 'utf8');

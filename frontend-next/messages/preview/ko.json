@@ -45,7 +45,6 @@
     "kicker": "연구는 무엇을 말하나",
     "title": "연구는 무엇을 말하나 · Statory 서재",
     "desc": "유형마다 Statory 서재에서 판정된 카드를 읽기 전용으로 가져왔습니다. 문장은 카드에 있는 그대로입니다.",
-    "sampleBand": "견본 자료 · 실제 카드는 다음 판",
     "tileCount": "{n}편 · 한국 {k}편 · {from}~{to}",
     "tileMore": "더 보기 →",
     "tileEmpty": "아직 카드 없음",

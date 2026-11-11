@@ -7,7 +7,7 @@
  *
  * 추정 · 보간 0. 의존 없음(시험: homeV2.test.mts).
  */
-import { periodYear, seriesBreakYears } from './seriesBreaks.ts';
+import { seriesBreakYears } from './seriesBreaks.ts';
 
 export interface Point {
   period: string;
@@ -63,11 +63,4 @@ export function threeFrom<T>(pool: T[], start: number): T[] {
   if (pool.length === 0) return [];
   const n = Math.min(3, pool.length);
   return Array.from({ length: n }, (_, k) => pool[(start + k) % pool.length]);
-}
-
-/** 그림의 해 범위(모든 시계열의 첫 해 ~ 끝 해). */
-export function yearDomain(all: Point[][]): [number, number] | null {
-  const ys = all.flat().map((p) => periodYear(p.period)).filter(Number.isFinite);
-  if (ys.length === 0) return null;
-  return [Math.min(...ys), Math.max(...ys)];
 }

@@ -27,8 +27,8 @@ import v from '../../preview/home/v4.module.css';
 /**
  * 「연구는 무엇을 말하나」 유형 한 쪽 (/evidence/<유형> · SOC-R20 ■5).
  * Statory 서재 카드 묶음(evidence_export_v1)을 읽기 전용으로 — 카드 목록(연도 내림) · 발췌 · 출처 · 면허.
- * 실물 묶음이 없으면 견본(미리보기와 같은 분기) · 견본이면 noindex 와 「견본 자료」 띠 · 둘 다 없으면 404.
- * sitemap 에 없음. 문장은 카드 그대로(생성 0) · en 은 한글 글 대신 꼬리표(en 화면 한글 0 관문).
+ * 실물 묶음이 없으면 404(견본 길은 SOC-R23 ■1 에서 지움).
+ * 문장은 카드 그대로(생성 0) · en 은 한글 글 대신 꼬리표(en 화면 한글 0 관문).
  */
 
 type Params = { locale: string; type: string };
@@ -47,12 +47,12 @@ export async function generateMetadata({
   params: Promise<Params>;
 }): Promise<Metadata> {
   const { locale, type } = await params;
-  const loaded = loadStatoryExport({ allowSample: true });
-  const t = statoryText(locale, loaded?.mode === 'real' ? 'main' : 'preview');
+  const loaded = loadStatoryExport();
+  const t = statoryText(locale, 'main');
   const tt = await getTranslations({ locale, namespace: 'addictionType' });
-  // R22 ■3: 실물이고 그 유형에 카드가 있을 때만 색인(sitemap 과 같은 잣대) · 견본이면 noindex 그대로
+  // R22 ■3: 그 유형에 카드가 있을 때만 색인(sitemap 과 같은 잣대)
   const indexable =
-    loaded?.mode === 'real' && isAddictionType(type) && cardsOfType(loaded.data, type).length > 0;
+    !!loaded && isAddictionType(type) && cardsOfType(loaded.data, type).length > 0;
   return {
     title: isAddictionType(type) ? t('pageMeta', { type: tt(type) }) : t('kicker'),
     robots: indexable ? undefined : { index: false, follow: false },
@@ -67,11 +67,10 @@ export default async function EvidenceTypePage({
   const { locale, type } = await params;
   if (!isAddictionType(type)) notFound();
   setRequestLocale(locale);
-  const loaded = loadStatoryExport({ allowSample: true });
+  const loaded = loadStatoryExport();
   if (!loaded) notFound();
 
-  const real = loaded.mode === 'real';
-  const t = statoryText(locale, real ? 'main' : 'preview');
+  const t = statoryText(locale, 'main');
   const tt = await getTranslations('addictionType');
   const cards = cardsOfType(loaded.data, type);
   const fmt = (n: number) => n.toLocaleString(locale);
@@ -80,7 +79,7 @@ export default async function EvidenceTypePage({
     <main className={`${styles.dark} ${styles.page} ${v.page} ${serifKr.variable} blue-preview`}>
       <div className={v.inner}>
       <p>
-        <Link href={real ? '/' : '/preview/home'} className={styles.darkLink}>
+        <Link href="/" className={styles.darkLink}>
           {t('back')}
         </Link>
       </p>
@@ -100,7 +99,6 @@ export default async function EvidenceTypePage({
         />
         {tt(type)}
       </h1>
-      {loaded.mode === 'sample' && <p className={styles.sampleBand}>{t('sampleBand')}</p>}
       <p className={styles.lead}>
         {t('pageHead', { date: loaded.data.exported_at.slice(0, 10) })}
       </p>

@@ -16,7 +16,7 @@ import styles from './v3.module.css';
 /**
  * 「연구는 무엇을 말하나 · Statory 서재」 (SOC-R20 ■5 · R22 ■1) — 유형 타일 여섯.
  * 묶음이 없으면 부른 쪽이 이 섹션을 그리지 않는다(빈 칸 0).
- *  견본(미리보기만): 머리에 「견본 자료」 띠 · 글은 messages/preview.
+ *  견본 카드 길은 SOC-R23 ■1 에서 지움 — 대문 · 미리보기 모두 실물만.
  *  실물(대문 · R22): 띠 0 · 글은 messages 본 글 · 여섯 유형 모두 — 카드 0 인 유형은 「아직 카드 없음」 · 대표 문장은 두 문장까지(shortQuote).
  * 문장은 카드의 것 그대로(자르기만 · 요약·번역 생성 0).
  */
@@ -55,10 +55,9 @@ export default async function StatorySection({
   /** 바깥 구간 꼴(R21 파랑 구간) — 없으면 R20 꼴 */
   className?: string;
 }) {
-  const sample = loaded.mode === 'sample';
-  const t = statoryText(locale, sample ? 'preview' : 'main');
+  const t = statoryText(locale, 'main');
   const tt = await getTranslations('addictionType');
-  const tiles = typeTiles(loaded.data, { includeEmpty: !sample, locale });
+  const tiles = typeTiles(loaded.data, { includeEmpty: true, locale });
   if (tiles.every((x) => x.n === 0)) return null;
 
   return (
@@ -67,7 +66,6 @@ export default async function StatorySection({
       <h2 id="v3-statory-title" className={styles.h2}>
         {t('title')}
       </h2>
-      {sample && <p className={styles.sampleBand}>{t('sampleBand')}</p>}
       <p className={styles.lead}>{t('desc')}</p>
       <div className={styles.cardGrid}>
         {tiles.map((tile) => {
@@ -103,7 +101,7 @@ export default async function StatorySection({
                 <>
                   {ex.kind === 'text' ? (
                     <p className={styles.quote}>
-                      {sample ? ex.text : shortQuote(ex.text)}
+                      {shortQuote(ex.text)}
                       {ex.tag === 'source' && <span className={styles.tag}>{t('sourceTag')}</span>}
                     </p>
                   ) : ex.kind === 'korean' ? (

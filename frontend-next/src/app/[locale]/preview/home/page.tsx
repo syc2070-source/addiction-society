@@ -7,8 +7,8 @@ import HomeV4 from './HomeV4';
 
 /**
  * 홈 v4 미리보기 (SOC-R21 지음 · R22 부터 본문은 HomeV4 하나를 대문과 함께 씀) — /preview/home · /en/preview/home.
- * 대문과 다른 점: noindex 그대로 · 글 = messages/preview · 실물 카드가 없으면 견본(띠 있음).
- * (R19 TenYearChart · v2.module.css 는 부르지 않을 뿐 지우지 않음)
+ * 대문과 다른 점: noindex 그대로 · 글 = messages/preview(Statory 카드는 대문과 같은 실물 · 견본 길 SOC-R23 지움).
+ * (R19 TenYearChart · v2.module.css · 옛 대문 HomeV1 은 SOC-R23 ■1 에서 지움 · 태그 pre-remove-soc-legacy-20261111)
  */
 
 export async function generateMetadata({

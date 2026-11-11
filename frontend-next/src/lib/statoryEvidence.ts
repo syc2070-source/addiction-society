@@ -2,11 +2,10 @@
  * Statory 서재 카드 묶음 읽기 — 계약 evidence_export_v1 (SOC-R20 ■5 · docs/governance/EVIDENCE_EXPORT_V1.md).
  *
  * 운반 = 파일. 받는 문(eco inbox)은 꺼진 채(이 판).
- *   실물  frontend-next/data/statory/evidence_export_v1.json        (R21 에 들어옴)
- *   견본  frontend-next/data/statory/evidence_export_v1.sample.json (합성 18장 · 실명·실제 제목 0)
- * 분기 하나: 실물이 있으면 실물만 읽는다(견본은 읽지 않음). 실물이 없을 때만, 부른 쪽이 허락하면(미리보기) 견본.
- * 둘 다 없거나 꼴이 틀리면 null → 부른 쪽은 섹션을 통째로 그리지 않는다(빈 칸 0).
- * 현 대문(/)과 공개 API 는 이 모듈을 부르지 않는다(시험이 지킨다).
+ *   실물  frontend-next/data/statory/evidence_export_v1.json (R22 에 들어옴)
+ * 견본 카드 길은 SOC-R23 ■1 에서 지움(실물이 들어온 뒤 한 번도 읽히지 않음 · 합성 18장은 시험 자리 src/lib/fixtures 로).
+ * 없거나 꼴이 틀리면 null → 부른 쪽은 섹션을 통째로 그리지 않는다(빈 칸 0).
+ * 공개 API(백엔드)는 이 모듈을 부르지 않는다(시험이 지킨다).
  *
  * 문장은 카드에 있는 그대로만 — 요약·번역·추정 생성 0 · 모델 호출 0.
  */
@@ -15,7 +14,6 @@ import { join } from 'node:path';
 
 export const EXPORT_VERSION = 'evidence_export_v1';
 export const REAL_FILE = 'evidence_export_v1.json';
-export const SAMPLE_FILE = 'evidence_export_v1.sample.json';
 
 /** 계약의 유형 글(한국어) → 경로 이름. 「기타」는 유형 타일에 들지 않는다. */
 export const CARD_TYPES = {
@@ -99,7 +97,6 @@ export interface EvidenceExport {
 }
 
 export interface LoadedExport {
-  mode: 'real' | 'sample';
   data: EvidenceExport;
   /** 꼴이 틀려 뺀 카드 수(보고용 · 화면에는 쓰지 않음) */
   dropped: number;
@@ -194,25 +191,12 @@ export function statoryDir(): string {
   return join(process.cwd(), 'data', 'statory');
 }
 
-/**
- * 실물 → (없을 때만 · allowSample 이면) 견본 → null.
- * 실물 파일이 있는데 꼴이 틀리면 견본으로 넘어가지 않고 null(실물이 들어온 뒤 견본이 섞이지 않게).
- */
-export function loadStatoryExport(opts: {
-  allowSample: boolean;
-  dir?: string;
-}): LoadedExport | null {
+/** 실물 묶음 → 없거나 꼴이 틀리면 null. */
+export function loadStatoryExport(opts: { dir?: string } = {}): LoadedExport | null {
   const dir = opts.dir ?? statoryDir();
   const real = join(dir, REAL_FILE);
-  if (existsSync(real)) {
-    const p = parseExport(readJson(real));
-    return p ? { mode: 'real', ...p } : null;
-  }
-  if (!opts.allowSample) return null;
-  const sample = join(dir, SAMPLE_FILE);
-  if (!existsSync(sample)) return null;
-  const p = parseExport(readJson(sample));
-  return p ? { mode: 'sample', ...p } : null;
+  if (!existsSync(real)) return null;
+  return parseExport(readJson(real));
 }
 
 export const slugOf = (c: EvidenceCard): CardTypeSlug => CARD_TYPES[c.type];
