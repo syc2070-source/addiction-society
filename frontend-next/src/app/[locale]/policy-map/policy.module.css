@@ -1,0 +1,371 @@
+/*
+ * 정책 쪽(/policy-map · SOC-R24) — v4 파랑 구간 문법 그대로(v4.module.css) + 이 쪽의 격자 몇 개.
+ * 390 폭: 모든 격자가 한 줄 한 칸 · 표 대신 카드(가로 넘침 0).
+ */
+
+.toc {
+  margin-top: var(--space-3);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  list-style: none;
+  font-size: var(--fs-sm);
+}
+
+.toc a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--blue-line-2);
+  border-radius: 999px;
+  color: var(--blue-link);
+  text-decoration: none;
+}
+
+.toc a:hover {
+  border-color: var(--blue-link);
+}
+
+/* 출처 줄 */
+.src {
+  margin-top: 6px;
+  font-size: var(--fs-caption);
+  color: var(--blue-muted);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.src a {
+  color: var(--blue-link);
+  text-decoration: underline;
+  text-decoration-color: var(--blue-line-2);
+  text-underline-offset: 2px;
+}
+
+/* ① 수치 넷 */
+.figGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.fig {
+  padding: var(--space-3);
+  background: var(--blue-card);
+  border-top: 4px solid var(--fig-color, var(--blue-accent));
+}
+
+.figLabel {
+  font-size: var(--fs-sm);
+  color: var(--blue-muted);
+}
+
+.figValue {
+  margin-top: 4px;
+  font-size: 2.25rem;
+  font-weight: var(--fw-medium);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+.figUnit {
+  margin-left: 2px;
+  font-size: 1rem;
+  color: var(--blue-muted);
+}
+
+.figMeasure {
+  margin-top: 8px;
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+  word-break: keep-all;
+}
+
+.notComparable {
+  margin-top: var(--space-3);
+  padding: 12px var(--space-2);
+  border-left: 3px solid var(--blue-accent);
+  background: var(--blue-card);
+  line-height: var(--lh-body);
+}
+
+.moreTitle {
+  margin-top: var(--space-4);
+  font-size: 1.125rem;
+  font-weight: var(--fw-medium);
+}
+
+.moreList {
+  margin-top: var(--space-2);
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 var(--space-4);
+}
+
+.moreItem {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--blue-line);
+}
+
+.moreValue {
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--fw-medium);
+}
+
+/* ② 네 줄 × 네 영역 */
+.layers {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.layer {
+  border-top: 1px solid var(--blue-line-2);
+  padding-top: var(--space-2);
+}
+
+.layerTitle {
+  font-size: 1.125rem;
+  font-weight: var(--fw-medium);
+}
+
+.layerCells {
+  margin-top: var(--space-2);
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-2);
+  list-style: none;
+}
+
+.layerCell {
+  padding: var(--space-2);
+  background: var(--blue-card);
+  line-height: 1.55;
+  word-break: keep-all;
+}
+
+.areaName {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--fs-sm);
+  color: var(--blue-muted);
+  margin-bottom: 6px;
+}
+
+.areaDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.so {
+  margin-top: var(--space-2);
+  line-height: var(--lh-body);
+}
+
+.soLabel {
+  color: var(--blue-accent);
+  margin-right: 8px;
+  font-weight: var(--fw-medium);
+}
+
+.none {
+  color: var(--blue-muted);
+  font-style: italic;
+}
+
+/* ③ 연표 */
+.tl {
+  list-style: none;
+  margin-top: var(--space-2);
+}
+
+.tlItem {
+  display: grid;
+  grid-template-columns: 84px 120px minmax(0, 1fr);
+  gap: 4px var(--space-2);
+  padding: 14px 0;
+  border-bottom: 1px solid var(--blue-line);
+  align-items: baseline;
+}
+
+.tlDate {
+  font-variant-numeric: tabular-nums;
+  color: var(--blue-accent);
+}
+
+.tlArea {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-sm);
+  color: var(--blue-muted);
+}
+
+.planned {
+  margin-left: 6px;
+  font-size: var(--fs-caption);
+  padding: 1px 6px;
+  border: 1px solid var(--blue-line-2);
+  border-radius: 4px;
+}
+
+.countLine {
+  margin-top: var(--space-2);
+  line-height: var(--lh-body);
+}
+
+/* ④ ⑦ 목록(이름 | 값) */
+.kv {
+  list-style: none;
+}
+
+.kvItem {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 4px var(--space-3);
+  padding: 14px 0;
+  border-bottom: 1px solid var(--blue-line);
+}
+
+.kvValue {
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--fw-medium);
+  word-break: keep-all;
+}
+
+.kvNote {
+  margin-top: 4px;
+  font-size: var(--fs-sm);
+  color: var(--blue-muted);
+  font-weight: normal;
+}
+
+/* ⑤ 나라 */
+.countries {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.country {
+  padding: var(--space-3);
+  background: var(--blue-card);
+  line-height: 1.55;
+  word-break: keep-all;
+}
+
+.countryName {
+  font-size: 1.125rem;
+  font-weight: var(--fw-medium);
+}
+
+.dl {
+  margin-top: var(--space-1);
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 6px var(--space-2);
+}
+
+.dl dt {
+  color: var(--blue-muted);
+  font-size: var(--fs-sm);
+}
+
+/* ⑥ 연구 */
+.refs {
+  list-style: none;
+}
+
+.ref {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--blue-line);
+  line-height: var(--lh-body);
+  word-break: keep-all;
+}
+
+.refCite {
+  font-weight: var(--fw-medium);
+  margin-right: 8px;
+}
+
+.cardLinks {
+  margin-top: var(--space-2);
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.cardLink {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 44px;
+  padding: 12px var(--space-2);
+  background: var(--blue-card);
+  border: 1px solid var(--blue-line-2);
+  color: var(--blue-text);
+  text-decoration: none;
+}
+
+.cardLink:hover {
+  border-color: var(--blue-link);
+}
+
+.cardLinkN {
+  color: var(--blue-link);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.subTitle {
+  margin-top: var(--space-4);
+  font-size: 1.125rem;
+  font-weight: var(--fw-medium);
+}
+
+.reference {
+  margin-top: var(--space-2);
+  max-width: 60em;
+  font-size: var(--fs-sm);
+  color: var(--blue-muted);
+  line-height: var(--lh-body);
+  word-break: keep-all;
+}
+
+@media (max-width: 1024px) {
+  .figGrid,
+  .layerCells {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .cardLinks {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .figGrid,
+  .layerCells,
+  .moreList,
+  .countries,
+  .cardLinks {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .tlItem {
+    grid-template-columns: 72px minmax(0, 1fr);
+  }
+  .tlItem > :last-child {
+    grid-column: 1 / -1;
+  }
+  .kvItem {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .figValue {
+    font-size: 1.875rem;
+  }
+}

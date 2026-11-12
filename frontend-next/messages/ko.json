@@ -12,6 +12,7 @@
     "groupAnalysis": "분석",
     "evidenceMap": "근거 지도",
     "lab": "분석실",
+    "policyMap": "정책",
     "groupArchive": "자료실",
     "policy": "정책문서",
     "research": "연구자료",
@@ -188,6 +189,7 @@
     "colAgency": "집행 기관",
     "quote": "\"부처별 소관 법률이 달라 협력 체계를 구축하기 어렵다\"",
     "quoteBy": "— 보건복지부 관계자, 2025 국정감사",
+    "more": "정책 더 보기 →",
     "footnote": "법적 근거와 데이터 체계가 달라 정보 공유조차 불가능하며, 청소년 1명을 초기 상담부터 치료·사후관리까지 연속 지원할 통합 시스템은 부재."
   },
   "home": {
@@ -388,5 +390,105 @@
     "honesty": "정직 표기",
     "sourceLine": "Statory 서재 · Europe PMC 서지 · 갱신 {date}",
     "back": "← 근거 지도 목록"
+  },
+  "policyMap": {
+    "kicker": "정책",
+    "title": "한국의 중독정책",
+    "desc": "얼마나 · 누가 맡고 있나 · 무엇이 바뀌었나 · 어디가 비어 있나 · 다른 나라는 · 연구는 · 지역은 — 차례로 읽는다. 수치마다 원자료로 가는 출처 줄이 있다.",
+    "tocLabel": "이 쪽의 차례",
+    "toc": {
+      "size": "얼마나",
+      "who": "누가 맡고 있나",
+      "changes": "무엇이 바뀌었나",
+      "gaps": "어디가 비어 있나",
+      "abroad": "다른 나라는",
+      "research": "연구는 무엇을 말하나",
+      "local": "지역은 지금"
+    },
+    "source": "출처",
+    "noPublicData": "공개 자료 없음",
+    "noPublicDataNote": "「공개 자료 없음」 = 이 쪽이 찾아본 정부 · 공공기관의 공개 문서에서 값을 확인하지 못한 항목이다.",
+    "unit": {
+      "people": "명",
+      "age": "세"
+    },
+    "area": {
+      "alcohol": "알코올",
+      "drugs": "마약류",
+      "gambling": "도박",
+      "digital": "디지털 기기",
+      "common": "공통"
+    },
+    "size": {
+      "kicker": "① 얼마나",
+      "title": "네 영역의 대표 수치",
+      "desc": "영역마다 나라가 내는 대표 값 하나씩이다.",
+      "measuredBy": "무엇으로 쟀나",
+      "notComparable": "네 수치는 재는 방식이 달라 서로 견줄 수 없다 — 대상(나이) · 정의(위험군 · 유병률 · 단속 인원) · 자료 연도가 칸마다 다르다.",
+      "moreTitle": "더 보기 — 청소년 · 마약류 · 불법도박"
+    },
+    "who": {
+      "kicker": "② 누가 맡고 있나",
+      "title": "법률 · 국가 조사 · 전달체계 · 재원",
+      "desc": "대문의 부처 표를 네 줄로 넓혔다. 영역 = 알코올 · 마약류 · 도박 · 디지털 기기.",
+      "so": "그래서",
+      "row": {
+        "ministry": "맡은 부처",
+        "law": "법률",
+        "survey": "국가 조사",
+        "delivery": "전달체계",
+        "funding": "재원"
+      }
+    },
+    "changes": {
+      "kicker": "③ 무엇이 바뀌었나",
+      "title": "2022년 이후 제도 변화",
+      "desc": "정부 발표 · 법령으로 확인한 것만 날짜 차례로 적었다.",
+      "planned": "예정",
+      "count": "모두 {n}건 — {list}."
+    },
+    "gaps": {
+      "kicker": "④ 어디가 비어 있나",
+      "title": "치료에 닿는 비율과 치료 기관",
+      "desc": "치료에 닿는 비율 · 전문병원 · 치료보호 기관 · 센터와 인력."
+    },
+    "abroad": {
+      "kicker": "⑤ 다른 나라는",
+      "title": "다른 나라가 합친 것",
+      "desc": "원문서를 찾은 나라만 적었다.",
+      "merged": "무엇을",
+      "basis": "근거 문서",
+      "evaluation": "성과 평가",
+      "noEvaluation": "찾지 못함"
+    },
+    "research": {
+      "kicker": "⑥ 연구는 무엇을 말하나",
+      "title": "정책의 근거가 되는 연구",
+      "desc": "국제기구 문서와 학술 논문 다섯, 그리고 이 사이트의 근거 카드로 넘어가는 길.",
+      "policyCardsTitle": "이 영역의 정책을 다룬 연구",
+      "policyCards": "정책을 다룬 연구 {n}장",
+      "policyRule": "근거 쪽의 「정책」 갈래 — 카드 제목 · 서재 요약의 낱말 규칙(정책 · 규제 · 법률 · 세금 · 가격 · 광고 · 판매 · 면허 · 제도 등)으로 골랐다. 모델 판정 0.",
+      "themesTitle": "주제로 보기",
+      "themeCards": "카드 {n}장",
+      "themeRule": "낱말 규칙으로 골랐다 — 사례관리: 「사례관리 · case management」 · 예방 프로그램: 「예방 프로그램 · 예방교육 · 예방 중재 · prevention program · school-based prevention」 등. 모델 판정 0."
+    },
+    "local": {
+      "kicker": "⑦ 지역은 지금 무엇을 하나",
+      "title": "중독관리통합지원센터",
+      "desc": "공개 자료로 확인되는 사실만 적었다."
+    },
+    "theme": {
+      "case-management": "사례관리",
+      "prevention-program": "예방 프로그램"
+    },
+    "themeRule": {
+      "case-management": "근거 카드 가운데 제목 · 서재 요약에 「사례관리」 또는 「case management」가 들어 있는 카드다(낱말 규칙 · 모델 판정 0).",
+      "prevention-program": "근거 카드 가운데 제목 · 서재 요약에 「예방 프로그램 · 예방교육 · 예방 중재 · prevention program/intervention · school-based prevention」 등이 들어 있는 카드다(낱말 규칙 · 모델 판정 0)."
+    },
+    "themeCount": "카드 {n}장 · 유형 {types}가지",
+    "researchKicker": "정책 · 연구는 무엇을 말하나",
+    "backToPolicy": "← 정책 쪽으로",
+    "referenceLabel": "참고",
+    "backHome": "← 대문으로"
   }
 }

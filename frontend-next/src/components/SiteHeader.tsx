@@ -36,6 +36,8 @@ export default async function SiteHeader() {
             <span className="nav-group-label">{t('groupAnalysis')}</span>
             <Link href="/evidence-map">{t('evidenceMap')}</Link>
             <Link href="/lab">{t('lab')}</Link>
+            {/* SOC-R24 ■4: 정책 쪽 */}
+            <Link href="/policy-map">{t('policyMap')}</Link>
           </span>
           <span className="nav-group">
             <span className="nav-group-label">{t('groupArchive')}</span>

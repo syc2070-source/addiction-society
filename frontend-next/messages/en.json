@@ -12,6 +12,7 @@
     "groupAnalysis": "Analysis",
     "evidenceMap": "Evidence map",
     "lab": "Lab",
+    "policyMap": "Policy overview",
     "groupArchive": "Archive",
     "policy": "Policy",
     "research": "Research",
@@ -188,6 +189,7 @@
     "colAgency": "Implementing agency",
     "quote": "\"Each ministry operates under different laws, which makes it hard to build a cooperative framework.\"",
     "quoteBy": "— Ministry of Health and Welfare official, 2025 parliamentary audit",
+    "more": "More on policy →",
     "footnote": "With separate legal mandates and data systems, even information sharing is impossible — and no integrated system exists to support a single adolescent continuously from initial counseling through treatment and aftercare."
   },
   "home": {
@@ -388,5 +390,105 @@
     "honesty": "Honesty notes",
     "sourceLine": "Statory library · Europe PMC bibliography · updated {date}",
     "back": "← All evidence maps"
+  },
+  "policyMap": {
+    "kicker": "Policy",
+    "title": "Addiction policy in Korea",
+    "desc": "How large · who is responsible · what changed · where the gaps are · other countries · research · local services — in that order. Every figure has a source line that links to the primary document.",
+    "tocLabel": "On this page",
+    "toc": {
+      "size": "How large",
+      "who": "Who is responsible",
+      "changes": "What changed",
+      "gaps": "Where the gaps are",
+      "abroad": "Other countries",
+      "research": "What research says",
+      "local": "Local services"
+    },
+    "source": "Source",
+    "noPublicData": "No public data",
+    "noPublicDataNote": "\"No public data\" means this page could not confirm a value in the public government or agency documents it checked.",
+    "unit": {
+      "people": " people",
+      "age": " years"
+    },
+    "area": {
+      "alcohol": "Alcohol",
+      "drugs": "Drugs",
+      "gambling": "Gambling",
+      "digital": "Digital devices",
+      "common": "Cross-cutting"
+    },
+    "size": {
+      "kicker": "1 · How large",
+      "title": "One headline figure per area",
+      "desc": "One national figure for each area.",
+      "measuredBy": "Measured by",
+      "notComparable": "These four figures are measured in different ways and cannot be compared with one another: population (age), definition (risk group, prevalence, arrests) and data year differ from card to card.",
+      "moreTitle": "More — youth, drugs, illegal gambling"
+    },
+    "who": {
+      "kicker": "2 · Who is responsible",
+      "title": "Law · national survey · delivery · funding",
+      "desc": "The ministry table on the home page, widened to four rows. Areas: alcohol, drugs, gambling, digital devices.",
+      "so": "So",
+      "row": {
+        "ministry": "Ministry",
+        "law": "Law",
+        "survey": "National survey",
+        "delivery": "Delivery",
+        "funding": "Funding"
+      }
+    },
+    "changes": {
+      "kicker": "3 · What changed",
+      "title": "Changes since 2022",
+      "desc": "Only changes confirmed in government announcements or law, in date order.",
+      "planned": "planned",
+      "count": "{n} in all — {list}."
+    },
+    "gaps": {
+      "kicker": "4 · Where the gaps are",
+      "title": "Reaching treatment, and treatment providers",
+      "desc": "Share reaching treatment · specialty hospitals · treatment-protection institutions · centers and staff."
+    },
+    "abroad": {
+      "kicker": "5 · Other countries",
+      "title": "What other countries brought together",
+      "desc": "Only countries whose original documents were found.",
+      "merged": "What",
+      "basis": "Founding document",
+      "evaluation": "Outcome evaluation",
+      "noEvaluation": "Not found"
+    },
+    "research": {
+      "kicker": "6 · What research says",
+      "title": "Research behind the policies",
+      "desc": "Five documents from international bodies and journals, and the way into this site's evidence cards.",
+      "policyCardsTitle": "Studies on policy in each area",
+      "policyCards": "{n} studies on policy",
+      "policyRule": "The \"policy\" filter on the evidence pages, chosen by a keyword rule on card titles and library summaries (policy, regulation, law, tax, price, advertising, sales, licensing …). No model judgement.",
+      "themesTitle": "By topic",
+      "themeCards": "{n} cards",
+      "themeRule": "Chosen by keyword rules: case management — \"case management\"; prevention programmes — \"prevention program/intervention/curriculum\", \"school-based prevention\" and their Korean forms. No model judgement."
+    },
+    "local": {
+      "kicker": "7 · Local services",
+      "title": "Addiction Management Support Centers",
+      "desc": "Only facts confirmed in public documents."
+    },
+    "theme": {
+      "case-management": "Case management",
+      "prevention-program": "Prevention programmes"
+    },
+    "themeRule": {
+      "case-management": "Evidence cards whose title or library summary contains \"case management\" or its Korean form (keyword rule · no model judgement).",
+      "prevention-program": "Evidence cards whose title or library summary contains \"prevention program/intervention/curriculum\", \"school-based prevention\" or their Korean forms (keyword rule · no model judgement)."
+    },
+    "themeCount": "{n} cards · {types} types",
+    "researchKicker": "Policy · what research says",
+    "backToPolicy": "← Back to policy",
+    "referenceLabel": "Reference",
+    "backHome": "← Home"
   }
 }
