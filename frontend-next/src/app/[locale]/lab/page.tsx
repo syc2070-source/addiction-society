@@ -5,6 +5,7 @@ import { Link } from '@/i18n/navigation';
 import { fetchReports, type Report } from '@/lib/api';
 import PoweredByStatory from '@/components/PoweredByStatory';
 import { labSummaryLabel, reportTitleLabel } from '@/lib/enLabels';
+import { selfAlternates } from '@/lib/pageMeta';
 
 /**
  * 분석실 (/lab) — statory 프록시(GET /api/reports) 결과물의 전시장.
@@ -18,7 +19,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'labPage' });
-  return { title: t('title') };
+  return { title: t('title'), alternates: selfAlternates(locale, '/lab') };
 }
 
 export default async function LabPage({ params }: PageProps<'/[locale]/lab'>) {

@@ -4,6 +4,7 @@ import type { AppLocale } from '@/i18n/routing';
 import { Link } from '@/i18n/navigation';
 import { fetchIndicators } from '@/lib/api';
 import { definitionLabel, unitLabel } from '@/lib/enLabels';
+import { selfAlternates } from '@/lib/pageMeta';
 
 /** 지표 목록 (/indicators) — 블루프린트 제2장: "숫자는 무엇인가". 지표당 1페이지(SEO). */
 
@@ -14,7 +15,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'indicatorsPage' });
-  return { title: t('title') };
+  return { title: t('title'), alternates: selfAlternates(locale, '/indicators') };
 }
 
 export default async function IndicatorsPage({

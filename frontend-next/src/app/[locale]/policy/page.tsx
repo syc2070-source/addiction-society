@@ -7,6 +7,7 @@ import {
   documentTitleLabel,
   englishOrEmpty,
 } from '@/lib/enLabels';
+import { selfAlternates } from '@/lib/pageMeta';
 
 /** 정책문서 목록 (/policy) — 카드 + 검색 수준 이식 (관리자 기능 제외) */
 
@@ -17,7 +18,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'policyPage' });
-  return { title: t('title') };
+  return { title: t('title'), alternates: selfAlternates(locale, '/policy') };
 }
 
 export default async function PolicyPage({

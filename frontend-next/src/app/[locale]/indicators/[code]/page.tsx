@@ -11,6 +11,7 @@ import {
   observationNoteLabel,
   unitLabel,
 } from '@/lib/enLabels';
+import { selfAlternates } from '@/lib/pageMeta';
 
 /** 지표 상세 (/indicators/{code}) — 정의·읽는 법 + 추이(시계열 차트) + 분해 + 원본 딥링크(원칙3). */
 
@@ -26,10 +27,10 @@ export async function generateMetadata({
       locale === 'en' && result.indicator.nameEn
         ? result.indicator.nameEn
         : result.indicator.nameKo;
-    return { title };
+    return { title, alternates: selfAlternates(locale, `/indicators/${encodeURIComponent(code)}`) };
   }
   const t = await getTranslations({ locale, namespace: 'indicatorsPage' });
-  return { title: t('title') };
+  return { title: t('title'), alternates: selfAlternates(locale, `/indicators/${encodeURIComponent(code)}`) };
 }
 
 /** 관측치 정렬(기간 오름차순) */

@@ -31,14 +31,7 @@ export async function generateMetadata({
     metadataBase: new URL(SITE_URL),
     title: t('title'),
     description: t('description'),
-    alternates: {
-      canonical: path,
-      languages: {
-        ko: '/',
-        en: '/en',
-        'x-default': '/',
-      },
-    },
+    // SOC-R24 ■5: canonical · hreflang 은 쪽마다 제 길로(lib/pageMeta selfAlternates) — 여기서 대문을 박지 않는다.
     openGraph: {
       type: 'website',
       siteName: 'Addiction Society',

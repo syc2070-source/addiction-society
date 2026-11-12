@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import type { AppLocale } from '@/i18n/routing';
 import { fetchTimeline, type TimelineEvent } from '@/lib/api';
 import { broadcastLineLabels, orgLabel } from '@/lib/enLabels';
+import { selfAlternates } from '@/lib/pageMeta';
 
 /** 관측소 활동 연대기 (/timeline) — 감지·감시 이력(source_events)을 시간순으로.
  *  발표달력이 "언제 나올까"라면 연대기는 "언제 무엇이 일어났나"의 집적. */
@@ -14,7 +15,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'timelinePage' });
-  return { title: t('title') };
+  return { title: t('title'), alternates: selfAlternates(locale, '/timeline') };
 }
 
 export default async function TimelinePage({

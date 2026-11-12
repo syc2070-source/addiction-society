@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { fetchResearch } from '@/lib/api';
 import ListPagination from '@/components/ListPagination';
+import { selfAlternates } from '@/lib/pageMeta';
 
 /** 연구자료 목록 (/research) — 카드 + 검색 수준 이식 */
 
@@ -12,7 +13,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'researchPage' });
-  return { title: t('title') };
+  return { title: t('title'), alternates: selfAlternates(locale, '/research') };
 }
 
 export default async function ResearchPage({

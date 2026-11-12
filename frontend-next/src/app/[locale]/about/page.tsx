@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { selfAlternates } from '@/lib/pageMeta';
 
 /** 소개 (/about) — 발행처 명칭·주소 + 플레이스홀더. 상세 소개문은 후속. */
 
@@ -10,7 +11,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'aboutPage' });
-  return { title: t('title') };
+  return { title: t('title'), alternates: selfAlternates(locale, '/about') };
 }
 
 export default async function AboutPage({

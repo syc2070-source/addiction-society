@@ -9,6 +9,7 @@ import {
   recoveryKindLabel,
   recoveryNameLabel,
 } from "@/lib/enLabels";
+import { selfAlternates } from '@/lib/pageMeta';
 
 /** 회복자원 목록 (/recovery) — 카드 + 검색 수준 이식 */
 
@@ -19,7 +20,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "recoveryPage" });
-  return { title: t("title") };
+  return { title: t("title"), alternates: selfAlternates(locale, '/recovery') };
 }
 
 export default async function RecoveryPage({

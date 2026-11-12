@@ -8,6 +8,7 @@ import {
   type Source,
 } from "@/lib/api";
 import { orgLabel } from "@/lib/enLabels";
+import { selfAlternates } from '@/lib/pageMeta';
 
 /**
  * 발표 캘린더 (/calendar) — 기존 SourceCalendar.tsx 이식.
@@ -23,7 +24,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "calendarPage" });
-  return { title: t("title") };
+  return { title: t("title"), alternates: selfAlternates(locale, '/calendar') };
 }
 
 const EN_MONTHS = [

@@ -7,6 +7,7 @@ import {
   loadEvidenceMap,
 } from '@/lib/evidenceMap';
 import styles from './em.module.css';
+import { selfAlternates } from '@/lib/pageMeta';
 
 /** 근거 지도 목록 (/evidence-map, SOC-R2 ■2) — index.json 의 주제마다 카드 하나. */
 
@@ -17,7 +18,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'evidenceMap' });
-  return { title: t('title') };
+  return { title: t('title'), alternates: selfAlternates(locale, '/evidence-map') };
 }
 
 export default async function EvidenceMapIndexPage({

@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { AppLocale } from "@/i18n/routing";
 import { fetchSources, type Source } from "@/lib/api";
 import { orgLabel } from "@/lib/enLabels";
+import { selfAlternates } from '@/lib/pageMeta';
 
 /**
  * 소스 지도 (/sources) — 기존 SourceList.tsx 기능 동등 이식.
@@ -16,7 +17,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "sources" });
-  return { title: t("title") };
+  return { title: t("title"), alternates: selfAlternates(locale, '/sources') };
 }
 
 const DOMAINS = ["alcohol", "drug", "gambling", "digital", "policy", "multi"];

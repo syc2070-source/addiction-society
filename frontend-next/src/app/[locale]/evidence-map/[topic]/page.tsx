@@ -12,6 +12,7 @@ import {
   type Pair,
 } from '@/lib/evidenceMap';
 import styles from '../em.module.css';
+import { selfAlternates } from '@/lib/pageMeta';
 
 /**
  * 근거 지도 한 주제 (/evidence-map/{topic}, SOC-R2 ■2).
@@ -38,7 +39,7 @@ export async function generateMetadata({
   const { locale, topic } = await params;
   const t = await getTranslations({ locale, namespace: 'evidenceMap' });
   const m = await loadEvidenceMap(topic);
-  return { title: m ? `${evidenceTitle(m, locale)} · ${t('title')}` : t('title') };
+  return { title: m ? `${evidenceTitle(m, locale)} · ${t('title')}` : t('title'), alternates: selfAlternates(locale, `/evidence-map/${encodeURIComponent(topic)}`) };
 }
 
 function PairList({ items, locale }: { items: Pair[]; locale: string }) {

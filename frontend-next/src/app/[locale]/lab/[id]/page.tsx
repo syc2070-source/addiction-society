@@ -9,6 +9,7 @@ import {
   labSummaryLabel,
   reportTitleLabel,
 } from '@/lib/enLabels';
+import { selfAlternates } from '@/lib/pageMeta';
 
 /** 분석실 상세 — sections_json(텍스트 섹션) 단순 렌더 */
 
@@ -20,10 +21,10 @@ export async function generateMetadata({
   const { locale, id } = await params;
   const result = await fetchReport(id);
   if (result?.item) {
-    return { title: reportTitleLabel(result.item, locale) };
+    return { title: reportTitleLabel(result.item, locale), alternates: selfAlternates(locale, `/lab/${encodeURIComponent(id)}`) };
   }
   const t = await getTranslations({ locale, namespace: 'labPage' });
-  return { title: t('title') };
+  return { title: t('title'), alternates: selfAlternates(locale, `/lab/${encodeURIComponent(id)}`) };
 }
 
 export default async function LabDetailPage({
