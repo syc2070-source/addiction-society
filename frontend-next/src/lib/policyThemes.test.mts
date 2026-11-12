@@ -22,6 +22,11 @@ test('prevention programme: programme, education, intervention, school-based; no
   assert.ok(hit('A systematic review of prevention programs for children'));
   assert.ok(hit('School-based prevention of gambling'));
   assert.ok(!hit('Relapse prevention after detox'));
+  // R24 리뷰: 실물 카드에서 잘못 걸리던 셋
+  assert.ok(!hit('Mindfulness-based relapse prevention program for alcohol use disorder'));
+  assert.ok(!hit('대학생 자살예방교육 참여와 음주'));
+  assert.ok(!hit('HCV/HIV 전파 예방 중재의 효과'));
+  assert.ok(hit('가족 기반 예방 프로그램') || hit('Family-based prevention of drinking'));
   assert.ok(!hit('예방 효과가 있었다'));
 });
 

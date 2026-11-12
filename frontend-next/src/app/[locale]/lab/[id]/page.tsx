@@ -24,7 +24,8 @@ export async function generateMetadata({
     return { title: reportTitleLabel(result.item, locale), alternates: selfAlternates(locale, `/lab/${encodeURIComponent(id)}`) };
   }
   const t = await getTranslations({ locale, namespace: 'labPage' });
-  return { title: t('title'), alternates: selfAlternates(locale, `/lab/${encodeURIComponent(id)}`) };
+  // 없는 보고 · API 장애: 제 canonical 을 달지 않고 색인 0(R24 리뷰)
+  return { title: t('title'), robots: { index: false, follow: true } };
 }
 
 export default async function LabDetailPage({

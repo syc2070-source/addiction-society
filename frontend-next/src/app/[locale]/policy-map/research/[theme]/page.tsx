@@ -56,7 +56,7 @@ export default async function PolicyThemePage({ params }: { params: Promise<Para
   if (!cards || cards.length === 0 || !isTheme(theme)) notFound();
   const t = await getTranslations('policyMap');
   const fmt = (n: number) => n.toLocaleString(locale);
-  const types = new Set(cards.map((c) => CARD_TYPES[c.type]));
+  const types = new Set(cards.map((c) => CARD_TYPES[c.type]).filter((x) => x !== 'other'));
 
   return (
     <main className={`${styles.dark} ${styles.page} ${v.page} ${serifKr.variable} blue-preview`}>
@@ -72,7 +72,7 @@ export default async function PolicyThemePage({ params }: { params: Promise<Para
         <h1 className={styles.title}>{t(`theme.${theme}`)}</h1>
         <p className={styles.lead}>{t('themeCount', { n: fmt(cards.length), types: types.size })}</p>
         <p className={styles.rule}>{t(`themeRule.${theme}`)}</p>
-        <CardList cards={cards} locale={locale} />
+        <CardList cards={cards} locale={locale} hideImplications />
       </div>
     </main>
   );

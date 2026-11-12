@@ -171,7 +171,7 @@ export const SOURCES = {
   ukLevy2025: {
     org: { ko: '영국 정부', en: 'UK Government' },
     title: { ko: '도박 법정 부담금', en: 'Statutory gambling levy' },
-    date: '2025.4',
+    date: '2025.12.18',
     url: 'https://www.gov.uk/government/publications/statutory-gambling-levy',
   },
   deBavaria2019: {
@@ -189,7 +189,7 @@ export const SOURCES = {
   },
   unodc2013: {
     org: { ko: 'UNODC', en: 'UNODC' },
-    title: { ko: '약물 사용 예방 국제 표준(1판)', en: 'International Standards on Drug Use Prevention, 1st ed.' },
+    title: { ko: '약물 사용 예방 국제 표준(1판 · 2015 재발행본)', en: 'International Standards on Drug Use Prevention, 1st ed. (2015 reissue)' },
     date: '2013',
     url: 'https://www.unodc.org/documents/prevention/UNODC_2013_2015_international_standards_on_drug_use_prevention_E.pdf',
   },
@@ -213,8 +213,8 @@ export const SOURCES = {
   },
   // ── ① 얼마나 — 국가 조사 · 백서 ──
   kostatSdg2026: {
-    org: { ko: '통계청 통계개발원(질병관리청 국민건강영양조사 인용)', en: 'Statistics Korea SRI (citing KDCA KNHANES)' },
-    title: { ko: '한국의 SDG 이행보고서 2026, 38쪽', en: 'Korea SDG Progress Report 2026, p.38' },
+    org: { ko: '국가통계 연구기관(옛 통계청 통계개발원) · 질병관리청 국민건강영양조사 인용', en: 'National statistics research institute (formerly Statistics Korea SRI) · citing KDCA KNHANES' },
+    title: { ko: '한국의 SDG 이행보고서 2026, 36쪽(PDF 38쪽)', en: 'Korea SDG Progress Report 2026, p.36 (PDF p.38)' },
     date: '2026.3',
     url: 'https://www.index.go.kr/upload/files/SDGsInfoRoom/SDGS/202603/20260330120330214.pdf',
   },
@@ -237,7 +237,7 @@ export const SOURCES = {
     url: 'https://eiec.kdi.re.kr/policy/materialView.do?num=278528',
   },
   spoWhitePaper2025: {
-    org: { ko: '대검찰청', en: "Supreme Prosecutors' Office" },
+    org: { ko: '공소청(옛 대검찰청)', en: "Public Prosecution Service (formerly Supreme Prosecutors' Office)" },
     title: { ko: '2025 마약류 범죄백서, 3장 표 3-1 · 3-4 · 3-6', en: '2025 Drug Crime White Paper, ch.3 Tables 3-1, 3-4, 3-6' },
     date: '2026.7',
     url: 'https://spo.go.kr/site/spo/ex/board/View.do?cbIdx=1204&bcIdx=1108709',
@@ -288,7 +288,7 @@ export const LAYERS_CLAIMED = 16;
 export const MINISTRIES: Record<Area4, L10n> = {
   alcohol: { ko: '보건복지부', en: 'Ministry of Health and Welfare' },
   drugs: {
-    ko: '식품의약품안전처 · 보건복지부(치료) · 법무부 · 대검찰청 등(수사)',
+    ko: '식품의약품안전처 · 보건복지부(치료) · 법무부 · 검찰 · 경찰 등(수사)',
     en: 'Ministry of Food and Drug Safety · Ministry of Health and Welfare (treatment) · Justice and prosecution (investigation)',
   },
   gambling: { ko: '사행산업통합감독위원회(국무총리 소속)', en: "National Gambling Control Commission (under the Prime Minister)" },
@@ -329,8 +329,8 @@ export const LAYERS: LayerRow[] = [
       },
     },
     so: {
-      ko: '네 영역은 다섯 개의 법으로 나뉘어 있고, 법마다 맡는 부처가 다르다.',
-      en: 'The four areas fall under five different acts, each with a different lead ministry.',
+      ko: '네 영역은 다섯 개의 법으로 나뉘어 있고, 그 법을 맡는 부처는 넷(보건복지부 · 식품의약품안전처 · 사행산업통합감독위원회 · 과학기술정보통신부)이다.',
+      en: 'The four areas fall under five acts, administered by four bodies (MOHW, MFDS, NGCC, MSIT).',
     },
   },
   {
@@ -345,8 +345,8 @@ export const LAYERS: LayerRow[] = [
       },
       drugs: {
         text: {
-          ko: '마약류 범죄백서(대검찰청) — 단속 인원을 센다',
-          en: 'Drug Crime White Paper (Supreme Prosecutors’ Office) — counts arrests',
+          ko: '마약류 범죄백서(공소청 · 옛 대검찰청) — 단속 인원을 센다',
+          en: 'Drug Crime White Paper (prosecution service) — counts arrests',
         },
         src: ['spoWhitePaper2025'],
       },
@@ -366,8 +366,8 @@ export const LAYERS: LayerRow[] = [
       },
     },
     so: {
-      ko: '이 표의 국가 조사는 영역마다 기관 · 대상 · 해가 다르고, 네 영역을 한 조사에서 함께 재는 것은 이 표에 없다. 마약류 칸의 국가 자료는 사용 실태가 아니라 단속 인원이다.',
-      en: 'Each area is measured by a different body, population and year; none of the surveys in this table covers all four areas. The national figure for drugs counts arrests, not use.',
+      ko: '이 표의 국가 자료는 영역마다 내는 기관과 대상이 다르고, 네 영역을 한 조사에서 함께 다루는 것은 이 표에 없다. 마약류 칸의 국가 자료는 사용 실태가 아니라 단속 인원이다.',
+      en: 'Each area\'s national data come from a different body and population; none of the sources in this table covers all four areas. The national figure for drugs counts arrests, not use.',
     },
   },
   {
@@ -426,8 +426,8 @@ export const LAYERS: LayerRow[] = [
       },
       gambling: {
         text: {
-          ko: '중독예방치유부담금 — 사행산업 매출의 1만분의 35 이상 50 이하(시행령 1만분의 35) · 국민체육진흥기금 안의 별도 계정',
-          en: 'Addiction prevention and treatment levy — 0.35%–0.50% of gambling sales (0.35% by decree) · separate account in the National Sports Promotion Fund',
+          ko: '중독예방치유부담금 — 사행산업 연간 순매출액의 1만분의 35 이상 50 이하(시행령 1만분의 35) · 국민체육진흥기금 안의 별도 계정',
+          en: 'Addiction prevention and treatment levy — 0.35%–0.50% of annual net gambling sales (0.35% by decree) · separate account in the National Sports Promotion Fund',
         },
         src: ['lawNgcc'],
       },
@@ -446,6 +446,8 @@ export interface Figure {
   area: Area4;
   label: L10n;
   value: string;
+  /** 값 뒤에 붙는 단위(% 는 값에 들어 있음) */
+  unit: 'people' | 'age' | null;
   /** 무엇으로 쟀나(대상 · 정의 · 자료 연도) */
   measure: L10n;
   src: SourceId[];
@@ -460,9 +462,10 @@ export const FIGURES: Figure[] = [
     area: 'alcohol',
     label: { ko: '성인 고위험음주율', en: 'Adult high-risk drinking' },
     value: '13.8%',
+    unit: null,
     measure: {
-      ko: '19세 이상 · 한 번에 남 7잔(여 5잔) 이상을 주 2회 이상 · 2023년 · 국민건강영양조사',
-      en: 'Adults 19+ · 7+ drinks (women 5+) per occasion at least twice a week · 2023 · KNHANES',
+      ko: '19세 이상 · 한 번에 남 7잔(여 5잔) 이상을 주 2회 이상 · 2005년 인구로 연령표준화 · 2023년 · 국민건강영양조사',
+      en: 'Adults 19+ · 7+ drinks (women 5+) per occasion at least twice a week · age-standardised to 2005 population · 2023 · KNHANES',
     },
     src: ['kostatSdg2026'],
   },
@@ -470,6 +473,7 @@ export const FIGURES: Figure[] = [
     area: 'drugs',
     label: { ko: '마약류 사범 단속 인원', en: 'People arrested for drug offences' },
     value: '23,403',
+    unit: 'people',
     measure: {
       ko: '모든 단속 기관이 붙잡은 사람 수(사용 실태가 아니다) · 2025년',
       en: 'People caught by all enforcement agencies (not a measure of use) · 2025',
@@ -480,6 +484,7 @@ export const FIGURES: Figure[] = [
     area: 'gambling',
     label: { ko: '성인 도박문제 유병률', en: 'Adult problem-gambling prevalence' },
     value: '5.1%',
+    unit: null,
     measure: {
       ko: '20세 이상 1만5천 명 · CPGI 중위험 + 문제성 · 2024년 조사(2023년 일을 물음)',
       en: '15,000 adults 20+ · CPGI moderate-risk + problem · 2024 survey (asks about 2023)',
@@ -490,6 +495,7 @@ export const FIGURES: Figure[] = [
     area: 'digital',
     label: { ko: '스마트폰 과의존 위험군', en: 'Smartphone overdependence risk group' },
     value: '22.7%',
+    unit: null,
     measure: {
       ko: '3~69세 스마트폰 이용자 · 1만 가구 면접 · 잠재적 위험군 + 고위험군 · 2025년',
       en: 'Smartphone users aged 3–69 · 10,000 households, face-to-face · potential + high risk · 2025',
@@ -504,6 +510,7 @@ export const MORE_FIGURES: Figure[] = [
     area: 'digital',
     label: { ko: '청소년 스마트폰 과의존 위험군', en: 'Youth smartphone overdependence risk group' },
     value: '43.0%',
+    unit: null,
     measure: { ko: '10~19세 · 2025년', en: 'Ages 10–19 · 2025' },
     src: ['msit20260326'],
   },
@@ -511,6 +518,7 @@ export const MORE_FIGURES: Figure[] = [
     area: 'gambling',
     label: { ko: '도박 경험률(초4~고3)', en: 'Ever gambled (grade 4 to grade 12)' },
     value: '4.3%',
+    unit: null,
     measure: { ko: '재학생 1만3,368명 · 한 번이라도 · 2024년 승인통계', en: '13,368 students · ever, at least once · 2024 approved statistic' },
     src: ['kcgp2024'],
   },
@@ -518,16 +526,18 @@ export const MORE_FIGURES: Figure[] = [
     area: 'gambling',
     label: { ko: '청소년 도박 첫 시작 평균 나이', en: 'Average age at first gambling (youth)' },
     value: '11.3',
+    unit: 'age',
     measure: {
       ko: '2022년 시범 조사(승인통계 전) — 2024년 승인통계(12.9세)와 설계가 달라 이어 보지 않는다',
       en: '2022 pilot round (before approval) — different design from the 2024 approved survey (12.9), not a trend',
     },
-    src: ['mogef20240328'],
+    src: ['mogef20240328', 'kcgp2024'],
   },
   {
     area: 'gambling',
     label: { ko: '불법도박 매출 가운데 온라인 몫', en: 'Online share of illegal-gambling turnover' },
     value: '71.2%',
+    unit: null,
     measure: {
       ko: '추정 총매출 95.8조 원 가운데 온라인 68.2조 원 · 2024.9~2025.8 · 이용자 비율이 아니다',
       en: 'KRW 68.2 trillion online of an estimated 95.8 trillion · Sep 2024–Aug 2025 · not a share of users',
@@ -538,6 +548,7 @@ export const MORE_FIGURES: Figure[] = [
     area: 'alcohol',
     label: { ko: '청소년 첫 음주 평균 나이', en: 'Average age at first drink (youth)' },
     value: '13.0',
+    unit: 'age',
     measure: { ko: '중1~고3 가운데 술을 마셔 본 학생 · 첫 한 잔 · 2024년', en: 'Students grade 7–12 who have drunk · first full glass · 2024' },
     src: ['kdcaYhs2024'],
   },
@@ -545,6 +556,7 @@ export const MORE_FIGURES: Figure[] = [
     area: 'drugs',
     label: { ko: '마약류 사범 가운데 20 · 30대', en: 'Drug offenders in their 20s and 30s' },
     value: '59.4%',
+    unit: null,
     measure: { ko: '2025년 단속 인원 기준(백서에 찍힌 값)', en: 'Share of 2025 arrests (as printed in the white paper)' },
     src: ['spoWhitePaper2025'],
   },
@@ -552,6 +564,7 @@ export const MORE_FIGURES: Figure[] = [
     area: 'drugs',
     label: { ko: '마약류 밀수 사범', en: 'People arrested for drug smuggling' },
     value: '1,772',
+    unit: 'people',
     measure: { ko: '2025년 · 전년 1,126명', en: '2025 · 1,126 the year before' },
     src: ['spoWhitePaper2025'],
   },
@@ -568,7 +581,7 @@ export interface TimelineItem {
   planned?: boolean;
 }
 
-/** 강연 자료가 든 항목 10 — 「못 찾음」 1(2022 청년중독관리사업 시작 연도) · 「다름」 2(센터 수 · 치료보호 건강보험 달) */
+/** 강연 자료가 든 항목 10 — 「못 찾음」 1(2022 청년중독관리사업 시작 연도) · 「다름」 1(센터 50 → 58곳 → 원자료 60곳 + 2025년 3곳) */
 export const TIMELINE_CLAIMED = 10;
 
 export const TIMELINE: TimelineItem[] = [
@@ -621,8 +634,8 @@ export const TIMELINE: TimelineItem[] = [
     date: '2026.3',
     area: 'common',
     text: {
-      ko: '제3차 정신건강복지기본계획(2026~2030)을 확정했다. 마약류 치료보호기관을 9곳에서 18곳으로 늘리는 내용이 들어 있다.',
-      en: 'The 3rd Basic Plan for Mental Health and Welfare (2026–2030) was adopted; it includes expanding drug treatment-protection institutions from 9 to 18.',
+      ko: '제3차 정신건강복지기본계획(2026~2030)을 확정했다. 마약류 치료보호기관을 기존 9곳에서 18곳으로 늘리는 내용이 들어 있다(셈 기준은 보도자료에 없음).',
+      en: 'The 3rd Basic Plan for Mental Health and Welfare (2026–2030) was adopted; it includes expanding drug treatment-protection institutions from 9 to 18 (the release does not say how they are counted).',
     },
     src: ['mohw20260327'],
   },
@@ -639,8 +652,8 @@ export const TIMELINE: TimelineItem[] = [
     date: '2026.11',
     area: 'alcohol',
     text: {
-      ko: '주류 용기에 경고그림 표시가 시작되었다(국민건강증진법 제8조).',
-      en: 'Warning pictures on alcohol containers took effect (National Health Promotion Act, Art. 8).',
+      ko: '주류 용기에 경고문구와 함께 경고그림을 표시할 수 있도록 한 개정 규정이 시행되었다(국민건강증진법 제8조).',
+      en: 'Amended rules allowing warning pictures alongside the warning text on alcohol containers took effect (National Health Promotion Act, Art. 8).',
     },
     src: ['mohw20260508', 'lawHealthPromotion'],
   },
@@ -681,11 +694,11 @@ export const GAPS: GapItem[] = [
   },
   {
     label: {
-      ko: '마약류 치료보호 실적 가운데 상위 2개 병원의 몫',
-      en: 'Share of drug treatment-protection cases handled by the top two hospitals',
+      ko: '마약류 중독 치료비율 가운데 인천참사랑병원 · 국립부곡병원 두 곳의 몫',
+      en: 'Share of drug-addiction treatment at two hospitals (Incheon Chamsarang, National Bugok)',
     },
     value: { ko: '97%(2022) → 86%(2023) → 77%(2024년 1~9월)', en: '97% (2022) → 86% (2023) → 77% (Jan–Sep 2024)' },
-    note: { ko: '같은 기간 실적이 있는 기관은 18곳으로 늘었다', en: 'Over the same period, institutions with cases rose to 18' },
+    note: { ko: '치료 실적 기관은 18곳으로 확대(2024.11 발표)', en: 'Institutions with treatment cases expanded to 18 (announced Nov 2024)' },
     src: ['mohw20241107'],
   },
   {
@@ -763,10 +776,10 @@ export const COUNTRIES: CountryItem[] = [
     src: ['auWa2015'],
   },
   {
-    country: { ko: '영국(잉글랜드)', en: 'United Kingdom (England)' },
+    country: { ko: '영국', en: 'United Kingdom' },
     merged: {
-      ko: '정신건강과 알코올 · 약물 문제를 함께 가진 사람의 서비스 지침(2017)과 전달 틀(2025) · 도박 법정 부담금(2025.4 · 매출의 0.1~1.1% · 치료 50 · 예방 30 · 연구 20)',
-      en: 'Guidance (2017) and a delivery framework (2025) for co-occurring mental health and substance use · statutory gambling levy (Apr 2025 · 0.1–1.1% of gross gambling yield · 50% treatment, 30% prevention, 20% research)',
+      ko: '잉글랜드: 정신건강과 알코올 · 약물 문제를 함께 가진 사람의 서비스 지침(2017)과 전달 틀(2025) · 그레이트브리튼: 도박 법정 부담금(2025.4부터 · 총도박수익(GGY)의 0.1~1.1% · 치료 50 · 예방 30 · 연구 20)',
+      en: 'England: guidance (2017) and a delivery framework (2025) for co-occurring mental health and substance use · Great Britain: statutory gambling levy (from Apr 2025 · 0.1–1.1% of gross gambling yield · 50% treatment, 30% prevention, 20% research)',
     },
     basis: {
       ko: 'PHE 지침(2017) · DHSC · NHS England 전달 틀(2025.12) · Gambling Levy Regulations 2025',
@@ -850,7 +863,7 @@ export interface LocalItem {
   src: SourceId[];
 }
 
-/** 이 칸이 보려는 항목 4(전국 센터 수 · 광역 센터 · 대전 센터 · 인력) — 인력은 「못 찾음」 */
+/** 강연 자료가 이 칸에 든 수치는 없다 — 지시서가 정한 항목 4(전국 센터 수 · 광역 단위 · 대전 · 인력)로 문턱을 잼 · 인력은 「못 찾음」(보고서 정직 표기) */
 export const LOCAL_CLAIMED = 4;
 
 export const LOCAL: LocalItem[] = [
@@ -867,7 +880,7 @@ export const LOCAL: LocalItem[] = [
     label: { ko: '광역 단위 센터', en: 'Province-level centers' },
     value: { ko: '6곳 — 경기 · 강원 · 충북 · 전북 · 경남 · 제주', en: '6 — Gyeonggi, Gangwon, Chungbuk, Jeonbuk, Gyeongnam, Jeju' },
     note: {
-      ko: '광역 사업: 광역 중독관리사업 기획 · 기반 조성 · 운영 지침 개발 · 협력 체계 구축',
+      ko: '광역 사업: 광역 중독관리사업 기획 · 기반 조성 · 운영 매뉴얼 · 콘텐츠 개발 · 협력 체계 구축',
       en: 'Province-level work: planning, infrastructure, operating manuals and partnerships',
     },
     src: ['mohwCenters'],

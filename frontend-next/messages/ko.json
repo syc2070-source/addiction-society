@@ -470,7 +470,7 @@
       "policyRule": "근거 쪽의 「정책」 갈래 — 카드 제목 · 서재 요약의 낱말 규칙(정책 · 규제 · 법률 · 세금 · 가격 · 광고 · 판매 · 면허 · 제도 등)으로 골랐다. 모델 판정 0.",
       "themesTitle": "주제로 보기",
       "themeCards": "카드 {n}장",
-      "themeRule": "낱말 규칙으로 골랐다 — 사례관리: 「사례관리 · case management」 · 예방 프로그램: 「예방 프로그램 · 예방교육 · 예방 중재 · prevention program · school-based prevention」 등. 모델 판정 0."
+      "themeRule": "낱말 규칙으로 골랐다 — 사례관리: 「사례관리 · case management」 · 예방 프로그램: 「예방 프로그램 · 예방교육 · 예방 중재 · 학교 기반 예방 · prevention program/intervention/curriculum · school/family/community-based prevention」(재발 · 자살 · 감염 · 전파 예방은 뺌). 모델 판정 0."
     },
     "local": {
       "kicker": "⑦ 지역은 지금 무엇을 하나",
@@ -483,7 +483,7 @@
     },
     "themeRule": {
       "case-management": "근거 카드 가운데 제목 · 서재 요약에 「사례관리」 또는 「case management」가 들어 있는 카드다(낱말 규칙 · 모델 판정 0).",
-      "prevention-program": "근거 카드 가운데 제목 · 서재 요약에 「예방 프로그램 · 예방교육 · 예방 중재 · prevention program/intervention · school-based prevention」 등이 들어 있는 카드다(낱말 규칙 · 모델 판정 0)."
+      "prevention-program": "근거 카드 가운데 제목 · 서재 요약에 「예방 프로그램 · 예방교육 · 예방 중재 · 학교 기반 예방 · prevention program/intervention/curriculum · school/family/community-based prevention」이 들어 있는 카드다 — 재발 · 자살 · 감염 · 전파 예방은 뺐다(낱말 규칙 · 모델 판정 0)."
     },
     "themeCount": "카드 {n}장 · 유형 {types}가지",
     "researchKicker": "정책 · 연구는 무엇을 말하나",

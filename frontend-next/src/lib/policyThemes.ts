@@ -14,8 +14,9 @@ export const THEME_RULES: Record<Theme, RegExp> = {
   // 사례관리 · 통합사례관리 · case management / case-managed
   'case-management': /사례\s*관리|\bcase[\s-]*manag/i,
   // 예방 프로그램 · 예방교육 · 예방 중재 · prevention program(me)/intervention/curriculum · school/family/community-based prevention
+  //  — 재발 · 자살 · 감염/전파 예방은 뺀다(R24 리뷰: 치료 · 다른 주제의 「예방」)
   'prevention-program':
-    /예방\s*(프로그램|교육|중재)|\bprevention\s*(program|intervention|curricul)|\b(school|family|community)[\s-]*based\s*prevention|학교\s*기반\s*예방/i,
+    /(?<!(재발|자살|전파|감염|확산)\s*)예방\s*(프로그램|교육|중재)|(?<!(relapse|suicide|infection|transmission|hiv|hcv)[\s-]*)\bprevention\s*(program|intervention|curricul)|\b(school|family|community)[\s-]*based\s*prevention|학교\s*기반\s*예방/i,
 };
 
 export const isTheme = (v: string): v is Theme => (THEMES as readonly string[]).includes(v);

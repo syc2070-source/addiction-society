@@ -26,7 +26,6 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'meta' });
-  const path = locale === 'ko' ? '/' : `/${locale}`;
   return {
     metadataBase: new URL(SITE_URL),
     title: t('title'),
@@ -37,7 +36,7 @@ export async function generateMetadata({
       siteName: 'Addiction Society',
       title: t('title'),
       description: t('description'),
-      url: path,
+      // SOC-R24 리뷰: og:url 을 대문으로 박지 않는다(모든 쪽이 물려받음) — 쪽마다 og 는 다음 판
       locale: locale === 'ko' ? 'ko_KR' : 'en_US',
     },
   };

@@ -17,6 +17,7 @@ import {
 } from '@/lib/api';
 import { evidenceTitle, evidenceTopics, loadEvidenceMap } from '@/lib/evidenceMap';
 import { MINISTRY_MAP } from '@/data/ministry-map';
+import { pageOpens, standingSections } from '@/lib/policyMap';
 import { pickTodaysNumber } from '@/lib/todayNumber';
 import {
   broadcastLineLabels,
@@ -519,11 +520,13 @@ export default async function HomeV4({ locale, mode }: { locale: AppLocale; mode
         </blockquote>
         <p className={v.footnote}>{t('ministry.footnote')}</p>
         {/* SOC-R24 ■4: 이 표에서 정책 쪽으로(표 · 인용 · 각주는 그대로) */}
-        <p className={v.more}>
-          <Link href="/policy-map" className={v.link}>
-            {t('ministry.more')}
-          </Link>
-        </p>
+        {pageOpens(standingSections()) && (
+          <p className={v.more}>
+            <Link href="/policy-map" className={v.link}>
+              {t('ministry.more')}
+            </Link>
+          </p>
+        )}
       </Section>
 
       {/* ④ 무엇이 나왔나 — 최근 다섯 | 다음 발표 */}

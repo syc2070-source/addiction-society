@@ -110,8 +110,8 @@ function Section({
   );
 }
 
-function AreaTag({ area, label }: { area: Area; label: string }) {
-  const ty = AREA_TYPE[area];
+function AreaTag({ area, label, type }: { area?: Area; label: string; type?: AddictionType }) {
+  const ty = type ?? (area ? AREA_TYPE[area] : null);
   return (
     <span className={p.areaName}>
       <span className={p.areaDot} style={{ background: ty ? typeColorVarDark(ty) : 'var(--blue-muted)' }} aria-hidden />
@@ -180,7 +180,7 @@ export default async function PolicyMapPage({ params }: { params: Promise<Params
                 <div className={p.figLabel}>{L(f.label, locale)}</div>
                 <div className={p.figValue}>
                   {f.value}
-                  {!f.value.endsWith('%') && <span className={p.figUnit}>{t('unit.people')}</span>}
+                  {f.unit && <span className={p.figUnit}>{t(`unit.${f.unit}`)}</span>}
                 </div>
                 <p className={p.figMeasure}>
                   <span className={p.soLabel}>{t('size.measuredBy')}</span>
@@ -198,7 +198,7 @@ export default async function PolicyMapPage({ params }: { params: Promise<Params
                 <AreaTag area={f.area} label={area(f.area)} />
                 <div>
                   {L(f.label, locale)} · <span className={p.moreValue}>{f.value}</span>
-                  {!f.value.endsWith('%') && (f.area === 'drugs' ? t('unit.people') : t('unit.age'))}
+                  {f.unit && t(`unit.${f.unit}`)}
                 </div>
                 <p className={p.figMeasure}>{L(f.measure, locale)}</p>
                 <Sources ids={f.src} locale={locale} label={srcLabel} />
@@ -349,10 +349,7 @@ export default async function PolicyMapPage({ params }: { params: Promise<Params
                 {policyLinks.map((x) => (
                   <li key={x.type}>
                     <Link href={hrefOf(x.type, { topic: 'policy', page: 1 })} className={p.cardLink}>
-                      <AreaTag
-                        area={x.type === 'drug' ? 'drugs' : x.type === 'smartphone' ? 'digital' : (x.type as Area)}
-                        label={tt(x.type)}
-                      />
+                      <AreaTag type={x.type} label={tt(x.type)} />
                       <span className={p.cardLinkN}>{t('research.policyCards', { n: fmt(x.n) })}</span>
                     </Link>
                   </li>

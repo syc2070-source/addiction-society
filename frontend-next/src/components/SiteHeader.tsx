@@ -2,6 +2,7 @@ import Image from 'next/image';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import LocaleSwitch from './LocaleSwitch';
+import { pageOpens, standingSections } from '@/lib/policyMap';
 
 /**
  * 공용 헤더 — 블루프린트 제2장 4그룹 내비.
@@ -36,8 +37,8 @@ export default async function SiteHeader() {
             <span className="nav-group-label">{t('groupAnalysis')}</span>
             <Link href="/evidence-map">{t('evidenceMap')}</Link>
             <Link href="/lab">{t('lab')}</Link>
-            {/* SOC-R24 ■4: 정책 쪽 */}
-            <Link href="/policy-map">{t('policyMap')}</Link>
+            {/* SOC-R24 ■4: 정책 쪽 — 칸 넷 이상이 서서 쪽이 열릴 때만(결정 7) */}
+            {pageOpens(standingSections()) && <Link href="/policy-map">{t('policyMap')}</Link>}
           </span>
           <span className="nav-group">
             <span className="nav-group-label">{t('groupArchive')}</span>

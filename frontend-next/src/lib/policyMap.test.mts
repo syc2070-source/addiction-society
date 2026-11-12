@@ -1,6 +1,8 @@
 // SOC-R24 — 정책 쪽: 칸 문턱 · 쪽 열림 · 출처 줄 · 사실 문장 규칙 · en 한글 0. 모델 0.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import {
   pageOpens,
   sectionTally,
@@ -59,13 +61,22 @@ test('every shown value has at least one source; every source id exists and link
   for (const g of [...GAPS, ...LOCAL].filter((g) => g.value === null)) assert.equal(g.src.length, 0);
 });
 
+// R24 리뷰: messages 의 policyMap 글도 같이 본다
+const msgs = ['ko', 'en'].map((l) =>
+  JSON.parse(readFileSync(fileURLToPath(new URL(`../../messages/${l}.json`, import.meta.url)), 'utf8')),
+);
 const allText = () =>
-  JSON.stringify([FIGURES, MORE_FIGURES, LAYERS, MINISTRIES, TIMELINE, GAPS, COUNTRIES, RESEARCH, LOCAL, REFERENCE, SOURCES]);
+  JSON.stringify([
+    FIGURES, MORE_FIGURES, LAYERS, MINISTRIES, TIMELINE, GAPS, COUNTRIES, RESEARCH, LOCAL, REFERENCE, SOURCES,
+    ...msgs.map((m) => [m.policyMap, m.nav.policyMap, m.ministry.more]),
+  ]);
 
 test('fact sentences only: no should/must recommendations; drink-driving is not called addiction', () => {
   const s = allText();
-  assert.ok(!/해야\s*한다|해야 함|하여야\s*한다|필요하다|바람직|should|ought to|must be|we recommend/i.test(s));
-  assert.ok(!/음주운전[^"]{0,20}중독|drunk[- ]driving[^"]{0,20}addict/i.test(s));
+  assert.ok(
+    !/해야\s*한다|해야 함|하여야\s*한다|필요하다|요구된다|바람직|권고한다|제안한다|\b(should|ought to|must be|need to|we recommend|is recommended)\b/i.test(s),
+  );
+  assert.ok(!/음주\s*운전[^"]{0,20}중독|(drunk|drink)[- ]?driving[^"]{0,20}addict/i.test(s));
 });
 
 test('English side has no Hangul (en page gate)', () => {

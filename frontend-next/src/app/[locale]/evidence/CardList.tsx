@@ -20,11 +20,14 @@ export default async function CardList({
   locale,
   type,
   start,
+  hideImplications = false,
 }: {
   cards: EvidenceCard[];
   locale: string;
   type?: TileType;
   start?: number;
+  /** 정책 쪽 주제 쪽: 카드의 「시사점」(권고 성격 글)은 싣지 않는다(R24 리뷰 · 결정 5) */
+  hideImplications?: boolean;
 }) {
   const t = statoryText(locale, 'main');
   const tt = await getTranslations({ locale, namespace: 'addictionType' });
@@ -68,7 +71,7 @@ export default async function CardList({
             ) : c.license === 'quote_only' ? (
               <p className={styles.cite}>{t('noExcerpt')}</p>
             ) : null}
-            {locale === 'ko' && c.implications_ko && c.license !== 'quote_only' && (
+            {!hideImplications && locale === 'ko' && c.implications_ko && c.license !== 'quote_only' && (
               <p className={styles.cite}>
                 {t('implications')} · {c.implications_ko}
               </p>

@@ -30,7 +30,8 @@ export async function generateMetadata({
     return { title, alternates: selfAlternates(locale, `/indicators/${encodeURIComponent(code)}`) };
   }
   const t = await getTranslations({ locale, namespace: 'indicatorsPage' });
-  return { title: t('title'), alternates: selfAlternates(locale, `/indicators/${encodeURIComponent(code)}`) };
+  // 없는 코드 · API 장애: 제 canonical 을 달지 않고 색인 0(R24 리뷰 — 200 짜리 빈 쪽이 색인되지 않게)
+  return { title: t('title'), robots: { index: false, follow: true } };
 }
 
 /** 관측치 정렬(기간 오름차순) */

@@ -470,7 +470,7 @@
       "policyRule": "The \"policy\" filter on the evidence pages, chosen by a keyword rule on card titles and library summaries (policy, regulation, law, tax, price, advertising, sales, licensing …). No model judgement.",
       "themesTitle": "By topic",
       "themeCards": "{n} cards",
-      "themeRule": "Chosen by keyword rules: case management — \"case management\"; prevention programmes — \"prevention program/intervention/curriculum\", \"school-based prevention\" and their Korean forms. No model judgement."
+      "themeRule": "Chosen by keyword rules: case management — \"case management\"; prevention programmes — \"prevention program/intervention/curriculum\", \"school/family/community-based prevention\" and their Korean forms, excluding relapse, suicide, infection and transmission prevention. No model judgement."
     },
     "local": {
       "kicker": "7 · Local services",
@@ -483,7 +483,7 @@
     },
     "themeRule": {
       "case-management": "Evidence cards whose title or library summary contains \"case management\" or its Korean form (keyword rule · no model judgement).",
-      "prevention-program": "Evidence cards whose title or library summary contains \"prevention program/intervention/curriculum\", \"school-based prevention\" or their Korean forms (keyword rule · no model judgement)."
+      "prevention-program": "Evidence cards whose title or library summary contains \"prevention program/intervention/curriculum\", \"school/family/community-based prevention\" or their Korean forms, excluding relapse, suicide, infection and transmission prevention (keyword rule · no model judgement)."
     },
     "themeCount": "{n} cards · {types} types",
     "researchKicker": "Policy · what research says",
